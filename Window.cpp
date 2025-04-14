@@ -1,4 +1,5 @@
 #include"Window.h"
+#include <wrl.h>
 
 #include "externals/imgui/imgui.h"
 #include "externals/imgui/imgui_impl_dx12.h"
@@ -75,6 +76,19 @@ HWND WindowInitialvalue(const wchar_t* WindowName, const int32_t ClientWidth, co
 		wc.hInstance,
 		nullptr
 	);
+
+#ifdef _DEBUG
+	Microsoft::WRL::ComPtr<ID3D12Debug1> debugController = nullptr;
+	if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)))) {
+		//デバッグレイヤーを有効化する
+		debugController->EnableDebugLayer();
+		//さらにGPU側でもチェックを行うようにする
+		debugController->SetEnableGPUBasedValidation(TRUE);
+	}
+#endif
+
+	//ウィンドウを表示する
+	ShowWindow(hwnd, SW_SHOW);
 
 	return hwnd;
 }
