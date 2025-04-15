@@ -70,6 +70,15 @@
     <ClCompile Include="Object_3D.cpp">
       <Filter>ソース ファイル\DirectX</Filter>
     </ClCompile>
+    <ClCompile Include="LoadTexture.cpp">
+      <Filter>ソース ファイル\DirectX</Filter>
+    </ClCompile>
+    <ClCompile Include="LoadObjFile.cpp">
+      <Filter>ソース ファイル\DirectX</Filter>
+    </ClCompile>
+    <ClCompile Include="LoadMaterialTemplateFile.cpp">
+      <Filter>ソース ファイル\DirectX</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Object3d.VS.hlsl" />
@@ -152,6 +161,15 @@
       <Filter>ヘッダー ファイル\DirectX</Filter>
     </ClInclude>
     <ClInclude Include="Object_3D.h">
+      <Filter>ヘッダー ファイル\DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="LoadTexture.h">
+      <Filter>ヘッダー ファイル\DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="LoadObjFile.h">
+      <Filter>ヘッダー ファイル\DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="LoadMaterialTemplateFile.h">
       <Filter>ヘッダー ファイル\DirectX</Filter>
     </ClInclude>
   </ItemGroup>
