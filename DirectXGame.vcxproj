@@ -18,6 +18,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ConvertString.cpp" />
+    <ClCompile Include="LoadMaterialTemplateFile.cpp" />
+    <ClCompile Include="LoadObjFile.cpp" />
+    <ClCompile Include="LoadTexture.cpp" />
     <ClCompile Include="Object_3D.cpp" />
     <ClCompile Include="externals\imgui\imgui.cpp" />
     <ClCompile Include="externals\imgui\imgui_demo.cpp" />
@@ -47,6 +50,9 @@
   <ItemGroup>
     <ClInclude Include="ConvertString.h" />
     <ClInclude Include="DirectionalLight.h" />
+    <ClInclude Include="LoadMaterialTemplateFile.h" />
+    <ClInclude Include="LoadObjFile.h" />
+    <ClInclude Include="LoadTexture.h" />
     <ClInclude Include="Object_3D.h" />
     <ClInclude Include="externals\imgui\imconfig.h" />
     <ClInclude Include="externals\imgui\imgui.h" />

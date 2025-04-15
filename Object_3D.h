@@ -9,11 +9,11 @@
 class Object_3D {
 private:
 	//ロードしたモデルのデータ
-	ModelData modelData;
-	//
-	Microsoft::WRL::ComPtr<ID3D12Resource> materialResource;
-	//
-	Material* materialData;
+	ModelData modelData_;
+	//マテリアル用リソース
+	Microsoft::WRL::ComPtr<ID3D12Resource> materialResource_;
+	//マテリアルデータ
+	Material* materialData_;
 public:
-
+	Object_3D(Microsoft::WRL::ComPtr<ID3D12Device>& device);
 };
