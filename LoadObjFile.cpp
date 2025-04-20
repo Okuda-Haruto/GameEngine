@@ -1,9 +1,11 @@
 #include "LoadObjFile.h"
+#include "LoadMaterialTemplateFile.h"
 #include <cassert>
-#include <format>
+#include <fstream>
+#include <sstream>
 
-/*ModelData LoadObjFile(const std::string& directoryPath, const std::string& filename) {
-	//変数の宣言
+//.objファイルからModelDataを構築する
+ModelData LoadObjFile(const std::string& directoryPath, const std::string& filename) {
 
 	ModelData modelData;	//構築するModelData
 	std::vector<Vector4> positions;	//位置
@@ -72,4 +74,4 @@
 		}
 	}
 	return modelData;
-}*/
+}

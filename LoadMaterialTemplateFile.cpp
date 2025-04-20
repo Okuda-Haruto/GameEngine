@@ -1,6 +1,9 @@
 #include "LoadMaterialTemplateFile.h"
+#include <sstream>
+#include <fstream>
+#include <cassert>
 
-/*MaterialData LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename) {
+MaterialData LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename) {
 	//変数の宣言
 
 	MaterialData materialData;	//構築するMaterialData
@@ -23,4 +26,4 @@
 		}
 	}
 	return materialData;
-}*/
+}

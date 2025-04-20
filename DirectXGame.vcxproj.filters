@@ -16,11 +16,23 @@
     <Filter Include="imgui">
       <UniqueIdentifier>{93554b34-8bd0-4d69-a73c-1ae6770e36e4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ヘッダー ファイル\DirectX">
+    <Filter Include="ソース ファイル\Matrix">
+      <UniqueIdentifier>{12c73419-18db-45d2-b4ca-de5f03cb6254}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Matrix">
+      <UniqueIdentifier>{e0f06d0e-c4e9-4e50-aa9f-897905f4543d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Vector">
+      <UniqueIdentifier>{ab6b6d66-011c-469f-8576-aba18dec26cd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\GameEngine">
+      <UniqueIdentifier>{c3fac239-ffe5-4d3c-9d4e-a4c4f060a252}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\GameEngine">
       <UniqueIdentifier>{6e8b1f2d-f0c7-4515-810b-0ed905250b3f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\DirectX">
-      <UniqueIdentifier>{c3fac239-ffe5-4d3c-9d4e-a4c4f060a252}</UniqueIdentifier>
+    <Filter Include="ヘッダー ファイル\GameEngine\DirectX">
+      <UniqueIdentifier>{cfacb5f9-9a5b-4c16-9739-1851a227f89e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -29,9 +41,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Matrix4x4.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="externals\imgui\imgui.cpp">
@@ -56,28 +65,58 @@
       <Filter>imgui</Filter>
     </ClCompile>
     <ClCompile Include="Window.cpp">
-      <Filter>ソース ファイル\DirectX</Filter>
+      <Filter>ソース ファイル\GameEngine</Filter>
     </ClCompile>
     <ClCompile Include="ConvertString.cpp">
-      <Filter>ソース ファイル\DirectX</Filter>
+      <Filter>ソース ファイル\GameEngine</Filter>
     </ClCompile>
     <ClCompile Include="Log.cpp">
-      <Filter>ソース ファイル\DirectX</Filter>
+      <Filter>ソース ファイル\GameEngine</Filter>
     </ClCompile>
     <ClCompile Include="Initialvalue.cpp">
-      <Filter>ソース ファイル\DirectX</Filter>
+      <Filter>ソース ファイル\GameEngine</Filter>
     </ClCompile>
     <ClCompile Include="Object_3D.cpp">
-      <Filter>ソース ファイル\DirectX</Filter>
+      <Filter>ソース ファイル\GameEngine</Filter>
     </ClCompile>
     <ClCompile Include="LoadTexture.cpp">
-      <Filter>ソース ファイル\DirectX</Filter>
+      <Filter>ソース ファイル\GameEngine</Filter>
     </ClCompile>
     <ClCompile Include="LoadObjFile.cpp">
-      <Filter>ソース ファイル\DirectX</Filter>
+      <Filter>ソース ファイル\GameEngine</Filter>
     </ClCompile>
     <ClCompile Include="LoadMaterialTemplateFile.cpp">
-      <Filter>ソース ファイル\DirectX</Filter>
+      <Filter>ソース ファイル\GameEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="CreateBufferResource.cpp">
+      <Filter>ソース ファイル\GameEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEngine.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="CompileShader.cpp">
+      <Filter>ソース ファイル\GameEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="CreateDescriptorHeap.cpp">
+      <Filter>ソース ファイル\GameEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="CreateTextureResource.cpp">
+      <Filter>ソース ファイル\GameEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="UploadTextreData.cpp">
+      <Filter>ソース ファイル\GameEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="CreateDepthStencilTextureResource.cpp">
+      <Filter>ソース ファイル\GameEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="GetDescriptorHandle.cpp">
+      <Filter>ソース ファイル\GameEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="ExportDump.cpp">
+      <Filter>ソース ファイル\GameEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="Matrix4x4.cpp">
+      <Filter>ソース ファイル\Matrix</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -85,18 +124,6 @@
     <FxCompile Include="Object3d.PS.hlsl" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Vector4.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Matrix4x4.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="SRT.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Vector3.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="externals\imgui\imconfig.h">
       <Filter>imgui</Filter>
     </ClInclude>
@@ -121,56 +148,98 @@
     <ClInclude Include="externals\imgui\imstb_truetype.h">
       <Filter>imgui</Filter>
     </ClInclude>
-    <ClInclude Include="VertexData.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Vector2.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Material.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="TransformationMatrix.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="DirectionalLight.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Matrix3x3.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="ModelData.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="MaterialData.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="ResourceObject.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="Window.h">
-      <Filter>ヘッダー ファイル\DirectX</Filter>
+      <Filter>ヘッダー ファイル\GameEngine</Filter>
     </ClInclude>
     <ClInclude Include="ConvertString.h">
-      <Filter>ヘッダー ファイル\DirectX</Filter>
+      <Filter>ヘッダー ファイル\GameEngine</Filter>
     </ClInclude>
     <ClInclude Include="Log.h">
-      <Filter>ヘッダー ファイル\DirectX</Filter>
+      <Filter>ヘッダー ファイル\GameEngine</Filter>
     </ClInclude>
     <ClInclude Include="Initialvalue.h">
-      <Filter>ヘッダー ファイル\DirectX</Filter>
+      <Filter>ヘッダー ファイル\GameEngine</Filter>
     </ClInclude>
     <ClInclude Include="Object_3D.h">
-      <Filter>ヘッダー ファイル\DirectX</Filter>
+      <Filter>ヘッダー ファイル\GameEngine</Filter>
     </ClInclude>
     <ClInclude Include="LoadTexture.h">
-      <Filter>ヘッダー ファイル\DirectX</Filter>
+      <Filter>ヘッダー ファイル\GameEngine</Filter>
     </ClInclude>
     <ClInclude Include="LoadObjFile.h">
-      <Filter>ヘッダー ファイル\DirectX</Filter>
+      <Filter>ヘッダー ファイル\GameEngine</Filter>
     </ClInclude>
     <ClInclude Include="LoadMaterialTemplateFile.h">
-      <Filter>ヘッダー ファイル\DirectX</Filter>
+      <Filter>ヘッダー ファイル\GameEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="CreateBufferResource.h">
+      <Filter>ヘッダー ファイル\GameEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="CreateDescriptorHeap.h">
+      <Filter>ヘッダー ファイル\GameEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="CreateTextureResource.h">
+      <Filter>ヘッダー ファイル\GameEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="UploadTextureData.h">
+      <Filter>ヘッダー ファイル\GameEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="CreateDepthStencilTextureResource.h">
+      <Filter>ヘッダー ファイル\GameEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="GetDescriptorHandle.h">
+      <Filter>ヘッダー ファイル\GameEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="ExportDump.h">
+      <Filter>ヘッダー ファイル\GameEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="CompileShader.h">
+      <Filter>ヘッダー ファイル\GameEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="Matrix4x4.h">
+      <Filter>ヘッダー ファイル\Matrix</Filter>
+    </ClInclude>
+    <ClInclude Include="Matrix3x3.h">
+      <Filter>ヘッダー ファイル\Matrix</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector2.h">
+      <Filter>ヘッダー ファイル\Vector</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector3.h">
+      <Filter>ヘッダー ファイル\Vector</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector4.h">
+      <Filter>ヘッダー ファイル\Vector</Filter>
+    </ClInclude>
+    <ClInclude Include="SRT.h">
+      <Filter>ヘッダー ファイル\GameEngine\DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexData.h">
+      <Filter>ヘッダー ファイル\GameEngine\DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="TransformationMatrix.h">
+      <Filter>ヘッダー ファイル\GameEngine\DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceObject.h">
+      <Filter>ヘッダー ファイル\GameEngine\DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelData.h">
+      <Filter>ヘッダー ファイル\GameEngine\DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialData.h">
+      <Filter>ヘッダー ファイル\GameEngine\DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="Material.h">
+      <Filter>ヘッダー ファイル\GameEngine\DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectionalLight.h">
+      <Filter>ヘッダー ファイル\GameEngine\DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DResourceLeakChecker.h">
+      <Filter>ヘッダー ファイル\GameEngine\DirectX</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
