@@ -1,6 +1,10 @@
 #include "Object_3D.h"
+#include "CreateBufferResource.h"
+#include "LoadObjFile.h"
 
-/*Object_3D::Object_3D(Microsoft::WRL::ComPtr<ID3D12Device>& device) {
+void Object_3D::Initialize(const std::string& directoryPath, const std::string& filename, Microsoft::WRL::ComPtr<ID3D12Device>& device) {
+	//モデル読み込み
+	ModelData modelData = LoadObjFile(directoryPath, filename);
 	//頂点リソースを作る
 	Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource = CreateBufferResource(device, sizeof(VertexData) * modelData_.vertices.size());
 	//頂点バッファビューを作成する
@@ -26,4 +30,9 @@
 	materialData_->uvTransform = MakeIdentity4x4();
 	//Lightingを有効化する
 	materialData_->enableLighting = true;
-}*/
+
+}
+
+void Object_3D::Draw() {
+
+}
