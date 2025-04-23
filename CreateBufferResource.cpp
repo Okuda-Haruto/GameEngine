@@ -1,4 +1,4 @@
-﻿#include "CreateBufferResource.h"
+#include "CreateBufferResource.h"
 #include <cassert>
 
 // リソース関数
