@@ -52,6 +52,11 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #include <wrl.h>
 #include <strsafe.h>
 
+
+uint32_t GameEngine::kLastCPUIndex = 1;
+
+uint32_t GameEngine::kLastGPUIndex = 1;
+
 GameEngine::~GameEngine() {
 	//ImGuiの終了処理
 	ImGui_ImplDX12_Shutdown();

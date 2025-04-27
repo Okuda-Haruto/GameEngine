@@ -35,7 +35,9 @@ private:
 		{0.0f,0.0f,0.0f},
 		{0.0f,0.0f,0.0f} };
 public:
-	~Object_3D();
+	
+	//~Object_3D();
+	
 	/// <summary>
 	/// 初期化
 	/// </summary>
@@ -44,7 +46,7 @@ public:
 	/// <param name="device">デバイス</param>
 	void Initialize(const std::string& directoryPath, const std::string& filename, Microsoft::WRL::ComPtr<ID3D12Device>& device);
 
-	void Draw(Transform& transform, Vector4 color, Transform& cameraTransform, Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& commandList, Microsoft::WRL::ComPtr<ID3D12Resource>& directionalLightResource, D3D12_GPU_DESCRIPTOR_HANDLE& textureSrvHandleGPU);
+	void Draw(Transform& transform, Vector4 color, Transform& cameraTransform, Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& commandList, Microsoft::WRL::ComPtr<ID3D12Resource>& directionalLightResource, D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU);
 
 	ModelData ModelData();
 };

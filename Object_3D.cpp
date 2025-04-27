@@ -48,7 +48,7 @@ void Object_3D::Initialize(const std::string& directoryPath, const std::string& 
 
 }
 
-void Object_3D::Draw(Transform& transform, Vector4 color,Transform& cameraTransform, Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& commandList, Microsoft::WRL::ComPtr<ID3D12Resource>& directionalLightResource, D3D12_GPU_DESCRIPTOR_HANDLE& textureSrvHandleGPU) {
+void Object_3D::Draw(Transform& transform, Vector4 color,Transform& cameraTransform, Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& commandList, Microsoft::WRL::ComPtr<ID3D12Resource>& directionalLightResource, D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU) {
 	materialData_->color = color;
 	
 	Matrix4x4 worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
@@ -75,6 +75,4 @@ void Object_3D::Draw(Transform& transform, Vector4 color,Transform& cameraTransf
 	commandList->DrawInstanced(UINT(modelData_.vertices.size()), 1, 0, 0);
 }
 
-ModelData Object_3D::ModelData() {
-	return modelData_;
-}
+ModelData Object_3D::ModelData() { return modelData_; }

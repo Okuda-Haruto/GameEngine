@@ -41,6 +41,7 @@
     <ClCompile Include="Log.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Matrix4x4.cpp" />
+    <ClCompile Include="Texture.cpp" />
     <ClCompile Include="UploadTextreData.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
@@ -89,6 +90,7 @@
     <ClInclude Include="ModelData.h" />
     <ClInclude Include="ResourceObject.h" />
     <ClInclude Include="SRT.h" />
+    <ClInclude Include="Texture.h" />
     <ClInclude Include="TransformationMatrix.h" />
     <ClInclude Include="UploadTextureData.h" />
     <ClInclude Include="Vector2.h" />
