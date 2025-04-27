@@ -118,6 +118,9 @@
     <ClCompile Include="Matrix4x4.cpp">
       <Filter>ソース ファイル\Matrix</Filter>
     </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>ソース ファイル\GameEngine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Object3d.VS.hlsl" />
@@ -240,6 +243,9 @@
     </ClInclude>
     <ClInclude Include="D3DResourceLeakChecker.h">
       <Filter>ヘッダー ファイル\GameEngine\DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>ヘッダー ファイル\GameEngine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

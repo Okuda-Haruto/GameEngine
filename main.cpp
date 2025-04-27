@@ -34,6 +34,7 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #include "ExportDump.h"
 
 #include "Object_3D.h"
+#include "Texture.h"
 
 #include "Window.h"
 #include "Log.h"
@@ -151,7 +152,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	rtvHandles[0] = GetCPUDescriptorHandle(rtvDescriptorHeap, descriptorSizeRTV, 0);
 	device->CreateRenderTargetView(swapChainResources[0].Get(), &rtvDesc, rtvHandles[0]);
 	//2つ目を作る
-	rtvHandles[1] = GetCPUDescriptorHandle(rtvDescriptorHeap, descriptorSizeRTV, 1);
+	rtvHandles[1].ptr = rtvHandles[0].ptr + device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 	device->CreateRenderTargetView(swapChainResources[1].Get(), &rtvDesc, rtvHandles[1]);
 
 	//初期値0でFenceを作る
@@ -348,9 +349,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	object1->Initialize("resources", "axis.obj", device);
 
-	//Object_3D* object2 = new Object_3D();
+	Object_3D* object2 = new Object_3D();
 
-	//object2->Initialize("resources", "plane.obj", device, srvDescriptorHeap, descriptorSizeSRV);
+	object2->Initialize("resources", "plane.obj", device);
 
 
 
@@ -474,11 +475,58 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//カメラ変数を作る。zが-10の位置でz+の方向を向いている
 	Transform cameraTransform{ {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,-10.0f} };
 
+	uint32_t kLastCPUIndex = 1;
+	uint32_t kLastGPUIndex = 1;
+
+	//Textureを読んで転送する
+	/*Texture* spriteTexture = new Texture();
+
+	spriteTexture->Initialize("resources/monsterBall.png", device, srvDescriptorHeap, descriptorSizeSRV, kLastCPUIndex, kLastGPUIndex);
+
+	Texture* object3DTexture1 = new Texture();
+
+	object3DTexture1->Initialize((object1->ModelData()).material.textureFilePath, device, srvDescriptorHeap, descriptorSizeSRV, kLastCPUIndex, kLastGPUIndex);
+
+	Texture* object3DTexture2 = new Texture();
+
+	object3DTexture2->Initialize((object2->ModelData()).material.textureFilePath, device, srvDescriptorHeap, descriptorSizeSRV, kLastCPUIndex, kLastGPUIndex);*/
+
 	//Textureを読んで転送する
 	DirectX::ScratchImage mipImages = LoadTexture("resources/monsterBall.png");
 	const DirectX::TexMetadata& metadata = mipImages.GetMetadata();
-	Microsoft::WRL::ComPtr<ID3D12Resource> textureResource = CreateTextureResource(device, metadata);
-	UploadTextureData(textureResource, mipImages);
+	Microsoft::WRL::ComPtr <ID3D12Resource> textureResource = CreateTextureResource(device, metadata);
+	Microsoft::WRL::ComPtr <ID3D12Resource> intermediateResource = UploadTextureData(textureResource.Get(), mipImages, device.Get(), commandList.Get());
+	if (1) {
+		//コマンドリストの内容を確定させる。すべてのコマンドを詰んでからCloseすること
+		hr = commandList->Close();
+		assert(SUCCEEDED(hr));
+
+		//GPUにコマンドリストの実行を行わせる
+		ID3D12CommandList* commandLists[] = { commandList.Get() };
+		commandQueue->ExecuteCommandLists(1, commandLists);
+
+		//Fenceの値を更新
+		fenceValue++;
+		//GPUがここまでたどり着いたときに、Fenceの値を指定した値に代入するようにSignalを送る
+		commandQueue->Signal(fence.Get(), fenceValue);
+
+		//Fenceの値が指定したSignal値に辿り着いているか確認する
+		//GetCompletedValueの初期値はFence作成時に渡した初期値
+		if (fence->GetCompletedValue() < fenceValue) {
+			//指定したSignalに辿り着いていないので、辿り着くまで待つようにイベントを設定する
+			fence->SetEventOnCompletion(fenceValue, fenceEvent);
+			//イベントを待つ
+			WaitForSingleObject(fenceEvent, INFINITE);
+		}
+
+		//次のフレーム用のコマンドリストを準備
+		hr = commandAllocator->Reset();
+		assert(SUCCEEDED(hr));
+		hr = commandList->Reset(commandAllocator.Get(), nullptr);
+		assert(SUCCEEDED(hr));
+
+		intermediateResource->Release();
+	}
 
 	//metaDataを基にSRVの設定
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
@@ -493,11 +541,44 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//SRVの生成
 	device->CreateShaderResourceView(textureResource.Get(), &srvDesc, textureSrvHandleCPU);
 
+
+
 	//2枚目のTextureを読んで転送する
 	DirectX::ScratchImage mipImages2 = LoadTexture((object1->ModelData()).material.textureFilePath);
 	const DirectX::TexMetadata& metadata2 = mipImages2.GetMetadata();
 	Microsoft::WRL::ComPtr<ID3D12Resource> textureResource2 = CreateTextureResource(device, metadata2);
-	UploadTextureData(textureResource2, mipImages2);
+	Microsoft::WRL::ComPtr <ID3D12Resource> intermediateResource2 = UploadTextureData(textureResource2.Get(), mipImages2, device.Get(), commandList.Get());
+	if (1) {
+
+		//commandListをCloseし、commandQueue->ExecuteCommandListsを使いキックする
+		hr = commandList->Close();
+		assert(SUCCEEDED(hr));
+		ID3D12CommandList* commandLists[] = { commandList.Get() };
+		commandQueue->ExecuteCommandLists(1, commandLists);
+
+		//Fenceの値を更新
+		fenceValue++;
+		//GPUがここまでたどり着いたときに、Fenceの値を指定した値に代入するようにSignalを送る
+		commandQueue->Signal(fence.Get(), fenceValue);
+
+		//Fenceの値が指定したSignal値に辿り着いているか確認する
+		//GetCompletedValueの初期値はFence作成時に渡した初期値
+		if (fence->GetCompletedValue() < fenceValue) {
+			//指定したSignalに辿り着いていないので、辿り着くまで待つようにイベントを設定する
+			fence->SetEventOnCompletion(fenceValue, fenceEvent);
+			//イベントを待つ
+			WaitForSingleObject(fenceEvent, INFINITE);
+		}
+
+		//実行が完了したので、allocatorとcommandListをResetして次のコマンドを積めるようにする
+		hr = commandAllocator->Reset();
+		assert(SUCCEEDED(hr));
+		hr = commandList->Reset(commandAllocator.Get(), nullptr);
+		assert(SUCCEEDED(hr));
+
+		//ここまで来たら転送は終わっているのでintermediateResourceはReleaseしてもよい
+		intermediateResource2->Release();
+	}
 
 	//metaDataを基にSRVの設定
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc2{};
@@ -511,6 +592,61 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU2 = GetGPUDescriptorHandle(srvDescriptorHeap, descriptorSizeSRV, 2);
 	//SRVの生成
 	device->CreateShaderResourceView(textureResource2.Get(), &srvDesc2, textureSrvHandleCPU2);
+
+
+
+	//2枚目のTextureを読んで転送する
+	DirectX::ScratchImage mipImages3 = LoadTexture((object2->ModelData()).material.textureFilePath);
+	const DirectX::TexMetadata& metadata3 = mipImages3.GetMetadata();
+	Microsoft::WRL::ComPtr<ID3D12Resource> textureResource3 = CreateTextureResource(device, metadata3);
+	Microsoft::WRL::ComPtr <ID3D12Resource> intermediateResource3 = UploadTextureData(textureResource3.Get(), mipImages2, device.Get(), commandList.Get());
+	if (1) {
+
+		//コマンドリストの内容を確定させる。すべてのコマンドを詰んでからCloseすること
+		hr = commandList->Close();
+		assert(SUCCEEDED(hr));
+
+		//GPUにコマンドリストの実行を行わせる
+		ID3D12CommandList* commandLists[] = { commandList.Get() };
+		commandQueue->ExecuteCommandLists(1, commandLists);
+
+		//Fenceの値を更新
+		fenceValue++;
+		//GPUがここまでたどり着いたときに、Fenceの値を指定した値に代入するようにSignalを送る
+		commandQueue->Signal(fence.Get(), fenceValue);
+
+		//Fenceの値が指定したSignal値に辿り着いているか確認する
+		//GetCompletedValueの初期値はFence作成時に渡した初期値
+		if (fence->GetCompletedValue() < fenceValue) {
+			//指定したSignalに辿り着いていないので、辿り着くまで待つようにイベントを設定する
+			fence->SetEventOnCompletion(fenceValue, fenceEvent);
+			//イベントを待つ
+			WaitForSingleObject(fenceEvent, INFINITE);
+		}
+
+		//次のフレーム用のコマンドリストを準備
+		hr = commandAllocator->Reset();
+		assert(SUCCEEDED(hr));
+		hr = commandList->Reset(commandAllocator.Get(), nullptr);
+		assert(SUCCEEDED(hr));
+
+		intermediateResource3->Release();
+	}
+
+	//metaDataを基にSRVの設定
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc3{};
+	srvDesc3.Format = metadata3.format;
+	srvDesc3.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	srvDesc3.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;	//2Dテクスチャ
+	srvDesc3.Texture2D.MipLevels = UINT(metadata3.mipLevels);
+
+	//SRVを作成するDescriptorHeapの場所を決める
+	D3D12_CPU_DESCRIPTOR_HANDLE textureSrvHandleCPU3 = GetCPUDescriptorHandle(srvDescriptorHeap, descriptorSizeSRV, 3);
+	D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU3 = GetGPUDescriptorHandle(srvDescriptorHeap, descriptorSizeSRV, 3);
+	//SRVの生成
+	device->CreateShaderResourceView(textureResource3.Get(), &srvDesc3, textureSrvHandleCPU3);
+
+
 
 	Transform uvTransformSprite{
 		{1.0f,1.0f,1.0f},
@@ -591,7 +727,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			ImGui::SliderAngle("materialRatateX", &(transform.rotate).x, -180.0f, 180.0f);
 			ImGui::SliderAngle("materialRatateY", &(transform.rotate).y, -180.0f, 180.0f);
 			ImGui::SliderAngle("materialRatateZ", &(transform.rotate).z, -180.0f, 180.0f);
-			ImGui::ColorPicker4("TextureColor", &Color1.x);
+			ImGui::ColorPicker4("materialTextureColor", &Color1.x);
+			ImGui::Text("material2");
+			ImGui::DragFloat3("material2Translate", &(transform2.translate).x, 0.01f);
+			ImGui::SliderAngle("material2RatateX", &(transform2.rotate).x, -180.0f, 180.0f);
+			ImGui::SliderAngle("material2RatateY", &(transform2.rotate).y, -180.0f, 180.0f);
+			ImGui::SliderAngle("material2RatateZ", &(transform2.rotate).z, -180.0f, 180.0f);
+			ImGui::ColorPicker4("material2TextureColor", &Color2.x);
 			ImGui::Checkbox("useMonsterBall", &useMonsterBall);
 			ImGui::Text("sprite");
 			ImGui::DragFloat3("Position", &(transformSprite.translate).x);
@@ -599,13 +741,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			ImGui::DragFloat2("UVScale", &uvTransformSprite.scale.x, 0.01f, -10.0f, 10.0f);
 			ImGui::SliderAngle("UVRotate", &uvTransformSprite.rotate.z);
 			ImGui::Text("directionalLiight");
-			ImGui::ColorPicker4("color", &(directionalLightData->color).x);
+			ImGui::DragFloat("intensity", &(directionalLightData->intensity), 0.01f, 0.0f, 1.0f);
 			ImGui::DragFloat3("direction", &(directionalLightData->direction).x, 0.01f, -1.0f, 1.0f);
+			ImGui::ColorPicker4("color", &(directionalLightData->color).x);
 			float sqrtNumber = sqrtf(sqrtf(powf(directionalLightData->direction.x, 2) + powf(directionalLightData->direction.y, 2)) + powf(directionalLightData->direction.z, 2));
 			directionalLightData->direction.x = directionalLightData->direction.x / sqrtNumber;
 			directionalLightData->direction.y = directionalLightData->direction.y / sqrtNumber;
 			directionalLightData->direction.z = directionalLightData->direction.z / sqrtNumber;
-			ImGui::DragFloat("intensity", &(directionalLightData->intensity),0.01f,0.0f,1.0f);
 
 			//描画用のDescriptorHeapの設定
 			ID3D12DescriptorHeap* descriptorHeaps[] = {srvDescriptorHeap.Get()};
@@ -663,7 +805,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			commandList->SetGraphicsRootSignature(rootSignature.Get());
 			commandList->SetPipelineState(graphicsPipelineState.Get());	//PSOを設定
 
-			object1->Draw(transform,Color1,cameraTransform,commandList,directionalLightResource, textureSrvHandleGPU2);
+			object1->Draw(transform, Color1, cameraTransform, commandList, directionalLightResource, textureSrvHandleGPU2);
+
+			object2->Draw(transform2, Color2, cameraTransform, commandList, directionalLightResource, textureSrvHandleGPU3);
 
 			//object2->Draw(transform, Color2, cameraTransform, commandList, directionalLightResource);
 

@@ -10,6 +10,11 @@
 #include "Object_3D.h"
 
 class GameEngine {
+public:
+
+	static uint32_t kLastCPUIndex;
+
+	static uint32_t kLastGPUIndex;
 private:
 
 	//ウィンドウの幅
