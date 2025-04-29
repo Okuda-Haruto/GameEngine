@@ -475,176 +475,23 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//カメラ変数を作る。zが-10の位置でz+の方向を向いている
 	Transform cameraTransform{ {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,-10.0f} };
 
+
+	//テクスチャ読み込み
 	uint32_t kLastCPUIndex = 1;
 	uint32_t kLastGPUIndex = 1;
 
-	//Textureを読んで転送する
-	/*Texture* spriteTexture = new Texture();
+	Texture* spriteTexture = new Texture();
 
-	spriteTexture->Initialize("resources/monsterBall.png", device, srvDescriptorHeap, descriptorSizeSRV, kLastCPUIndex, kLastGPUIndex);
+	spriteTexture->Initialize("resources/monsterBall.png", device, commandQueue, commandAllocator, commandList, fence, fenceValue, fenceEvent, srvDescriptorHeap, descriptorSizeSRV, kLastCPUIndex, kLastGPUIndex);
 
 	Texture* object3DTexture1 = new Texture();
 
-	object3DTexture1->Initialize((object1->ModelData()).material.textureFilePath, device, srvDescriptorHeap, descriptorSizeSRV, kLastCPUIndex, kLastGPUIndex);
+	object3DTexture1->Initialize((object1->ModelData()).material.textureFilePath, device, commandQueue, commandAllocator, commandList, fence, fenceValue, fenceEvent, srvDescriptorHeap, descriptorSizeSRV, kLastCPUIndex, kLastGPUIndex);
 
 	Texture* object3DTexture2 = new Texture();
 
-	object3DTexture2->Initialize((object2->ModelData()).material.textureFilePath, device, srvDescriptorHeap, descriptorSizeSRV, kLastCPUIndex, kLastGPUIndex);*/
+	object3DTexture2->Initialize((object2->ModelData()).material.textureFilePath, device, commandQueue, commandAllocator, commandList, fence, fenceValue, fenceEvent, srvDescriptorHeap, descriptorSizeSRV, kLastCPUIndex, kLastGPUIndex);
 
-	//Textureを読んで転送する
-	DirectX::ScratchImage mipImages = LoadTexture("resources/monsterBall.png");
-	const DirectX::TexMetadata& metadata = mipImages.GetMetadata();
-	Microsoft::WRL::ComPtr <ID3D12Resource> textureResource = CreateTextureResource(device, metadata);
-	Microsoft::WRL::ComPtr <ID3D12Resource> intermediateResource = UploadTextureData(textureResource.Get(), mipImages, device.Get(), commandList.Get());
-	if (1) {
-		//コマンドリストの内容を確定させる。すべてのコマンドを詰んでからCloseすること
-		hr = commandList->Close();
-		assert(SUCCEEDED(hr));
-
-		//GPUにコマンドリストの実行を行わせる
-		ID3D12CommandList* commandLists[] = { commandList.Get() };
-		commandQueue->ExecuteCommandLists(1, commandLists);
-
-		//Fenceの値を更新
-		fenceValue++;
-		//GPUがここまでたどり着いたときに、Fenceの値を指定した値に代入するようにSignalを送る
-		commandQueue->Signal(fence.Get(), fenceValue);
-
-		//Fenceの値が指定したSignal値に辿り着いているか確認する
-		//GetCompletedValueの初期値はFence作成時に渡した初期値
-		if (fence->GetCompletedValue() < fenceValue) {
-			//指定したSignalに辿り着いていないので、辿り着くまで待つようにイベントを設定する
-			fence->SetEventOnCompletion(fenceValue, fenceEvent);
-			//イベントを待つ
-			WaitForSingleObject(fenceEvent, INFINITE);
-		}
-
-		//次のフレーム用のコマンドリストを準備
-		hr = commandAllocator->Reset();
-		assert(SUCCEEDED(hr));
-		hr = commandList->Reset(commandAllocator.Get(), nullptr);
-		assert(SUCCEEDED(hr));
-
-		intermediateResource->Release();
-	}
-
-	//metaDataを基にSRVの設定
-	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
-	srvDesc.Format = metadata.format;
-	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;	//2Dテクスチャ
-	srvDesc.Texture2D.MipLevels = UINT(metadata.mipLevels);
-
-	//SRVを作成するDescriptorHeapの場所を決める。ImGuiが最初を使うのでその次を使う
-	D3D12_CPU_DESCRIPTOR_HANDLE textureSrvHandleCPU = GetCPUDescriptorHandle(srvDescriptorHeap, descriptorSizeSRV, 1);
-	D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU = GetGPUDescriptorHandle(srvDescriptorHeap, descriptorSizeSRV, 1);
-	//SRVの生成
-	device->CreateShaderResourceView(textureResource.Get(), &srvDesc, textureSrvHandleCPU);
-
-
-
-	//2枚目のTextureを読んで転送する
-	DirectX::ScratchImage mipImages2 = LoadTexture((object1->ModelData()).material.textureFilePath);
-	const DirectX::TexMetadata& metadata2 = mipImages2.GetMetadata();
-	Microsoft::WRL::ComPtr<ID3D12Resource> textureResource2 = CreateTextureResource(device, metadata2);
-	Microsoft::WRL::ComPtr <ID3D12Resource> intermediateResource2 = UploadTextureData(textureResource2.Get(), mipImages2, device.Get(), commandList.Get());
-	if (1) {
-
-		//commandListをCloseし、commandQueue->ExecuteCommandListsを使いキックする
-		hr = commandList->Close();
-		assert(SUCCEEDED(hr));
-		ID3D12CommandList* commandLists[] = { commandList.Get() };
-		commandQueue->ExecuteCommandLists(1, commandLists);
-
-		//Fenceの値を更新
-		fenceValue++;
-		//GPUがここまでたどり着いたときに、Fenceの値を指定した値に代入するようにSignalを送る
-		commandQueue->Signal(fence.Get(), fenceValue);
-
-		//Fenceの値が指定したSignal値に辿り着いているか確認する
-		//GetCompletedValueの初期値はFence作成時に渡した初期値
-		if (fence->GetCompletedValue() < fenceValue) {
-			//指定したSignalに辿り着いていないので、辿り着くまで待つようにイベントを設定する
-			fence->SetEventOnCompletion(fenceValue, fenceEvent);
-			//イベントを待つ
-			WaitForSingleObject(fenceEvent, INFINITE);
-		}
-
-		//実行が完了したので、allocatorとcommandListをResetして次のコマンドを積めるようにする
-		hr = commandAllocator->Reset();
-		assert(SUCCEEDED(hr));
-		hr = commandList->Reset(commandAllocator.Get(), nullptr);
-		assert(SUCCEEDED(hr));
-
-		//ここまで来たら転送は終わっているのでintermediateResourceはReleaseしてもよい
-		intermediateResource2->Release();
-	}
-
-	//metaDataを基にSRVの設定
-	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc2{};
-	srvDesc2.Format = metadata2.format;
-	srvDesc2.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	srvDesc2.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;	//2Dテクスチャ
-	srvDesc2.Texture2D.MipLevels = UINT(metadata2.mipLevels);
-
-	//SRVを作成するDescriptorHeapの場所を決める
-	D3D12_CPU_DESCRIPTOR_HANDLE textureSrvHandleCPU2 = GetCPUDescriptorHandle(srvDescriptorHeap, descriptorSizeSRV, 2);
-	D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU2 = GetGPUDescriptorHandle(srvDescriptorHeap, descriptorSizeSRV, 2);
-	//SRVの生成
-	device->CreateShaderResourceView(textureResource2.Get(), &srvDesc2, textureSrvHandleCPU2);
-
-
-
-	//2枚目のTextureを読んで転送する
-	DirectX::ScratchImage mipImages3 = LoadTexture((object2->ModelData()).material.textureFilePath);
-	const DirectX::TexMetadata& metadata3 = mipImages3.GetMetadata();
-	Microsoft::WRL::ComPtr<ID3D12Resource> textureResource3 = CreateTextureResource(device, metadata3);
-	Microsoft::WRL::ComPtr <ID3D12Resource> intermediateResource3 = UploadTextureData(textureResource3.Get(), mipImages2, device.Get(), commandList.Get());
-	if (1) {
-
-		//コマンドリストの内容を確定させる。すべてのコマンドを詰んでからCloseすること
-		hr = commandList->Close();
-		assert(SUCCEEDED(hr));
-
-		//GPUにコマンドリストの実行を行わせる
-		ID3D12CommandList* commandLists[] = { commandList.Get() };
-		commandQueue->ExecuteCommandLists(1, commandLists);
-
-		//Fenceの値を更新
-		fenceValue++;
-		//GPUがここまでたどり着いたときに、Fenceの値を指定した値に代入するようにSignalを送る
-		commandQueue->Signal(fence.Get(), fenceValue);
-
-		//Fenceの値が指定したSignal値に辿り着いているか確認する
-		//GetCompletedValueの初期値はFence作成時に渡した初期値
-		if (fence->GetCompletedValue() < fenceValue) {
-			//指定したSignalに辿り着いていないので、辿り着くまで待つようにイベントを設定する
-			fence->SetEventOnCompletion(fenceValue, fenceEvent);
-			//イベントを待つ
-			WaitForSingleObject(fenceEvent, INFINITE);
-		}
-
-		//次のフレーム用のコマンドリストを準備
-		hr = commandAllocator->Reset();
-		assert(SUCCEEDED(hr));
-		hr = commandList->Reset(commandAllocator.Get(), nullptr);
-		assert(SUCCEEDED(hr));
-
-		intermediateResource3->Release();
-	}
-
-	//metaDataを基にSRVの設定
-	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc3{};
-	srvDesc3.Format = metadata3.format;
-	srvDesc3.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	srvDesc3.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;	//2Dテクスチャ
-	srvDesc3.Texture2D.MipLevels = UINT(metadata3.mipLevels);
-
-	//SRVを作成するDescriptorHeapの場所を決める
-	D3D12_CPU_DESCRIPTOR_HANDLE textureSrvHandleCPU3 = GetCPUDescriptorHandle(srvDescriptorHeap, descriptorSizeSRV, 3);
-	D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU3 = GetGPUDescriptorHandle(srvDescriptorHeap, descriptorSizeSRV, 3);
-	//SRVの生成
-	device->CreateShaderResourceView(textureResource3.Get(), &srvDesc3, textureSrvHandleCPU3);
 
 
 
@@ -805,9 +652,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			commandList->SetGraphicsRootSignature(rootSignature.Get());
 			commandList->SetPipelineState(graphicsPipelineState.Get());	//PSOを設定
 
-			object1->Draw(transform, Color1, cameraTransform, commandList, directionalLightResource, textureSrvHandleGPU2);
+			object1->Draw(transform, Color1, cameraTransform, commandList, directionalLightResource, object3DTexture1->textureSrvHandleGPU());
 
-			object2->Draw(transform2, Color2, cameraTransform, commandList, directionalLightResource, textureSrvHandleGPU3);
+			object2->Draw(transform2, Color2, cameraTransform, commandList, directionalLightResource, object3DTexture2->textureSrvHandleGPU());
 
 			//object2->Draw(transform, Color2, cameraTransform, commandList, directionalLightResource);
 
@@ -816,7 +663,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			//Spriteの描画。変更が必要なものだけ変更する
 			commandList->IASetVertexBuffers(0, 1, &vertexBufferViewSprite);	//VBVを設定
 			commandList->IASetIndexBuffer(&indexBufferViewSprite);	//IBVを設定
-			commandList->SetGraphicsRootDescriptorTable(2, textureSrvHandleGPU);
+			commandList->SetGraphicsRootDescriptorTable(2, spriteTexture->textureSrvHandleGPU());
 			//マテリアルCBufferの場所を設定
 			commandList->SetGraphicsRootConstantBufferView(0, materialResourceSprite->GetGPUVirtualAddress());
 			//TransformationMatrixCBufferの場所を設定

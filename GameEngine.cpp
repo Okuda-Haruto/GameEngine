@@ -157,7 +157,7 @@ void GameEngine::Intialize(wchar_t* WindowName, int32_t kWindowWidth, int32_t kW
 	rtvHandles_[0] = GetCPUDescriptorHandle(rtvDescriptorHeap, descriptorSizeRTV_, 0);
 	device_->CreateRenderTargetView(swapChainResources_[0].Get(), &rtvDesc, rtvHandles_[0]);
 	//2つ目を作る
-	rtvHandles_[1] = GetCPUDescriptorHandle(rtvDescriptorHeap, descriptorSizeRTV_, 1);
+	rtvHandles_[1].ptr = rtvHandles_[0].ptr + device_->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 	device_->CreateRenderTargetView(swapChainResources_[1].Get(), &rtvDesc, rtvHandles_[1]);
 
 	//初期値0でFenceを作る
