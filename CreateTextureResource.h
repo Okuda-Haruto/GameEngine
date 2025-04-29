@@ -4,4 +4,4 @@
 #include <d3d12.h>
 #include "externals/DirectXTex/DirectXTex.h"
 
-Microsoft::WRL::ComPtr <ID3D12Resource> CreateTextureResource(Microsoft::WRL::ComPtr <ID3D12Device> device, const DirectX::TexMetadata& metadata);
+ID3D12Resource* CreateTextureResource(Microsoft::WRL::ComPtr <ID3D12Device> device, const DirectX::TexMetadata& metadata);

@@ -1,7 +1,7 @@
 #include "CreateTextureResource.h"
 #include <cassert>
 
-Microsoft::WRL::ComPtr <ID3D12Resource> CreateTextureResource(Microsoft::WRL::ComPtr <ID3D12Device> device, const DirectX::TexMetadata& metadata) {
+ID3D12Resource* CreateTextureResource(Microsoft::WRL::ComPtr <ID3D12Device> device, const DirectX::TexMetadata& metadata) {
 	//metadataを基にResourceの設定
 	D3D12_RESOURCE_DESC resourceDesc{};
 	resourceDesc.Width = UINT(metadata.width);	//Textureの幅
@@ -19,7 +19,7 @@ Microsoft::WRL::ComPtr <ID3D12Resource> CreateTextureResource(Microsoft::WRL::Co
 	//heapProperties.MemoryPoolPreference = D3D12_MEMORY_POOL_L0;	//プロセッサの近くに配置
 
 	//Resourceの生成
-	Microsoft::WRL::ComPtr<ID3D12Resource> resource = nullptr;
+	ID3D12Resource* resource = nullptr;
 	HRESULT hr = device->CreateCommittedResource(
 		&heapProperties,	//Heapの設定
 		D3D12_HEAP_FLAG_NONE,	//Heapの特殊な設定
