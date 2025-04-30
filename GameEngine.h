@@ -8,13 +8,9 @@
 
 #include "D3DResourceLeakChecker.h"
 #include "Object_3D.h"
+#include "Texture.h"
 
 class GameEngine {
-public:
-
-	static uint32_t kLastCPUIndex;
-
-	static uint32_t kLastGPUIndex;
 private:
 
 	//ウィンドウの幅
@@ -82,18 +78,55 @@ private:
 	//TransitionBarrier
 	D3D12_RESOURCE_BARRIER barrier_{};
 
+	//PSO
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> graphicsPipelineState_;
 	//WVP用のリソース
-	Microsoft::WRL::ComPtr<ID3D12Resource> wvpResource_;
+	Microsoft::WRL::ComPtr <ID3D12Resource> wvpResource_;
+	//ビューポート
+	D3D12_VIEWPORT viewport_{};
+	//シザー矩形
+	D3D12_RECT scissorRect_{};
+
+	//CPUの最後尾Index
+	uint32_t kLastCPUIndex_ = 0;
+	//GPUの最後尾Index
+	uint32_t kLastGPUIndex_ = 0;
 public:
+	//デストラクタ
 	~GameEngine();
-	void Intialize(wchar_t* WindowName, int32_t kWindowWidth, int32_t kWindowHeight);
+
+	/// <summary>
+	/// 初期化
+	/// </summary>
+	/// <param name="WindowName">ウィンドウ名 (例:L"LE2A_00_ミョウジ_ナマエ")</param>
+	/// <param name="kWindowWidth">ウィンドウの幅 (例:1280)</param>
+	/// <param name="kWindowHeight">ウィンドウの高さ (例:720)</param>
+	void Intialize(wchar_t* WindowName, int32_t kWindowWidth = 1280, int32_t kWindowHeight = 720);
+
+	/// <summary>
+	/// テクスチャのロード
+	/// </summary>
+	/// <param name="texture">ロードするTextureクラス (例:white1x1_texture)</param>
+	/// <param name="filePath">テクスチャがあるフォルダへのパス (例:""resources/white1x1.png"")</param>
+	void LoadTexture(Texture* texture, const std::string& filePath);
+
+	/// <summary>
+	/// 3Dオブジェクトのロード
+	/// </summary>
+	/// <param name="object">ロードするObject_3Dクラス</param>
+	/// <param name="directoryPath">.objファイルのある階層 (例:"resource")</param>
+	/// <param name="filename">ファイル名 (例:"plane.obj")</param>
+	void LoadObject_3D(Object_3D* object, const std::string& directoryPath, const std::string& filename);
+
 	/// <summary>
 	/// フレームの開始
 	/// </summary>
 	/// <returns>Windowsのメッセージがあるか</returns>
 	bool StartFlame();
+
 	//描画前処理
 	void PreDraw();
+
 	//描画後処理
 	void PostDraw();
 };

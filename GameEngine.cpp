@@ -52,11 +52,6 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #include <wrl.h>
 #include <strsafe.h>
 
-
-uint32_t GameEngine::kLastCPUIndex = 1;
-
-uint32_t GameEngine::kLastGPUIndex = 1;
-
 GameEngine::~GameEngine() {
 	//ImGuiの終了処理
 	ImGui_ImplDX12_Shutdown();
@@ -81,7 +76,7 @@ void GameEngine::Intialize(wchar_t* WindowName, int32_t kWindowWidth, int32_t kW
 	CoInitializeEx(0, COINIT_MULTITHREADED);
 
 	//ウィンドウの生成
-	hwnd_ = WindowInitialvalue(L"CG2", kWindowWidth, kWindowHeight);
+	hwnd_ = WindowInitialvalue(L"CG2", kWindowWidth_, kWindowHeight_);
 
 	//ログファイルの生成
 	logStream_ = CreateLogFile();
@@ -114,9 +109,9 @@ void GameEngine::Intialize(wchar_t* WindowName, int32_t kWindowWidth, int32_t kW
 	DXGI_SWAP_CHAIN_DESC1 swapChainDesc{};
 
 	//画面の幅
-	swapChainDesc.Width = kWindowWidth;
+	swapChainDesc.Width = kWindowWidth_;
 	//画面の高さ
-	swapChainDesc.Height = kWindowHeight;
+	swapChainDesc.Height = kWindowHeight_;
 	//色の形式
 	swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	//マルチサンプルしない
@@ -193,7 +188,7 @@ void GameEngine::Intialize(wchar_t* WindowName, int32_t kWindowWidth, int32_t kW
 	assert(pixelShaderBlob != nullptr);
 
 	//DepthStencilTextureをウィンドウのサイズで作成
-	Microsoft::WRL::ComPtr<ID3D12Resource> depthStencilResource = CreateDepthStencilTextureResource(device_, kWindowWidth, kWindowHeight);
+	Microsoft::WRL::ComPtr<ID3D12Resource> depthStencilResource = CreateDepthStencilTextureResource(device_, kWindowWidth_, kWindowHeight_);
 	//DSV用のヒープれディスクリプタの数は1。DSVはShader内で触る物ではないので、ShaderVisibleはfalse
 	dsvDescriptorheap_ = CreateDescriptorHeap(device_, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1, false);
 	//DSVの設定
@@ -208,6 +203,22 @@ void GameEngine::Intialize(wchar_t* WindowName, int32_t kWindowWidth, int32_t kW
 	//WVP用のリソースを作る
 	wvpResource_ = CreateBufferResource(device_, sizeof(TransformationMatrix));
 
+	//ビューポート
+	//クライアント領域のサイズと一緒にして画面全体に表示
+	viewport_.Width = FLOAT(kWindowWidth_);
+	viewport_.Height = FLOAT(kWindowHeight_);
+	viewport_.TopLeftX = 0;
+	viewport_.TopLeftY = 0;
+	viewport_.MinDepth = 0.0f;
+	viewport_.MaxDepth = 1.0f;
+
+	//シザー矩形
+	//基本的にビューポートと同じ矩形が構成されるようにする
+	scissorRect_.left = 0;
+	scissorRect_.right = kWindowWidth_;
+	scissorRect_.top = 0;
+	scissorRect_.bottom = kWindowHeight_;
+
 	//ImGui初期化
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -218,6 +229,21 @@ void GameEngine::Intialize(wchar_t* WindowName, int32_t kWindowWidth, int32_t kW
 		srvDescriptorHeap_.Get(),
 		srvDescriptorHeap_->GetCPUDescriptorHandleForHeapStart(),
 		srvDescriptorHeap_->GetGPUDescriptorHandleForHeapStart());
+
+	kLastCPUIndex_ = 0;
+	kLastGPUIndex_ = 0;
+}
+
+void GameEngine::LoadTexture(Texture* texture, const std::string& filePath) {
+
+	texture->Initialize(filePath, device_, commandQueue_, commandAllocator_, commandList_, fence_, fenceValue_, fenceEvent_, srvDescriptorHeap_, descriptorSizeSRV_, kLastCPUIndex_, kLastGPUIndex_);
+
+}
+
+void GameEngine::LoadObject_3D(Object_3D* object, const std::string& directoryPath, const std::string& filename) {
+
+	object->Initialize("resources", "axis.obj", device_);
+
 }
 
 bool GameEngine::StartFlame() {
@@ -297,6 +323,16 @@ void GameEngine::PreDraw() {
 	commandList_->ClearRenderTargetView(rtvHandles_[backBafferIndex], crearColor, 0, nullptr);
 	//指定した深度で画面全体をクリアする
 	commandList_->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+
+	//オブジェクト描画前処理
+	commandList_->RSSetViewports(1, &viewport_);			//Viewportを設定
+	commandList_->RSSetScissorRects(1, &scissorRect_);	//Scirssorを設定
+	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
+	commandList_->SetGraphicsRootSignature(rootSignature_.Get());
+	commandList_->SetPipelineState(graphicsPipelineState_.Get());	//PSOを設定
+	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
+	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
 }
 
 void GameEngine::PostDraw() {
