@@ -17,8 +17,6 @@ private:
 
 public:
 
-
-	
 	void Initialize(const std::string& filePath,
 		Microsoft::WRL::ComPtr <ID3D12Device> device,
 		Microsoft::WRL::ComPtr <ID3D12CommandQueue>& commandQueue,

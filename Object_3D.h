@@ -30,13 +30,16 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> wvpResource_;
 	//WVPデータ
 	TransformationMatrix* wvpData_ = nullptr;
+
 	//Transform変数
-	Transform transform{ {1.0f,1.0f,1.0f},
-		{0.0f,0.0f,0.0f},
-		{0.0f,0.0f,0.0f} };
+	Transform transform_;
+	//UVTransform変数
+	Transform uvTransform_;
+	//Color変数
+	Vector4 color_;
+	//Camera変数
+	Transform cameraTransform_;
 public:
-	
-	//~Object_3D();
 	
 	/// <summary>
 	/// 初期化
@@ -46,7 +49,23 @@ public:
 	/// <param name="device">デバイス</param>
 	void Initialize(const std::string& directoryPath, const std::string& filename, Microsoft::WRL::ComPtr<ID3D12Device>& device);
 
-	void Draw(Transform& transform, Vector4 color, Transform& cameraTransform, Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& commandList, Microsoft::WRL::ComPtr<ID3D12Resource>& directionalLightResource, D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU);
+	// Transform入力
+	void SetTransform(Transform transform);
+	// UVTransform入力
+	void SetUVTransform(Transform uvTransform);
+	// Color入力
+	void SetColor(Vector4 color);
+	// Camera入力
+	void SetCamera(Transform cameraTransform);
 
+	/// <summary>
+	/// 3Dオブジェクト描画
+	/// </summary>
+	/// <param name="commandList">コマンドリスト</param>
+	/// <param name="directionalLightResource">オブジェクトを照らす照明 (例:directionalLightResource)</param>
+	/// <param name="textureSrvHandleGPU">オブジェクトに貼り付けるテクスチャのGPUデスクリプタハンドル (例:object3DTexture->textureSrvHandleGPU())</param>
+	void Draw(Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& commandList, Microsoft::WRL::ComPtr<ID3D12Resource>& directionalLightResource, D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU);
+
+	// モデルデータ
 	ModelData ModelData();
 };

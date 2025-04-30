@@ -121,6 +121,9 @@
     <ClCompile Include="Texture.cpp">
       <Filter>ソース ファイル\GameEngine</Filter>
     </ClCompile>
+    <ClCompile Include="Object_2D.cpp">
+      <Filter>ソース ファイル\GameEngine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Object3d.VS.hlsl" />
@@ -245,6 +248,9 @@
       <Filter>ヘッダー ファイル\GameEngine\DirectX</Filter>
     </ClInclude>
     <ClInclude Include="Texture.h">
+      <Filter>ヘッダー ファイル\GameEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="Object_2D.h">
       <Filter>ヘッダー ファイル\GameEngine</Filter>
     </ClInclude>
   </ItemGroup>
