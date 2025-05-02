@@ -152,7 +152,8 @@ public:
 	/// </summary>
 	/// <param name="audio">ロードするAudioクラス</param>
 	/// <param name="filename">.wavファイル名 (例:resources/Audio.wav)</param>
-	void LoadAudio(Audio* audio, const char* filename);
+	/// <param name="isLoop">ループ再生するか</param>
+	void LoadAudio(Audio* audio, const char* filename,bool isLoop);
 
 	/// <summary>
 	/// フレームの開始

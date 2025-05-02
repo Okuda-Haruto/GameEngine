@@ -207,11 +207,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	Audio* audio = new Audio();
 
-	gameEngine->LoadAudio(audio, "resources/fanfare.wav");
+	gameEngine->LoadAudio(audio, "resources/fanfare.wav",true);
 
 	Audio* audio2 = new Audio();
 
-	gameEngine->LoadAudio(audio2, "resources/Alarm01.wav");
+	gameEngine->LoadAudio(audio2, "resources/Alarm01.wav",true);
 
 	Object_3D* object1 = new Object_3D();
 
@@ -262,7 +262,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 	audio->SoundPlayWave();
-	audio2->SoundPlayWave();
+	//audio2->SoundPlayWave();
 
 	Transform uvTransformSprite{
 		{1.0f,1.0f,1.0f},
@@ -277,6 +277,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Vector4 Color1 = { 1.0f,1.0f,1.0f,1.0f };
 	Vector4 Color2 = { 1.0f,1.0f,1.0f,1.0f };
 	Vector4 ColorSprite = { 1.0f,1.0f,1.0f,1.0f };
+
+	float AudioVolume = 1.0f;
 
 	MSG msg{};
 	//ウィンドウの×ボタンが押されるまでループ
@@ -314,6 +316,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			lightDirection.x = lightDirection.x / sqrtNumber;
 			lightDirection.y = lightDirection.y / sqrtNumber;
 			lightDirection.z = lightDirection.z / sqrtNumber;
+			ImGui::Text("Audio");
+			ImGui::SliderFloat("AudioVolume", &AudioVolume,0.0f,1.0f);
+			if (ImGui::Button("Play")) {
+				audio->SoundPlayWave();
+			}
+			if (ImGui::Button("Stop")) {
+				audio->SoundStopWave();
+			}
+			if (ImGui::Button("End")) {
+				audio->SoundEndWave();
+			}
 
 			object1->SetTransform(transform);
 			object1->SetUVTransform(uvTransformSprite);
@@ -330,6 +343,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			light->SetColor(lightColor);
 			light->SetDirection(lightDirection);
 			light->SetIntensity(lightIntensity);
+
+			audio->SetVolume(AudioVolume);
 
 			//
 			//	描画処理
