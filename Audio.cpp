@@ -7,11 +7,35 @@ Audio::~Audio() {
 	SoundUnload();
 }
 
-void Audio::Initialize(const char* filename, Microsoft::WRL::ComPtr<IXAudio2> xAudio2) {
+void Audio::Initialize(const char* filename, Microsoft::WRL::ComPtr<IXAudio2> xAudio2,bool isLoop) {
+
+	HRESULT hr;
 
 	xAudio2_ = xAudio2;
 
 	SoundLoadWave(filename);
+
+	Volume_ = 1.0f;
+	bool isLoop_ = isLoop;
+
+	//波形フォーマットを元にSourceVioceの生成
+	hr = xAudio2_->CreateSourceVoice(&pSourceVoice_, &soundData_.wfex);
+	assert(SUCCEEDED(hr));
+
+	//再生する波形データの設定
+	buf_.pAudioData = soundData_.pBuffer;
+	buf_.AudioBytes = soundData_.bufferSize;
+	buf_.Flags = XAUDIO2_END_OF_STREAM;
+	if (isLoop_) {
+		buf_.LoopCount = XAUDIO2_LOOP_INFINITE;	//無限ループ
+	} else {
+		buf_.LoopCount = 0;						//ループしない
+	}
+	//設定入力
+	hr = pSourceVoice_->SubmitSourceBuffer(&buf_);
+	assert(SUCCEEDED(hr));
+
+	pSourceVoice_->GetVolume(&Volume_);
 
 }
 
@@ -87,24 +111,59 @@ void Audio::SoundUnload() {
 	soundData_.pBuffer = 0;
 	soundData_.bufferSize = 0;
 	soundData_.wfex = {};
+
+	pSourceVoice_->DestroyVoice();
+}
+
+void Audio::SetVolume(float volume) {
+
+	Volume_ = volume;
+	pSourceVoice_->SetVolume(Volume_);
+
 }
 
 void Audio::SoundPlayWave() {
 
-	HRESULT result;
-
-	//波形フォーマットを元にSourceVioceの生成
-	IXAudio2SourceVoice* pSourceVoice = nullptr;
-	result = xAudio2_->CreateSourceVoice(&pSourceVoice, &soundData_.wfex);
-	assert(SUCCEEDED(result));
-
-	//再生する波形データの設定
-	XAUDIO2_BUFFER buf{};
-	buf.pAudioData = soundData_.pBuffer;
-	buf.AudioBytes = soundData_.bufferSize;
-	buf.Flags = XAUDIO2_END_OF_STREAM;
+	HRESULT hr;
 
 	//波形データの再生
-	result = pSourceVoice->SubmitSourceBuffer(&buf);
-	result = pSourceVoice->Start();
+	hr = pSourceVoice_->Start();
+	assert(SUCCEEDED(hr));
+
+}
+
+void Audio::SoundStopWave() {
+
+	HRESULT hr;
+
+	hr = pSourceVoice_->Stop();
+	assert(SUCCEEDED(hr));
+
+}
+
+void Audio::SoundEndWave() {
+
+	HRESULT hr;
+
+	//SourceVioceを作り直す
+	pSourceVoice_->DestroyVoice();
+	//波形フォーマットを元にSourceVioceの生成
+	hr = xAudio2_->CreateSourceVoice(&pSourceVoice_, &soundData_.wfex);
+	assert(SUCCEEDED(hr));
+
+	//再生する波形データの設定
+	buf_.pAudioData = soundData_.pBuffer;
+	buf_.AudioBytes = soundData_.bufferSize;
+	buf_.Flags = XAUDIO2_END_OF_STREAM;
+	if (isLoop_) {
+		buf_.LoopCount = XAUDIO2_LOOP_INFINITE;	//無限ループ
+	} else {
+		buf_.LoopCount = 0;						//ループしない
+	}
+	//設定入力
+	hr = pSourceVoice_->SubmitSourceBuffer(&buf_);
+	assert(SUCCEEDED(hr));
+
+	pSourceVoice_->GetVolume(&Volume_);
+
 }

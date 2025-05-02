@@ -264,9 +264,9 @@ void GameEngine::LoadObject(Object_2D* object) {
 
 }
 
-void GameEngine::LoadAudio(Audio* audio, const char* filename) {
+void GameEngine::LoadAudio(Audio* audio, const char* filename,bool isLoop) {
 
-	audio->Initialize(filename, xAudio2_.Get());
+	audio->Initialize(filename, xAudio2_.Get(),isLoop);
 
 }
 
