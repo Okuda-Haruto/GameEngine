@@ -17,12 +17,14 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Audio.cpp" />
     <ClCompile Include="CompileShader.cpp" />
     <ClCompile Include="ConvertString.cpp" />
     <ClCompile Include="CreateBufferResource.cpp" />
     <ClCompile Include="CreateDepthStencilTextureResource.cpp" />
     <ClCompile Include="CreateDescriptorHeap.cpp" />
     <ClCompile Include="CreateTextureResource.cpp" />
+    <ClCompile Include="Light.cpp" />
     <ClCompile Include="ExportDump.cpp" />
     <ClCompile Include="GameEngine.cpp" />
     <ClCompile Include="GetDescriptorHandle.cpp" />
@@ -59,6 +61,8 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Audio.h" />
+    <ClInclude Include="ChunkHeader.h" />
     <ClInclude Include="CompileShader.h" />
     <ClInclude Include="ConvertString.h" />
     <ClInclude Include="CreateBufferResource.h" />
@@ -68,8 +72,10 @@
     <ClInclude Include="D3DResourceLeakChecker.h" />
     <ClInclude Include="DirectionalLight.h" />
     <ClInclude Include="ExportDump.h" />
+    <ClInclude Include="FormatChunk.h" />
     <ClInclude Include="GameEngine.h" />
     <ClInclude Include="GetDescriptorHandle.h" />
+    <ClInclude Include="Light.h" />
     <ClInclude Include="LoadMaterialTemplateFile.h" />
     <ClInclude Include="LoadObjFile.h" />
     <ClInclude Include="LoadTexture.h" />
@@ -91,6 +97,8 @@
     <ClInclude Include="Matrix4x4.h" />
     <ClInclude Include="ModelData.h" />
     <ClInclude Include="ResourceObject.h" />
+    <ClInclude Include="RiffHeader.h" />
+    <ClInclude Include="SoundData.h" />
     <ClInclude Include="SRT.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="TransformationMatrix.h" />

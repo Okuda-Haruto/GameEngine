@@ -7,8 +7,11 @@
 #include <dxcapi.h>
 
 #include "D3DResourceLeakChecker.h"
+#include "Light.h"
 #include "Object_3D.h"
+#include "Object_2D.h"
 #include "Texture.h"
+#include "Audio.h"
 
 class GameEngine {
 private:
@@ -50,9 +53,13 @@ private:
 
 	//swapChain
 	Microsoft::WRL::ComPtr <IDXGISwapChain4> swapChain_;
+	//swapChainのバッファ
+	DXGI_SWAP_CHAIN_DESC1 swapChainDesc_{};
 	//swapChainリソース
-	Microsoft::WRL::ComPtr<ID3D12Resource> swapChainResources_[2];
+	Microsoft::WRL::ComPtr<ID3D12Resource> swapChainResources_[2] = {nullptr};
 
+	//RTVのバッファ
+	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc_{};
 	//RTVディスクリプタ
 	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles_[2];
 	//フェンス
@@ -65,9 +72,13 @@ private:
 	//インクルードハンドル
 	IDxcIncludeHandler* includeHandler_ = nullptr;
 
+	//DepthStencilTexture
+	Microsoft::WRL::ComPtr<ID3D12Resource> depthStencilResource_;
+
 	//SRV用のヒープディスクリプタ
 	Microsoft::WRL::ComPtr <ID3D12DescriptorHeap> srvDescriptorHeap_;
-
+	//RTV用のヒープディスクリプタ
+	Microsoft::WRL::ComPtr <ID3D12DescriptorHeap> rtvDescriptorHeap_;
 	//DSV用のヒープディスクリプタ
 	Microsoft::WRL::ComPtr <ID3D12DescriptorHeap> dsvDescriptorheap_;
 	//DSV
@@ -82,15 +93,21 @@ private:
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> graphicsPipelineState_;
 	//WVP用のリソース
 	Microsoft::WRL::ComPtr <ID3D12Resource> wvpResource_;
+
 	//ビューポート
 	D3D12_VIEWPORT viewport_{};
 	//シザー矩形
 	D3D12_RECT scissorRect_{};
 
+	//XAudio2インスタンス
+	Microsoft::WRL::ComPtr<IXAudio2> xAudio2_;
+	//オーディオ宛先
+	IXAudio2MasteringVoice* masterVoice_ = nullptr;
+
 	//CPUの最後尾Index
-	uint32_t kLastCPUIndex_ = 0;
+	uint32_t kLastCPUIndex_;
 	//GPUの最後尾Index
-	uint32_t kLastGPUIndex_ = 0;
+	uint32_t kLastGPUIndex_;
 public:
 	//デストラクタ
 	~GameEngine();
@@ -101,7 +118,13 @@ public:
 	/// <param name="WindowName">ウィンドウ名 (例:L"LE2A_00_ミョウジ_ナマエ")</param>
 	/// <param name="kWindowWidth">ウィンドウの幅 (例:1280)</param>
 	/// <param name="kWindowHeight">ウィンドウの高さ (例:720)</param>
-	void Intialize(wchar_t* WindowName, int32_t kWindowWidth = 1280, int32_t kWindowHeight = 720);
+	void Intialize(const wchar_t* WindowName, int32_t kWindowWidth = 1280, int32_t kWindowHeight = 720);
+
+	/// <summary>
+	/// 光源のロード
+	/// </summary>
+	/// <param name="light">ロードするLightクラス</param>
+	void LoadLight(Light* light);
 
 	/// <summary>
 	/// テクスチャのロード
@@ -116,7 +139,20 @@ public:
 	/// <param name="object">ロードするObject_3Dクラス</param>
 	/// <param name="directoryPath">.objファイルのある階層 (例:"resource")</param>
 	/// <param name="filename">ファイル名 (例:"plane.obj")</param>
-	void LoadObject_3D(Object_3D* object, const std::string& directoryPath, const std::string& filename);
+	void LoadObject(Object_3D* object, const std::string& directoryPath, const std::string& filename);
+
+	/// <summary>
+	/// 2Dオブジェクトのロード
+	/// </summary>
+	/// /// <param name="object">ロードするObject_2Dクラス</param>
+	void LoadObject(Object_2D* object);
+
+	/// <summary>
+	/// 音声のロード
+	/// </summary>
+	/// <param name="audio">ロードするAudioクラス</param>
+	/// <param name="filename">.wavファイル名 (例:resources/Audio.wav)</param>
+	void LoadAudio(Audio* audio, const char* filename);
 
 	/// <summary>
 	/// フレームの開始
@@ -124,9 +160,18 @@ public:
 	/// <returns>Windowsのメッセージがあるか</returns>
 	bool StartFlame();
 
+	/// <summary>
+	/// ウィンドウ状態
+	/// </summary>
+	/// <returns>ウィンドウを閉じているか</returns>
+	bool WiodowState();
+
 	//描画前処理
 	void PreDraw();
 
 	//描画後処理
 	void PostDraw();
+
+	//コマンドリスト
+	Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& GetCommandList();
 };

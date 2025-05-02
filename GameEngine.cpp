@@ -53,6 +53,9 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #include <strsafe.h>
 
 GameEngine::~GameEngine() {
+
+	xAudio2_.Reset();
+
 	//ImGuiの終了処理
 	ImGui_ImplDX12_Shutdown();
 	ImGui_ImplWin32_Shutdown();
@@ -64,7 +67,7 @@ GameEngine::~GameEngine() {
 	CoUninitialize();
 }
 
-void GameEngine::Intialize(wchar_t* WindowName, int32_t kWindowWidth, int32_t kWindowHeight) {
+void GameEngine::Intialize(const wchar_t* WindowName, int32_t kWindowWidth, int32_t kWindowHeight) {
 
 	//画面サイズを入力
 	kWindowWidth_ = kWindowWidth;
@@ -76,7 +79,7 @@ void GameEngine::Intialize(wchar_t* WindowName, int32_t kWindowWidth, int32_t kW
 	CoInitializeEx(0, COINIT_MULTITHREADED);
 
 	//ウィンドウの生成
-	hwnd_ = WindowInitialvalue(L"CG2", kWindowWidth_, kWindowHeight_);
+	hwnd_ = WindowInitialvalue(WindowName, kWindowWidth_, kWindowHeight_);
 
 	//ログファイルの生成
 	logStream_ = CreateLogFile();
@@ -106,35 +109,33 @@ void GameEngine::Intialize(wchar_t* WindowName, int32_t kWindowWidth, int32_t kW
 	commandList_ = commandListInitialvalue(commandAllocator_, device_);
 
 	swapChain_ = nullptr;
-	DXGI_SWAP_CHAIN_DESC1 swapChainDesc{};
 
 	//画面の幅
-	swapChainDesc.Width = kWindowWidth_;
+	swapChainDesc_.Width = kWindowWidth_;
 	//画面の高さ
-	swapChainDesc.Height = kWindowHeight_;
+	swapChainDesc_.Height = kWindowHeight_;
 	//色の形式
-	swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	swapChainDesc_.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	//マルチサンプルしない
-	swapChainDesc.SampleDesc.Count = 1;
+	swapChainDesc_.SampleDesc.Count = 1;
 	//描画のターゲットとして利用する
-	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	swapChainDesc_.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	//ダブルバッファ
-	swapChainDesc.BufferCount = 2;
+	swapChainDesc_.BufferCount = 2;
 	//モニタにうつしたら、中身を破棄
-	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+	swapChainDesc_.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 
 	//コマンドキュー、ウィンドウハンドル、設定を渡して生成する
-	hr = dxgiFactory_->CreateSwapChainForHwnd(commandQueue_.Get(), hwnd_, &swapChainDesc, nullptr, nullptr, reinterpret_cast<IDXGISwapChain1**>(swapChain_.GetAddressOf()));
+	hr = dxgiFactory_->CreateSwapChainForHwnd(commandQueue_.Get(), hwnd_, &swapChainDesc_, nullptr, nullptr, reinterpret_cast<IDXGISwapChain1**>(swapChain_.GetAddressOf()));
 	assert(SUCCEEDED(hr));
 
 	//RTV用のヒープでディスクリプタ数は2。RTVはShader内で触る物ではないので、ShaderVisibleはfalse
-	Microsoft::WRL::ComPtr <ID3D12DescriptorHeap> rtvDescriptorHeap = CreateDescriptorHeap(device_, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 2, false);
+	rtvDescriptorHeap_ = CreateDescriptorHeap(device_, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 2, false);
 
 	//SRV用のディスクリプタの数は128。SRVはShader内で触る物なので、ShaderVisibleはtrue
 	srvDescriptorHeap_ = CreateDescriptorHeap(device_, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 128, true);
 
 	//SwapChainからResourcesを引っ張ってくる
-	swapChainResources_[2] = { nullptr };
 	for (int i = 0; i < 2; i++) {
 		hr = swapChain_->GetBuffer(i, IID_PPV_ARGS(&swapChainResources_[i]));
 		//うまく取得できなければ起動しない
@@ -142,18 +143,17 @@ void GameEngine::Intialize(wchar_t* WindowName, int32_t kWindowWidth, int32_t kW
 	}
 
 	//RTVの設定
-	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
 	//出力結果をSRGBに変換して書き込む
-	rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	rtvDesc_.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 	//2dテクスチャとして書き込む
-	rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+	rtvDesc_.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
 
 	//まず1つ目を作る。1つ目は最初のところに作る。作る場所はこちらで指定する。
-	rtvHandles_[0] = GetCPUDescriptorHandle(rtvDescriptorHeap, descriptorSizeRTV_, 0);
-	device_->CreateRenderTargetView(swapChainResources_[0].Get(), &rtvDesc, rtvHandles_[0]);
+	rtvHandles_[0] = GetCPUDescriptorHandle(rtvDescriptorHeap_, descriptorSizeRTV_, 0);
+	device_->CreateRenderTargetView(swapChainResources_[0].Get(), &rtvDesc_, rtvHandles_[0]);
 	//2つ目を作る
 	rtvHandles_[1].ptr = rtvHandles_[0].ptr + device_->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-	device_->CreateRenderTargetView(swapChainResources_[1].Get(), &rtvDesc, rtvHandles_[1]);
+	device_->CreateRenderTargetView(swapChainResources_[1].Get(), &rtvDesc_, rtvHandles_[1]);
 
 	//初期値0でFenceを作る
 	fence_ = nullptr;
@@ -188,17 +188,17 @@ void GameEngine::Intialize(wchar_t* WindowName, int32_t kWindowWidth, int32_t kW
 	assert(pixelShaderBlob != nullptr);
 
 	//DepthStencilTextureをウィンドウのサイズで作成
-	Microsoft::WRL::ComPtr<ID3D12Resource> depthStencilResource = CreateDepthStencilTextureResource(device_, kWindowWidth_, kWindowHeight_);
+	depthStencilResource_ = CreateDepthStencilTextureResource(device_, kWindowWidth_, kWindowHeight_);
 	//DSV用のヒープれディスクリプタの数は1。DSVはShader内で触る物ではないので、ShaderVisibleはfalse
 	dsvDescriptorheap_ = CreateDescriptorHeap(device_, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1, false);
 	//DSVの設定
 	dsvDesc_.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;	//Format。基本的にはResourceに合わせる
 	dsvDesc_.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;	//2dTexture
 	//DSVHeapの先頭にDSVを作る
-	device_->CreateDepthStencilView(depthStencilResource.Get(), &dsvDesc_, dsvDescriptorheap_->GetCPUDescriptorHandleForHeapStart());
+	device_->CreateDepthStencilView(depthStencilResource_.Get(), &dsvDesc_, dsvDescriptorheap_->GetCPUDescriptorHandleForHeapStart());
 
 	//PSOを生成
-	Microsoft::WRL::ComPtr <ID3D12PipelineState> graphicsPipelineState = graphicsPipelineStateInitialvalue(device_, logStream_, rootSignature_, vertexShaderBlob, pixelShaderBlob);
+	graphicsPipelineState_ = graphicsPipelineStateInitialvalue(device_, logStream_, rootSignature_, vertexShaderBlob, pixelShaderBlob);
 
 	//WVP用のリソースを作る
 	wvpResource_ = CreateBufferResource(device_, sizeof(TransformationMatrix));
@@ -219,19 +219,31 @@ void GameEngine::Intialize(wchar_t* WindowName, int32_t kWindowWidth, int32_t kW
 	scissorRect_.top = 0;
 	scissorRect_.bottom = kWindowHeight_;
 
+	//ImGuiが0番を使用しているため、1番から使用する
+	kLastCPUIndex_ = 1;
+	kLastGPUIndex_ = 1;
+
+	//XAudioエンジンのインスタンスを生成
+	HRESULT result = XAudio2Create(&xAudio2_, 0, XAUDIO2_DEFAULT_PROCESSOR);
+	//マスターボイスを生成
+	result = xAudio2_->CreateMasteringVoice(&masterVoice_);
+
 	//ImGui初期化
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGui::StyleColorsDark();
 	ImGui_ImplWin32_Init(hwnd_);
-	ImGui_ImplDX12_Init(device_.Get(), swapChainDesc.BufferCount,
-		rtvDesc.Format,
+	ImGui_ImplDX12_Init(device_.Get(), swapChainDesc_.BufferCount,
+		rtvDesc_.Format,
 		srvDescriptorHeap_.Get(),
 		srvDescriptorHeap_->GetCPUDescriptorHandleForHeapStart(),
 		srvDescriptorHeap_->GetGPUDescriptorHandleForHeapStart());
+}
 
-	kLastCPUIndex_ = 0;
-	kLastGPUIndex_ = 0;
+void GameEngine::LoadLight(Light* light) {
+
+	light->Initialize(device_);
+
 }
 
 void GameEngine::LoadTexture(Texture* texture, const std::string& filePath) {
@@ -240,9 +252,21 @@ void GameEngine::LoadTexture(Texture* texture, const std::string& filePath) {
 
 }
 
-void GameEngine::LoadObject_3D(Object_3D* object, const std::string& directoryPath, const std::string& filename) {
+void GameEngine::LoadObject(Object_3D* object, const std::string& directoryPath, const std::string& filename) {
 
-	object->Initialize("resources", "axis.obj", device_);
+	object->Initialize(directoryPath, filename, device_);
+
+}
+
+void GameEngine::LoadObject(Object_2D* object) {
+
+	object->Initialize(device_);
+
+}
+
+void GameEngine::LoadAudio(Audio* audio, const char* filename) {
+
+	audio->Initialize(filename, xAudio2_.Get());
 
 }
 
@@ -288,6 +312,12 @@ bool GameEngine::StartFlame() {
 	return true;
 }
 
+bool GameEngine::WiodowState() {
+	if (msg_.message != WM_QUIT) {
+		return true;
+	}
+	return false;
+}
 
 void GameEngine::PreDraw() {
 
@@ -375,4 +405,9 @@ void GameEngine::PostDraw() {
 	assert(SUCCEEDED(hr));
 	hr = commandList_->Reset(commandAllocator_.Get(), nullptr);
 	assert(SUCCEEDED(hr));
+}
+
+//コマンドリスト
+Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& GameEngine::GetCommandList() {
+	return commandList_;
 }

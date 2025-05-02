@@ -7,7 +7,7 @@
 #include "CreateTextureResource.h"
 #include "UploadTextureData.h"
 
-void Object_3D::Initialize(const std::string& directoryPath, const std::string& filename, Microsoft::WRL::ComPtr<ID3D12Device>& device) {
+void Object_3D::Initialize(const std::string& directoryPath, const std::string& filename, Microsoft::WRL::ComPtr<ID3D12Device> device) {
 
 	//モデル読み込み
 	modelData_ = LoadObjFile(directoryPath, filename);
@@ -106,4 +106,5 @@ void Object_3D::Draw(Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& command
 	commandList->DrawInstanced(UINT(modelData_.vertices.size()), 1, 0, 0);
 }
 
+[[nodiscard]]
 ModelData Object_3D::ModelData() { return modelData_; }

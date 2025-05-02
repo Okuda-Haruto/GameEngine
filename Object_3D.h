@@ -47,7 +47,7 @@ public:
 	/// <param name="directoryPath">.objファイルのある階層 (例:"resource")</param>
 	/// <param name="filename">ファイル名 (例:"plane.obj")</param>
 	/// <param name="device">デバイス</param>
-	void Initialize(const std::string& directoryPath, const std::string& filename, Microsoft::WRL::ComPtr<ID3D12Device>& device);
+	void Initialize(const std::string& directoryPath, const std::string& filename, Microsoft::WRL::ComPtr<ID3D12Device> device);
 
 	// Transform入力
 	void SetTransform(Transform transform);
@@ -67,5 +67,6 @@ public:
 	void Draw(Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& commandList, Microsoft::WRL::ComPtr<ID3D12Resource>& directionalLightResource, D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU);
 
 	// モデルデータ
+	[[nodiscard]]
 	ModelData ModelData();
 };
