@@ -71,4 +71,5 @@ void Texture::Initialize(const std::string& filePath,
 	GPUIndex++;
 }
 
+[[nodiscard]]
 D3D12_GPU_DESCRIPTOR_HANDLE Texture::textureSrvHandleGPU() { return textureSrvHandleGPU_; }

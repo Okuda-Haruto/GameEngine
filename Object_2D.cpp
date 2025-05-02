@@ -7,7 +7,7 @@
 #include "CreateTextureResource.h"
 #include "UploadTextureData.h"
 
-void Object_2D::Initialize(Microsoft::WRL::ComPtr<ID3D12Device>& device) {
+void Object_2D::Initialize(Microsoft::WRL::ComPtr<ID3D12Device> device) {
 
 	//Sprite用の頂点リソースを作る
 	vertexResource_ = CreateBufferResource(device, sizeof(VertexData) * 4);

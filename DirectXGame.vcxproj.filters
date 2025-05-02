@@ -34,6 +34,12 @@
     <Filter Include="ヘッダー ファイル\GameEngine\DirectX">
       <UniqueIdentifier>{cfacb5f9-9a5b-4c16-9739-1851a227f89e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ソース ファイル\GameEngine\クラス">
+      <UniqueIdentifier>{f27f02e9-b7e5-403f-969c-26426a5f7fb0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\GameEngine\クラス">
+      <UniqueIdentifier>{cd0e3ad9-7277-449a-b2fb-734ea373fbb8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -76,9 +82,6 @@
     <ClCompile Include="Initialvalue.cpp">
       <Filter>ソース ファイル\GameEngine</Filter>
     </ClCompile>
-    <ClCompile Include="Object_3D.cpp">
-      <Filter>ソース ファイル\GameEngine</Filter>
-    </ClCompile>
     <ClCompile Include="LoadTexture.cpp">
       <Filter>ソース ファイル\GameEngine</Filter>
     </ClCompile>
@@ -118,11 +121,20 @@
     <ClCompile Include="Matrix4x4.cpp">
       <Filter>ソース ファイル\Matrix</Filter>
     </ClCompile>
+    <ClCompile Include="Light.cpp">
+      <Filter>ソース ファイル\GameEngine\クラス</Filter>
+    </ClCompile>
     <ClCompile Include="Texture.cpp">
-      <Filter>ソース ファイル\GameEngine</Filter>
+      <Filter>ソース ファイル\GameEngine\クラス</Filter>
     </ClCompile>
     <ClCompile Include="Object_2D.cpp">
-      <Filter>ソース ファイル\GameEngine</Filter>
+      <Filter>ソース ファイル\GameEngine\クラス</Filter>
+    </ClCompile>
+    <ClCompile Include="Object_3D.cpp">
+      <Filter>ソース ファイル\GameEngine\クラス</Filter>
+    </ClCompile>
+    <ClCompile Include="Audio.cpp">
+      <Filter>ソース ファイル\GameEngine\クラス</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -164,9 +176,6 @@
       <Filter>ヘッダー ファイル\GameEngine</Filter>
     </ClInclude>
     <ClInclude Include="Initialvalue.h">
-      <Filter>ヘッダー ファイル\GameEngine</Filter>
-    </ClInclude>
-    <ClInclude Include="Object_3D.h">
       <Filter>ヘッダー ファイル\GameEngine</Filter>
     </ClInclude>
     <ClInclude Include="LoadTexture.h">
@@ -247,11 +256,32 @@
     <ClInclude Include="D3DResourceLeakChecker.h">
       <Filter>ヘッダー ファイル\GameEngine\DirectX</Filter>
     </ClInclude>
-    <ClInclude Include="Texture.h">
-      <Filter>ヘッダー ファイル\GameEngine</Filter>
-    </ClInclude>
     <ClInclude Include="Object_2D.h">
-      <Filter>ヘッダー ファイル\GameEngine</Filter>
+      <Filter>ヘッダー ファイル\GameEngine\クラス</Filter>
+    </ClInclude>
+    <ClInclude Include="Object_3D.h">
+      <Filter>ヘッダー ファイル\GameEngine\クラス</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>ヘッダー ファイル\GameEngine\クラス</Filter>
+    </ClInclude>
+    <ClInclude Include="Light.h">
+      <Filter>ヘッダー ファイル\GameEngine\クラス</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio.h">
+      <Filter>ヘッダー ファイル\GameEngine\クラス</Filter>
+    </ClInclude>
+    <ClInclude Include="ChunkHeader.h">
+      <Filter>ヘッダー ファイル\GameEngine\DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="RiffHeader.h">
+      <Filter>ヘッダー ファイル\GameEngine\DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="FormatChunk.h">
+      <Filter>ヘッダー ファイル\GameEngine\DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="SoundData.h">
+      <Filter>ヘッダー ファイル\GameEngine\DirectX</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

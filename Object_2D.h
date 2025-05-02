@@ -51,7 +51,7 @@ private:
 	Vector4 color_ = { 1.0f,1.0f,1.0f,1.0f };
 public:
 
-	void Initialize(Microsoft::WRL::ComPtr<ID3D12Device>& device);
+	void Initialize(Microsoft::WRL::ComPtr<ID3D12Device> device);
 
 	// Transform入力
 	void SetTransform(Transform transform);
