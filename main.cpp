@@ -203,8 +203,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	gameEngine->Intialize(L"CG2");
 
-	
-
 	Audio* audio = new Audio();
 
 	gameEngine->LoadAudio(audio, "resources/fanfare.wav",true);
@@ -261,7 +259,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	gameEngine->LoadTexture(object3DTexture2, (object2->ModelData()).material.textureFilePath);
 
 
-	audio->SoundPlayWave();
+	//audio->SoundPlayWave();
 	//audio2->SoundPlayWave();
 
 	Transform uvTransformSprite{
@@ -284,6 +282,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//ウィンドウの×ボタンが押されるまでループ
 	while (gameEngine->WiodowState()) {
 		if (gameEngine->StartFlame()) {
+			
+			//Keybord keybord = gameEngine->GetKeybord();
+
+			//Mouse mouse = gameEngine->GetMouse();
+
+			//Pad pad = gameEngine->GetPad();
+
 			//ImGui
 			ImGui::Text("Camera");
 			ImGui::DragFloat3("cameraTranslate", &(cameraTransform.translate).x);
@@ -372,6 +377,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	delete spriteTexture;
 	delete object3DTexture1;
 	delete object3DTexture2;
+
+	delete gameEngine;
 
 	return 0;
 }

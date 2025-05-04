@@ -12,6 +12,15 @@
 #include "Object_2D.h"
 #include "Texture.h"
 #include "Audio.h"
+#include "Input.h"
+
+//#define DIRECTINPUT_VERSION 0x0800	//DirectInputのバージョン指定
+//#pragma comment(lib,"dinput8.lib")
+//#pragma comment(lib,"dxguid.lib")
+//#include <dinput.h>
+
+//#pragma comment(lib,"xinput.lib")
+//#include <Xinput.h>
 
 class GameEngine {
 private:
@@ -25,7 +34,8 @@ private:
 	//リソースチェック
 	D3DResourceLeakChecker leakCheck_;
 #endif
-
+	//ウィンドウクラス
+	WNDCLASS w_;
 
 	//ログファイルの生成
 	std::ofstream logStream_;
@@ -70,7 +80,7 @@ private:
 	HANDLE fenceEvent_ = nullptr;
 
 	//インクルードハンドル
-	IDxcIncludeHandler* includeHandler_ = nullptr;
+	Microsoft::WRL::ComPtr <IDxcIncludeHandler> includeHandler_ = nullptr;
 
 	//DepthStencilTexture
 	Microsoft::WRL::ComPtr<ID3D12Resource> depthStencilResource_;
@@ -104,10 +114,27 @@ private:
 	//オーディオ宛先
 	IXAudio2MasteringVoice* masterVoice_ = nullptr;
 
+	//DirectInput
+	//IDirectInput8* directInput_ = nullptr;
+	//キーボードデバイス
+	//IDirectInputDevice8* keyboardDevice_ = nullptr;
+	//マウスデバイス
+	//IDirectInputDevice8* mouseDevice_ = nullptr;
+
 	//CPUの最後尾Index
 	uint32_t kLastCPUIndex_;
 	//GPUの最後尾Index
 	uint32_t kLastGPUIndex_;
+
+	BYTE keys_[256]{};
+	BYTE preKeys_[256]{};
+
+	//DIMOUSESTATE preMouse_;
+	//DIMOUSESTATE mouse_;
+
+	//XINPUT_STATE pad_[4];
+	//DWORD dwResult_[4];
+	//XINPUT_STATE prePad_[4];
 public:
 	//デストラクタ
 	~GameEngine();
@@ -175,4 +202,11 @@ public:
 
 	//コマンドリスト
 	Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& GetCommandList();
+
+	//キーボード入力
+	//Keybord GetKeybord();
+
+	//Mouse GetMouse();
+
+	//Pad GetPad(int usePadNum = 0);
 };

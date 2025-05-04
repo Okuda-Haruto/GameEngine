@@ -136,6 +136,9 @@
     <ClCompile Include="Audio.cpp">
       <Filter>ソース ファイル\GameEngine\クラス</Filter>
     </ClCompile>
+    <ClCompile Include="Input.cpp">
+      <Filter>ソース ファイル\GameEngine\クラス</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Object3d.VS.hlsl" />
@@ -282,6 +285,9 @@
     </ClInclude>
     <ClInclude Include="SoundData.h">
       <Filter>ヘッダー ファイル\GameEngine\DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="Input.h">
+      <Filter>ヘッダー ファイル\GameEngine\クラス</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

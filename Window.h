@@ -11,4 +11,4 @@ WNDCLASS WindowClass();
 // ウィンドウサイズ
 RECT WindowSize(const int32_t ClientWidth, const int32_t ClientHeight);
 // ウィンドウの生成
-HWND WindowInitialvalue(const wchar_t* WindowName, const int32_t ClientWidth, const int32_t ClientHeight);
+HWND WindowInitialvalue(const wchar_t* WindowName, const int32_t ClientWidth, const int32_t ClientHeight, WNDCLASS wc);

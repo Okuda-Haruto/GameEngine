@@ -24,6 +24,7 @@
     <ClCompile Include="CreateDepthStencilTextureResource.cpp" />
     <ClCompile Include="CreateDescriptorHeap.cpp" />
     <ClCompile Include="CreateTextureResource.cpp" />
+    <ClCompile Include="Input.cpp" />
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="ExportDump.cpp" />
     <ClCompile Include="GameEngine.cpp" />
@@ -75,6 +76,7 @@
     <ClInclude Include="FormatChunk.h" />
     <ClInclude Include="GameEngine.h" />
     <ClInclude Include="GetDescriptorHandle.h" />
+    <ClInclude Include="Input.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="LoadMaterialTemplateFile.h" />
     <ClInclude Include="LoadObjFile.h" />
