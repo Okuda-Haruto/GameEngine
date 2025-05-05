@@ -54,10 +54,10 @@ RECT WindowSize(const int32_t ClientWidth,const int32_t ClientHeight){
 	return wrc;
 }
 // ウィンドウの生成
-HWND WindowInitialvalue(const wchar_t* WindowName, const int32_t ClientWidth, const int32_t ClientHeight) {
+HWND WindowInitialvalue(const wchar_t* WindowName, const int32_t ClientWidth, const int32_t ClientHeight, WNDCLASS wc) {
 
 	//ウィンドウクラスの生成
-	WNDCLASS wc = WindowClass();
+	wc = WindowClass();
 
 	//クライアント領域の指定
 	RECT wrc = WindowSize(ClientWidth, ClientHeight);

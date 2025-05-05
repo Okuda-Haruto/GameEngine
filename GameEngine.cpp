@@ -56,6 +56,24 @@ GameEngine::~GameEngine() {
 
 	xAudio2_.Reset();
 
+    Microsoft::WRL::ComPtr<ID3D12Debug> debugController;
+    if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)))) {
+        debugController->EnableDebugLayer();
+    }
+    commandQueue_->Signal(fence_.Get(), fenceValue_);
+    if (fence_->GetCompletedValue() < fenceValue_) {
+        fence_->SetEventOnCompletion(fenceValue_, fenceEvent_);
+        WaitForSingleObject(fenceEvent_, INFINITE);
+    }
+    commandQueue_.Reset();
+    commandAllocator_.Reset();
+    commandList_.Reset();
+    swapChain_.Reset();
+    device_.Reset();
+	directInput_->Release();
+	keyboardDevice_->Release();
+	mouseDevice_->Release();
+
 	//ImGuiの終了処理
 	ImGui_ImplDX12_Shutdown();
 	ImGui_ImplWin32_Shutdown();
@@ -63,11 +81,11 @@ GameEngine::~GameEngine() {
 
 	CloseHandle(fenceEvent_);
 	CloseWindow(hwnd_);
-
-	CoUninitialize();
 }
 
 void GameEngine::Intialize(const wchar_t* WindowName, int32_t kWindowWidth, int32_t kWindowHeight) {
+
+	HRESULT hr;
 
 	//画面サイズを入力
 	kWindowWidth_ = kWindowWidth;
@@ -76,16 +94,46 @@ void GameEngine::Intialize(const wchar_t* WindowName, int32_t kWindowWidth, int3
 	//誰も捕捉しなかった場合に(Unhandled),捕捉する関数を登録
 	SetUnhandledExceptionFilter(ExportDump);
 
+#ifdef _DEBUG
+	//リソースチェック
+	D3DResourceLeakChecker leakCheck;
+#endif
+
 	CoInitializeEx(0, COINIT_MULTITHREADED);
 
+	//ウィンドウクラスの生成
+	w_ = WindowClass();
+
 	//ウィンドウの生成
-	hwnd_ = WindowInitialvalue(WindowName, kWindowWidth_, kWindowHeight_);
+	hwnd_ = WindowInitialvalue(WindowName, kWindowWidth_, kWindowHeight_,w_);
+
+	//DirectInputの初期化
+	hr = DirectInput8Create(w_.hInstance, DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&directInput_, nullptr);
+	assert(SUCCEEDED(hr));
+
+	//キーボードデバイスの生成
+	hr = directInput_->CreateDevice(GUID_SysKeyboard, &keyboardDevice_, NULL);
+	assert(SUCCEEDED(hr));
+	//入力データ形式のセット
+	hr = keyboardDevice_->SetDataFormat(&c_dfDIKeyboard);	//標準形式
+	assert(SUCCEEDED(hr));
+	//排他制御レベルのセット
+	hr = keyboardDevice_->SetCooperativeLevel(hwnd_, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE | DISCL_NOWINKEY);
+
+	//マウスデバイスの生成
+	hr = directInput_->CreateDevice(GUID_SysMouse, &mouseDevice_, NULL);
+	assert(SUCCEEDED(hr));
+	//入力データ形式のセット
+	hr = mouseDevice_->SetDataFormat(&c_dfDIMouse);	//標準形式
+	assert(SUCCEEDED(hr));
+	//排他制御レベルのセット
+	hr = mouseDevice_->SetCooperativeLevel(hwnd_, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE | DISCL_NOWINKEY);
 
 	//ログファイルの生成
 	logStream_ = CreateLogFile();
 
 	//エラーコード
-	HRESULT hr = CreateDXGIFactory(IID_PPV_ARGS(&dxgiFactory_));
+	hr = CreateDXGIFactory(IID_PPV_ARGS(&dxgiFactory_));
 	assert(SUCCEEDED(hr));
 
 	//使用するアダプタ用変数
@@ -182,9 +230,9 @@ void GameEngine::Intialize(const wchar_t* WindowName, int32_t kWindowWidth, int3
 	rootSignature_ = rootSignatureInitialvalue(device_, logStream_);
 
 	//Shaderをコンパイルする
-	IDxcBlob* vertexShaderBlob = CompileShader(L"Object3D.VS.hlsl", L"vs_6_0", dxcUtils, dxcCompiler, includeHandler_, logStream_);
+	IDxcBlob* vertexShaderBlob = CompileShader(L"Object3D.VS.hlsl", L"vs_6_0", dxcUtils, dxcCompiler, includeHandler_.Get(), logStream_);
 	assert(vertexShaderBlob != nullptr);
-	IDxcBlob* pixelShaderBlob = CompileShader(L"OBject3D.PS.hlsl", L"ps_6_0", dxcUtils, dxcCompiler, includeHandler_, logStream_);
+	IDxcBlob* pixelShaderBlob = CompileShader(L"OBject3D.PS.hlsl", L"ps_6_0", dxcUtils, dxcCompiler, includeHandler_.Get(), logStream_);
 	assert(pixelShaderBlob != nullptr);
 
 	//DepthStencilTextureをウィンドウのサイズで作成
@@ -224,9 +272,13 @@ void GameEngine::Intialize(const wchar_t* WindowName, int32_t kWindowWidth, int3
 	kLastGPUIndex_ = 1;
 
 	//XAudioエンジンのインスタンスを生成
-	HRESULT result = XAudio2Create(&xAudio2_, 0, XAUDIO2_DEFAULT_PROCESSOR);
+	hr = XAudio2Create(&xAudio2_, 0, XAUDIO2_DEFAULT_PROCESSOR);
+	assert(SUCCEEDED(hr));
+
 	//マスターボイスを生成
-	result = xAudio2_->CreateMasteringVoice(&masterVoice_);
+	hr = xAudio2_->CreateMasteringVoice(&masterVoice_);
+	assert(SUCCEEDED(hr));
+
 
 	//ImGui初期化
 	IMGUI_CHECKVERSION();
@@ -305,6 +357,31 @@ bool GameEngine::StartFlame() {
 		infoQueue->PushStorageFilter(&filter);
 	}
 #endif
+
+	keyboardDevice_->Acquire();
+	//前frame処理
+	memcpy(preKeys_, keys_, sizeof(BYTE) * 256);
+	//キーボード入力
+	keyboardDevice_->GetDeviceState(sizeof(BYTE) * 256, keys_);
+
+	mouseDevice_->Acquire();
+	//前frame処理
+	memcpy(&preMouse_, &mouse_, sizeof(DIMOUSESTATE));
+	//マウス入力
+	mouseDevice_->GetDeviceState(sizeof(DIMOUSESTATE),&mouse_);
+
+	//パッド入力
+	//0~4個のパッドから接続されているパッド入力を得る
+	for (DWORD i = 0; i < XUSER_MAX_COUNT; i++) {
+
+		//前frame処理
+		memcpy(&prePad_[i], &pad_[i], sizeof(XINPUT_STATE));
+		ZeroMemory(&pad_[i], sizeof(XINPUT_STATE));
+
+		//パッド入力を入手
+		dwResult_[i] = XInputGetState(i, &pad_[i]);
+	}
+
 	ImGui_ImplDX12_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
@@ -407,7 +484,160 @@ void GameEngine::PostDraw() {
 	assert(SUCCEEDED(hr));
 }
 
-//コマンドリスト
 Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& GameEngine::GetCommandList() {
 	return commandList_;
+}
+
+Keybord GameEngine::GetKeybord() {
+
+	Keybord returnKeybord{};
+
+	for (int i = 0; i < 256; i++) {
+		returnKeybord.trigger[i] = keys_[i];
+		returnKeybord.leave[i] = ~keys_[i];
+		returnKeybord.hit[i] = keys_[i] & ~preKeys_[i];
+		returnKeybord.release[i] = ~keys_[i] & preKeys_[i];
+	}
+
+	return returnKeybord;
+}
+
+Mouse GameEngine::GetMouse() {
+
+	Mouse returnMouse{};
+
+	//マウス座標
+	POINT p;
+	GetCursorPos(&p);
+	//スクリーン上からウィンドウ上へ
+	ScreenToClient(FindWindowW(w_.lpszClassName, nullptr) ,&p);
+
+	returnMouse.Position = { float(p.x),float(p.y) };
+	returnMouse.Movement = { float(mouse_.lX),float(mouse_.lY),float(mouse_.lZ) };
+	for (int i = 0; i < 3; i++) {
+		returnMouse.click[i] = mouse_.rgbButtons[i];
+	}
+
+	return returnMouse;
+}
+
+Pad GameEngine::GetPad(int usePadNum) {
+
+	Pad returnPad{};
+
+	//接続されているか
+	if (dwResult_[usePadNum] == ERROR_SUCCESS) {
+		//接続されている
+		returnPad.isConnected = true;
+
+		//スティックの傾きを得る
+		//デッドゾーンチェック
+		float LX = pad_[usePadNum].Gamepad.sThumbLX;
+		float LY = pad_[usePadNum].Gamepad.sThumbLY;
+
+		float magnitude = sqrtf(powf(LX, 2) + powf(LY, 2));
+
+		float normalizedLX = LX / magnitude;
+		float normalizedLY = LY / magnitude;
+
+		float normalizedMagnitude = 0;
+
+		if (magnitude > XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
+			if (magnitude > 32767) {
+				magnitude = 32767;
+			}
+			magnitude -= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE;
+
+			normalizedMagnitude = magnitude / (32767 - XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE);
+		} else {
+			magnitude = 0.0f;
+			normalizedMagnitude = 0.0f;
+		}
+
+		returnPad.LeftStick = {
+			normalizedMagnitude,
+			{ normalizedLX, normalizedLY}
+		};
+
+		//Rスティックも
+		float RX = pad_[usePadNum].Gamepad.sThumbRX;
+		float RY = pad_[usePadNum].Gamepad.sThumbRY;
+
+		magnitude = sqrtf(powf(RX, 2) + powf(RY, 2));
+
+		float normalizedRX = RX / magnitude;
+		float normalizedRY = RY / magnitude;
+
+		normalizedMagnitude = 0;
+
+		if (magnitude > XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) {
+			if (magnitude > 32767) {
+				magnitude = 32767;
+			}
+			magnitude -= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE;
+
+			normalizedMagnitude = magnitude / (32767 - XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE);
+		} else {
+			magnitude = 0.0f;
+			normalizedMagnitude = 0.0f;
+		}
+
+		returnPad.RightStick = {
+			normalizedMagnitude,
+			{ normalizedRX, normalizedRY}
+		};
+
+		//ボタンの入力変換
+		for (int i = 0; i <= 16; i++) {
+			int trigger = 0x0001 << i;
+			if (i != PAD_BOTTON_LT && i != PAD_BOTTON_RT) {
+				returnPad.Button[i].trigger = pad_[usePadNum].Gamepad.wButtons & trigger;
+				returnPad.Button[i].leave = ~(pad_[usePadNum].Gamepad.wButtons & trigger);
+				returnPad.Button[i].hit = (pad_[usePadNum].Gamepad.wButtons & trigger) & ~(prePad_[usePadNum].Gamepad.wButtons & trigger);
+				returnPad.Button[i].hit = ~(pad_[usePadNum].Gamepad.wButtons & trigger) & (prePad_[usePadNum].Gamepad.wButtons & trigger);
+			} else {
+				if (i == PAD_BOTTON_LT) {
+					returnPad.Button[i].trigger = pad_[usePadNum].Gamepad.bLeftTrigger >= 0x80;
+					returnPad.Button[i].leave = !(pad_[usePadNum].Gamepad.bLeftTrigger >= 0x80);
+					returnPad.Button[i].hit = (pad_[usePadNum].Gamepad.bLeftTrigger >= 0x80) && !(prePad_[usePadNum].Gamepad.bLeftTrigger >= 0x80);
+					returnPad.Button[i].hit = !(pad_[usePadNum].Gamepad.bLeftTrigger >= 0x80) && (prePad_[usePadNum].Gamepad.bLeftTrigger >= 0x80);
+				} else {
+					returnPad.Button[i].trigger = pad_[usePadNum].Gamepad.bRightTrigger >= 0x80;
+					returnPad.Button[i].leave = !(pad_[usePadNum].Gamepad.bRightTrigger >= 0x80);
+					returnPad.Button[i].hit = (pad_[usePadNum].Gamepad.bRightTrigger >= 0x80) && !(prePad_[usePadNum].Gamepad.bRightTrigger >= 0x80);
+					returnPad.Button[i].hit = !(pad_[usePadNum].Gamepad.bRightTrigger >= 0x80) && (prePad_[usePadNum].Gamepad.bRightTrigger >= 0x80);
+				}
+			}
+		}
+	} else {
+		//接続されていない
+		returnPad.isConnected = false;
+	}
+
+	ImGui::Begin("pad");
+	if (returnPad.isConnected) {
+		ImGui::Text("true");
+	} else {
+		ImGui::Text("false");
+	}
+	ImGui::Text("LStick : %f,%f,%f", returnPad.LeftStick.vector.x, returnPad.LeftStick.vector.y, returnPad.LeftStick.magnitude);
+	ImGui::Text("RStick : %f,%f,%f", returnPad.RightStick.vector.x, returnPad.RightStick.vector.y, returnPad.RightStick.magnitude);
+	if (returnPad.Button[PAD_BOTTON_A].trigger) {
+		ImGui::Text("A");
+	}
+	if (returnPad.Button[PAD_BOTTON_RT].trigger) {
+		ImGui::Text("RT");
+		XINPUT_VIBRATION vibration;
+		ZeroMemory(&vibration, sizeof(XINPUT_VIBRATION));
+		vibration.wLeftMotorSpeed = 32000; // use any value between 0-65535 here
+		vibration.wRightMotorSpeed = 16000; // use any value between 0-65535 here
+		XInputSetState(usePadNum, &vibration);
+	} else {
+		XINPUT_VIBRATION vibration{};
+		ZeroMemory(&vibration, sizeof(XINPUT_VIBRATION));
+		XInputSetState(usePadNum, &vibration);
+	}
+	ImGui::End();
+
+	return returnPad;
 }
