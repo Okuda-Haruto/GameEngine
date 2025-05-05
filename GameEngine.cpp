@@ -70,9 +70,9 @@ GameEngine::~GameEngine() {
     commandList_.Reset();
     swapChain_.Reset();
     device_.Reset();
-	//directInput_->Release();
-	//keyboardDevice_->Release();
-	//mouseDevice_->Release();
+	directInput_->Release();
+	keyboardDevice_->Release();
+	mouseDevice_->Release();
 
 	//ImGuiの終了処理
 	ImGui_ImplDX12_Shutdown();
@@ -108,7 +108,7 @@ void GameEngine::Intialize(const wchar_t* WindowName, int32_t kWindowWidth, int3
 	hwnd_ = WindowInitialvalue(WindowName, kWindowWidth_, kWindowHeight_,w_);
 
 	//DirectInputの初期化
-	/*HRESULT hr = DirectInput8Create(w_.hInstance, DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&directInput_, nullptr);
+	hr = DirectInput8Create(w_.hInstance, DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&directInput_, nullptr);
 	assert(SUCCEEDED(hr));
 
 	//キーボードデバイスの生成
@@ -127,7 +127,7 @@ void GameEngine::Intialize(const wchar_t* WindowName, int32_t kWindowWidth, int3
 	hr = mouseDevice_->SetDataFormat(&c_dfDIMouse);	//標準形式
 	assert(SUCCEEDED(hr));
 	//排他制御レベルのセット
-	hr = mouseDevice_->SetCooperativeLevel(hwnd_, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE | DISCL_NOWINKEY);*/
+	hr = mouseDevice_->SetCooperativeLevel(hwnd_, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE | DISCL_NOWINKEY);
 
 	//ログファイルの生成
 	logStream_ = CreateLogFile();
@@ -358,28 +358,29 @@ bool GameEngine::StartFlame() {
 	}
 #endif
 
-	/*keyboardDevice_->Acquire();
+	keyboardDevice_->Acquire();
 	//前frame処理
-	memcpy(preKeys_, keys_, sizeof(keys_));
+	memcpy(preKeys_, keys_, sizeof(BYTE) * 256);
 	//キーボード入力
-	keyboardDevice_->GetDeviceState(sizeof(keys_), keys_);
+	keyboardDevice_->GetDeviceState(sizeof(BYTE) * 256, keys_);
 
 	mouseDevice_->Acquire();
 	//前frame処理
-	memcpy(&preMouse_, &mouse_, sizeof(mouse_));
+	memcpy(&preMouse_, &mouse_, sizeof(DIMOUSESTATE));
 	//マウス入力
-	mouseDevice_->GetDeviceState(sizeof(mouse_),&mouse_);*/
+	mouseDevice_->GetDeviceState(sizeof(DIMOUSESTATE),&mouse_);
 
 	//パッド入力
 	//0~4個のパッドから接続されているパッド入力を得る
-	/*for (DWORD i = 0; i < XUSER_MAX_COUNT; i++) {
+	for (DWORD i = 0; i < XUSER_MAX_COUNT; i++) {
+
 		//前frame処理
-		memcpy(&prePad_[i], &pad_[i], sizeof(pad_));
+		memcpy(&prePad_[i], &pad_[i], sizeof(XINPUT_STATE));
 		ZeroMemory(&pad_[i], sizeof(XINPUT_STATE));
 
 		//パッド入力を入手
 		dwResult_[i] = XInputGetState(i, &pad_[i]);
-	}*/
+	}
 
 	ImGui_ImplDX12_NewFrame();
 	ImGui_ImplWin32_NewFrame();
@@ -487,7 +488,7 @@ Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& GameEngine::GetCommandList()
 	return commandList_;
 }
 
-/*Keybord GameEngine::GetKeybord() {
+Keybord GameEngine::GetKeybord() {
 
 	Keybord returnKeybord{};
 
@@ -555,8 +556,7 @@ Pad GameEngine::GetPad(int usePadNum) {
 
 		returnPad.LeftStick = {
 			normalizedMagnitude,
-			normalizedLX,
-			normalizedLY
+			{ normalizedLX, normalizedLY}
 		};
 
 		//Rスティックも
@@ -584,8 +584,7 @@ Pad GameEngine::GetPad(int usePadNum) {
 
 		returnPad.RightStick = {
 			normalizedMagnitude,
-			normalizedRX,
-			normalizedRY
+			{ normalizedRX, normalizedRY}
 		};
 
 		//ボタンの入力変換
@@ -641,4 +640,4 @@ Pad GameEngine::GetPad(int usePadNum) {
 	ImGui::End();
 
 	return returnPad;
-}*/
+}

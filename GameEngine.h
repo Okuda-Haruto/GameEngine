@@ -14,13 +14,13 @@
 #include "Audio.h"
 #include "Input.h"
 
-//#define DIRECTINPUT_VERSION 0x0800	//DirectInputのバージョン指定
-//#pragma comment(lib,"dinput8.lib")
-//#pragma comment(lib,"dxguid.lib")
-//#include <dinput.h>
+#define DIRECTINPUT_VERSION 0x0800	//DirectInputのバージョン指定
+#pragma comment(lib,"dinput8.lib")
+#pragma comment(lib,"dxguid.lib")
+#include <dinput.h>
 
-//#pragma comment(lib,"xinput.lib")
-//#include <Xinput.h>
+#pragma comment(lib,"xinput.lib")
+#include <Xinput.h>
 
 class GameEngine {
 private:
@@ -115,11 +115,11 @@ private:
 	IXAudio2MasteringVoice* masterVoice_ = nullptr;
 
 	//DirectInput
-	//IDirectInput8* directInput_ = nullptr;
+	IDirectInput8* directInput_ = nullptr;
 	//キーボードデバイス
-	//IDirectInputDevice8* keyboardDevice_ = nullptr;
+	IDirectInputDevice8* keyboardDevice_ = nullptr;
 	//マウスデバイス
-	//IDirectInputDevice8* mouseDevice_ = nullptr;
+	IDirectInputDevice8* mouseDevice_ = nullptr;
 
 	//CPUの最後尾Index
 	uint32_t kLastCPUIndex_;
@@ -129,12 +129,12 @@ private:
 	BYTE keys_[256]{};
 	BYTE preKeys_[256]{};
 
-	//DIMOUSESTATE preMouse_;
-	//DIMOUSESTATE mouse_;
+	DIMOUSESTATE preMouse_;
+	DIMOUSESTATE mouse_;
 
-	//XINPUT_STATE pad_[4];
-	//DWORD dwResult_[4];
-	//XINPUT_STATE prePad_[4];
+	XINPUT_STATE pad_[4];
+	DWORD dwResult_[4];
+	XINPUT_STATE prePad_[4];
 public:
 	//デストラクタ
 	~GameEngine();
@@ -204,9 +204,9 @@ public:
 	Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& GetCommandList();
 
 	//キーボード入力
-	//Keybord GetKeybord();
+	Keybord GetKeybord();
 
-	//Mouse GetMouse();
+	Mouse GetMouse();
 
-	//Pad GetPad(int usePadNum = 0);
+	Pad GetPad(int usePadNum = 0);
 };
