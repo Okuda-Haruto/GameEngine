@@ -1,6 +1,5 @@
 #include "Texture.h"
 
-#include "externals/DirectXTex/DirectXTex.h"
 #include "LoadTexture.h"
 #include "CreateTextureResource.h"
 #include "UploadTextureData.h"

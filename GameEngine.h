@@ -1,18 +1,13 @@
 #pragma once
 #include <Windows.h>
-#include <cstdint>
-#include <fstream>
+
+#include "externals/imgui/imgui.h"
+#include "externals/imgui/imgui_impl_dx12.h"
+#include "externals/imgui/imgui_impl_win32.h"
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 #pragma comment(lib,"dxcompiler.lib")
 #include <dxcapi.h>
-
-#include "D3DResourceLeakChecker.h"
-#include "Light.h"
-#include "Object_3D.h"
-#include "Object_2D.h"
-#include "Texture.h"
-#include "Audio.h"
-#include "Input.h"
 
 #define DIRECTINPUT_VERSION 0x0800	//DirectInputのバージョン指定
 #pragma comment(lib,"dinput8.lib")
@@ -21,6 +16,15 @@
 
 #pragma comment(lib,"xinput.lib")
 #include <Xinput.h>
+
+#include "D3DResourceLeakChecker.h"
+#include "Light.h"
+#include "Object_3D.h"
+#include "Object_2D.h"
+#include "Texture.h"
+#include "Audio.h"
+#include "Input.h"
+#include "DebugCamera.h"
 
 class GameEngine {
 private:
@@ -183,6 +187,14 @@ public:
 	void LoadAudio(Audio* audio, const char* filename,bool isLoop);
 
 	/// <summary>
+	/// カメラ変換
+	/// </summary>
+	/// <param name="transform">カメラSRT</param>
+	/// <returns></returns>
+	/// [[nodiscard]]
+	Camera UpdateCamera(Vector3 rotate,Vector3 Translate);
+
+	/// <summary>
 	/// フレームの開始
 	/// </summary>
 	/// <returns>Windowsのメッセージがあるか</returns>
@@ -201,12 +213,21 @@ public:
 	void PostDraw();
 
 	//コマンドリスト
+	[[nodiscard]]
 	Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& GetCommandList();
 
 	//キーボード入力
+	[[nodiscard]]
 	Keybord GetKeybord();
 
+	//マウス入力
+	[[nodiscard]]
 	Mouse GetMouse();
 
+	/// <summary>
+	/// パッド入力
+	/// </summary>
+	/// <param name="usePadNum">参照するパッドの番号。1つ目なら0を入力</param>
+	[[nodiscard]]
 	Pad GetPad(int usePadNum = 0);
 };

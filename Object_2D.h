@@ -1,7 +1,5 @@
 #pragma once
 
-#include "externals/DirectXTex/DirectXTex.h"
-
 #pragma comment(lib,"d3d12.lib")
 #include <d3d12.h>
 
@@ -35,6 +33,10 @@ private:
 	//マテリアルデータ
 	Material* materialData_ = nullptr;
 
+	//Windowのサイズ
+	uint32_t kWindowWidth_;
+	uint32_t kWindowHeight_;
+
 	//Transform変数
 	Transform transform_{
 		{1.0f,1.0f,1.0f},
@@ -51,15 +53,26 @@ private:
 	Vector4 color_ = { 1.0f,1.0f,1.0f,1.0f };
 public:
 
-	void Initialize(Microsoft::WRL::ComPtr<ID3D12Device> device);
+	/// <summary>
+	/// 初期化
+	/// </summary>
+	/// <param name="device">デバイス</param>
+	/// <param name="kWindowWidth">ウィンドウの幅</param>
+	/// <param name="kWindowHeight">ウィンドウの高さ</param>
+	void Initialize(Microsoft::WRL::ComPtr<ID3D12Device> device, uint32_t kWindowWidth, uint32_t kWindowHeight);
 
 	// Transform入力
-	void SetTransform(Transform transform);
+	void SetTransform(Transform transform) { transform_ = transform; };
 	// UVTransform入力
-	void SetUVTransform(Transform uvTransform);
+	void SetUVTransform(Transform uvTransform) { uvTransform_ = uvTransform; };
 	// Color入力
-	void SetColor(Vector4 color);
+	void SetColor(Vector4 color) { color_ = color; };
 
+	/// <summary>
+	/// 2Dオブジェクト描画
+	/// </summary>
+	/// <param name="commandList">コマンドリスト</param>
+	/// <param name="textureSrvHandleGPU">オブジェクトに貼り付けるテクスチャのGPUデスクリプタハンドル (例:object2DTexture->textureSrvHandleGPU())</param>
 	void Draw(Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& commandList, D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU);
 
 };

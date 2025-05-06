@@ -24,7 +24,7 @@
     <ClCompile Include="CreateDepthStencilTextureResource.cpp" />
     <ClCompile Include="CreateDescriptorHeap.cpp" />
     <ClCompile Include="CreateTextureResource.cpp" />
-    <ClCompile Include="Input.cpp" />
+    <ClCompile Include="DebugCamera.cpp" />
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="ExportDump.cpp" />
     <ClCompile Include="GameEngine.cpp" />
@@ -32,6 +32,7 @@
     <ClCompile Include="LoadMaterialTemplateFile.cpp" />
     <ClCompile Include="LoadObjFile.cpp" />
     <ClCompile Include="LoadTexture.cpp" />
+    <ClCompile Include="Matrix4x4_operation.cpp" />
     <ClCompile Include="Object_2D.cpp" />
     <ClCompile Include="Object_3D.cpp" />
     <ClCompile Include="externals\imgui\imgui.cpp" />
@@ -44,9 +45,9 @@
     <ClCompile Include="Initialvalue.cpp" />
     <ClCompile Include="Log.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Matrix4x4.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="UploadTextreData.cpp" />
+    <ClCompile Include="Vector3_operation.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -63,6 +64,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Audio.h" />
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="ChunkHeader.h" />
     <ClInclude Include="CompileShader.h" />
     <ClInclude Include="ConvertString.h" />
@@ -71,6 +73,7 @@
     <ClInclude Include="CreateDescriptorHeap.h" />
     <ClInclude Include="CreateTextureResource.h" />
     <ClInclude Include="D3DResourceLeakChecker.h" />
+    <ClInclude Include="DebugCamera.h" />
     <ClInclude Include="DirectionalLight.h" />
     <ClInclude Include="ExportDump.h" />
     <ClInclude Include="FormatChunk.h" />
@@ -81,6 +84,7 @@
     <ClInclude Include="LoadMaterialTemplateFile.h" />
     <ClInclude Include="LoadObjFile.h" />
     <ClInclude Include="LoadTexture.h" />
+    <ClInclude Include="Matrix4x4_operation.h" />
     <ClInclude Include="Object_2D.h" />
     <ClInclude Include="Object_3D.h" />
     <ClInclude Include="externals\imgui\imconfig.h" />
@@ -107,6 +111,7 @@
     <ClInclude Include="UploadTextureData.h" />
     <ClInclude Include="Vector2.h" />
     <ClInclude Include="Vector3.h" />
+    <ClInclude Include="Vector3_operation.h" />
     <ClInclude Include="Vector4.h" />
     <ClInclude Include="VertexData.h" />
     <ClInclude Include="Window.h" />

@@ -1,10 +1,5 @@
 #include "GameEngine.h"
 
-#include <Windows.h>
-#include <cstdint>
-#include <format>
-#include <sstream>
-
 #define _USE_MATH_DEFINES
 #include <cmath>
 
@@ -13,32 +8,14 @@
 #include "externals/imgui/imgui_impl_win32.h"
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-#include "externals/DirectXTex/DirectXTex.h"
 
-#include "SRT.h"
-#include "ModelData.h"
-#include "Material.h"
-#include "MaterialData.h"
-#include "TransformationMatrix.h"
-#include "DirectionalLight.h"
-#include "ResourceObject.h"
-#include "LoadTexture.h"
-#include "LoadObjFile.h"
+
 #include "CreateBufferResource.h"
 #include "CompileShader.h"
 #include "CreateDescriptorHeap.h"
-#include "CreateTextureResource.h"
 #include "CreateDepthStencilTextureResource.h"
-#include "UploadTextureData.h"
 #include "GetDescriptorHandle.h"
-#include "LoadMaterialTemplateFile.h"
-#include "D3DResourceLeakChecker.h"
 #include "ExportDump.h"
-
-#include "Window.h"
-#include "Log.h"
-#include "ConvertString.h"
-#include "Initialvalue.h"
 
 #pragma comment(lib,"d3d12.lib")
 #include <d3d12.h>
@@ -51,6 +28,11 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #include <cassert>
 #include <wrl.h>
 #include <strsafe.h>
+
+#include "Window.h"
+#include "Log.h"
+#include "Initialvalue.h"
+#include "Matrix4x4_operation.h"
 
 GameEngine::~GameEngine() {
 
@@ -312,7 +294,7 @@ void GameEngine::LoadObject(Object_3D* object, const std::string& directoryPath,
 
 void GameEngine::LoadObject(Object_2D* object) {
 
-	object->Initialize(device_);
+	object->Initialize(device_,kWindowWidth_,kWindowHeight_);
 
 }
 
@@ -320,6 +302,23 @@ void GameEngine::LoadAudio(Audio* audio, const char* filename,bool isLoop) {
 
 	audio->Initialize(filename, xAudio2_.Get(),isLoop);
 
+}
+
+[[nodiscard]]
+Camera GameEngine::UpdateCamera(Vector3 rotate, Vector3 Translate) {
+
+	Matrix4x4 rotateMatrix = MakeIdentity4x4();
+	rotateMatrix = Multiply(rotateMatrix, MakeRotateXMatrix(rotate.x));
+	rotateMatrix = Multiply(rotateMatrix, MakeRotateYMatrix(rotate.y));
+	rotateMatrix = Multiply(rotateMatrix, MakeRotateZMatrix(rotate.z));
+
+	Matrix4x4 worldMatrix = Multiply(rotateMatrix, MakeTranslateMatrix(Translate));
+	Matrix4x4 viewMatrix = Inverse(worldMatrix);
+	Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(kWindowWidth_) / float(kWindowHeight_), 0.1f, 100.0f);
+
+	Camera camera = { viewMatrix,projectionMatrix };
+
+	return camera;
 }
 
 bool GameEngine::StartFlame() {
@@ -484,10 +483,12 @@ void GameEngine::PostDraw() {
 	assert(SUCCEEDED(hr));
 }
 
+[[nodiscard]]
 Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& GameEngine::GetCommandList() {
 	return commandList_;
 }
 
+[[nodiscard]]
 Keybord GameEngine::GetKeybord() {
 
 	Keybord returnKeybord{};
@@ -502,6 +503,7 @@ Keybord GameEngine::GetKeybord() {
 	return returnKeybord;
 }
 
+[[nodiscard]]
 Mouse GameEngine::GetMouse() {
 
 	Mouse returnMouse{};
@@ -521,6 +523,7 @@ Mouse GameEngine::GetMouse() {
 	return returnMouse;
 }
 
+[[nodiscard]]
 Pad GameEngine::GetPad(int usePadNum) {
 
 	Pad returnPad{};
@@ -613,31 +616,6 @@ Pad GameEngine::GetPad(int usePadNum) {
 		//接続されていない
 		returnPad.isConnected = false;
 	}
-
-	ImGui::Begin("pad");
-	if (returnPad.isConnected) {
-		ImGui::Text("true");
-	} else {
-		ImGui::Text("false");
-	}
-	ImGui::Text("LStick : %f,%f,%f", returnPad.LeftStick.vector.x, returnPad.LeftStick.vector.y, returnPad.LeftStick.magnitude);
-	ImGui::Text("RStick : %f,%f,%f", returnPad.RightStick.vector.x, returnPad.RightStick.vector.y, returnPad.RightStick.magnitude);
-	if (returnPad.Button[PAD_BOTTON_A].trigger) {
-		ImGui::Text("A");
-	}
-	if (returnPad.Button[PAD_BOTTON_RT].trigger) {
-		ImGui::Text("RT");
-		XINPUT_VIBRATION vibration;
-		ZeroMemory(&vibration, sizeof(XINPUT_VIBRATION));
-		vibration.wLeftMotorSpeed = 32000; // use any value between 0-65535 here
-		vibration.wRightMotorSpeed = 16000; // use any value between 0-65535 here
-		XInputSetState(usePadNum, &vibration);
-	} else {
-		XINPUT_VIBRATION vibration{};
-		ZeroMemory(&vibration, sizeof(XINPUT_VIBRATION));
-		XInputSetState(usePadNum, &vibration);
-	}
-	ImGui::End();
 
 	return returnPad;
 }

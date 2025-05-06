@@ -40,6 +40,9 @@
     <Filter Include="ヘッダー ファイル\GameEngine\クラス">
       <UniqueIdentifier>{cd0e3ad9-7277-449a-b2fb-734ea373fbb8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ソース ファイル\Vector">
+      <UniqueIdentifier>{ef45c43f-e4bc-48d4-b9e4-b5622fcdf49c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -118,9 +121,6 @@
     <ClCompile Include="ExportDump.cpp">
       <Filter>ソース ファイル\GameEngine</Filter>
     </ClCompile>
-    <ClCompile Include="Matrix4x4.cpp">
-      <Filter>ソース ファイル\Matrix</Filter>
-    </ClCompile>
     <ClCompile Include="Light.cpp">
       <Filter>ソース ファイル\GameEngine\クラス</Filter>
     </ClCompile>
@@ -136,8 +136,14 @@
     <ClCompile Include="Audio.cpp">
       <Filter>ソース ファイル\GameEngine\クラス</Filter>
     </ClCompile>
-    <ClCompile Include="Input.cpp">
+    <ClCompile Include="DebugCamera.cpp">
       <Filter>ソース ファイル\GameEngine\クラス</Filter>
+    </ClCompile>
+    <ClCompile Include="Matrix4x4_operation.cpp">
+      <Filter>ソース ファイル\Matrix</Filter>
+    </ClCompile>
+    <ClCompile Include="Vector3_operation.cpp">
+      <Filter>ソース ファイル\Vector</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -287,6 +293,18 @@
       <Filter>ヘッダー ファイル\GameEngine\DirectX</Filter>
     </ClInclude>
     <ClInclude Include="Input.h">
+      <Filter>ヘッダー ファイル\GameEngine\クラス</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugCamera.h">
+      <Filter>ヘッダー ファイル\GameEngine\クラス</Filter>
+    </ClInclude>
+    <ClInclude Include="Matrix4x4_operation.h">
+      <Filter>ヘッダー ファイル\Matrix</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector3_operation.h">
+      <Filter>ヘッダー ファイル\Vector</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
       <Filter>ヘッダー ファイル\GameEngine\クラス</Filter>
     </ClInclude>
   </ItemGroup>

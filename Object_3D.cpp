@@ -1,5 +1,7 @@
 #include "Object_3D.h"
 
+#include "Matrix4x4_operation.h"
+
 #include "CreateBufferResource.h"
 #include "LoadObjFile.h"
 #include "GetDescriptorHandle.h"
@@ -57,34 +59,13 @@ void Object_3D::Initialize(const std::string& directoryPath, const std::string& 
 		{0.0f,0.0f,0.0f} };
 	//Color変数を作る
 	color_ = { 1.0f,1.0f,1.0f,1.0f };
-	//カメラ変数を作る。zが-10の位置でz+の方向を向いている
-	cameraTransform_ = { {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,-10.0f} };
-}
-
-void Object_3D::SetTransform(Transform transform) {
-	transform_ = transform;
-}
-
-void Object_3D::SetUVTransform(Transform uvTransform) {
-	uvTransform_ = uvTransform;
-}
-
-void Object_3D::SetColor(Vector4 color) {
-	color_ = color;
-}
-
-void Object_3D::SetCamera(Transform cameraTransform) {
-	cameraTransform_ = cameraTransform;
 }
 
 void Object_3D::Draw(Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& commandList, Microsoft::WRL::ComPtr<ID3D12Resource>& directionalLightResource, D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU) {
 	
 	Matrix4x4 worldMatrix = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
 	wvpData_->World = worldMatrix;
-	Matrix4x4 cameraMatrix = MakeAffineMatrix(cameraTransform_.scale, cameraTransform_.rotate, cameraTransform_.translate);
-	Matrix4x4 viewMatrix = Inverse(cameraMatrix);
-	Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(1280) / float(720), 0.1f, 100.0f);
-	Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
+	Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(camera_.viewMatrix, camera_.projectionMatrix));
 	wvpData_->WVP = worldViewProjectionMatrix;
 
 	Matrix4x4 uvTransformMatrix = MakeScaleMatrix(uvTransform_.scale);
