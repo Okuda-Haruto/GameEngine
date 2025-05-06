@@ -49,8 +49,6 @@ private:
 		{0.0f,0.0f,0.0f},
 		{0.0f,0.0f,0.0f}
 	};
-	//Color変数
-	Vector4 color_ = { 1.0f,1.0f,1.0f,1.0f };
 public:
 
 	/// <summary>
@@ -66,7 +64,7 @@ public:
 	// UVTransform入力
 	void SetUVTransform(Transform uvTransform) { uvTransform_ = uvTransform; };
 	// Color入力
-	void SetColor(Vector4 color) { color_ = color; };
+	void SetColor(Vector4 color) { materialData_->color = color; };
 
 	/// <summary>
 	/// 2Dオブジェクト描画

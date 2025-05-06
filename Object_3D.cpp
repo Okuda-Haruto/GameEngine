@@ -57,8 +57,6 @@ void Object_3D::Initialize(const std::string& directoryPath, const std::string& 
 	transform_ = { {1.0f,1.0f,1.0f},
 		{0.0f,0.0f,0.0f},
 		{0.0f,0.0f,0.0f} };
-	//Color変数を作る
-	color_ = { 1.0f,1.0f,1.0f,1.0f };
 }
 
 void Object_3D::Draw(Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& commandList, Microsoft::WRL::ComPtr<ID3D12Resource>& directionalLightResource, D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU) {
