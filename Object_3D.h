@@ -36,8 +36,6 @@ private:
 	Transform transform_;
 	//UVTransform変数
 	Transform uvTransform_;
-	//Color変数
-	Vector4 color_;
 	//Camera変数
 	Camera camera_;
 public:
@@ -55,7 +53,7 @@ public:
 	// UVTransform入力
 	void SetUVTransform(Transform uvTransform) { uvTransform_ = uvTransform; };
 	// Color入力
-	void SetColor(Vector4 color) { color_ = color; };
+	void SetColor(Vector4 color) { materialData_->color = color; };
 	// Camera入力
 	void SetCamera(Camera camera) { camera_ = camera; };
 
