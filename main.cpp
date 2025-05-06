@@ -5,27 +5,45 @@
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
+	//ゲームエンジン
 	GameEngine* gameEngine = new GameEngine();
-	gameEngine->Intialize(L"CG2");
+	gameEngine->Intialize(L"CG2",1280,720);
 
+
+	//オーディオ
 	Audio* audio = new Audio();
 	gameEngine->LoadAudio(audio, "resources/fanfare.wav",true);
 
 	Audio* audio2 = new Audio();
 	gameEngine->LoadAudio(audio2, "resources/Alarm01.wav",false);
 
+	//音量
+	float AudioVolume = 1.0f;
+
+
+	//3Dオブジェクト
 	Object_3D* object1 = new Object_3D();
 	gameEngine->LoadObject(object1, "resources", "axis.obj");
 
 	Object_3D* object2 = new Object_3D();
 	gameEngine->LoadObject(object2, "resources", "plane.obj");
 
+
+	//2Dオブジェクト
 	Object_2D* sprite = new Object_2D();
 	gameEngine->LoadObject(sprite);
 
+
+	//光源
 	Light* light = new Light();
 	gameEngine->LoadLight(light);
 
+	Vector4 lightColor = { 1.0f,1.0f,1.0f,1.0f };
+	Vector3 lightDirection = { 0.0f,-1.0f,0.0f };
+	float lightIntensity = 1.0f;
+
+
+	//デバッグカメラ
 	DebugCamera* debugCamera = new DebugCamera;
 	debugCamera->Initialize();
 
@@ -42,11 +60,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		{0.0f,0.0f,0.0f} };
 	//カメラ変数を作る。zが-10の位置でz+の方向を向いている
 	Transform cameraTransform{ {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,-10.0f} };
-	Camera camera;
+	Camera camera{};
 
 
 	//テクスチャ読み込み
-
 	Texture* spriteTexture = new Texture();
 	gameEngine->LoadTexture(spriteTexture, "resources/monsterBall.png");
 
@@ -56,37 +73,41 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Texture* object3DTexture2 = new Texture();
 	gameEngine->LoadTexture(object3DTexture2, (object2->ModelData()).material.textureFilePath);
 
-
-	audio2->SoundPlayWave();
-
 	Transform uvTransformSprite{
 		{1.0f,1.0f,1.0f},
 		{0.0f,0.0f,0.0f},
 		{0.0f,0.0f,0.0f}
 	};
 
-	Vector4 lightColor = { 1.0f,1.0f,1.0f,1.0f };
-	Vector3 lightDirection = { 0.0f,-1.0f,0.0f };
-	float lightIntensity = 1.0f;
-
+	//オブジェクトの色
 	Vector4 Color1 = { 1.0f,1.0f,1.0f,1.0f };
 	Vector4 Color2 = { 1.0f,1.0f,1.0f,1.0f };
 	Vector4 ColorSprite = { 1.0f,1.0f,1.0f,1.0f };
 
-	float AudioVolume = 1.0f;
 
+
+	audio2->SoundPlayWave();
+
+	//デバッグカメラを使用するか
 	bool useDebugCamera = false;
 
 	MSG msg{};
 	//ウィンドウの×ボタンが押されるまでループ
 	while (gameEngine->WiodowState()) {
 		if (gameEngine->StartFlame()) {
-			
+
+			//キーボード入力
 			Keybord keybord = gameEngine->GetKeybord();
-
+			//マウス入力
 			Mouse mouse = gameEngine->GetMouse();
+			//パッド入力
+			Pad pad = gameEngine->GetPad(0);
 
-			Pad pad = gameEngine->GetPad();
+
+
+			//
+			//	更新処理
+			//
 
 			//ImGui
 #ifdef _DEBUG
@@ -135,7 +156,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			ImGui::SliderFloat("AudioVolume", &AudioVolume,0.0f,1.0f);
 			ImGui::End();
 #endif
-
 
 			if (useDebugCamera) {
 				debugCamera->Update(mouse);
