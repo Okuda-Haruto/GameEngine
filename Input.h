@@ -56,8 +56,8 @@ struct PadTrigger {
 
 //パッドスティック入力	単体では使用しないこと
 struct PadStick {
-	float magnitude;
-	Vector2 vector;
+	float magnitude;	//傾け度合い
+	Vector2 vector;		//傾いている方向
 };
 
 //パッド入力

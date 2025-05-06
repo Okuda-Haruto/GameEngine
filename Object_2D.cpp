@@ -1,13 +1,13 @@
 #include "Object_2D.h"
 
-#include "CreateBufferResource.h"
-#include "LoadObjFile.h"
-#include "GetDescriptorHandle.h"
-#include "LoadTexture.h"
-#include "CreateTextureResource.h"
-#include "UploadTextureData.h"
+#include "Matrix4x4_operation.h"
 
-void Object_2D::Initialize(Microsoft::WRL::ComPtr<ID3D12Device> device) {
+#include "CreateBufferResource.h"
+
+void Object_2D::Initialize(Microsoft::WRL::ComPtr<ID3D12Device> device, uint32_t kWindowWidth, uint32_t kWindowHeight) {
+
+	kWindowWidth_ = kWindowWidth;
+	kWindowHeight_ = kWindowHeight;
 
 	//Sprite用の頂点リソースを作る
 	vertexResource_ = CreateBufferResource(device, sizeof(VertexData) * 4);
@@ -82,24 +82,12 @@ void Object_2D::Initialize(Microsoft::WRL::ComPtr<ID3D12Device> device) {
 
 }
 
-void Object_2D::SetTransform(Transform transform) {
-	transform_ = transform;
-}
-
-void Object_2D::SetUVTransform(Transform uvTransform) {
-	uvTransform_ = uvTransform;
-}
-
-void Object_2D::SetColor(Vector4 color) {
-	color_ = color;
-}
-
 void Object_2D::Draw(Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& commandList, D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU) {
 
 	Matrix4x4 worldMatrixSprite = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
 	transformationMatrixData_->World = worldMatrixSprite;
 	Matrix4x4 viewMatrixSprite = MakeIdentity4x4();
-	Matrix4x4 projectionMatrixSprite = MakeOrthographicMatrix(0.0f, 0.0f, float(1280), float(720), 0.0f, 100.0f);
+	Matrix4x4 projectionMatrixSprite = MakeOrthographicMatrix(0.0f, 0.0f, float(kWindowWidth_), float(kWindowHeight_), 0.0f, 100.0f);
 	Matrix4x4 worldViewProjectionMatrixSprite = Multiply(worldMatrixSprite, Multiply(viewMatrixSprite, projectionMatrixSprite));
 	transformationMatrixData_->WVP = worldViewProjectionMatrixSprite;
 

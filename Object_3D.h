@@ -10,6 +10,7 @@
 #include "Material.h"
 #include "TransformationMatrix.h"
 #include "SRT.h"
+#include "Camera.h"
 
 //3Dオブジェクト
 class Object_3D {
@@ -38,7 +39,7 @@ private:
 	//Color変数
 	Vector4 color_;
 	//Camera変数
-	Transform cameraTransform_;
+	Camera camera_;
 public:
 	
 	/// <summary>
@@ -50,13 +51,13 @@ public:
 	void Initialize(const std::string& directoryPath, const std::string& filename, Microsoft::WRL::ComPtr<ID3D12Device> device);
 
 	// Transform入力
-	void SetTransform(Transform transform);
+	void SetTransform(Transform transform) { transform_ = transform; };
 	// UVTransform入力
-	void SetUVTransform(Transform uvTransform);
+	void SetUVTransform(Transform uvTransform) { uvTransform_ = uvTransform; };
 	// Color入力
-	void SetColor(Vector4 color);
+	void SetColor(Vector4 color) { color_ = color; };
 	// Camera入力
-	void SetCamera(Transform cameraTransform);
+	void SetCamera(Camera camera) { camera_ = camera; };
 
 	/// <summary>
 	/// 3Dオブジェクト描画

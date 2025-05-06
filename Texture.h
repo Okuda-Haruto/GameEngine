@@ -11,12 +11,14 @@
 class Texture {
 private:
 
+	//テクスチャのGPUデスクリプタハンドル
 	D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU_;
-
+	//テクスチャリソース
 	Microsoft::WRL::ComPtr <ID3D12Resource> textureResource_;
 
 public:
 
+	// 初期化	コマンドリストを使用するために必要な物はGameEngineから引っ張ってくること
 	void Initialize(const std::string& filePath,
 		Microsoft::WRL::ComPtr <ID3D12Device> device,
 		Microsoft::WRL::ComPtr <ID3D12CommandQueue>& commandQueue,
@@ -30,6 +32,7 @@ public:
 		uint32_t& CPUIndex,
 		uint32_t& GPUIndex);
 
+	//テクスチャのGPUデスクリプタハンドル
 	[[nodiscard]]
 	D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU();
 };
