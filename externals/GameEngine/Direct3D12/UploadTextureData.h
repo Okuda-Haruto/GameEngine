@@ -2,7 +2,7 @@
 #include <wrl.h>
 #pragma comment(lib,"d3d12.lib")
 #include <d3d12.h>
-#include "externals/DirectXTex/DirectXTex.h"
+#include "DirectXTex/DirectXTex.h"
 
 //void UploadTextureData(Microsoft::WRL::ComPtr <ID3D12Resource> texture, const DirectX::ScratchImage& mipImages);
 

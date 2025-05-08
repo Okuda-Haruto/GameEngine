@@ -6,6 +6,7 @@
 #include <wrl.h>
 #include "DirectionalLight.h"
 
+
 //光源
 class Light {
 private:
