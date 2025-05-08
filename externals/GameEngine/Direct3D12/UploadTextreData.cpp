@@ -1,6 +1,6 @@
 #include "UploadTextureData.h"
 #include <cassert>
-#include "externals/DirectXTex/d3dx12.h"
+#include "DirectXTex/d3dx12.h"
 #include "CreateBufferResource.h"
 
 /*void UploadTextureData(Microsoft::WRL::ComPtr <ID3D12Resource> texture, const DirectX::ScratchImage& mipImages) {

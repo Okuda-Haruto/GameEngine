@@ -1,5 +1,5 @@
 #pragma once
 #include <string>
-#include "externals/DirectXTex/DirectXTex.h"
+#include "DirectXTex/DirectXTex.h"
 
 DirectX::ScratchImage LoadTexture(const std::string& filePath);

@@ -3,13 +3,6 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 
-#include "externals/imgui/imgui.h"
-#include "externals/imgui/imgui_impl_dx12.h"
-#include "externals/imgui/imgui_impl_win32.h"
-extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-
-
-
 #include "CreateBufferResource.h"
 #include "CompileShader.h"
 #include "CreateDescriptorHeap.h"
@@ -212,9 +205,9 @@ void GameEngine::Intialize(const wchar_t* WindowName, int32_t kWindowWidth, int3
 	rootSignature_ = rootSignatureInitialvalue(device_, logStream_);
 
 	//Shaderをコンパイルする
-	IDxcBlob* vertexShaderBlob = CompileShader(L"Object3D.VS.hlsl", L"vs_6_0", dxcUtils, dxcCompiler, includeHandler_.Get(), logStream_);
+	IDxcBlob* vertexShaderBlob = CompileShader(L"./externals/GameEngine/Shader/Object3D.VS.hlsl", L"vs_6_0", dxcUtils, dxcCompiler, includeHandler_.Get(), logStream_);
 	assert(vertexShaderBlob != nullptr);
-	IDxcBlob* pixelShaderBlob = CompileShader(L"OBject3D.PS.hlsl", L"ps_6_0", dxcUtils, dxcCompiler, includeHandler_.Get(), logStream_);
+	IDxcBlob* pixelShaderBlob = CompileShader(L"./externals/GameEngine/Shader/OBject3D.PS.hlsl", L"ps_6_0", dxcUtils, dxcCompiler, includeHandler_.Get(), logStream_);
 	assert(pixelShaderBlob != nullptr);
 
 	//DepthStencilTextureをウィンドウのサイズで作成
