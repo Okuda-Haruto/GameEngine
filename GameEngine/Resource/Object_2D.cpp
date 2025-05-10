@@ -6,6 +6,8 @@
 
 void Object_2D::Initialize(Microsoft::WRL::ComPtr<ID3D12Device> device, uint32_t kWindowWidth, uint32_t kWindowHeight) {
 
+	device_ = device;
+
 	kWindowWidth_ = kWindowWidth;
 	kWindowHeight_ = kWindowHeight;
 
@@ -60,50 +62,67 @@ void Object_2D::Initialize(Microsoft::WRL::ComPtr<ID3D12Device> device, uint32_t
 	indexData_[0] = 0; indexData_[1] = 1; indexData_[2] = 2;
 	indexData_[3] = 1; indexData_[4] = 3; indexData_[5] = 2;
 
-	//Sprite用のTransFormation用のリソースを作る。Matrix4x4、1つ分のサイズを用意する
-	transformationMatrixResource_ = CreateBufferResource(device, sizeof(TransformationMatrix));
-	//データを書き込む
-	//書き込むためのアドレスを取得
-	transformationMatrixResource_->Map(0, nullptr, reinterpret_cast<void**>(&transformationMatrixData_));
-	//単位行列を書き込んでおく
-	transformationMatrixData_->WVP = MakeIdentity4x4();
-
-	//Sprite用のリソースを作る。
-	materialResource_ = CreateBufferResource(device, sizeof(Material));
-	//マテリアルにデータを書き込む
-	//書き込むためのアドレスを取得
-	materialResource_->Map(0, nullptr, reinterpret_cast<void**>(&materialData_));
-	//マテリアルの色を入力する
-	materialData_->color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
-	//単位行列を書き込んでおく
-	materialData_->uvTransform = MakeIdentity4x4();
-	//Lightingを有効化する
-	materialData_->enableLighting = false;
+	//使用するリソースのサイズを0にしておく
+	wvpResource_.resize(0);
+	wvpData_.resize(0);
+	materialResource_.resize(0);
+	materialData_.resize(0);
 
 }
 
-void Object_2D::Draw(Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& commandList, D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU) {
+void Object_2D::Draw(Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& commandList, Object_2D_Data& data) {
 
-	Matrix4x4 worldMatrixSprite = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
-	transformationMatrixData_->World = worldMatrixSprite;
-	Matrix4x4 viewMatrixSprite = MakeIdentity4x4();
-	Matrix4x4 projectionMatrixSprite = MakeOrthographicMatrix(0.0f, 0.0f, float(kWindowWidth_), float(kWindowHeight_), 0.0f, 100.0f);
-	Matrix4x4 worldViewProjectionMatrixSprite = Multiply(worldMatrixSprite, Multiply(viewMatrixSprite, projectionMatrixSprite));
-	transformationMatrixData_->WVP = worldViewProjectionMatrixSprite;
+	//空の要素を追加
+	wvpResource_.emplace_back();
+	wvpData_.emplace_back();
+	materialResource_.emplace_back();
+	materialData_.emplace_back();
 
-	Matrix4x4 uvTransformMatrix = MakeScaleMatrix(uvTransform_.scale);
-	uvTransformMatrix = Multiply(uvTransformMatrix, MakeRotateZMatrix(uvTransform_.rotate.z));
-	uvTransformMatrix = Multiply(uvTransformMatrix, MakeTranslateMatrix(uvTransform_.translate));
-	materialData_->uvTransform = uvTransformMatrix;
+	//初期化
+	wvpResource_.back() = CreateBufferResource(device_, sizeof(TransformationMatrix));
+	wvpData_.back() = nullptr;
+	materialResource_.back() = CreateBufferResource(device_, sizeof(Material));
+	materialData_.back() = nullptr;
+
+
+	Matrix4x4 viewMatrix = MakeIdentity4x4();
+	Matrix4x4 projectionMatrix = MakeOrthographicMatrix(0.0f, 0.0f, float(kWindowWidth_), float(kWindowHeight_), 0.0f, 100.0f);
+
+	//WVPデータを更新
+	wvpResource_.back()->Map(0, nullptr, reinterpret_cast<void**>(&wvpData_.back()));
+
+	Matrix4x4 worldMatrix = MakeAffineMatrix(data.transform.scale, data.transform.rotate, data.transform.translate);
+	wvpData_.back()->World = worldMatrix;
+	Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
+	wvpData_.back()->WVP = worldViewProjectionMatrix;
+
+	wvpResource_.back()->Unmap(0, nullptr);
+
+	//マテリアルデータを更新
+	materialResource_.back()->Map(0, nullptr, reinterpret_cast<void**>(&materialData_.back()));
+
+	materialData_.back()->color = data.color;
+	materialData_.back()->uvTransform = MakeAffineMatrix(data.uvTransform.scale, data.uvTransform.rotate, data.uvTransform.translate);
+	materialData_.back()->enableLighting = false;
+
+	materialResource_.back()->Unmap(0, nullptr);
 
 	//Spriteの描画。変更が必要なものだけ変更する
 	commandList->IASetVertexBuffers(0, 1, &vertexBufferView_);	//VBVを設定
 	commandList->IASetIndexBuffer(&indexBufferView_);	//IBVを設定
-	commandList->SetGraphicsRootDescriptorTable(2, textureSrvHandleGPU);
+	commandList->SetGraphicsRootDescriptorTable(2, texture_->textureSrvHandleGPU());
 	//マテリアルCBufferの場所を設定
-	commandList->SetGraphicsRootConstantBufferView(0, materialResource_->GetGPUVirtualAddress());
+	commandList->SetGraphicsRootConstantBufferView(0, materialResource_.back()->GetGPUVirtualAddress());
 	//TransformationMatrixCBufferの場所を設定
-	commandList->SetGraphicsRootConstantBufferView(1, transformationMatrixResource_->GetGPUVirtualAddress());
+	commandList->SetGraphicsRootConstantBufferView(1, wvpResource_.back()->GetGPUVirtualAddress());
 	//ドローコール
 	commandList->DrawIndexedInstanced(6, 1, 0, 0, 0);
+}
+
+void Object_2D::Reset() {
+	//使用するリソースのサイズを0にしておく
+	wvpResource_.resize(0);
+	wvpData_.resize(0);
+	materialResource_.resize(0);
+	materialData_.resize(0);
 }

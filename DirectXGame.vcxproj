@@ -12,35 +12,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
-    <None Include="externals\GameEngine\Shader\Object3d.hlsli">
+    <None Include="GameEngine\Shader\Object3d.hlsli">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="externals\GameEngine\Debug\DebugCamera.cpp" />
-    <ClCompile Include="externals\GameEngine\Debug\ExportDump.cpp" />
-    <ClCompile Include="externals\GameEngine\Debug\Log.cpp" />
-    <ClCompile Include="externals\GameEngine\Direct3D12\ConvertString.cpp" />
-    <ClCompile Include="externals\GameEngine\Direct3D12\CreateBufferResource.cpp" />
-    <ClCompile Include="externals\GameEngine\Direct3D12\CreateDepthStencilTextureResource.cpp" />
-    <ClCompile Include="externals\GameEngine\Direct3D12\CreateDescriptorHeap.cpp" />
-    <ClCompile Include="externals\GameEngine\Direct3D12\CreateTextureResource.cpp" />
-    <ClCompile Include="externals\GameEngine\Direct3D12\GetDescriptorHandle.cpp" />
-    <ClCompile Include="externals\GameEngine\Direct3D12\Initialvalue.cpp" />
-    <ClCompile Include="externals\GameEngine\Direct3D12\UploadTextreData.cpp" />
-    <ClCompile Include="externals\GameEngine\GameEngine.cpp" />
-    <ClCompile Include="externals\GameEngine\LoadFile\LoadMaterialTemplateFile.cpp" />
-    <ClCompile Include="externals\GameEngine\LoadFile\LoadObjFile.cpp" />
-    <ClCompile Include="externals\GameEngine\LoadFile\LoadTexture.cpp" />
-    <ClCompile Include="externals\GameEngine\Math\Matrix4x4_operation.cpp" />
-    <ClCompile Include="externals\GameEngine\Math\Vector3_operation.cpp" />
-    <ClCompile Include="externals\GameEngine\Resource\Audio.cpp" />
-    <ClCompile Include="externals\GameEngine\Resource\Light.cpp" />
-    <ClCompile Include="externals\GameEngine\Resource\Object_2D.cpp" />
-    <ClCompile Include="externals\GameEngine\Resource\Object_3D.cpp" />
-    <ClCompile Include="externals\GameEngine\Resource\Texture.cpp" />
-    <ClCompile Include="externals\GameEngine\Shader\CompileShader.cpp" />
-    <ClCompile Include="externals\GameEngine\Window\Window.cpp" />
     <ClCompile Include="externals\imgui\imgui.cpp" />
     <ClCompile Include="externals\imgui\imgui_demo.cpp" />
     <ClCompile Include="externals\imgui\imgui_draw.cpp" />
@@ -48,53 +24,37 @@
     <ClCompile Include="externals\imgui\imgui_impl_win32.cpp" />
     <ClCompile Include="externals\imgui\imgui_tables.cpp" />
     <ClCompile Include="externals\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="GameEngine\Debug\DebugCamera.cpp" />
+    <ClCompile Include="GameEngine\Debug\ExportDump.cpp" />
+    <ClCompile Include="GameEngine\Debug\Log.cpp" />
+    <ClCompile Include="GameEngine\Direct3D12\ConvertString.cpp" />
+    <ClCompile Include="GameEngine\Direct3D12\CreateBufferResource.cpp" />
+    <ClCompile Include="GameEngine\Direct3D12\CreateDepthStencilTextureResource.cpp" />
+    <ClCompile Include="GameEngine\Direct3D12\CreateDescriptorHeap.cpp" />
+    <ClCompile Include="GameEngine\Direct3D12\CreateTextureResource.cpp" />
+    <ClCompile Include="GameEngine\Direct3D12\GetDescriptorHandle.cpp" />
+    <ClCompile Include="GameEngine\Direct3D12\Initialvalue.cpp" />
+    <ClCompile Include="GameEngine\Direct3D12\UploadTextreData.cpp" />
+    <ClCompile Include="GameEngine\GameEngine.cpp" />
+    <ClCompile Include="GameEngine\LoadFile\LoadMaterialTemplateFile.cpp" />
+    <ClCompile Include="GameEngine\LoadFile\LoadObjFile.cpp" />
+    <ClCompile Include="GameEngine\LoadFile\LoadTexture.cpp" />
+    <ClCompile Include="GameEngine\Math\Matrix4x4_operation.cpp" />
+    <ClCompile Include="GameEngine\Math\Vector3_operation.cpp" />
+    <ClCompile Include="GameEngine\Resource\Audio.cpp" />
+    <ClCompile Include="GameEngine\Resource\Light.cpp" />
+    <ClCompile Include="GameEngine\Resource\Object_2D.cpp" />
+    <ClCompile Include="GameEngine\Resource\Object_3D.cpp" />
+    <ClCompile Include="GameEngine\Resource\Texture.cpp" />
+    <ClCompile Include="GameEngine\Shader\CompileShader.cpp" />
+    <ClCompile Include="GameEngine\Window\Window.cpp" />
+    <ClCompile Include="GameScene.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MapChipField.cpp" />
+    <ClCompile Include="Player.cpp" />
+    <ClCompile Include="Skydome.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="externals\GameEngine\Data\Camera.h" />
-    <ClInclude Include="externals\GameEngine\Data\ChunkHeader.h" />
-    <ClInclude Include="externals\GameEngine\Data\DirectionalLight.h" />
-    <ClInclude Include="externals\GameEngine\Data\FormatChunk.h" />
-    <ClInclude Include="externals\GameEngine\Data\Input.h" />
-    <ClInclude Include="externals\GameEngine\Data\Material.h" />
-    <ClInclude Include="externals\GameEngine\Data\MaterialData.h" />
-    <ClInclude Include="externals\GameEngine\Data\ModelData.h" />
-    <ClInclude Include="externals\GameEngine\Data\ResourceObject.h" />
-    <ClInclude Include="externals\GameEngine\Data\RiffHeader.h" />
-    <ClInclude Include="externals\GameEngine\Data\SoundData.h" />
-    <ClInclude Include="externals\GameEngine\Data\SRT.h" />
-    <ClInclude Include="externals\GameEngine\Data\TransformationMatrix.h" />
-    <ClInclude Include="externals\GameEngine\Data\VertexData.h" />
-    <ClInclude Include="externals\GameEngine\Debug\D3DResourceLeakChecker.h" />
-    <ClInclude Include="externals\GameEngine\Debug\DebugCamera.h" />
-    <ClInclude Include="externals\GameEngine\Debug\ExportDump.h" />
-    <ClInclude Include="externals\GameEngine\Debug\Log.h" />
-    <ClInclude Include="externals\GameEngine\Direct3D12\ConvertString.h" />
-    <ClInclude Include="externals\GameEngine\Direct3D12\CreateBufferResource.h" />
-    <ClInclude Include="externals\GameEngine\Direct3D12\CreateDepthStencilTextureResource.h" />
-    <ClInclude Include="externals\GameEngine\Direct3D12\CreateDescriptorHeap.h" />
-    <ClInclude Include="externals\GameEngine\Direct3D12\CreateTextureResource.h" />
-    <ClInclude Include="externals\GameEngine\Direct3D12\GetDescriptorHandle.h" />
-    <ClInclude Include="externals\GameEngine\Direct3D12\Initialvalue.h" />
-    <ClInclude Include="externals\GameEngine\Direct3D12\UploadTextureData.h" />
-    <ClInclude Include="externals\GameEngine\GameEngine.h" />
-    <ClInclude Include="externals\GameEngine\LoadFile\LoadMaterialTemplateFile.h" />
-    <ClInclude Include="externals\GameEngine\LoadFile\LoadObjFile.h" />
-    <ClInclude Include="externals\GameEngine\LoadFile\LoadTexture.h" />
-    <ClInclude Include="externals\GameEngine\Math\Matrix3x3.h" />
-    <ClInclude Include="externals\GameEngine\Math\Matrix4x4.h" />
-    <ClInclude Include="externals\GameEngine\Math\Matrix4x4_operation.h" />
-    <ClInclude Include="externals\GameEngine\Math\Vector2.h" />
-    <ClInclude Include="externals\GameEngine\Math\Vector3.h" />
-    <ClInclude Include="externals\GameEngine\Math\Vector3_operation.h" />
-    <ClInclude Include="externals\GameEngine\Math\Vector4.h" />
-    <ClInclude Include="externals\GameEngine\Resource\Audio.h" />
-    <ClInclude Include="externals\GameEngine\Resource\Light.h" />
-    <ClInclude Include="externals\GameEngine\Resource\Object_2D.h" />
-    <ClInclude Include="externals\GameEngine\Resource\Object_3D.h" />
-    <ClInclude Include="externals\GameEngine\Resource\Texture.h" />
-    <ClInclude Include="externals\GameEngine\Shader\CompileShader.h" />
-    <ClInclude Include="externals\GameEngine\Window\Window.h" />
     <ClInclude Include="externals\imgui\imconfig.h" />
     <ClInclude Include="externals\imgui\imgui.h" />
     <ClInclude Include="externals\imgui\imgui_impl_dx12.h" />
@@ -103,14 +63,55 @@
     <ClInclude Include="externals\imgui\imstb_rectpack.h" />
     <ClInclude Include="externals\imgui\imstb_textedit.h" />
     <ClInclude Include="externals\imgui\imstb_truetype.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="externals\GameEngine\Shader\Object3d.PS.hlsl">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-    </FxCompile>
-    <FxCompile Include="externals\GameEngine\Shader\Object3d.VS.hlsl">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-    </FxCompile>
+    <ClInclude Include="GameEngine\Data\Camera.h" />
+    <ClInclude Include="GameEngine\Data\ChunkHeader.h" />
+    <ClInclude Include="GameEngine\Data\DirectionalLight.h" />
+    <ClInclude Include="GameEngine\Data\FormatChunk.h" />
+    <ClInclude Include="GameEngine\Data\Input.h" />
+    <ClInclude Include="GameEngine\Data\Material.h" />
+    <ClInclude Include="GameEngine\Data\MaterialData.h" />
+    <ClInclude Include="GameEngine\Data\ModelData.h" />
+    <ClInclude Include="GameEngine\Data\ObjectData.h" />
+    <ClInclude Include="GameEngine\Data\ResourceObject.h" />
+    <ClInclude Include="GameEngine\Data\RiffHeader.h" />
+    <ClInclude Include="GameEngine\Data\SoundData.h" />
+    <ClInclude Include="GameEngine\Data\SRT.h" />
+    <ClInclude Include="GameEngine\Data\TransformationMatrix.h" />
+    <ClInclude Include="GameEngine\Data\VertexData.h" />
+    <ClInclude Include="GameEngine\Debug\D3DResourceLeakChecker.h" />
+    <ClInclude Include="GameEngine\Debug\DebugCamera.h" />
+    <ClInclude Include="GameEngine\Debug\ExportDump.h" />
+    <ClInclude Include="GameEngine\Debug\Log.h" />
+    <ClInclude Include="GameEngine\Direct3D12\ConvertString.h" />
+    <ClInclude Include="GameEngine\Direct3D12\CreateBufferResource.h" />
+    <ClInclude Include="GameEngine\Direct3D12\CreateDepthStencilTextureResource.h" />
+    <ClInclude Include="GameEngine\Direct3D12\CreateDescriptorHeap.h" />
+    <ClInclude Include="GameEngine\Direct3D12\CreateTextureResource.h" />
+    <ClInclude Include="GameEngine\Direct3D12\GetDescriptorHandle.h" />
+    <ClInclude Include="GameEngine\Direct3D12\Initialvalue.h" />
+    <ClInclude Include="GameEngine\Direct3D12\UploadTextureData.h" />
+    <ClInclude Include="GameEngine\GameEngine.h" />
+    <ClInclude Include="GameEngine\LoadFile\LoadMaterialTemplateFile.h" />
+    <ClInclude Include="GameEngine\LoadFile\LoadObjFile.h" />
+    <ClInclude Include="GameEngine\LoadFile\LoadTexture.h" />
+    <ClInclude Include="GameEngine\Math\Matrix3x3.h" />
+    <ClInclude Include="GameEngine\Math\Matrix4x4.h" />
+    <ClInclude Include="GameEngine\Math\Matrix4x4_operation.h" />
+    <ClInclude Include="GameEngine\Math\Vector2.h" />
+    <ClInclude Include="GameEngine\Math\Vector3.h" />
+    <ClInclude Include="GameEngine\Math\Vector3_operation.h" />
+    <ClInclude Include="GameEngine\Math\Vector4.h" />
+    <ClInclude Include="GameEngine\Resource\Audio.h" />
+    <ClInclude Include="GameEngine\Resource\Light.h" />
+    <ClInclude Include="GameEngine\Resource\Object_2D.h" />
+    <ClInclude Include="GameEngine\Resource\Object_3D.h" />
+    <ClInclude Include="GameEngine\Resource\Texture.h" />
+    <ClInclude Include="GameEngine\Shader\CompileShader.h" />
+    <ClInclude Include="GameEngine\Window\Window.h" />
+    <ClInclude Include="GameScene.h" />
+    <ClInclude Include="MapChipField.h" />
+    <ClInclude Include="Player.h" />
+    <ClInclude Include="Skydome.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">
@@ -119,6 +120,14 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="GameEngine\Shader\Object3d.PS.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="GameEngine\Shader\Object3d.VS.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
@@ -154,7 +163,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir)/externals/GameEngine/Window;$(ProjectDir)/externals/GameEngine/Shader;$(ProjectDir)/externals/GameEngine/Resource;$(ProjectDir)/externals/GameEngine/Math;$(ProjectDir)/externals/GameEngine/LoadFile;$(ProjectDir)/externals/GameEngine/Direct3D12;$(ProjectDir)/externals/GameEngine/Debug;$(ProjectDir)/externals/GameEngine/Data;$(ProjectDir)/externals/GameEngine;$(ProjectDir)/externals;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)GameEngine\Window;$(ProjectDir)GameEngine\Shader;$(ProjectDir)GameEngine\Resource;$(ProjectDir)GameEngine\Math;$(ProjectDir)GameEngine\LoadFile;$(ProjectDir)GameEngine\Direct3D12;$(ProjectDir)GameEngine\Debug;$(ProjectDir)GameEngine\Data;$(ProjectDir)GameEngine;$(ProjectDir)externals;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>

@@ -32,6 +32,7 @@ Microsoft::WRL::ComPtr <ID3D12Resource> CreateDepthStencilTextureResource(Micros
 		&depthClearValue,	//Clear最適値
 		IID_PPV_ARGS(&resource)	//作成するResourceポインタへのポインタ
 	);
+
 	assert(SUCCEEDED(hr));
 	return resource;
 }

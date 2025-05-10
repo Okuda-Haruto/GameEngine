@@ -7,7 +7,8 @@
 #include "ModelData.h"
 #include "Material.h"
 #include "TransformationMatrix.h"
-#include "SRT.h"
+#include "ObjectData.h"
+#include "Texture.h"
 
 //3Dオブジェクト
 class Object_2D {
@@ -24,31 +25,23 @@ private:
 	D3D12_INDEX_BUFFER_VIEW indexBufferView_{};
 	//インデックスデータ
 	uint32_t* indexData_ = nullptr;
-	//WVP用リソース
-	Microsoft::WRL::ComPtr<ID3D12Resource> transformationMatrixResource_;
-	//WVPデータ
-	TransformationMatrix* transformationMatrixData_ = nullptr;
-	//マテリアル用のリソース
-	Microsoft::WRL::ComPtr<ID3D12Resource> materialResource_;
+	//マテリアルリソース
+	std::vector <Microsoft::WRL::ComPtr<ID3D12Resource>> materialResource_;
 	//マテリアルデータ
-	Material* materialData_ = nullptr;
+	std::vector <Material*> materialData_;
+	//WVP用リソース
+	std::vector <Microsoft::WRL::ComPtr<ID3D12Resource>> wvpResource_;
+	//WVPデータ
+	std::vector <TransformationMatrix*> wvpData_;
+
+	Microsoft::WRL::ComPtr<ID3D12Device> device_;
 
 	//Windowのサイズ
 	uint32_t kWindowWidth_;
 	uint32_t kWindowHeight_;
 
-	//Transform変数
-	Transform transform_{
-		{1.0f,1.0f,1.0f},
-		{0.0f,0.0f,0.0f},
-		{0.0f,0.0f,0.0f}
-	};
-	//UVTransform変数
-	Transform uvTransform_{
-		{1.0f,1.0f,1.0f},
-		{0.0f,0.0f,0.0f},
-		{0.0f,0.0f,0.0f}
-	};
+	Texture* texture_ = nullptr;
+
 public:
 
 	/// <summary>
@@ -59,18 +52,16 @@ public:
 	/// <param name="kWindowHeight">ウィンドウの高さ</param>
 	void Initialize(Microsoft::WRL::ComPtr<ID3D12Device> device, uint32_t kWindowWidth, uint32_t kWindowHeight);
 
-	// Transform入力
-	void SetTransform(Transform transform) { transform_ = transform; };
-	// UVTransform入力
-	void SetUVTransform(Transform uvTransform) { uvTransform_ = uvTransform; };
-	// Color入力
-	void SetColor(Vector4 color) { materialData_->color = color; };
+	// Texture入力
+	void SetTexture(Texture* texture) { texture_ = texture; };
 
 	/// <summary>
 	/// 2Dオブジェクト描画
 	/// </summary>
 	/// <param name="commandList">コマンドリスト</param>
-	/// <param name="textureSrvHandleGPU">オブジェクトに貼り付けるテクスチャのGPUデスクリプタハンドル (例:object2DTexture->textureSrvHandleGPU())</param>
-	void Draw(Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& commandList, D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU);
+	void Draw(Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& commandList, Object_2D_Data& data);
+
+	//リソース初期化
+	void Reset();
 
 };
