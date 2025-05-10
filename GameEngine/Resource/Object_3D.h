@@ -6,11 +6,14 @@
 #include <d3d12.h>
 
 #include <wrl.h>
+#include <vector>
 #include "ModelData.h"
 #include "Material.h"
 #include "TransformationMatrix.h"
-#include "SRT.h"
+#include "ObjectData.h"
 #include "Camera.h"
+#include "Texture.h"
+#include "Light.h"
 
 //3Dオブジェクト
 class Object_3D {
@@ -23,21 +26,24 @@ private:
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView_{};
 	//頂点リソースデータ
 	VertexData* vertexData_ = nullptr;
-	//マテリアルリソース
-	Microsoft::WRL::ComPtr<ID3D12Resource> materialResource_;
-	//マテリアルデータ
-	Material* materialData_ = nullptr;
-	//WVP用リソース
-	Microsoft::WRL::ComPtr<ID3D12Resource> wvpResource_;
-	//WVPデータ
-	TransformationMatrix* wvpData_ = nullptr;
 
-	//Transform変数
-	Transform transform_;
-	//UVTransform変数
-	Transform uvTransform_;
-	//Camera変数
-	Camera camera_;
+	//マテリアルリソース
+	std::vector <Microsoft::WRL::ComPtr<ID3D12Resource>> materialResource_;
+	//マテリアルデータ
+	std::vector <Material*> materialData_;
+	//WVP用リソース
+	std::vector <Microsoft::WRL::ComPtr<ID3D12Resource>> wvpResource_;
+	//WVPデータ
+	std::vector <TransformationMatrix*> wvpData_;
+
+	//デバイス
+	Microsoft::WRL::ComPtr<ID3D12Device> device_;
+
+	Light* light_ = nullptr;
+	bool isLighting_ = true;
+
+	Texture* texture_ = nullptr;
+
 public:
 	
 	/// <summary>
@@ -47,23 +53,24 @@ public:
 	/// <param name="filename">ファイル名 (例:"plane.obj")</param>
 	/// <param name="device">デバイス</param>
 	void Initialize(const std::string& directoryPath, const std::string& filename, Microsoft::WRL::ComPtr<ID3D12Device> device);
-
-	// Transform入力
-	void SetTransform(Transform transform) { transform_ = transform; };
-	// UVTransform入力
-	void SetUVTransform(Transform uvTransform) { uvTransform_ = uvTransform; };
-	// Color入力
-	void SetColor(Vector4 color) { materialData_->color = color; };
-	// Camera入力
-	void SetCamera(Camera camera) { camera_ = camera; };
+	//Microsoft::WRL::ComPtr<ID3D12Resource>& directionalLightResource
+ 
+	// Light入力
+	void SetLight(Light* light) { light_ = light; };
+	// Texture入力
+	void SetTexture(Texture* texture) { texture_ = texture; };
+	// Lightを使用するか
+	void isLighting(bool isLighting) { isLighting_ = isLighting; };
 
 	/// <summary>
 	/// 3Dオブジェクト描画
 	/// </summary>
 	/// <param name="commandList">コマンドリスト</param>
-	/// <param name="directionalLightResource">オブジェクトを照らす照明 (例:directionalLightResource)</param>
-	/// <param name="textureSrvHandleGPU">オブジェクトに貼り付けるテクスチャのGPUデスクリプタハンドル (例:object3DTexture->textureSrvHandleGPU())</param>
-	void Draw(Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& commandList, Microsoft::WRL::ComPtr<ID3D12Resource>& directionalLightResource, D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU);
+	/// <param name="data">オブジェクトの各種データ</param>
+	void Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandList, Object_3D_Data& data);
+
+	//リソース初期化
+	void Reset();
 
 	// モデルデータ
 	[[nodiscard]]
