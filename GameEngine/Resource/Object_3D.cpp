@@ -9,6 +9,12 @@
 #include "CreateTextureResource.h"
 #include "UploadTextureData.h"
 
+Object_3D::~Object_3D() {
+	vertexData_ = nullptr;
+	wvpData_.clear();
+	materialData_.clear();
+}
+
 void Object_3D::Initialize(const std::string& directoryPath, const std::string& filename, Microsoft::WRL::ComPtr<ID3D12Device> device) {
 
 	device_ = device;
@@ -29,13 +35,16 @@ void Object_3D::Initialize(const std::string& directoryPath, const std::string& 
 
 	//頂点リソースにデータを書き込む
 	vertexResource_->Map(0, nullptr, reinterpret_cast<void**>(&vertexData_));	//書き込むためのアドレスを取得
+
 	std::memcpy(vertexData_, modelData_.vertices.data(), sizeof(VertexData) * modelData_.vertices.size());	//頂点データにリソースにコピー
 
-	//使用するリソースのサイズを0にしておく
-	wvpResource_.resize(0);
-	wvpData_.resize(0);
-	materialResource_.resize(0);
-	materialData_.resize(0);
+	vertexResource_->Unmap(0, nullptr);
+
+	//使用するリソースの要素を空にしておく
+	wvpResource_.clear();
+	wvpData_.clear();
+	materialResource_.clear();
+	materialData_.clear();
 }
 
 void Object_3D::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandList, Object_3D_Data& data) {
@@ -88,11 +97,11 @@ void Object_3D::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandL
 }
 
 void Object_3D::Reset() {
-	//使用するリソースのサイズを0にしておく
-	wvpResource_.resize(0);
-	wvpData_.resize(0);
-	materialResource_.resize(0);
-	materialData_.resize(0);
+	//使用するリソースの要素を空にしておく
+	wvpResource_.clear();
+	wvpData_.clear();
+	materialResource_.clear();
+	materialData_.clear();
 }
 
 [[nodiscard]]

@@ -235,51 +235,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	GameEngine* gameEngine = new GameEngine();
 	gameEngine->Intialize(L"CG2", 1280, 720);
 
-	Object_3D* object1 = new Object_3D();
-	gameEngine->LoadObject(object1, "resources", "axis.obj");
-	Object_3D_Data data1{};
-
-	Object_2D* sprite = new Object_2D();
-	gameEngine->LoadObject(sprite);
-	Object_2D_Data dataSprite1{};
-
-	Texture* spriteTexture = new Texture();
-	gameEngine->LoadTexture(spriteTexture, "resources/monsterBall.png");
-	Texture* object3DTexture1 = new Texture();
-	gameEngine->LoadTexture(object3DTexture1, (object1->ModelData()).material.textureFilePath);
-
-	data1.transform = { {1.0f,1.0f,1.0f},
-	{0.0f,0.0f,0.0f},
-	{0.0f,0.0f,0.0f} };
-	data1.uvTransform = {
-	{1.0f,1.0f,1.0f},
-	{0.0f,0.0f,0.0f},
-	{0.0f,0.0f,0.0f}};
-	data1.color = { 1.0f,1.0f,1.0f,1.0f };
-
-	dataSprite1.transform = { {1.0f,1.0f,1.0f},
-	{0.0f,0.0f,0.0f},
-	{0.0f,0.0f,0.0f} };
-	dataSprite1.uvTransform = {
-	{1.0f,1.0f,1.0f},
-	{0.0f,0.0f,0.0f},
-	{0.0f,0.0f,0.0f}};
-	dataSprite1.color = { 1.0f,1.0f,1.0f,1.0f };
-
-
-	DebugCamera* debugCamera = new DebugCamera;
-	debugCamera->Initialize();
-
-	SRT cameraTransform{ {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,-10.0f} };
-
-	//光源
-	Light* light = new Light();
-	gameEngine->LoadLight(light);
-
-	Vector4 lightColor = { 1.0f,1.0f,1.0f,1.0f };
-	Vector3 lightDirection = { 0.0f,-1.0f,0.0f };
-	float lightIntensity = 1.0f;
-
 	GameScene* gameScene = new GameScene(gameEngine);
 	gameScene->Initialize();
 
@@ -288,51 +243,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	while (gameEngine->WiodowState()) {
 		if (gameEngine->StartFlame()) {
 
-			//キーボード入力
-			Keybord keybord = gameEngine->GetKeybord();
-			//マウス入力
-			Mouse mouse = gameEngine->GetMouse();
-
 			//
 			//	更新処理
 			//
-
-			ImGui::Text("material");
-			ImGui::DragFloat3("materialTranslate", &(data1.transform.translate).x, 0.01f);
-			ImGui::SliderAngle("materialRatateX", &(data1.transform.rotate).x, -180.0f, 180.0f);
-			ImGui::SliderAngle("materialRatateY", &(data1.transform.rotate).y, -180.0f, 180.0f);
-			ImGui::SliderAngle("materialRatateZ", &(data1.transform.rotate).z, -180.0f, 180.0f);
-			ImGui::ColorPicker4("materialTextureColor", &data1.color.x);
-			ImGui::DragFloat2("UVTranslate", &data1.uvTransform.translate.x, 0.01f, -10.0f, 10.0f);
-			ImGui::DragFloat2("UVScale", &data1.uvTransform.scale.x, 0.01f, -10.0f, 10.0f);
-			ImGui::SliderAngle("UVRotate", &data1.uvTransform.rotate.z);
-			ImGui::Text("directionalLiight");
-			ImGui::DragFloat("intensity", &lightIntensity, 0.01f, 0.0f, 1.0f);
-			ImGui::DragFloat3("direction", &lightDirection.x, 0.01f, -1.0f, 1.0f);
-			ImGui::ColorPicker4("color", &lightColor.x);
-			float sqrtNumber = sqrtf(sqrtf(powf(lightDirection.x, 2) + powf(lightDirection.y, 2)) + powf(lightDirection.z, 2));
-			lightDirection.x = lightDirection.x / sqrtNumber;
-			lightDirection.y = lightDirection.y / sqrtNumber;
-			lightDirection.z = lightDirection.z / sqrtNumber;
-
-			Object_3D_Data data2 = data1;
-			data2.transform.translate = { 5.0f, 0.0f, 0.0f };
-			data2.color = { 0.0f, 1.0f, 0.0f, 1.0f };
-
-			Object_2D_Data dataSprite2 = dataSprite1;
-			dataSprite2.transform.translate = { 100.0f, 50.0f, 0.0f };
-			dataSprite2.color = { 0.0f, 1.0f, 0.0f, 1.0f };
-
-			debugCamera->Update(mouse);
-			data1.camera = debugCamera->GetTransform();
-			data2.camera = gameEngine->UpdateCamera({0.0f,0.0f,0.0f}, {0.0f,0.0f,-10.0f});
-
-			light->SetColor(lightColor);
-			light->SetDirection(lightDirection);
-			light->SetIntensity(lightIntensity);
-			object1->SetLight(light);
-			object1->SetTexture(object3DTexture1);
-			sprite->SetTexture(spriteTexture);
 
 			gameScene->Update();
 
@@ -340,25 +253,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			//	描画処理
 			//
 
-			//object1->Draw(gameEngine->GetCommandList(), data1);
-
-			//object1->Draw(gameEngine->GetCommandList(), data2);
-
-			//sprite->Draw(gameEngine->GetCommandList(), dataSprite1);
-
-			//sprite->Draw(gameEngine->GetCommandList(), dataSprite2);
-
 			gameScene->Draw(gameEngine);
-
-			//object1->Reset();
-			//sprite->Reset();
 			
 		}
 	}
 
-	delete object1;
-	delete object3DTexture1;
-	delete light;
+	delete gameScene;
 
 	delete gameEngine;
 

@@ -31,20 +31,6 @@ GameEngine::~GameEngine() {
 
 	xAudio2_.Reset();
 
-    Microsoft::WRL::ComPtr<ID3D12Debug> debugController;
-    if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)))) {
-        debugController->EnableDebugLayer();
-    }
-    commandQueue_->Signal(fence_.Get(), fenceValue_);
-    if (fence_->GetCompletedValue() < fenceValue_) {
-        fence_->SetEventOnCompletion(fenceValue_, fenceEvent_);
-        WaitForSingleObject(fenceEvent_, INFINITE);
-    }
-    commandQueue_.Reset();
-    commandAllocator_.Reset();
-    commandList_.Reset();
-    swapChain_.Reset();
-    device_.Reset();
 	directInput_->Release();
 	keyboardDevice_->Release();
 	mouseDevice_->Release();
@@ -68,11 +54,6 @@ void GameEngine::Intialize(const wchar_t* WindowName, int32_t kWindowWidth, int3
 
 	//誰も捕捉しなかった場合に(Unhandled),捕捉する関数を登録
 	SetUnhandledExceptionFilter(ExportDump);
-
-#ifdef _DEBUG
-	//リソースチェック
-	D3DResourceLeakChecker leakCheck;
-#endif
 
 	CoInitializeEx(0, COINIT_MULTITHREADED);
 

@@ -3,6 +3,10 @@
 #include <numbers>
 #include <algorithm>
 
+Player::~Player() {
+
+}
+
 void Player::Initialize(Object_3D* object,Texture* texture,Light* light, const Vector3& position) {
 	//NULLポインタチェック
 	assert(object);

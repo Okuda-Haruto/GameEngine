@@ -72,7 +72,6 @@
     <ClInclude Include="GameEngine\Data\MaterialData.h" />
     <ClInclude Include="GameEngine\Data\ModelData.h" />
     <ClInclude Include="GameEngine\Data\ObjectData.h" />
-    <ClInclude Include="GameEngine\Data\ResourceObject.h" />
     <ClInclude Include="GameEngine\Data\RiffHeader.h" />
     <ClInclude Include="GameEngine\Data\SoundData.h" />
     <ClInclude Include="GameEngine\Data\SRT.h" />

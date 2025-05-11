@@ -16,6 +16,7 @@ private:
 	Light* light_ = nullptr;
 
 public:
+	~Skydome();
 	//初期化
 	void Initialize(Object_3D* object, Texture* texture);
 	//更新
