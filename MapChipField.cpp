@@ -14,6 +14,10 @@ namespace {
 
 }
 
+MapChipField::~MapChipField() {
+
+}
+
 void MapChipField::ResetMapChipData() {
 	//マップチップデータをリセット
 	mapChipData_.data.clear();

@@ -223,9 +223,6 @@
     <ClInclude Include="GameEngine\Data\ObjectData.h">
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\Data\ResourceObject.h">
-      <Filter>GameEngine\Data</Filter>
-    </ClInclude>
     <ClInclude Include="GameEngine\Data\RiffHeader.h">
       <Filter>GameEngine\Data</Filter>
     </ClInclude>

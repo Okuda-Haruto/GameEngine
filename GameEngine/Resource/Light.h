@@ -6,7 +6,6 @@
 #include <wrl.h>
 #include "DirectionalLight.h"
 
-
 //光源
 class Light {
 private:
@@ -15,6 +14,8 @@ private:
 	//光源データ
 	DirectionalLight* directionalLightData_ = nullptr;
 public:
+
+	~Light();
 
 	/// <summary>
 	/// 初期化

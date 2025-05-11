@@ -4,6 +4,16 @@
 
 #include "CreateBufferResource.h"
 
+Object_2D::~Object_2D() {
+	vertexResource_->Unmap(0, nullptr);
+	vertexData_ = nullptr;
+	wvpData_.clear();
+	materialData_.clear();
+	delete indexData_;
+
+	delete texture_;
+}
+
 void Object_2D::Initialize(Microsoft::WRL::ComPtr<ID3D12Device> device, uint32_t kWindowWidth, uint32_t kWindowHeight) {
 
 	device_ = device;
@@ -62,11 +72,11 @@ void Object_2D::Initialize(Microsoft::WRL::ComPtr<ID3D12Device> device, uint32_t
 	indexData_[0] = 0; indexData_[1] = 1; indexData_[2] = 2;
 	indexData_[3] = 1; indexData_[4] = 3; indexData_[5] = 2;
 
-	//使用するリソースのサイズを0にしておく
-	wvpResource_.resize(0);
-	wvpData_.resize(0);
-	materialResource_.resize(0);
-	materialData_.resize(0);
+	//使用するリソースの要素を空にしておく
+	wvpResource_.clear();
+	wvpData_.clear();
+	materialResource_.clear();
+	materialData_.clear();
 
 }
 
@@ -120,9 +130,9 @@ void Object_2D::Draw(Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& command
 }
 
 void Object_2D::Reset() {
-	//使用するリソースのサイズを0にしておく
-	wvpResource_.resize(0);
-	wvpData_.resize(0);
-	materialResource_.resize(0);
-	materialData_.resize(0);
+	//使用するリソースの要素を空にしておく
+	wvpResource_.clear();
+	wvpData_.clear();
+	materialResource_.clear();
+	materialData_.clear();
 }

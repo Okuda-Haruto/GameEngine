@@ -39,12 +39,17 @@ private:
 	//デバイス
 	Microsoft::WRL::ComPtr<ID3D12Device> device_;
 
+	//光源データ
 	Light* light_ = nullptr;
+	//ライティングを使用するか
 	bool isLighting_ = true;
 
+	//テクスチャデータ
 	Texture* texture_ = nullptr;
 
 public:
+
+	~Object_3D();
 	
 	/// <summary>
 	/// 初期化
@@ -53,7 +58,6 @@ public:
 	/// <param name="filename">ファイル名 (例:"plane.obj")</param>
 	/// <param name="device">デバイス</param>
 	void Initialize(const std::string& directoryPath, const std::string& filename, Microsoft::WRL::ComPtr<ID3D12Device> device);
-	//Microsoft::WRL::ComPtr<ID3D12Resource>& directionalLightResource
  
 	// Light入力
 	void SetLight(Light* light) { light_ = light; };

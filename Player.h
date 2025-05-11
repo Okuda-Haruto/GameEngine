@@ -48,6 +48,7 @@ private:
 	//速度
 	Vector3 velocity_ = {};
 public:
+	~Player();
 	//初期化
 	void Initialize(Object_3D* object, Texture* texture, Light* light, const Vector3& position);
 	//更新

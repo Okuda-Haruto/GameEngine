@@ -15,6 +15,8 @@ GameScene::~GameScene() {
 	delete Texture_Skydome_;
 	delete player_;
 	delete mapChipField_;
+	delete light_;
+	delete skydome_;
 	for (std::vector<Object_3D_Data*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (Object_3D_Data* worldTransformBlock : worldTransformBlockLine) {
 			delete worldTransformBlock;

@@ -25,6 +25,7 @@ private:
 	D3D12_INDEX_BUFFER_VIEW indexBufferView_{};
 	//インデックスデータ
 	uint32_t* indexData_ = nullptr;
+
 	//マテリアルリソース
 	std::vector <Microsoft::WRL::ComPtr<ID3D12Resource>> materialResource_;
 	//マテリアルデータ
@@ -34,15 +35,19 @@ private:
 	//WVPデータ
 	std::vector <TransformationMatrix*> wvpData_;
 
+	//デバイス
 	Microsoft::WRL::ComPtr<ID3D12Device> device_;
 
 	//Windowのサイズ
 	uint32_t kWindowWidth_;
 	uint32_t kWindowHeight_;
 
+	//テクスチャデータ
 	Texture* texture_ = nullptr;
 
 public:
+
+	~Object_2D();
 
 	/// <summary>
 	/// 初期化

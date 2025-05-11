@@ -1,5 +1,9 @@
 #include "Skydome.h"
 
+Skydome::~Skydome() {
+
+}
+
 void Skydome::Initialize(Object_3D* object,Texture* texture) {
 	object_ = object;
 	texture_ = texture;

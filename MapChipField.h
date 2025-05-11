@@ -22,6 +22,7 @@ private:
 	static inline const uint32_t kNumBlockHorizontal = 100;
 
 public:
+	~MapChipField();
 	//リセット
 	void ResetMapChipData();
 	//読み込み
