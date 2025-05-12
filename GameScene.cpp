@@ -134,10 +134,6 @@ void GameScene::Draw(GameEngine* gameEngine) {
 
 	gameEngine->PostDraw();
 
-	Object_Block_->Reset();
-	player_->Reset();
-	skydome_->Reset();
-
 }
 
 void GameScene::GenerateBlocks() {

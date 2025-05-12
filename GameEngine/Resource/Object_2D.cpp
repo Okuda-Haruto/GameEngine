@@ -72,28 +72,43 @@ void Object_2D::Initialize(Microsoft::WRL::ComPtr<ID3D12Device> device, uint32_t
 	indexData_[0] = 0; indexData_[1] = 1; indexData_[2] = 2;
 	indexData_[3] = 1; indexData_[4] = 3; indexData_[5] = 2;
 
-	//使用するリソースの要素を空にしておく
-	wvpResource_.clear();
-	wvpData_.clear();
-	materialResource_.clear();
-	materialData_.clear();
+	//使用するリソースの要素を予め用意する
+	wvpResource_.resize(kMaxIndex);
+	wvpData_.resize(kMaxIndex);
+	materialResource_.resize(kMaxIndex);
+	materialData_.resize(kMaxIndex);
+
+	//初期化
+	for (int i = 0; i < kMaxIndex; i++) {
+		wvpResource_[i] = CreateBufferResource(device_, sizeof(TransformationMatrix));
+		wvpData_[i] = nullptr;
+		materialResource_[i] = CreateBufferResource(device_, sizeof(Material));
+		materialData_[i] = nullptr;
+	}
+
+	//最初から始める
+	index_ = 0;
 
 }
 
 void Object_2D::Draw(Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& commandList, Object_2D_Data& data) {
 
-	//空の要素を追加
-	wvpResource_.emplace_back();
-	wvpData_.emplace_back();
-	materialResource_.emplace_back();
-	materialData_.emplace_back();
-
-	//初期化
-	wvpResource_.back() = CreateBufferResource(device_, sizeof(TransformationMatrix));
-	wvpData_.back() = nullptr;
-	materialResource_.back() = CreateBufferResource(device_, sizeof(Material));
-	materialData_.back() = nullptr;
-
+	//左下
+	vertexData_[0].position = { 0.0f,spriteWidth_,0.0f,1.0f };
+	vertexData_[0].texcoord = { 0.0f,1.0f };
+	vertexData_[0].normal = { 0.0f,0.0f,-1.0f };
+	//左上
+	vertexData_[1].position = { 0.0f,0.0f,0.0f,1.0f };
+	vertexData_[1].texcoord = { 0.0f,0.0f };
+	vertexData_[1].normal = { 0.0f,0.0f,-1.0f };
+	//右下
+	vertexData_[2].position = { spriteHeight_,spriteWidth_,0.0f,1.0f };
+	vertexData_[2].texcoord = { 1.0f,1.0f };
+	vertexData_[2].normal = { 0.0f,0.0f,-1.0f };
+	//右上
+	vertexData_[3].position = { spriteHeight_,0.0f,0.0f,1.0f };
+	vertexData_[3].texcoord = { 1.0f,0.0f };
+	vertexData_[3].normal = { 0.0f,0.0f,-1.0f };
 
 	Matrix4x4 viewMatrix = MakeIdentity4x4();
 	Matrix4x4 projectionMatrix = MakeOrthographicMatrix(0.0f, 0.0f, float(kWindowWidth_), float(kWindowHeight_), 0.0f, 100.0f);

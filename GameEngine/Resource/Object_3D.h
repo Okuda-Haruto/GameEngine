@@ -47,6 +47,11 @@ private:
 	//テクスチャデータ
 	Texture* texture_ = nullptr;
 
+	//リソース番号の最大値
+	const int kMaxIndex = 128;
+	//使用するリソースの番号
+	int index_ = 0;
+
 public:
 
 	~Object_3D();
