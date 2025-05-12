@@ -42,8 +42,17 @@ private:
 	uint32_t kWindowWidth_;
 	uint32_t kWindowHeight_;
 
+	//Spriteの表示サイズ
+	float spriteWidth_ = 640.0f;
+	float spriteHeight_ = 360.0f;
+
 	//テクスチャデータ
 	Texture* texture_ = nullptr;
+
+	//リソース番号の最大値
+	const int kMaxIndex = 128;
+	//使用するリソースの番号
+	int index_ = 0;
 
 public:
 
@@ -59,6 +68,8 @@ public:
 
 	// Texture入力
 	void SetTexture(Texture* texture) { texture_ = texture; };
+	// 
+	void SetSpriteSize(float width, float height) { spriteWidth_ = width; spriteHeight_ = height;};
 
 	/// <summary>
 	/// 2Dオブジェクト描画
