@@ -12,7 +12,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//gameScene->Initialize();
 
 	Object_3D* object = new Object_3D();
-	gameEngine->LoadObject(object,"resources","axis.obj");
+	gameEngine->LoadObject(object,"resources","sphere.obj");
 
 	Texture* texture = new Texture();
 	gameEngine->LoadTexture(texture, object->ModelData().material.textureFilePath);
