@@ -36,12 +36,14 @@
     <ClCompile Include="GameEngine\Direct3D12\Initialvalue.cpp" />
     <ClCompile Include="GameEngine\Direct3D12\UploadTextreData.cpp" />
     <ClCompile Include="GameEngine\GameEngine.cpp" />
+    <ClCompile Include="GameEngine\LoadFile\LoadText.cpp" />
     <ClCompile Include="GameEngine\LoadFile\LoadMaterialTemplateFile.cpp" />
     <ClCompile Include="GameEngine\LoadFile\LoadObjFile.cpp" />
     <ClCompile Include="GameEngine\LoadFile\LoadTexture.cpp" />
     <ClCompile Include="GameEngine\Math\Matrix4x4_operation.cpp" />
     <ClCompile Include="GameEngine\Math\Vector3_operation.cpp" />
     <ClCompile Include="GameEngine\Resource\Audio.cpp" />
+    <ClCompile Include="GameEngine\Resource\Text.cpp" />
     <ClCompile Include="GameEngine\Resource\Light.cpp" />
     <ClCompile Include="GameEngine\Resource\Object_2D.cpp" />
     <ClCompile Include="GameEngine\Resource\Object_3D.cpp" />
@@ -90,6 +92,7 @@
     <ClInclude Include="GameEngine\Direct3D12\Initialvalue.h" />
     <ClInclude Include="GameEngine\Direct3D12\UploadTextureData.h" />
     <ClInclude Include="GameEngine\GameEngine.h" />
+    <ClInclude Include="GameEngine\LoadFile\LoadText.h" />
     <ClInclude Include="GameEngine\LoadFile\LoadMaterialTemplateFile.h" />
     <ClInclude Include="GameEngine\LoadFile\LoadObjFile.h" />
     <ClInclude Include="GameEngine\LoadFile\LoadTexture.h" />
@@ -101,6 +104,7 @@
     <ClInclude Include="GameEngine\Math\Vector3_operation.h" />
     <ClInclude Include="GameEngine\Math\Vector4.h" />
     <ClInclude Include="GameEngine\Resource\Audio.h" />
+    <ClInclude Include="GameEngine\Resource\Text.h" />
     <ClInclude Include="GameEngine\Resource\Light.h" />
     <ClInclude Include="GameEngine\Resource\Object_2D.h" />
     <ClInclude Include="GameEngine\Resource\Object_3D.h" />

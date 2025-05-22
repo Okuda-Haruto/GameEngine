@@ -22,6 +22,7 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #include "Object_3D.h"
 #include "Object_2D.h"
 #include "Texture.h"
+#include "Text.h"
 #include "Audio.h"
 #include "Input.h"
 #include "DebugCamera.h"
@@ -164,6 +165,8 @@ public:
 	/// <param name="filePath">テクスチャがあるフォルダへのパス (例:""resources/white1x1.png"")</param>
 	void LoadTexture(Texture* texture, const std::string& filePath);
 
+	void LoadText(Text* text, LONG fontSize, LONG fontWeight, std::wstring str, const std::string& filePath, const std::string& fontName);
+
 	/// <summary>
 	/// 3Dオブジェクトのロード
 	/// </summary>
@@ -175,8 +178,10 @@ public:
 	/// <summary>
 	/// 2Dオブジェクトのロード
 	/// </summary>
-	/// /// <param name="object">ロードするObject_2Dクラス</param>
-	void LoadObject(Object_2D* object);
+	/// /// <param name="object">ロードするSprote_2Dクラス</param>
+	void LoadObject(Sprite_2D* sprite);
+
+	void LoadObject(Text_2D* text);
 
 	/// <summary>
 	/// 音声のロード
@@ -191,7 +196,7 @@ public:
 	/// </summary>
 	/// <param name="transform">カメラSRT</param>
 	/// <returns></returns>
-	/// [[nodiscard]]
+	[[nodiscard]]
 	Camera UpdateCamera(Vector3 rotate,Vector3 Translate);
 
 	/// <summary>

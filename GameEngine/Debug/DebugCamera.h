@@ -26,7 +26,7 @@ public:
 	//更新
 	void Update(Mouse mouse);
 
-	//Transform
-	Camera GetTransform() { return { viewMatrix_ ,projectionMatrix_ }; };
+	//出力
+	Camera GetCamera();
 };
 

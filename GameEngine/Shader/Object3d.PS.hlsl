@@ -2,9 +2,9 @@
 
 struct DirectionalLight
 {
-    float4 color; //ライトの色
-    float3 direction; //ライトの向き
-    float intensity; //輝度
+    float4 color;
+    float3 direction;
+    float intensity;
 };
 
 struct Material
@@ -27,7 +27,7 @@ SamplerState gSampler : register(s0);
 
 PixelShaderOutput main(VertexShaderOutput input)
 {
-    float4 transformedUV = mul(float4(input.texcoord,0.0f, 1.0f), gMaterial.uvTransform);
+    float4 transformedUV = mul(float4(input.texcoord, 0.0f, 1.0f), gMaterial.uvTransform);
     float4 textureColor = gTexture.Sample(gSampler, transformedUV.xy);
     PixelShaderOutput output;
     if (gMaterial.enableLighting != 0)
@@ -35,7 +35,12 @@ PixelShaderOutput main(VertexShaderOutput input)
         //Lightingする場合
         float NdotL = dot(normalize(input.normal), -gDirectionalLight.direction);
         float cos = pow(NdotL * 0.5f + 0.5f, 2.0f);
-        output.color = gMaterial.color * textureColor * gDirectionalLight.color * cos * gDirectionalLight.intensity;
+        float4 lightColor;
+        lightColor[0] = gDirectionalLight.color[0] * cos * gDirectionalLight.intensity;
+        lightColor[1] = gDirectionalLight.color[1] * cos * gDirectionalLight.intensity;
+        lightColor[2] = gDirectionalLight.color[2] * cos * gDirectionalLight.intensity;
+        lightColor[3] = 1.0f;
+        output.color = gMaterial.color * textureColor * lightColor;
     }
     else
     {

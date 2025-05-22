@@ -158,6 +158,12 @@
     <ClCompile Include="GameEngine\GameEngine.cpp">
       <Filter>GameEngine</Filter>
     </ClCompile>
+    <ClCompile Include="GameEngine\Resource\Text.cpp">
+      <Filter>GameEngine\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEngine\LoadFile\LoadText.cpp">
+      <Filter>GameEngine\LoadFile</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="externals\imgui\imconfig.h">
@@ -327,6 +333,12 @@
     </ClInclude>
     <ClInclude Include="GameEngine\GameEngine.h">
       <Filter>GameEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Resource\Text.h">
+      <Filter>GameEngine\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\LoadFile\LoadText.h">
+      <Filter>GameEngine\LoadFile</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
