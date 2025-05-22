@@ -96,7 +96,7 @@ void GameScene::Update() {
 	if (isDebugCameraActive_) {
 		// デバッグカメラの更新
 		debugCamera_->Update(mouse_);
-		camera_ = debugCamera_->GetTransform();
+		camera_ = debugCamera_->GetCamera();
 	} else {
 		camera_ = gameEngine_->UpdateCamera(cameraTransform.rotate, cameraTransform.translate);
 	}

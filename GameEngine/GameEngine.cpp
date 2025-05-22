@@ -42,6 +42,8 @@ GameEngine::~GameEngine() {
 
 	CloseHandle(fenceEvent_);
 	CloseWindow(hwnd_);
+
+	CoUninitialize();
 }
 
 void GameEngine::Intialize(const wchar_t* WindowName, int32_t kWindowWidth, int32_t kWindowHeight) {
@@ -260,15 +262,163 @@ void GameEngine::LoadTexture(Texture* texture, const std::string& filePath) {
 
 }
 
+void GameEngine::LoadText(Text* text, LONG fontSize, LONG fontWeight, std::wstring str, const std::string& filePath, const std::string& fontName) {
+
+	text->Initialize(fontSize, fontWeight, filePath, fontName, hwnd_);
+
+	for (int i = 0; i < str.length(); i++) {
+		//#で特殊な設定にする
+		if (str.c_str()[i] == L'#') {
+			//次の文字で設定の種類を見る
+			i++;
+			switch (str.c_str()[i])
+			{
+			case L'#':	//#自体も入力できるようにする
+				text->GetTextData(str.c_str()[i], device_, commandQueue_, commandAllocator_, commandList_, fence_, fenceValue_, fenceEvent_, srvDescriptorHeap_, descriptorSizeSRV_, kLastCPUIndex_, kLastGPUIndex_);
+				break;
+			case L'C':	//ColorのC	例:#C[0xFFFFFF]
+				i++;
+				if (str.c_str()[i] == L'[') {	//L'['が入力されていたらColor入力に移行
+					i++;
+					std::wstring settingStr{};
+					while (str.c_str()[i] != L']' || settingStr.size() > 10)	//L']'が入力されるまでループ
+					{
+						settingStr += str.c_str()[i];
+						i++;
+					}
+					if ((settingStr.size() == 8 || settingStr.size() == 10) && settingStr[0] == L'0' && (settingStr[1] == L'x' || settingStr[1] == L'X')) {	//正しく入力されていたら設定を変更する
+						int R = 0;
+						int G = 0;
+						int B = 0;
+						for (int j = 2; j < 8; j++) {
+							if (isxdigit(settingStr[j])) {	//16進数か
+								switch ((j - 2) / 2)
+								{
+								case 0:
+									R = R << 4;
+									if (isdigit(settingStr[j])) {
+										R += settingStr[j] - L'0';
+									} else {
+										if (isupper(settingStr[j])) {
+											R += (settingStr[j] - L'A') + 10;
+										} else {
+											R += (settingStr[j] - L'a') + 10;
+										}
+									}
+									break;
+								case 1:
+									G = G << 4;
+									if (isdigit(settingStr[j])) {
+										G += settingStr[j] - L'0';
+									} else {
+										if (isupper(settingStr[j])) {
+											G += (settingStr[j] - L'A') + 10;
+										} else {
+											G += (settingStr[j] - L'a') + 10;
+										}
+									}
+									break;
+								case 2:
+									B = B << 4;
+									if (isdigit(settingStr[j])) {
+										B += settingStr[j] - L'0';
+									} else {
+										if (isupper(settingStr[j])) {
+											B += (settingStr[j] - L'A') + 10;
+										} else {
+											B += (settingStr[j] - L'a') + 10;
+										}
+									}
+									break;
+								default:
+									break;
+								}
+							} else {	//16進数以外が入力されたら白にする
+								R = 0xFF; G = 0xFF; B = 0xFF;
+								break;
+							}
+						}
+						text->SetColor(R, G, B);
+					} else {
+						break;
+					}
+				} else {
+					i--;
+				}
+				break;
+			case L'S':	//SizeのS	例:#S[64]
+				i++;
+				if (str.c_str()[i] == L'[') {	//L'['が入力されていたらSize入力に移行
+					i++;
+					std::wstring settingStr{};
+					while (str.c_str()[i] != L']' || settingStr.size() > 4)	//L']'が入力されるまでループ	サイズが4桁を超えるサイズになるのはおかしいのでループを抜ける
+					{
+						settingStr += str.c_str()[i];
+						i++;
+					}
+					LONG settingLong = 0;
+					for (int j = 0; j < settingStr.size(); j++) {
+						if (!isdigit(settingStr[j])) {	//数字以外が入力されたらそのままにする
+							LOGFONTW lf = text->GetLogfont();
+							settingLong = lf.lfHeight;
+						}
+						settingLong *= 10;
+						settingLong += settingStr[j] - L'0';
+					}
+					LOGFONTW lf = text->GetLogfont();
+					lf.lfHeight = settingLong;
+					text->SetLogfont(lf);
+				}
+				break;
+			case L'W':	//WeightのW	例:#W[400]
+				i++;
+				if (str.c_str()[i] == L'[') {	//L'['が入力されていたらWeight入力に移行
+					i++;
+					std::wstring settingStr{};
+					while (str.c_str()[i] != L']' || settingStr.size() > 4)	//L']'が入力されるまでループ	サイズが4桁を超えるサイズになるのはおかしいのでループを抜ける
+					{
+						settingStr += str.c_str()[i];
+						i++;
+					}
+					LONG settingLong = 0;
+					for (int j = 0; j < settingStr.size(); j++) {
+						if (!isdigit(settingStr[j])) {	//数字以外が入力されたらそのままにする
+							LOGFONTW lf = text->GetLogfont();
+							settingLong = lf.lfWeight;
+						}
+						settingLong *= 10;
+						settingLong += settingStr[j] - L'0';
+					}
+					LOGFONTW lf = text->GetLogfont();
+					lf.lfWeight = settingLong;
+					text->SetLogfont(lf);
+				}
+				break;
+			default:	//どれでもないなら戻す
+				i--;
+				break;
+			}
+		} else {
+			text->GetTextData(str.c_str()[i], device_, commandQueue_, commandAllocator_, commandList_, fence_, fenceValue_, fenceEvent_, srvDescriptorHeap_, descriptorSizeSRV_, kLastCPUIndex_, kLastGPUIndex_);
+		}
+	}
+}
+
 void GameEngine::LoadObject(Object_3D* object, const std::string& directoryPath, const std::string& filename) {
 
 	object->Initialize(directoryPath, filename, device_);
 
 }
 
-void GameEngine::LoadObject(Object_2D* object) {
+void GameEngine::LoadObject(Sprite_2D* sprite) {
 
-	object->Initialize(device_,kWindowWidth_,kWindowHeight_);
+	sprite->Initialize(device_,kWindowWidth_,kWindowHeight_);
+
+}
+
+void GameEngine::LoadObject(Text_2D* text) {
+
+	text->Initialize(device_, kWindowWidth_, kWindowHeight_);
 
 }
 
@@ -290,7 +440,9 @@ Camera GameEngine::UpdateCamera(Vector3 rotate, Vector3 Translate) {
 	Matrix4x4 viewMatrix = Inverse(worldMatrix);
 	Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(kWindowWidth_) / float(kWindowHeight_), 0.1f, 100.0f);
 
-	Camera camera = { viewMatrix,projectionMatrix };
+	Camera camera;
+	camera.viewMatrix = viewMatrix;
+	camera.projectionMatrix = projectionMatrix;
 
 	return camera;
 }

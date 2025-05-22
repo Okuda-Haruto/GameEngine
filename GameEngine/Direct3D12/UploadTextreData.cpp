@@ -3,27 +3,9 @@
 #include "DirectXTex/d3dx12.h"
 #include "CreateBufferResource.h"
 
-/*void UploadTextureData(Microsoft::WRL::ComPtr <ID3D12Resource> texture, const DirectX::ScratchImage& mipImages) {
-	//Meta情報を取得
-	const DirectX::TexMetadata& metadata = mipImages.GetMetadata();
-	//全MipMapについて
-	for (size_t mipLevel = 0; mipLevel < metadata.mipLevels; ++mipLevel) {
-		//MipMapLevelを指定して各Imageを取得
-		const DirectX::Image* img = mipImages.GetImage(mipLevel, 0, 0);
-		//Textureに転送
-		HRESULT hr = texture->WriteToSubresource(
-			UINT(mipLevel),
-			nullptr,	//全領域へコピー
-			img->pixels,	//元データアドレス
-			UINT(img->rowPitch),	//1ラインサイズ
-			UINT(img->slicePitch)	//1枚サイズ
-		);
-		assert(SUCCEEDED(hr));
-	}
-}*/
-
 [[nodiscard]]
-Microsoft::WRL::ComPtr <ID3D12Resource> UploadTextureData(Microsoft::WRL::ComPtr <ID3D12Resource> texture,
+Microsoft::WRL::ComPtr <ID3D12Resource> UploadTextureData(
+	Microsoft::WRL::ComPtr <ID3D12Resource> texture,
 	const DirectX::ScratchImage& mipImages,
 	Microsoft::WRL::ComPtr <ID3D12Device> device,
 	Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList> commandList) 

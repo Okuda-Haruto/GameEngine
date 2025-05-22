@@ -65,3 +65,10 @@ void DebugCamera::Update(Mouse mouse) {
 
 	projectionMatrix_ = MakePerspectiveFovMatrix(0.45f, float(1280) / float(720), 0.1f, 100.0f);
 }
+
+Camera DebugCamera::GetCamera() { 
+	Camera camera;
+	camera.viewMatrix = viewMatrix_;
+	camera.projectionMatrix = projectionMatrix_;
+	return camera; 
+};

@@ -4,8 +4,6 @@
 #include <d3d12.h>
 #include "DirectXTex/DirectXTex.h"
 
-//void UploadTextureData(Microsoft::WRL::ComPtr <ID3D12Resource> texture, const DirectX::ScratchImage& mipImages);
-
 [[nodiscard]]
 Microsoft::WRL::ComPtr <ID3D12Resource> UploadTextureData(Microsoft::WRL::ComPtr <ID3D12Resource> texture,
 	const DirectX::ScratchImage& mipImages,
