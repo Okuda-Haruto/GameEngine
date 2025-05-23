@@ -2,6 +2,7 @@
 #include "Vector3.h"
 #include "Matrix4x4.h"
 #include "Camera.h"
+#include <cstdint>
 
 #include "Input.h"
 
@@ -10,7 +11,10 @@ class DebugCamera
 {
 private:
 	//ローカル座標
-	Vector3 translation_ = { 0,0,-50 };
+	Vector3 translation_ = { 0,0,-10 };
+	//Windowのサイズ
+	uint32_t kWindowWidth_ = 1280;
+	uint32_t kWindowHeight_ = 720;
 	//累積回転行列
 	Matrix4x4 matRot_;
 	//ビュー行列
@@ -21,10 +25,13 @@ private:
 	Mouse mouse_;
 public:
 	//初期化
-	void Initialize();
+	void Initialize(uint32_t width, uint32_t height);
 
 	//更新
 	void Update(Mouse mouse);
+
+	//初期化
+	void Reset();
 
 	//出力
 	Camera GetCamera();

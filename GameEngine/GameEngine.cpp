@@ -428,15 +428,19 @@ void GameEngine::LoadAudio(Audio* audio, const char* filename,bool isLoop) {
 
 }
 
+void GameEngine::InitializeDebugCamera(DebugCamera* debugCamera) {
+	debugCamera->Initialize(kWindowWidth_, kWindowHeight_);
+}
+
 [[nodiscard]]
-Camera GameEngine::UpdateCamera(Vector3 rotate, Vector3 Translate) {
+Camera GameEngine::UpdateCamera(SRT transform) {
 
 	Matrix4x4 rotateMatrix = MakeIdentity4x4();
-	rotateMatrix = Multiply(rotateMatrix, MakeRotateXMatrix(rotate.x));
-	rotateMatrix = Multiply(rotateMatrix, MakeRotateYMatrix(rotate.y));
-	rotateMatrix = Multiply(rotateMatrix, MakeRotateZMatrix(rotate.z));
+	rotateMatrix = Multiply(rotateMatrix, MakeRotateXMatrix(transform.rotate.x));
+	rotateMatrix = Multiply(rotateMatrix, MakeRotateYMatrix(transform.rotate.y));
+	rotateMatrix = Multiply(rotateMatrix, MakeRotateZMatrix(transform.rotate.z));
 
-	Matrix4x4 worldMatrix = Multiply(rotateMatrix, MakeTranslateMatrix(Translate));
+	Matrix4x4 worldMatrix = Multiply(rotateMatrix, MakeTranslateMatrix(transform.translate));
 	Matrix4x4 viewMatrix = Inverse(worldMatrix);
 	Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(kWindowWidth_) / float(kWindowHeight_), 0.1f, 100.0f);
 

@@ -33,6 +33,12 @@ void Light::SetIntensity(float intensity) {
 	directionalLightData_->intensity = intensity;
 }
 
+void Light::SetDirectionalLight(DirectionalLight directionalLight) {
+	SetColor(directionalLight.color);
+	SetDirection(directionalLight.direction);
+	SetIntensity(directionalLight.intensity);
+}
+
 [[nodiscard]]
 Microsoft::WRL::ComPtr<ID3D12Resource>& Light::directionalLightResource() {
 	return directionalLightResource_;

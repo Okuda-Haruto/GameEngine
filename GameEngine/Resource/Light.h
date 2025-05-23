@@ -29,6 +29,8 @@ public:
 	void SetDirection(Vector3 direction);
 	// Intensity入力
 	void SetIntensity(float intensity);
+	// DirectionalLight入力
+	void SetDirectionalLight(DirectionalLight directionalLight);
 
 	//光源用のリソース
 	[[nodiscard]]

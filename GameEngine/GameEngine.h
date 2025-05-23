@@ -191,13 +191,15 @@ public:
 	/// <param name="isLoop">ループ再生するか</param>
 	void LoadAudio(Audio* audio, const char* filename,bool isLoop);
 
+	void InitializeDebugCamera(DebugCamera* debugCamera);
+
 	/// <summary>
 	/// カメラ変換
 	/// </summary>
 	/// <param name="transform">カメラSRT</param>
 	/// <returns></returns>
 	[[nodiscard]]
-	Camera UpdateCamera(Vector3 rotate,Vector3 Translate);
+	Camera UpdateCamera(SRT transform);
 
 	/// <summary>
 	/// フレームの開始

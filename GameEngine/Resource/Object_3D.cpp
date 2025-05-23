@@ -64,6 +64,9 @@ void Object_3D::Initialize(const std::string& directoryPath, const std::string& 
 
 void Object_3D::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandList, Object_3D_Data& data) {
 
+	assert(texture_ != nullptr);						//Textureがセットされていない場合止める
+	assert(light_ != nullptr || isLighting_ == false);	//Lightがセットされていない場合止める
+
 	//WVPデータを更新
 	wvpResource_[index_]->Map(0, nullptr, reinterpret_cast<void**>(&wvpData_[index_]));
 
@@ -181,6 +184,9 @@ void Sprite_3D::Initialize(Microsoft::WRL::ComPtr<ID3D12Device> device) {
 }
 
 void Sprite_3D::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandList, Object_3D_Data& data) {
+
+	assert(texture_ != nullptr);						//Textureがセットされていない場合止める
+	assert(light_ != nullptr || isLighting_ == true);	//Lightがセットされていない場合止める
 
 	//頂点のローカル座標系を設定
 	vertexResource_->Map(0, nullptr, reinterpret_cast<void**>(&vertexData_));
