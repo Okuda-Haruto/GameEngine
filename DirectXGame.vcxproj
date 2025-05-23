@@ -50,11 +50,7 @@
     <ClCompile Include="GameEngine\Resource\Texture.cpp" />
     <ClCompile Include="GameEngine\Shader\CompileShader.cpp" />
     <ClCompile Include="GameEngine\Window\Window.cpp" />
-    <ClCompile Include="GameScene.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="MapChipField.cpp" />
-    <ClCompile Include="Player.cpp" />
-    <ClCompile Include="Skydome.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="externals\imgui\imconfig.h" />
@@ -111,10 +107,6 @@
     <ClInclude Include="GameEngine\Resource\Texture.h" />
     <ClInclude Include="GameEngine\Shader\CompileShader.h" />
     <ClInclude Include="GameEngine\Window\Window.h" />
-    <ClInclude Include="GameScene.h" />
-    <ClInclude Include="MapChipField.h" />
-    <ClInclude Include="Player.h" />
-    <ClInclude Include="Skydome.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">

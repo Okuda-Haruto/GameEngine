@@ -1,5 +1,4 @@
 #include "GameEngine.h"
-#include "GameScene.h"
 #include "Vector3_operation.h"
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
@@ -8,11 +7,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	GameEngine* gameEngine = new GameEngine();
 	gameEngine->Intialize(L"CG2", 1280, 720);
 
-	//GameScene* gameScene = new GameScene(gameEngine);
-	//gameScene->Initialize();
-
 	Object_3D* object = new Object_3D();
-	gameEngine->LoadObject(object,"resources","sphere.obj");
+	gameEngine->LoadObject(object,"DebugResources","sphere.obj");
 
 	Texture* texture = new Texture();
 	gameEngine->LoadTexture(texture, object->ModelData().material.textureFilePath);
@@ -100,8 +96,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			//}
 			//index = (flame / indexFlame) + 1;
 
-			//gameScene->Update();
-
 			//
 			//	描画処理
 			//
@@ -115,14 +109,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 			//sprite->Draw(gameEngine->GetCommandList(), data, index);
 
-			//gameScene->Draw(gameEngine);
-			
 			gameEngine->PostDraw();
 
 		}
 	}
-
-	//delete gameScene;
 
 	//delete text;
 
