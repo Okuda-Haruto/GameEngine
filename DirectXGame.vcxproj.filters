@@ -44,6 +44,9 @@
     <Filter Include="ソースファイル">
       <UniqueIdentifier>{8a836276-aa58-460c-bb9a-0e55c629ced2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Sample">
+      <UniqueIdentifier>{ef64ba62-2663-42df-9cff-1d7ac32f22e3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -152,6 +155,9 @@
     <ClCompile Include="GameEngine\LoadFile\LoadText.cpp">
       <Filter>GameEngine\LoadFile</Filter>
     </ClCompile>
+    <ClCompile Include="SampleScene.cpp">
+      <Filter>Sample</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="externals\imgui\imconfig.h">
@@ -202,7 +208,7 @@
     <ClInclude Include="GameEngine\Data\ModelData.h">
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\Data\ObjectData.h">
+    <ClInclude Include="GameEngine\Data\Object_3D_Data.h">
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\Data\RiffHeader.h">
@@ -315,6 +321,12 @@
     </ClInclude>
     <ClInclude Include="GameEngine\LoadFile\LoadText.h">
       <Filter>GameEngine\LoadFile</Filter>
+    </ClInclude>
+    <ClInclude Include="SampleScene.h">
+      <Filter>Sample</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Data\Object_2D_Data.h">
+      <Filter>GameEngine\Data</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -73,6 +73,8 @@ void Sprite_2D::Initialize(Microsoft::WRL::ComPtr<ID3D12Device> device, uint32_t
 
 void Sprite_2D::Draw(Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& commandList, Object_2D_Data& data) {
 
+	assert(texture_ != nullptr);						//Textureがセットされていない場合止める
+
 	//頂点のローカル座標系を設定
 	vertexResource_->Map(0, nullptr, reinterpret_cast<void**>(&vertexData_));
 

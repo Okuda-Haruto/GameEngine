@@ -10,7 +10,7 @@
 #include "ModelData.h"
 #include "Material.h"
 #include "TransformationMatrix.h"
-#include "ObjectData.h"
+#include "Object_3D_Data.h"
 #include "Camera.h"
 #include "Texture.h"
 #include "Light.h"

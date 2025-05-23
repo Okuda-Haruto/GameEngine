@@ -4,7 +4,10 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 
-void DebugCamera::Initialize() {
+void DebugCamera::Initialize(uint32_t width, uint32_t height) {
+	kWindowWidth_ = width;
+	kWindowHeight_ = height;
+
 	matRot_ = MakeIdentity4x4();
 }
 
@@ -63,7 +66,12 @@ void DebugCamera::Update(Mouse mouse) {
 	viewMatrix_ = Inverse(cameraMatrix);
 
 
-	projectionMatrix_ = MakePerspectiveFovMatrix(0.45f, float(1280) / float(720), 0.1f, 100.0f);
+	projectionMatrix_ = MakePerspectiveFovMatrix(0.45f, float(kWindowWidth_) / float(kWindowHeight_), 0.1f, 100.0f);
+}
+
+void DebugCamera::Reset() {
+	translation_ = { 0,0,-10 };
+	matRot_ = MakeIdentity4x4();
 }
 
 Camera DebugCamera::GetCamera() { 
