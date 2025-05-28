@@ -5,7 +5,7 @@ class SampleScene
 {
 private:
 	// 3Dモデル
-	Object_3D* object_ = nullptr;
+	Sprite_3D* object_ = nullptr;
 	// 3Dモデルデータ
 	Object_3D_Data objectData_;
 	// テクスチャ
@@ -32,12 +32,10 @@ private:
 	Mouse mouse_;
 
 public:
-	//コンストラクタ
-	SampleScene(GameEngine* gameEngine);
 	//デストラクタ
 	~SampleScene();
 	//初期化
-	void Initialize();
+	void Initialize(GameEngine* gameEngine);
 	//更新
 	void Update();
 	//描画

@@ -1,6 +1,9 @@
 #include "Object_3D.h"
 
+#include <numbers>
+
 #include "Matrix4x4_operation.h"
+#include "Vector3_operation.h"
 
 #include "CreateBufferResource.h"
 #include "LoadObjFile.h"
@@ -44,6 +47,27 @@ void Object_3D::Initialize(const std::string& directoryPath, const std::string& 
 
 	vertexResource_->Unmap(0, nullptr);
 
+	//Sprite用のインデックスリソースを作る
+	indexResource_ = CreateBufferResource(device, sizeof(uint32_t) * modelData_.vertices.size());
+
+	//インデックスバッファビューを作成する
+	//リソースの先頭のアドレスから使う
+	indexBufferView_.BufferLocation = indexResource_->GetGPUVirtualAddress();
+	//使用するリソースのサイズはインデックスは3つサイズ
+	indexBufferView_.SizeInBytes = UINT(sizeof(uint32_t) * modelData_.vertices.size());
+	//インデックスはuint32_tとする
+	indexBufferView_.Format = DXGI_FORMAT_R32_UINT;
+
+	//インデックスデータを書き込む
+	indexResource_->Map(0, nullptr, reinterpret_cast<void**>(&indexData_));
+
+	//3角形2つを組合わせ4角形にする
+	for (int i = 0; i < modelData_.vertices.size(); i++) {
+		indexData_[i] = i;
+	}
+
+	indexResource_->Unmap(0, nullptr);
+
 	//使用するリソースの要素を予め用意する
 	wvpResource_.resize(kMaxIndex_);
 	wvpData_.resize(kMaxIndex_);
@@ -86,9 +110,10 @@ void Object_3D::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandL
 
 	materialResource_[index_]->Unmap(0, nullptr);
 
+	commandList->IASetVertexBuffers(0, 1, &vertexBufferView_);	//VBVを設定
+	commandList->IASetIndexBuffer(&indexBufferView_);	//IBVを設定
 	//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
 	commandList->SetGraphicsRootDescriptorTable(2, texture_->textureSrvHandleGPU());
-	commandList->IASetVertexBuffers(0, 1, &vertexBufferView_);	//VBVを設定
 	if (isLighting_) {
 		commandList->SetGraphicsRootConstantBufferView(3, light_->directionalLightResource()->GetGPUVirtualAddress());	//Lighting
 	}
@@ -98,7 +123,7 @@ void Object_3D::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandL
 	//wvp用のCBufferの場所を設定
 	commandList->SetGraphicsRootConstantBufferView(1, wvpResource_[index_]->GetGPUVirtualAddress());
 	//描画(DrawCall)
-	commandList->DrawInstanced(UINT(modelData_.vertices.size()), 1, 0, 0);
+	commandList->DrawIndexedInstanced(UINT(modelData_.vertices.size()), 1, 0, 0, 0);
 
 	//最大値を超えたら最初から
 	index_++;
@@ -130,7 +155,7 @@ Sprite_3D::~Sprite_3D() {
 	vertexData_ = nullptr;
 }
 
-void Sprite_3D::Initialize(Microsoft::WRL::ComPtr<ID3D12Device> device) {
+void Sprite_3D::Initialize(Microsoft::WRL::ComPtr<ID3D12Device> device, uint32_t kWindowWidth, uint32_t kWindowHeight) {
 
 	device_ = device;
 
@@ -192,35 +217,55 @@ void Sprite_3D::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandL
 	vertexResource_->Map(0, nullptr, reinterpret_cast<void**>(&vertexData_));
 
 	//左下
-	vertexData_[0].position = { 0.0f,spriteWidth_,0.0f,1.0f };
+	vertexData_[0].position = { -spriteWidth_ / 2 / kWindowWidth_,-spriteHeight_ / 2 / kWindowHeight_,0.0f,1.0f };
 	vertexData_[0].texcoord = { 0.0f,1.0f };
 	vertexData_[0].normal = { 0.0f,0.0f,-1.0f };
 	//左上
-	vertexData_[1].position = { 0.0f,0.0f,0.0f,1.0f };
+	vertexData_[1].position = { -spriteWidth_ / 2 / kWindowWidth_,spriteHeight_ / 2 / kWindowHeight_,0.0f,1.0f };
 	vertexData_[1].texcoord = { 0.0f,0.0f };
 	vertexData_[1].normal = { 0.0f,0.0f,-1.0f };
 	//右下
-	vertexData_[2].position = { spriteHeight_,spriteWidth_,0.0f,1.0f };
+	vertexData_[2].position = { spriteWidth_ / 2 / kWindowWidth_,-spriteHeight_ / 2 / kWindowHeight_,0.0f,1.0f };
 	vertexData_[2].texcoord = { 1.0f,1.0f };
 	vertexData_[2].normal = { 0.0f,0.0f,-1.0f };
 	//右上
-	vertexData_[3].position = { spriteHeight_,0.0f,0.0f,1.0f };
+	vertexData_[3].position = { spriteWidth_ / 2 / kWindowWidth_,spriteHeight_ / 2 / kWindowHeight_,0.0f,1.0f };
 	vertexData_[3].texcoord = { 1.0f,0.0f };
 	vertexData_[3].normal = { 0.0f,0.0f,-1.0f };
 
 	vertexResource_->Unmap(0, nullptr);
 
+	Matrix4x4 inverseMatrix = Inverse(data.camera.viewMatrix);
+
+	//カメラからスプライトへの距離
+	Vector3 CameraToSprite{
+		data.transform.translate.x - inverseMatrix.m[3][0],
+		0,
+		data.transform.translate.z - inverseMatrix.m[3][2],
+	};
+	//正規化
+	CameraToSprite = Normalize(CameraToSprite);
+
+	Vector3 rotate{};
+	rotate = data.transform.rotate;
+	if (CameraToSprite.z > 0) {
+		rotate.y = sinf(CameraToSprite.x) * std::numbers::pi_v<float> / 2;
+	} else {
+		rotate.y = sinf(CameraToSprite.x) * -std::numbers::pi_v<float> / 2 + std::numbers::pi_v<float>;
+	}
+	data.transform.rotate = rotate;
+
 	//WVPデータを更新
 	wvpResource_[index_]->Map(0, nullptr, reinterpret_cast<void**>(&wvpData_[index_]));
 
-	Matrix4x4 worldMatrix = MakeAffineMatrix(data.transform.scale, data.transform.rotate, data.transform.translate);
+	Matrix4x4 worldMatrix = MakeAffineMatrix(data.transform.scale, rotate, data.transform.translate);
 	wvpData_[index_]->World = worldMatrix;
 	Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(data.camera.viewMatrix, data.camera.projectionMatrix));
 	wvpData_[index_]->WVP = worldViewProjectionMatrix;
 
 	wvpResource_[index_]->Unmap(0, nullptr);
-
 	//マテリアルデータを更新
+
 	materialResource_[index_]->Map(0, nullptr, reinterpret_cast<void**>(&materialData_[index_]));
 
 	materialData_[index_]->color = data.color;
@@ -229,9 +274,10 @@ void Sprite_3D::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandL
 
 	materialResource_[index_]->Unmap(0, nullptr);
 
+	commandList->IASetVertexBuffers(0, 1, &vertexBufferView_);	//VBVを設定
+	commandList->IASetIndexBuffer(&indexBufferView_);	//IBVを設定
 	//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
 	commandList->SetGraphicsRootDescriptorTable(2, texture_->textureSrvHandleGPU());
-	commandList->IASetVertexBuffers(0, 1, &vertexBufferView_);	//VBVを設定
 	if (isLighting_) {
 		commandList->SetGraphicsRootConstantBufferView(3, light_->directionalLightResource()->GetGPUVirtualAddress());	//Lighting
 	}
@@ -241,7 +287,7 @@ void Sprite_3D::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandL
 	//wvp用のCBufferの場所を設定
 	commandList->SetGraphicsRootConstantBufferView(1, wvpResource_[index_]->GetGPUVirtualAddress());
 	//描画(DrawCall)
-	commandList->DrawInstanced(6, 1, 0, 0);
+	commandList->DrawIndexedInstanced(6, 1, 0, 0, 0);
 
 	//最大値を超えたら最初から
 	index_++;

@@ -29,6 +29,13 @@ private:
 	//頂点リソースデータ
 	VertexData* vertexData_ = nullptr;
 
+	//インデックスリソース
+	Microsoft::WRL::ComPtr<ID3D12Resource> indexResource_;
+	//インデックスバッファビュー
+	D3D12_INDEX_BUFFER_VIEW indexBufferView_{};
+	//インデックスデータ
+	uint32_t* indexData_ = nullptr;
+
 	//マテリアルリソース
 	std::vector <Microsoft::WRL::ComPtr<ID3D12Resource>> materialResource_;
 	//マテリアルデータ
@@ -106,6 +113,7 @@ private:
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView_{};
 	//頂点リソースデータ
 	VertexData* vertexData_ = nullptr;
+
 	//インデックスリソース
 	Microsoft::WRL::ComPtr<ID3D12Resource> indexResource_;
 	//インデックスバッファビュー
@@ -125,9 +133,13 @@ private:
 	//デバイス
 	Microsoft::WRL::ComPtr<ID3D12Device> device_;
 
+	//Windowのサイズ
+	uint32_t kWindowWidth_ = 1280;
+	uint32_t kWindowHeight_ = 720;
+
 	//Spriteの表示サイズ
-	float spriteWidth_ = 64.0f;
-	float spriteHeight_ = 64.0f;
+	float spriteWidth_ = 1280;
+	float spriteHeight_ = 720;
 
 	//光源データ
 	Light* light_ = nullptr;
@@ -150,7 +162,7 @@ public:
 	/// 初期化
 	/// </summary>
 	/// <param name="device">デバイス</param>
-	void Initialize(Microsoft::WRL::ComPtr<ID3D12Device> device);
+	void Initialize(Microsoft::WRL::ComPtr<ID3D12Device> device, uint32_t kWindowWidth, uint32_t kWindowHeight);
 
 	// Light入力
 	void SetLight(Light* light) { light_ = light; };

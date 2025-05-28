@@ -410,6 +410,12 @@ void GameEngine::LoadObject(Object_3D* object, const std::string& directoryPath,
 
 }
 
+void GameEngine::LoadObject(Sprite_3D* sprite) {
+
+	sprite->Initialize(device_,kWindowWidth_,kWindowHeight_);
+
+}
+
 void GameEngine::LoadObject(Sprite_2D* sprite) {
 
 	sprite->Initialize(device_,kWindowWidth_,kWindowHeight_);
@@ -447,10 +453,12 @@ Camera GameEngine::UpdateCamera(SRT transform) {
 	Camera camera;
 	camera.viewMatrix = viewMatrix;
 	camera.projectionMatrix = projectionMatrix;
+	camera.transform = transform;
 
 	return camera;
 }
 
+[[nodiscard]]
 bool GameEngine::StartFlame() {
 	//Windowのメッセージが来てたら最優先で処理させる
 	if (PeekMessage(&msg_, NULL, 0, 0, PM_REMOVE)) {
@@ -518,6 +526,7 @@ bool GameEngine::StartFlame() {
 	return true;
 }
 
+[[nodiscard]]
 bool GameEngine::WiodowState() {
 	if (msg_.message != WM_QUIT) {
 		return true;

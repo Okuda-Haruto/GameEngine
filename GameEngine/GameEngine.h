@@ -175,6 +175,8 @@ public:
 	/// <param name="filename">ファイル名 (例:"plane.obj")</param>
 	void LoadObject(Object_3D* object, const std::string& directoryPath, const std::string& filename);
 
+	void LoadObject(Sprite_3D* sprite);
+
 	/// <summary>
 	/// 2Dオブジェクトのロード
 	/// </summary>
@@ -205,12 +207,14 @@ public:
 	/// フレームの開始
 	/// </summary>
 	/// <returns>Windowsのメッセージがあるか</returns>
+	[[nodiscard]]
 	bool StartFlame();
 
 	/// <summary>
 	/// ウィンドウ状態
 	/// </summary>
 	/// <returns>ウィンドウを閉じているか</returns>
+	[[nodiscard]]
 	bool WiodowState();
 
 	//描画前処理

@@ -79,7 +79,7 @@ void Sprite_2D::Draw(Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& command
 	vertexResource_->Map(0, nullptr, reinterpret_cast<void**>(&vertexData_));
 
 	//左下
-	vertexData_[0].position = { 0.0f,spriteWidth_,0.0f,1.0f };
+	vertexData_[0].position = { 0.0f,spriteHeight_,0.0f,1.0f };
 	vertexData_[0].texcoord = { 0.0f,1.0f };
 	vertexData_[0].normal = { 0.0f,0.0f,-1.0f };
 	//左上
@@ -87,11 +87,11 @@ void Sprite_2D::Draw(Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& command
 	vertexData_[1].texcoord = { 0.0f,0.0f };
 	vertexData_[1].normal = { 0.0f,0.0f,-1.0f };
 	//右下
-	vertexData_[2].position = { spriteHeight_,spriteWidth_,0.0f,1.0f };
+	vertexData_[2].position = { spriteWidth_,spriteHeight_,0.0f,1.0f };
 	vertexData_[2].texcoord = { 1.0f,1.0f };
 	vertexData_[2].normal = { 0.0f,0.0f,-1.0f };
 	//右上
-	vertexData_[3].position = { spriteHeight_,0.0f,0.0f,1.0f };
+	vertexData_[3].position = { spriteWidth_,0.0f,0.0f,1.0f };
 	vertexData_[3].texcoord = { 1.0f,0.0f };
 	vertexData_[3].normal = { 0.0f,0.0f,-1.0f };
 
@@ -119,7 +119,6 @@ void Sprite_2D::Draw(Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& command
 
 	materialResource_[index_]->Unmap(0, nullptr);
 
-	//Spriteの描画。変更が必要なものだけ変更する
 	commandList->IASetVertexBuffers(0, 1, &vertexBufferView_);	//VBVを設定
 	commandList->IASetIndexBuffer(&indexBufferView_);	//IBVを設定
 	commandList->SetGraphicsRootDescriptorTable(2, texture_->textureSrvHandleGPU());
