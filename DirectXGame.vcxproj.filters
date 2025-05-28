@@ -146,9 +146,6 @@
     <ClCompile Include="GameEngine\Window\Window.cpp">
       <Filter>GameEngine\Window</Filter>
     </ClCompile>
-    <ClCompile Include="GameEngine\GameEngine.cpp">
-      <Filter>GameEngine</Filter>
-    </ClCompile>
     <ClCompile Include="GameEngine\Resource\Text.cpp">
       <Filter>GameEngine\Resource</Filter>
     </ClCompile>
@@ -157,6 +154,9 @@
     </ClCompile>
     <ClCompile Include="SampleScene.cpp">
       <Filter>Sample</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEngine\GameEngine.cpp">
+      <Filter>GameEngine</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

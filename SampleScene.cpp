@@ -1,10 +1,5 @@
 #include "SampleScene.h"
 
-SampleScene::SampleScene(GameEngine* gameEngine) {
-	gameEngine_ = new GameEngine;
-	gameEngine_ = gameEngine;
-}
-
 SampleScene::~SampleScene() {
 	//解放
 	delete object_;
@@ -13,14 +8,17 @@ SampleScene::~SampleScene() {
 	delete light_;
 }
 
-void SampleScene::Initialize() {
+void SampleScene::Initialize(GameEngine* gameEngine) {
+	//ゲームエンジン
+	gameEngine_ = gameEngine;
+
 	//3Dオブジェクト
-	object_ = new Object_3D;
-	gameEngine_->LoadObject(object_, "DebugResources", "axis.obj");
+	object_ = new Sprite_3D;
+	gameEngine_->LoadObject(object_);
 
 	//テクスチャ
 	texture_ = new Texture;
-	gameEngine_->LoadTexture(texture_, object_->ModelData().material.textureFilePath);
+	gameEngine_->LoadTexture(texture_, "DebugResources/UVChecker.png");
 	object_->SetTexture(texture_);
 
 	//デバッグカメラ
@@ -83,9 +81,7 @@ void SampleScene::Update() {
 
 void SampleScene::Draw() {
 	//描画処理
-	gameEngine_->PreDraw();
 
 	object_->Draw(gameEngine_->GetCommandList(), objectData_);
 
-	gameEngine_->PostDraw();
 }
