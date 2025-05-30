@@ -70,7 +70,7 @@ void DebugCamera::Update(Mouse mouse) {
 }
 
 void DebugCamera::Reset() {
-	translation_ = { 0,0,-10 };
+	translation_ = { 0,0,0 };
 	matRot_ = MakeIdentity4x4();
 }
 
