@@ -13,12 +13,12 @@ void SampleScene::Initialize(GameEngine* gameEngine) {
 	gameEngine_ = gameEngine;
 
 	//3Dオブジェクト
-	object_ = new Sprite_3D;
-	gameEngine_->LoadObject(object_);
+	object_ = new Object_3D;
+	gameEngine_->LoadObject(object_,"DebugResources", "sphere.obj");
 
 	//テクスチャ
 	texture_ = new Texture;
-	gameEngine_->LoadTexture(texture_, "DebugResources/UVChecker.png");
+	gameEngine_->LoadTexture(texture_,object_->ModelData().material.textureFilePath);
 	object_->SetTexture(texture_);
 
 	//デバッグカメラ
@@ -49,15 +49,17 @@ void SampleScene::Update() {
 	keyBord_ = gameEngine_->GetKeybord();
 	mouse_ = gameEngine_->GetMouse();
 
+	//カメラアップデート
+	if (isUseDebugCamera_) {
+		debugCamera_->Update(mouse_);
+		camera_ = debugCamera_->GetCamera();
+	}
+
 	ImGui::Begin("Debug");
 	ImGui::Checkbox("isUseDebugCamera",&isUseDebugCamera_);
 	if (ImGui::Button("ResetDebugCamera")) {
 		debugCamera_->Reset();
 	}
-	ImGui::DragFloat3("Camera Translate", &objectData_.camera.transform.translate.x, 0.1f);
-	ImGui::SliderAngle("Camera RotateX", &objectData_.camera.transform.rotate.x);
-	ImGui::SliderAngle("Camera RotateY", &objectData_.camera.transform.rotate.y);
-	ImGui::SliderAngle("Camera RotateZ", &objectData_.camera.transform.rotate.z);
 	ImGui::ColorEdit4("light Color", &directionalLight.color.x);
 	ImGui::DragFloat3("light Direction", &directionalLight.direction.x, 0.01f, -1.0f, 1.0f);
 	ImGui::DragFloat("light Intensity", &directionalLight.intensity, 0.01f, 0.0f, 1.0f);
@@ -72,14 +74,6 @@ void SampleScene::Update() {
 	ImGui::SliderAngle("Object RotateZ", &objectData_.transform.rotate.z);
 	ImGui::DragFloat3("Object Translate", &objectData_.transform.translate.x, 0.1f);
 	ImGui::End();
-
-	//カメラアップデート
-	if (isUseDebugCamera_) {
-		debugCamera_->Update(mouse_);
-		camera_ = debugCamera_->GetCamera();
-	} else {
-		camera_ = gameEngine_->UpdateCamera(objectData_.camera.transform);
-	}
 
 	light_->SetDirectionalLight(directionalLight);
 	objectData_.camera = camera_;

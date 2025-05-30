@@ -5,7 +5,7 @@ class SampleScene
 {
 private:
 	// 3Dモデル
-	Sprite_3D* object_ = nullptr;
+	Object_3D* object_ = nullptr;
 	// 3Dモデルデータ
 	Object_3D_Data objectData_;
 	// テクスチャ
