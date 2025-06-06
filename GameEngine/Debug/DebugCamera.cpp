@@ -1,12 +1,16 @@
 #include "DebugCamera.h"
 #include "Matrix4x4_operation.h"
+#include <GameEngine.h>
 
-#define _USE_MATH_DEFINES
+#include <numbers>
 #include <cmath>
 
-void DebugCamera::Initialize(uint32_t width, uint32_t height) {
-	kWindowWidth_ = width;
-	kWindowHeight_ = height;
+DebugCamera::DebugCamera(GameEngine* gameEngine) {
+	kWindowWidth_ = gameEngine->GetWindowWidth();
+	kWindowHeight_ = gameEngine->GetWindowHeight();
+}
+
+void DebugCamera::Initialize() {
 
 	matRot_ = MakeIdentity4x4();
 }
@@ -40,8 +44,8 @@ void DebugCamera::Update(Mouse mouse) {
 		}
 	} else if (mouse_.click[MOUSE_BOTTON_RIGHT]) {
 		if (mouse_.Movement.x != 0.0f || mouse_.Movement.y != 0.0f) {
-			const float speedX = -mouse_.Movement.y / (180.0f * float(M_PI));
-			const float speedY = -mouse_.Movement.x / (180.0f * float(M_PI));
+			const float speedX = -mouse_.Movement.y / (180.0f * std::numbers::pi_v<float>);
+			const float speedY = -mouse_.Movement.x / (180.0f * std::numbers::pi_v<float>);
 
 			Matrix4x4 matRotDelta = MakeIdentity4x4();
 			matRotDelta = Multiply(matRotDelta, MakeRotateXMatrix(speedX));
@@ -74,9 +78,7 @@ void DebugCamera::Reset() {
 	matRot_ = MakeIdentity4x4();
 }
 
-Camera DebugCamera::GetCamera() { 
-	Camera camera;
-	camera.viewMatrix = viewMatrix_;
-	camera.projectionMatrix = projectionMatrix_;
-	return camera; 
+void DebugCamera::UpdateCamera(Camera* camera) {
+	camera->SetViewMatrix(viewMatrix_);
+	camera->SetProjectionMatrix(projectionMatrix_);
 };

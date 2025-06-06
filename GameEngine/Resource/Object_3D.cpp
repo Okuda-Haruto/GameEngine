@@ -96,7 +96,7 @@ void Object_3D::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandL
 
 	Matrix4x4 worldMatrix = MakeAffineMatrix(data.transform.scale, data.transform.rotate, data.transform.translate);
 	wvpData_[index_]->World = worldMatrix;
-	Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(data.camera.viewMatrix, data.camera.projectionMatrix));
+	Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(camera_->GetViewMatrix(), camera_->GetProjectionMatrix()));
 	wvpData_[index_]->WVP = worldViewProjectionMatrix;
 
 	wvpResource_[index_]->Unmap(0, nullptr);
@@ -235,7 +235,7 @@ void Sprite_3D::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandL
 
 	vertexResource_->Unmap(0, nullptr);
 
-	Matrix4x4 inverseMatrix = Inverse(data.camera.viewMatrix);
+	Matrix4x4 inverseMatrix = Inverse(camera_->GetViewMatrix());
 
 	//カメラからスプライトへの距離
 	Vector3 CameraToSprite{
@@ -260,7 +260,7 @@ void Sprite_3D::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandL
 
 	Matrix4x4 worldMatrix = MakeAffineMatrix(data.transform.scale, rotate, data.transform.translate);
 	wvpData_[index_]->World = worldMatrix;
-	Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(data.camera.viewMatrix, data.camera.projectionMatrix));
+	Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(camera_->GetViewMatrix(), camera_->GetProjectionMatrix()));
 	wvpData_[index_]->WVP = worldViewProjectionMatrix;
 
 	wvpResource_[index_]->Unmap(0, nullptr);

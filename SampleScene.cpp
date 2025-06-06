@@ -22,15 +22,12 @@ void SampleScene::Initialize(GameEngine* gameEngine) {
 	object_->SetTexture(texture_);
 
 	//デバッグカメラ
-	debugCamera_ = new DebugCamera;
-	gameEngine_->InitializeDebugCamera(debugCamera_);
+	debugCamera_ = new DebugCamera(gameEngine_);
+	debugCamera_->Initialize();
 
-	camera_ = gameEngine_->UpdateCamera(
-		{
-			{1.0f,1.0f,1.0f},
-			{0.0f,0.0f,0.0f},
-			{0.0f,0.0f,-10.0f}
-		});
+	camera_ = new Camera(gameEngine_);
+	camera_->Initialize();
+	object_->SetCamera(camera_);
 
 	//光源
 	light_ = new Light;
@@ -52,7 +49,7 @@ void SampleScene::Update() {
 	//カメラアップデート
 	if (isUseDebugCamera_) {
 		debugCamera_->Update(mouse_);
-		camera_ = debugCamera_->GetCamera();
+		debugCamera_->UpdateCamera(camera_);
 	}
 
 	ImGui::Begin("Debug");
@@ -76,7 +73,6 @@ void SampleScene::Update() {
 	ImGui::End();
 
 	light_->SetDirectionalLight(directionalLight);
-	objectData_.camera = camera_;
 }
 
 void SampleScene::Draw() {

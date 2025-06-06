@@ -158,6 +158,9 @@
     <ClCompile Include="GameEngine\GameEngine.cpp">
       <Filter>GameEngine</Filter>
     </ClCompile>
+    <ClCompile Include="GameEngine\Resource\Camera.cpp">
+      <Filter>GameEngine\Resource</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="externals\imgui\imconfig.h">
@@ -183,9 +186,6 @@
     </ClInclude>
     <ClInclude Include="externals\imgui\imstb_truetype.h">
       <Filter>imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="GameEngine\Data\Camera.h">
-      <Filter>GameEngine\Data</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\Data\ChunkHeader.h">
       <Filter>GameEngine\Data</Filter>
@@ -327,6 +327,9 @@
     </ClInclude>
     <ClInclude Include="GameEngine\Data\Object_2D_Data.h">
       <Filter>GameEngine\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Resource\Camera.h">
+      <Filter>GameEngine\Resource</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

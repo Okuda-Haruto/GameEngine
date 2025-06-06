@@ -15,6 +15,8 @@
 #include "Texture.h"
 #include "Light.h"
 
+
+
 # pragma region Object_3D
 
 //3Dオブジェクト
@@ -57,7 +59,7 @@ private:
 	Texture* texture_ = nullptr;
 
 	//カメラ
-	Camera* camera_;
+	Camera* camera_ = nullptr;
 
 	//リソース番号の最大値
 	static const int kMaxIndex_ = 128;
@@ -149,6 +151,9 @@ private:
 	//テクスチャデータ
 	Texture* texture_ = nullptr;
 
+	//カメラ
+	Camera* camera_ = nullptr;
+
 	//リソース番号の最大値
 	static const int kMaxIndex_ = 128;
 	//使用するリソースの番号
@@ -165,13 +170,15 @@ public:
 	void Initialize(Microsoft::WRL::ComPtr<ID3D12Device> device, uint32_t kWindowWidth, uint32_t kWindowHeight);
 
 	// Light入力
-	void SetLight(Light* light) { light_ = light; };
+	void SetLight(Light* light) { light_ = light; }
 	// Texture入力
-	void SetTexture(Texture* texture) { texture_ = texture; };
+	void SetTexture(Texture* texture) { texture_ = texture; }
 	// Lightを使用するか
-	void isLighting(bool isLighting) { isLighting_ = isLighting; };
+	void isLighting(bool isLighting) { isLighting_ = isLighting; }
+	// Camera入力
+	void SetCamera(Camera* camera) { camera_ = camera; }
 	// スプライトの表示サイズ入力
-	void SetSpriteSize(float width, float height) { spriteWidth_ = width; spriteHeight_ = height; };
+	void SetSpriteSize(float width, float height) { spriteWidth_ = width; spriteHeight_ = height; }
 
 	/// <summary>
 	/// 3Dオブジェクト描画
