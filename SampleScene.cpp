@@ -14,7 +14,7 @@ void SampleScene::Initialize(GameEngine* gameEngine) {
 
 	//3Dオブジェクト
 	object_ = new Object_3D;
-	gameEngine_->LoadObject(object_,"DebugResources", "sphere.obj");
+	gameEngine_->LoadObject(object_,"DebugResources", "axisIndicator.obj");
 
 	//テクスチャ
 	texture_ = new Texture;
@@ -28,6 +28,10 @@ void SampleScene::Initialize(GameEngine* gameEngine) {
 	camera_ = new Camera(gameEngine_);
 	camera_->Initialize();
 	object_->SetCamera(camera_);
+
+	axis = new AxisIndicator;
+	axis->Initialize(gameEngine_);
+	axis->SetCamera(camera_);
 
 	//光源
 	light_ = new Light;
@@ -79,5 +83,7 @@ void SampleScene::Draw() {
 	//描画処理
 
 	object_->Draw(gameEngine_->GetCommandList(), objectData_);
+
+	axis->Draw(gameEngine_->GetCommandList());
 
 }

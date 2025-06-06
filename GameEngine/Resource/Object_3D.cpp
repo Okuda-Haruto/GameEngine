@@ -12,6 +12,8 @@
 #include "CreateTextureResource.h"
 #include "UploadTextureData.h"
 
+#include "GameEngine.h"
+
 # pragma region Object_3D
 
 Object_3D::~Object_3D() {
@@ -319,6 +321,114 @@ void Sprite_3D::Reset() {
 
 	//最初から始める
 	index_ = 0;
+}
+
+# pragma endregion
+
+# pragma region AxisIndicator
+
+AxisIndicator::~AxisIndicator() {
+	delete wvpData_;
+	delete materialData_;
+	vertexData_ = nullptr;
+}
+
+void AxisIndicator::Initialize(GameEngine* gameEngine) {
+
+	device_ = gameEngine->GetDevice();
+
+	//モデル読み込み
+	modelData_ = LoadObjFile("DebugResources", "axisIndicator.obj");
+
+	//テクスチャも読み込む
+	texture_ = new Texture;
+	gameEngine->LoadTexture(texture_, modelData_.material.textureFilePath);
+
+	//頂点リソースを作る
+	vertexResource_ = CreateBufferResource(device_, sizeof(VertexData) * modelData_.vertices.size());
+
+	//頂点バッファビューを作成する
+	//リソースの先頭のアドレスから使う
+	vertexBufferView_.BufferLocation = vertexResource_->GetGPUVirtualAddress();
+	//使用するリソースのサイズは頂点のサイズ
+	vertexBufferView_.SizeInBytes = UINT(sizeof(VertexData) * modelData_.vertices.size());
+	//1頂点あたりのサイズ
+	vertexBufferView_.StrideInBytes = sizeof(VertexData);
+
+	//頂点リソースにデータを書き込む
+	vertexResource_->Map(0, nullptr, reinterpret_cast<void**>(&vertexData_));	//書き込むためのアドレスを取得
+
+	std::memcpy(vertexData_, modelData_.vertices.data(), sizeof(VertexData) * modelData_.vertices.size());	//頂点データにリソースにコピー
+
+	vertexResource_->Unmap(0, nullptr);
+
+	//Sprite用のインデックスリソースを作る
+	indexResource_ = CreateBufferResource(device_, sizeof(uint32_t) * modelData_.vertices.size());
+
+	//インデックスバッファビューを作成する
+	//リソースの先頭のアドレスから使う
+	indexBufferView_.BufferLocation = indexResource_->GetGPUVirtualAddress();
+	//使用するリソースのサイズはインデックスは3つサイズ
+	indexBufferView_.SizeInBytes = UINT(sizeof(uint32_t) * modelData_.vertices.size());
+	//インデックスはuint32_tとする
+	indexBufferView_.Format = DXGI_FORMAT_R32_UINT;
+
+	//インデックスデータを書き込む
+	indexResource_->Map(0, nullptr, reinterpret_cast<void**>(&indexData_));
+
+	//3角形2つを組合わせ4角形にする
+	for (int i = 0; i < modelData_.vertices.size(); i++) {
+		indexData_[i] = i;
+	}
+
+	indexResource_->Unmap(0, nullptr);
+
+	wvpResource_ = CreateBufferResource(device_, sizeof(TransformationMatrix));
+	wvpData_ = nullptr;
+	materialResource_ = CreateBufferResource(device_, sizeof(Material));
+	materialData_ = nullptr;
+}
+
+void AxisIndicator::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandList) {
+
+	assert(texture_ != nullptr);						//Textureがセットされていない場合止める
+
+	//WVPデータを更新
+	wvpResource_->Map(0, nullptr, reinterpret_cast<void**>(&wvpData_));
+
+	Matrix4x4 CameraMatrix = Inverse(camera_->GetViewMatrix());
+	Vector3 size{ 0.01f,0.01f,0.01f };
+	Matrix4x4 worldMatrix;
+	worldMatrix.m[0][0] = CameraMatrix.m[0][0] * size.x	; worldMatrix.m[0][1] = CameraMatrix.m[0][1] * size.x	; worldMatrix.m[0][2] = CameraMatrix.m[0][2] * size.x	; worldMatrix.m[0][3] = 0;
+	worldMatrix.m[1][0] = CameraMatrix.m[1][0] * size.y	; worldMatrix.m[1][1] = CameraMatrix.m[1][1] * size.y	; worldMatrix.m[1][2] = CameraMatrix.m[1][2] * size.y	; worldMatrix.m[0][3] = 0;
+	worldMatrix.m[2][0] = CameraMatrix.m[2][0] * size.z	; worldMatrix.m[2][1] = CameraMatrix.m[2][1] * size.z	; worldMatrix.m[2][2] = CameraMatrix.m[2][2] * size.z	; worldMatrix.m[0][3] = 0;
+	worldMatrix.m[3][0] = 0.375f							; worldMatrix.m[3][1] = 0.2f							; worldMatrix.m[3][2] = 1								; worldMatrix.m[3][3] = 1;
+
+	wvpData_->World = worldMatrix;
+	Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(MakeIdentity4x4(), camera_->GetProjectionMatrix()));
+	wvpData_->WVP = worldViewProjectionMatrix;
+
+	wvpResource_->Unmap(0, nullptr);
+
+	//マテリアルデータを更新
+	materialResource_->Map(0, nullptr, reinterpret_cast<void**>(&materialData_));
+
+	materialData_->color = {1.0f,1.0f,1.0f,1.0f};
+	materialData_->uvTransform = MakeIdentity4x4();
+
+	materialResource_->Unmap(0, nullptr);
+
+	commandList->IASetVertexBuffers(0, 1, &vertexBufferView_);	//VBVを設定
+	commandList->IASetIndexBuffer(&indexBufferView_);	//IBVを設定
+	//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
+	commandList->SetGraphicsRootDescriptorTable(2, texture_->textureSrvHandleGPU());
+
+	//マテリアルCBufferの場所を設定
+	commandList->SetGraphicsRootConstantBufferView(0, materialResource_->GetGPUVirtualAddress());
+	//wvp用のCBufferの場所を設定
+	commandList->SetGraphicsRootConstantBufferView(1, wvpResource_->GetGPUVirtualAddress());
+	//描画(DrawCall)
+	commandList->DrawIndexedInstanced(UINT(modelData_.vertices.size()), 1, 0, 0, 0);
 }
 
 # pragma endregion

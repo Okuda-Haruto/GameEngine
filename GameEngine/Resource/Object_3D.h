@@ -192,3 +192,72 @@ public:
 };
 
 # pragma endregion
+
+# pragma region AxisIndicator
+
+//軸表示
+class AxisIndicator {
+private:
+	//ロードしたモデルのデータ
+	ModelData modelData_;
+	//頂点リソース
+	Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource_;
+	//頂点バッファビュー
+	D3D12_VERTEX_BUFFER_VIEW vertexBufferView_{};
+	//頂点リソースデータ
+	VertexData* vertexData_ = nullptr;
+
+	//インデックスリソース
+	Microsoft::WRL::ComPtr<ID3D12Resource> indexResource_;
+	//インデックスバッファビュー
+	D3D12_INDEX_BUFFER_VIEW indexBufferView_{};
+	//インデックスデータ
+	uint32_t* indexData_ = nullptr;
+
+	//マテリアルリソース
+	Microsoft::WRL::ComPtr<ID3D12Resource> materialResource_;
+	//マテリアルデータ
+	Material* materialData_;
+	//WVP用リソース
+	Microsoft::WRL::ComPtr<ID3D12Resource> wvpResource_;
+	//WVPデータ
+	TransformationMatrix* wvpData_;
+
+	//デバイス
+	Microsoft::WRL::ComPtr<ID3D12Device> device_;
+
+	//Windowのサイズ
+	uint32_t kWindowWidth_ = 1280;
+	uint32_t kWindowHeight_ = 720;
+
+	//テクスチャデータ
+	Texture* texture_ = nullptr;
+
+	//カメラ
+	Camera* camera_ = nullptr;
+
+public:
+
+	~AxisIndicator();
+
+	/// <summary>
+	/// 初期化
+	/// </summary>
+	/// <param name="device">デバイス</param>
+	void Initialize(GameEngine* gameEngine);
+
+	// Camera入力
+	void SetCamera(Camera* camera) { camera_ = camera; }
+
+	/// <summary>
+	/// 3Dオブジェクト描画
+	/// </summary>
+	/// <param name="commandList">コマンドリスト</param>
+	/// <param name="data">オブジェクトの各種データ</param>
+	void Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandList);
+
+	//リソース初期化
+	void Reset();
+};
+
+# pragma endregion
