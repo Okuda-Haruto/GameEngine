@@ -16,5 +16,4 @@ struct Object_3D_Data {
 		{0.0f,0.0f,0.0f}
 	};
 	Vector4 color = { 1.0f,1.0f,1.0f,1.0f };
-	Camera camera;
 };

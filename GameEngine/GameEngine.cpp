@@ -9,6 +9,7 @@
 #include "CreateDepthStencilTextureResource.h"
 #include "GetDescriptorHandle.h"
 #include "ExportDump.h"
+#include "ConvertString.h"
 
 #pragma comment(lib,"d3d12.lib")
 #include <d3d12.h>
@@ -57,7 +58,11 @@ void GameEngine::Intialize(const wchar_t* WindowName, int32_t kWindowWidth, int3
 	//誰も捕捉しなかった場合に(Unhandled),捕捉する関数を登録
 	SetUnhandledExceptionFilter(ExportDump);
 
+	//COMの初期化
 	CoInitializeEx(0, COINIT_MULTITHREADED);
+
+	//メディアファンデーションの初期化
+	MFStartup(MF_VERSION, MFSTARTUP_NOSOCKET);
 
 	//ウィンドウクラスの生成
 	w_ = WindowClass();
@@ -236,7 +241,6 @@ void GameEngine::Intialize(const wchar_t* WindowName, int32_t kWindowWidth, int3
 	//マスターボイスを生成
 	hr = xAudio2_->CreateMasteringVoice(&masterVoice_);
 	assert(SUCCEEDED(hr));
-
 
 	//ImGui初期化
 	IMGUI_CHECKVERSION();
@@ -428,34 +432,10 @@ void GameEngine::LoadObject(Text_2D* text) {
 
 }
 
-void GameEngine::LoadAudio(Audio* audio, const char* filename,bool isLoop) {
+void GameEngine::LoadAudio(Audio* audio, std::string filename,bool isLoop) {
 
-	audio->Initialize(filename, xAudio2_.Get(),isLoop);
+	audio->Initialize(ConvertString( filename), xAudio2_.Get(),isLoop);
 
-}
-
-void GameEngine::InitializeDebugCamera(DebugCamera* debugCamera) {
-	debugCamera->Initialize(kWindowWidth_, kWindowHeight_);
-}
-
-[[nodiscard]]
-Camera GameEngine::UpdateCamera(SRT transform) {
-
-	Matrix4x4 rotateMatrix = MakeIdentity4x4();
-	rotateMatrix = Multiply(rotateMatrix, MakeRotateXMatrix(transform.rotate.x));
-	rotateMatrix = Multiply(rotateMatrix, MakeRotateYMatrix(transform.rotate.y));
-	rotateMatrix = Multiply(rotateMatrix, MakeRotateZMatrix(transform.rotate.z));
-
-	Matrix4x4 worldMatrix = Multiply(rotateMatrix, MakeTranslateMatrix(transform.translate));
-	Matrix4x4 viewMatrix = Inverse(worldMatrix);
-	Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(kWindowWidth_) / float(kWindowHeight_), 0.1f, 100.0f);
-
-	Camera camera;
-	camera.viewMatrix = viewMatrix;
-	camera.projectionMatrix = projectionMatrix;
-	camera.transform = transform;
-
-	return camera;
 }
 
 [[nodiscard]]

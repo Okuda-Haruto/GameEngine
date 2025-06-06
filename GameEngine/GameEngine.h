@@ -191,17 +191,7 @@ public:
 	/// <param name="audio">ロードするAudioクラス</param>
 	/// <param name="filename">.wavファイル名 (例:resources/Audio.wav)</param>
 	/// <param name="isLoop">ループ再生するか</param>
-	void LoadAudio(Audio* audio, const char* filename,bool isLoop);
-
-	void InitializeDebugCamera(DebugCamera* debugCamera);
-
-	/// <summary>
-	/// カメラ変換
-	/// </summary>
-	/// <param name="transform">カメラSRT</param>
-	/// <returns></returns>
-	[[nodiscard]]
-	Camera UpdateCamera(SRT transform);
+	void LoadAudio(Audio* audio, std::string filename,bool isLoop);
 
 	/// <summary>
 	/// フレームの開始
@@ -226,6 +216,14 @@ public:
 	//コマンドリスト
 	[[nodiscard]]
 	Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& GetCommandList();
+
+	//ウィンドウ幅
+	[[nodiscard]]
+	int32_t GetWindowWidth() { return kWindowWidth_; }
+
+	//ウィンドウ高さ
+	[[nodiscard]]
+	int32_t GetWindowHeight() { return kWindowHeight_; }
 
 	//キーボード入力
 	[[nodiscard]]

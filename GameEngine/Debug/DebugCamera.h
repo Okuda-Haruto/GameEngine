@@ -24,8 +24,11 @@ private:
 	//マウス入力
 	Mouse mouse_;
 public:
+
+	DebugCamera(GameEngine* gameEngine);
+
 	//初期化
-	void Initialize(uint32_t width, uint32_t height);
+	void Initialize();
 
 	//更新
 	void Update(Mouse mouse);
@@ -34,6 +37,6 @@ public:
 	void Reset();
 
 	//出力
-	Camera GetCamera();
+	void UpdateCamera(Camera* camera);
 };
 

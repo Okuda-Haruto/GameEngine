@@ -43,6 +43,7 @@
     <ClCompile Include="GameEngine\Math\Matrix4x4_operation.cpp" />
     <ClCompile Include="GameEngine\Math\Vector3_operation.cpp" />
     <ClCompile Include="GameEngine\Resource\Audio.cpp" />
+    <ClCompile Include="GameEngine\Resource\Camera.cpp" />
     <ClCompile Include="GameEngine\Resource\Text.cpp" />
     <ClCompile Include="GameEngine\Resource\Light.cpp" />
     <ClCompile Include="GameEngine\Resource\Object_2D.cpp" />
@@ -62,7 +63,6 @@
     <ClInclude Include="externals\imgui\imstb_rectpack.h" />
     <ClInclude Include="externals\imgui\imstb_textedit.h" />
     <ClInclude Include="externals\imgui\imstb_truetype.h" />
-    <ClInclude Include="GameEngine\Data\Camera.h" />
     <ClInclude Include="GameEngine\Data\ChunkHeader.h" />
     <ClInclude Include="GameEngine\Data\DirectionalLight.h" />
     <ClInclude Include="GameEngine\Data\FormatChunk.h" />
@@ -102,6 +102,7 @@
     <ClInclude Include="GameEngine\Math\Vector3_operation.h" />
     <ClInclude Include="GameEngine\Math\Vector4.h" />
     <ClInclude Include="GameEngine\Resource\Audio.h" />
+    <ClInclude Include="GameEngine\Resource\Camera.h" />
     <ClInclude Include="GameEngine\Resource\Text.h" />
     <ClInclude Include="GameEngine\Resource\Light.h" />
     <ClInclude Include="GameEngine\Resource\Object_2D.h" />

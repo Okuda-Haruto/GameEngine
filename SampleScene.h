@@ -13,7 +13,7 @@ private:
 
 	// カメラ
 	SRT cameraTransform_{};
-	Camera camera_;
+	Camera* camera_;
 
 	//デバッグカメラ
 	DebugCamera* debugCamera_ = nullptr;
