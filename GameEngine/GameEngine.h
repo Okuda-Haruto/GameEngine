@@ -225,6 +225,10 @@ public:
 	[[nodiscard]]
 	int32_t GetWindowHeight() { return kWindowHeight_; }
 
+	//デバイス
+	[[nodiscard]]
+	Microsoft::WRL::ComPtr<ID3D12Device> GetDevice() { return device_; }
+
 	//キーボード入力
 	[[nodiscard]]
 	Keybord GetKeybord();

@@ -322,14 +322,14 @@
     <ClInclude Include="GameEngine\LoadFile\LoadText.h">
       <Filter>GameEngine\LoadFile</Filter>
     </ClInclude>
-    <ClInclude Include="SampleScene.h">
-      <Filter>Sample</Filter>
-    </ClInclude>
     <ClInclude Include="GameEngine\Data\Object_2D_Data.h">
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\Resource\Camera.h">
       <Filter>GameEngine\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="SampleScene.h">
+      <Filter>Sample</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

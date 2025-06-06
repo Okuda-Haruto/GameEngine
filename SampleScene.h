@@ -15,6 +15,8 @@ private:
 	SRT cameraTransform_{};
 	Camera* camera_;
 
+	AxisIndicator* axis = nullptr;
+
 	//デバッグカメラ
 	DebugCamera* debugCamera_ = nullptr;
 	//デバッグカメラを使用するか
