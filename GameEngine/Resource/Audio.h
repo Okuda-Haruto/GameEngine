@@ -45,6 +45,8 @@ private:
 	float Volume_ = 1.0f;
 	//音声データのループ再生するか
 	bool isLoop_ = false;
+
+	std::wstring path_;
 public:
 	~Audio();
 	/// <summary>
@@ -59,7 +61,7 @@ public:
 	/// .wavファイルの読み込み
 	/// </summary>
 	/// <param name="filename">.wavファイル名 (例:resources/Audio.wav)</param>
-	void SoundLoadWave(const char* filename);
+	void SoundLoadWave(bool isLoop);
 
 	// 音声データの解放
 	void SoundUnload();

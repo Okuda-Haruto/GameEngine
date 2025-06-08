@@ -14,14 +14,16 @@ Audio::~Audio() {
 	CoUninitialize();
 }
 
-void Audio::Initialize(std::wstring path, Microsoft::WRL::ComPtr<IXAudio2> xAudio2,bool isLoop) {
+void Audio::Initialize(std::wstring path, Microsoft::WRL::ComPtr<IXAudio2> xAudio2, bool isLoop) {
 
 	HRESULT hr;
 
 	xAudio2_ = xAudio2;
 
 	Volume_ = 1.0f;
-	bool isLoop_ = isLoop;
+	isLoop_ = isLoop;
+
+	path_ = path;
 
 	//ソースリーダーを作成
 	MFCreateSourceReaderFromURL(path.c_str(), NULL, &pMFSourceReader_);
@@ -90,69 +92,74 @@ void Audio::Initialize(std::wstring path, Microsoft::WRL::ComPtr<IXAudio2> xAudi
 
 }
 
-void Audio::SoundLoadWave(const char* filename) {
+void Audio::SoundLoadWave(bool isLoop) {
 
-	//ファイル入力ストリームのインスタンス
-	std::ifstream file;
-	//.wavファイルをバイナリモードで開く
-	file.open(filename, std::ios_base::binary);
-	//ファイルオープン失敗を検出する
-	assert(file.is_open());
+	isLoop_ = isLoop;
 
-	//RIFFヘッダーの読み込み
-	RiffHeader riff;
-	file.read((char*)&riff, sizeof(riff));
-	//ファイルがRIFFかチェック
-	if (strncmp(riff.chunk.id, "RIFF", 4) != 0) {
-		assert(0);
+	//ソースリーダーを作成
+	MFCreateSourceReaderFromURL(path_.c_str(), NULL, &pMFSourceReader_);
+	//メディアタイプを作成
+	MFCreateMediaType(&pMFMediaType_);
+	pMFMediaType_->SetGUID(MF_MT_MAJOR_TYPE, MFMediaType_Audio);
+	pMFMediaType_->SetGUID(MF_MT_SUBTYPE, MFAudioFormat_PCM);
+	//メディアタイプを指定
+	pMFSourceReader_->SetCurrentMediaType(MF_SOURCE_READER_FIRST_AUDIO_STREAM, nullptr, pMFMediaType_);
+	pMFMediaType_->Release();
+	pMFMediaType_ = nullptr;
+
+	//指定したメディアタイプを取得
+	pMFSourceReader_->GetCurrentMediaType(MF_SOURCE_READER_FIRST_AUDIO_STREAM, &pMFMediaType_);
+
+	//メディアタイプからWAVEFORMATMATEXを生成
+	MFCreateWaveFormatExFromMFMediaType(pMFMediaType_, &waveFormat, nullptr);
+
+	//データの読み込み
+	while (true) {
+		IMFSample* pMFSample = nullptr;
+		DWORD dwStreamFlags = 0;
+		pMFSourceReader_->ReadSample(MF_SOURCE_READER_FIRST_AUDIO_STREAM, 0, nullptr, &dwStreamFlags, nullptr, &pMFSample);
+
+		//ストリームが終わったらループを抜ける
+		if (dwStreamFlags & MF_SOURCE_READERF_ENDOFSTREAM) {
+			break;
+		}
+
+		IMFMediaBuffer* pMFMediaBuffer = nullptr;
+		pMFSample->ConvertToContiguousBuffer(&pMFMediaBuffer);
+
+		BYTE* pBuffer = nullptr;
+		DWORD cbCurrentLength = 0;
+		pMFMediaBuffer->Lock(&pBuffer, nullptr, &cbCurrentLength);
+
+		mediaData.resize(mediaData.size() + cbCurrentLength);
+		memcpy(mediaData.data() + mediaData.size() - cbCurrentLength,
+			pBuffer,
+			cbCurrentLength);
+
+		pMFMediaBuffer->Unlock();
+
+		pMFMediaBuffer->Release();
+		pMFSample->Release();
 	}
-	//タイプがWAVEかチェック
-	if (strncmp(riff.type, "WAVE", 4) != 0) {
-		assert(0);
+
+	//波形フォーマットを元にSourceVioceの生成
+	HRESULT hr = xAudio2_->CreateSourceVoice(&pSourceVoice_, waveFormat);
+	assert(SUCCEEDED(hr));
+
+	//再生する波形データの設定
+	buf_.pAudioData = mediaData.data();
+	buf_.AudioBytes = sizeof(BYTE) * UINT32(mediaData.size());
+	buf_.Flags = XAUDIO2_END_OF_STREAM;
+	if (isLoop_) {
+		buf_.LoopCount = XAUDIO2_LOOP_INFINITE;	//無限ループ
+	} else {
+		buf_.LoopCount = 0;						//ループしない
 	}
+	//設定入力
+	hr = pSourceVoice_->SubmitSourceBuffer(&buf_);
+	assert(SUCCEEDED(hr));
 
-	//Formatチャンクの読み込み
-	FormatChunk format = {};
-	//チャンクヘッダーの確認
-	file.read((char*)&format, sizeof(ChunkHeader));
-	if (strncmp(format.chunk.id, "fmt ", 4) != 0) {
-		assert(0);
-	}
-
-	//チャンク本体の読み込み
-	assert(format.chunk.size <= sizeof(format.fmt));
-	file.read((char*)&format.fmt, format.chunk.size);
-
-	//Dataチャンクの読み込み
-	ChunkHeader data;
-	file.read((char*)&data, sizeof(data));
-	//JUNKチャンクを検出した場合			今回は「JUNKを検出した場合」から「data以外を検出した場合」に変更している
-	if (strncmp(data.id, "data", 4) != 0) {
-		//読み取り位置をJUNKチャンクの終わりまで進める
-		file.seekg(data.size, std::ios_base::cur);
-		//再読み込み
-		file.read((char*)&data, sizeof(data));
-	}
-
-	if (strncmp(data.id, "data", 4) != 0) {
-		assert(0);
-	}
-
-	//Dataチャンクのデータ部(波形データ)の読み込み
-	char* pBuffer = new char[data.size];
-	file.read(pBuffer, data.size);
-
-	//Waveファイルを閉じる
-	file.close();
-
-	//returnする為の音声データ
-	SoundData soundData = {};
-
-	soundData.wfex = format.fmt;
-	soundData.pBuffer = reinterpret_cast<BYTE*>(pBuffer);
-	soundData.bufferSize = data.size;
-
-	soundData_ = soundData;
+	pSourceVoice_->GetVolume(&Volume_);
 }
 
 void Audio::SoundUnload() {
@@ -177,6 +184,14 @@ void Audio::SoundPlayWave() {
 
 	HRESULT hr;
 
+	//終了しているか判定
+	XAUDIO2_VOICE_STATE state;
+	pSourceVoice_->GetState(&state);
+
+	if (state.BuffersQueued == 0) {
+		SoundEndWave();
+	}
+
 	//波形データの再生
 	hr = pSourceVoice_->Start();
 	assert(SUCCEEDED(hr));
@@ -196,21 +211,12 @@ void Audio::SoundEndWave() {
 
 	HRESULT hr;
 
-	//SourceVioceを作り直す
-	pSourceVoice_->DestroyVoice();
-	//波形フォーマットを元にSourceVioceの生成
-	hr = xAudio2_->CreateSourceVoice(&pSourceVoice_, &soundData_.wfex);
+	hr = pSourceVoice_->Stop();
 	assert(SUCCEEDED(hr));
 
-	//再生する波形データの設定
-	buf_.pAudioData = soundData_.pBuffer;
-	buf_.AudioBytes = soundData_.bufferSize;
-	buf_.Flags = XAUDIO2_END_OF_STREAM;
-	if (isLoop_) {
-		buf_.LoopCount = XAUDIO2_LOOP_INFINITE;	//無限ループ
-	} else {
-		buf_.LoopCount = 0;						//ループしない
-	}
+	//バッファを削除し、再生位置を元に戻す
+	pSourceVoice_->FlushSourceBuffers();
+
 	//設定入力
 	hr = pSourceVoice_->SubmitSourceBuffer(&buf_);
 	assert(SUCCEEDED(hr));

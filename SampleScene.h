@@ -11,6 +11,8 @@ private:
 	// テクスチャ
 	Texture* texture_ = nullptr;
 
+	Audio* audio = nullptr;
+
 	// カメラ
 	SRT cameraTransform_{};
 	Camera* camera_;

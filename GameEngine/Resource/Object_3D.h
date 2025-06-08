@@ -115,7 +115,7 @@ private:
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView_{};
 	//頂点リソースデータ
 	VertexData* vertexData_ = nullptr;
-
+	
 	//インデックスリソース
 	Microsoft::WRL::ComPtr<ID3D12Resource> indexResource_;
 	//インデックスバッファビュー
