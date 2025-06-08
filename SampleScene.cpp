@@ -21,6 +21,9 @@ void SampleScene::Initialize(GameEngine* gameEngine) {
 	gameEngine_->LoadTexture(texture_,object_->ModelData().material.textureFilePath);
 	object_->SetTexture(texture_);
 
+	audio = new Audio;
+	gameEngine_->LoadAudio(audio, "DebugResources/fanfare.wav",false);
+
 	//デバッグカメラ
 	debugCamera_ = new DebugCamera(gameEngine_);
 	debugCamera_->Initialize();
@@ -74,6 +77,15 @@ void SampleScene::Update() {
 	ImGui::SliderAngle("Object RotateY", &objectData_.transform.rotate.y);
 	ImGui::SliderAngle("Object RotateZ", &objectData_.transform.rotate.z);
 	ImGui::DragFloat3("Object Translate", &objectData_.transform.translate.x, 0.1f);
+	if (ImGui::Button("play")) {
+		audio->SoundPlayWave();
+	}
+	if (ImGui::Button("stop")) {
+		audio->SoundStopWave();
+	}
+	if (ImGui::Button("end")) {
+		audio->SoundEndWave();
+	}
 	ImGui::End();
 
 	light_->SetDirectionalLight(directionalLight);
