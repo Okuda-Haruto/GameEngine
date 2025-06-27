@@ -5,9 +5,9 @@
 
 //キーボード入力
 struct Keybord {
-	BYTE trigger[256] = {};	//押している
-	BYTE leave[256] = {};	//離している
-	BYTE hit[256] = {};		//押した瞬間
+	BYTE hold[256] = {};	//押している
+	BYTE idle[256] = {};	//離している
+	BYTE trigger[256] = {};	//押した瞬間
 	BYTE release[256] = {};	//離した瞬間
 };
 

@@ -17,6 +17,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Collision.cpp" />
     <ClCompile Include="externals\imgui\imgui.cpp" />
     <ClCompile Include="externals\imgui\imgui_demo.cpp" />
     <ClCompile Include="externals\imgui\imgui_draw.cpp" />
@@ -55,6 +56,7 @@
     <ClCompile Include="SampleScene.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Collision.h" />
     <ClInclude Include="externals\imgui\imconfig.h" />
     <ClInclude Include="externals\imgui\imgui.h" />
     <ClInclude Include="externals\imgui\imgui_impl_dx12.h" />
@@ -63,19 +65,25 @@
     <ClInclude Include="externals\imgui\imstb_rectpack.h" />
     <ClInclude Include="externals\imgui\imstb_textedit.h" />
     <ClInclude Include="externals\imgui\imstb_truetype.h" />
+    <ClInclude Include="GameEngine\Data\AABB.h" />
     <ClInclude Include="GameEngine\Data\ChunkHeader.h" />
     <ClInclude Include="GameEngine\Data\DirectionalLight.h" />
     <ClInclude Include="GameEngine\Data\FormatChunk.h" />
     <ClInclude Include="GameEngine\Data\Input.h" />
+    <ClInclude Include="GameEngine\Data\Line.h" />
     <ClInclude Include="GameEngine\Data\Material.h" />
     <ClInclude Include="GameEngine\Data\MaterialData.h" />
     <ClInclude Include="GameEngine\Data\ModelData.h" />
+    <ClInclude Include="GameEngine\Data\OBB.h" />
     <ClInclude Include="GameEngine\Data\Object_2D_Data.h" />
     <ClInclude Include="GameEngine\Data\Object_3D_Data.h" />
+    <ClInclude Include="GameEngine\Data\Plane.h" />
     <ClInclude Include="GameEngine\Data\RiffHeader.h" />
     <ClInclude Include="GameEngine\Data\SoundData.h" />
+    <ClInclude Include="GameEngine\Data\Sphere.h" />
     <ClInclude Include="GameEngine\Data\SRT.h" />
     <ClInclude Include="GameEngine\Data\TransformationMatrix.h" />
+    <ClInclude Include="GameEngine\Data\Triangle.h" />
     <ClInclude Include="GameEngine\Data\VertexData.h" />
     <ClInclude Include="GameEngine\Debug\D3DResourceLeakChecker.h" />
     <ClInclude Include="GameEngine\Debug\DebugCamera.h" />

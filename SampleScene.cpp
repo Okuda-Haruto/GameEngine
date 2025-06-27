@@ -1,4 +1,5 @@
 #include "SampleScene.h"
+#include "Matrix4x4_operation.h"
 
 SampleScene::~SampleScene() {
 	//解放
@@ -14,7 +15,10 @@ void SampleScene::Initialize(GameEngine* gameEngine) {
 
 	//3Dオブジェクト
 	object_ = new Object_3D;
-	gameEngine_->LoadObject(object_,"DebugResources", "axisIndicator.obj");
+	gameEngine_->LoadObject(object_,"DebugResources", "axis.obj");
+
+	segment.origin = { 0.0f,0.0f,0.0f };
+	segment.diff = { 1.0f,0.0f,0.0f };
 
 	//テクスチャ
 	texture_ = new Texture;
@@ -55,7 +59,7 @@ void SampleScene::Update() {
 
 	//カメラアップデート
 	if (isUseDebugCamera_) {
-		debugCamera_->Update(mouse_);
+		debugCamera_->Update(mouse_,keyBord_);
 		debugCamera_->UpdateCamera(camera_);
 	}
 
@@ -64,6 +68,7 @@ void SampleScene::Update() {
 	if (ImGui::Button("ResetDebugCamera")) {
 		debugCamera_->Reset();
 	}
+	
 	ImGui::ColorEdit4("light Color", &directionalLight.color.x);
 	ImGui::DragFloat3("light Direction", &directionalLight.direction.x, 0.01f, -1.0f, 1.0f);
 	ImGui::DragFloat("light Intensity", &directionalLight.intensity, 0.01f, 0.0f, 1.0f);
@@ -77,6 +82,7 @@ void SampleScene::Update() {
 	ImGui::SliderAngle("Object RotateY", &objectData_.transform.rotate.y);
 	ImGui::SliderAngle("Object RotateZ", &objectData_.transform.rotate.z);
 	ImGui::DragFloat3("Object Translate", &objectData_.transform.translate.x, 0.1f);
+
 	if (ImGui::Button("play")) {
 		audio->SoundPlayWave();
 	}

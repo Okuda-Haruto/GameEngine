@@ -613,9 +613,9 @@ Keybord GameEngine::GetKeybord() {
 	Keybord returnKeybord{};
 
 	for (int i = 0; i < 256; i++) {
-		returnKeybord.trigger[i] = keys_[i];
-		returnKeybord.leave[i] = ~keys_[i];
-		returnKeybord.hit[i] = keys_[i] & ~preKeys_[i];
+		returnKeybord.hold[i] = keys_[i];
+		returnKeybord.idle[i] = ~keys_[i];
+		returnKeybord.trigger[i] = keys_[i] & ~preKeys_[i];
 		returnKeybord.release[i] = ~keys_[i] & preKeys_[i];
 	}
 
