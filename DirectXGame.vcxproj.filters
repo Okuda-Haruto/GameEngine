@@ -161,6 +161,9 @@
     <ClCompile Include="GameEngine\Resource\Camera.cpp">
       <Filter>GameEngine\Resource</Filter>
     </ClCompile>
+    <ClCompile Include="Collision.cpp">
+      <Filter>ソースファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="externals\imgui\imconfig.h">
@@ -330,6 +333,27 @@
     </ClInclude>
     <ClInclude Include="SampleScene.h">
       <Filter>Sample</Filter>
+    </ClInclude>
+    <ClInclude Include="Collision.h">
+      <Filter>ヘッダーファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Data\AABB.h">
+      <Filter>GameEngine\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Data\Line.h">
+      <Filter>GameEngine\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Data\OBB.h">
+      <Filter>GameEngine\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Data\Plane.h">
+      <Filter>GameEngine\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Data\Sphere.h">
+      <Filter>GameEngine\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Data\Triangle.h">
+      <Filter>GameEngine\Data</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

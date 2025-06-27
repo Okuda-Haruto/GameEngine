@@ -1,4 +1,5 @@
 #include "Matrix4x4_operation.h"
+#include "Vector3_operation.h"
 #include <assert.h>
 #include <cmath>
 
@@ -194,3 +195,9 @@ Matrix4x4 MakeViewportMatrix(float left, float top, float width, float height, f
 	returnMatrix.m[3][0] = left + width / 2; returnMatrix.m[3][1] = top + height / 2; returnMatrix.m[3][2] = minDepth; returnMatrix.m[3][3] = 1.0f;
 	return returnMatrix;
 }
+
+Matrix4x4 operator+(const Matrix4x4& m1, const Matrix4x4& m2) { return Add(m1, m2); }
+Matrix4x4 operator-(const Matrix4x4& m1, const Matrix4x4& m2) { return Subtract(m1, m2); }
+Matrix4x4 operator*(const Matrix4x4& m1, const Matrix4x4& m2) { return Multiply(m1, m2); }
+Vector3 operator*(const Vector3& v, const Matrix4x4& m) { return Transform(v, m); }
+Vector3 operator*(const Matrix4x4& m, const Vector3& v) { return v * m; }

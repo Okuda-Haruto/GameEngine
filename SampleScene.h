@@ -1,5 +1,6 @@
 #pragma once
 #include <GameEngine.h>
+#include <Line.h>
 
 class SampleScene
 {
@@ -8,6 +9,7 @@ private:
 	Object_3D* object_ = nullptr;
 	// 3Dモデルデータ
 	Object_3D_Data objectData_;
+	Line segment;
 	// テクスチャ
 	Texture* texture_ = nullptr;
 
@@ -22,7 +24,7 @@ private:
 	//デバッグカメラ
 	DebugCamera* debugCamera_ = nullptr;
 	//デバッグカメラを使用するか
-	bool isUseDebugCamera_ = false;
+	bool isUseDebugCamera_ = true;
 
 	//光源
 	DirectionalLight directionalLight;
