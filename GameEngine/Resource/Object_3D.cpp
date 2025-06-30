@@ -328,8 +328,9 @@ void Sprite_3D::Reset() {
 # pragma region AxisIndicator
 
 AxisIndicator::~AxisIndicator() {
-	delete wvpData_;
-	delete materialData_;
+	delete texture_;
+	wvpData_ = nullptr;
+	materialData_ = nullptr;
 	vertexData_ = nullptr;
 }
 

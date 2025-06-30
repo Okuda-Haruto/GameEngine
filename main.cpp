@@ -34,8 +34,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		}
 	}
 
-	delete gameEngine;
 	delete sampleScene;
+	delete gameEngine;
 
 	return 0;
 }

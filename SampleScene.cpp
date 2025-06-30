@@ -5,8 +5,11 @@ SampleScene::~SampleScene() {
 	//解放
 	delete object_;
 	delete texture_;
+	delete audio_;
+	delete camera_;
 	delete debugCamera_;
 	delete light_;
+	delete axis_;
 }
 
 void SampleScene::Initialize(GameEngine* gameEngine) {
@@ -17,16 +20,13 @@ void SampleScene::Initialize(GameEngine* gameEngine) {
 	object_ = new Object_3D;
 	gameEngine_->LoadObject(object_,"DebugResources", "axis.obj");
 
-	segment.origin = { 0.0f,0.0f,0.0f };
-	segment.diff = { 1.0f,0.0f,0.0f };
-
 	//テクスチャ
 	texture_ = new Texture;
 	gameEngine_->LoadTexture(texture_,object_->ModelData().material.textureFilePath);
 	object_->SetTexture(texture_);
 
-	audio = new Audio;
-	gameEngine_->LoadAudio(audio, "DebugResources/fanfare.wav",false);
+	audio_ = new Audio;
+	gameEngine_->LoadAudio(audio_, "DebugResources/fanfare.wav",false);
 
 	//デバッグカメラ
 	debugCamera_ = new DebugCamera(gameEngine_);
@@ -36,9 +36,9 @@ void SampleScene::Initialize(GameEngine* gameEngine) {
 	camera_->Initialize();
 	object_->SetCamera(camera_);
 
-	axis = new AxisIndicator;
-	axis->Initialize(gameEngine_);
-	axis->SetCamera(camera_);
+	axis_ = new AxisIndicator;
+	axis_->Initialize(gameEngine_);
+	axis_->SetCamera(camera_);
 
 	//光源
 	light_ = new Light;
@@ -84,13 +84,13 @@ void SampleScene::Update() {
 	ImGui::DragFloat3("Object Translate", &objectData_.transform.translate.x, 0.1f);
 
 	if (ImGui::Button("play")) {
-		audio->SoundPlayWave();
+		audio_->SoundPlayWave();
 	}
 	if (ImGui::Button("stop")) {
-		audio->SoundStopWave();
+		audio_->SoundStopWave();
 	}
 	if (ImGui::Button("end")) {
-		audio->SoundEndWave();
+		audio_->SoundEndWave();
 	}
 	ImGui::End();
 
@@ -102,6 +102,6 @@ void SampleScene::Draw() {
 
 	object_->Draw(gameEngine_->GetCommandList(), objectData_);
 
-	axis->Draw(gameEngine_->GetCommandList());
+	axis_->Draw(gameEngine_->GetCommandList());
 
 }
