@@ -9,22 +9,21 @@ private:
 	Object_3D* object_ = nullptr;
 	// 3Dモデルデータ
 	Object_3D_Data objectData_;
-	Line segment;
 	// テクスチャ
 	Texture* texture_ = nullptr;
 
-	Audio* audio = nullptr;
+	Audio* audio_ = nullptr;
 
 	// カメラ
 	SRT cameraTransform_{};
 	Camera* camera_;
 
-	AxisIndicator* axis = nullptr;
+	AxisIndicator* axis_ = nullptr;
 
 	//デバッグカメラ
 	DebugCamera* debugCamera_ = nullptr;
 	//デバッグカメラを使用するか
-	bool isUseDebugCamera_ = true;
+	bool isUseDebugCamera_ = false;
 
 	//光源
 	DirectionalLight directionalLight;

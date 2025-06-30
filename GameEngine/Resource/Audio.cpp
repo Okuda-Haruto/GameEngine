@@ -12,6 +12,7 @@ Audio::~Audio() {
 	MFShutdown();
 
 	CoUninitialize();
+
 }
 
 void Audio::Initialize(std::wstring path, Microsoft::WRL::ComPtr<IXAudio2> xAudio2, bool isLoop) {
