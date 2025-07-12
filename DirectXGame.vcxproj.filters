@@ -161,8 +161,8 @@
     <ClCompile Include="GameEngine\Resource\Camera.cpp">
       <Filter>GameEngine\Resource</Filter>
     </ClCompile>
-    <ClCompile Include="Collision.cpp">
-      <Filter>ソースファイル</Filter>
+    <ClCompile Include="GameEngine\Math\Collision.cpp">
+      <Filter>GameEngine\Math</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -334,9 +334,6 @@
     <ClInclude Include="SampleScene.h">
       <Filter>Sample</Filter>
     </ClInclude>
-    <ClInclude Include="Collision.h">
-      <Filter>ヘッダーファイル</Filter>
-    </ClInclude>
     <ClInclude Include="GameEngine\Data\AABB.h">
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
@@ -354,6 +351,9 @@
     </ClInclude>
     <ClInclude Include="GameEngine\Data\Triangle.h">
       <Filter>GameEngine\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Math\Collision.h">
+      <Filter>GameEngine\Math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

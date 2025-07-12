@@ -28,6 +28,9 @@
 #include "Initialvalue.h"
 #include "Matrix4x4_operation.h"
 
+Microsoft::WRL::ComPtr <ID3D12PipelineState> GameEngine::trianglePipelineState_ = nullptr;
+Microsoft::WRL::ComPtr <ID3D12PipelineState> GameEngine::linePipelineState_ = nullptr;
+
 GameEngine::~GameEngine() {
 
 	xAudio2_.Reset();
@@ -45,6 +48,9 @@ GameEngine::~GameEngine() {
 	CloseWindow(hwnd_);
 
 	CoUninitialize();
+
+	trianglePipelineState_.Reset();
+	linePipelineState_.Reset();
 }
 
 void GameEngine::Intialize(const wchar_t* WindowName, int32_t kWindowWidth, int32_t kWindowHeight) {
@@ -209,7 +215,9 @@ void GameEngine::Intialize(const wchar_t* WindowName, int32_t kWindowWidth, int3
 	device_->CreateDepthStencilView(depthStencilResource_.Get(), &dsvDesc_, dsvDescriptorheap_->GetCPUDescriptorHandleForHeapStart());
 
 	//PSOを生成
-	graphicsPipelineState_ = graphicsPipelineStateInitialvalue(device_, logStream_, rootSignature_, vertexShaderBlob, pixelShaderBlob);
+	graphicsPipelineState_ = TrianglePipelineStateInitialvalue(device_, logStream_, rootSignature_, vertexShaderBlob, pixelShaderBlob);
+	trianglePipelineState_ = TrianglePipelineStateInitialvalue(device_, logStream_, rootSignature_, vertexShaderBlob, pixelShaderBlob);
+	linePipelineState_ = LinePipelineStateInitialvalue(device_, logStream_, rootSignature_, vertexShaderBlob, pixelShaderBlob);
 
 	//WVP用のリソースを作る
 	wvpResource_ = CreateBufferResource(device_, sizeof(TransformationMatrix));
@@ -554,9 +562,6 @@ void GameEngine::PreDraw() {
 	commandList_->RSSetScissorRects(1, &scissorRect_);	//Scirssorを設定
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList_->SetGraphicsRootSignature(rootSignature_.Get());
-	commandList_->SetPipelineState(graphicsPipelineState_.Get());	//PSOを設定
-	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
-	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 }
 

@@ -1,6 +1,7 @@
 #include "Camera.h"
 #include <GameEngine.h>
 #include "Matrix4x4_operation.h"
+#include <cassert>
 
 Camera::Camera(GameEngine* gameEngine) {
 	kWindowWidth_ = gameEngine->GetWindowWidth();
@@ -18,4 +19,9 @@ void Camera::Update(SRT transform) {
 	Matrix4x4 worldMatrix = MakeAffineMatrix({ 1.0f,1.0f,1.0f }, transform.rotate, transform.translate);
 	viewMatrix_ = Inverse(worldMatrix);
 	projectionMatrix_ = MakePerspectiveFovMatrix(0.45f, float(kWindowWidth_) / float(kWindowHeight_), 0.1f, 100.0f);
+}
+
+void Camera::Update() {
+	assert(debugCamera_ != nullptr);
+	debugCamera_->UpdateCamera(this);
 }

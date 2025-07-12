@@ -17,7 +17,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Collision.cpp" />
     <ClCompile Include="externals\imgui\imgui.cpp" />
     <ClCompile Include="externals\imgui\imgui_demo.cpp" />
     <ClCompile Include="externals\imgui\imgui_draw.cpp" />
@@ -41,6 +40,7 @@
     <ClCompile Include="GameEngine\LoadFile\LoadMaterialTemplateFile.cpp" />
     <ClCompile Include="GameEngine\LoadFile\LoadObjFile.cpp" />
     <ClCompile Include="GameEngine\LoadFile\LoadTexture.cpp" />
+    <ClCompile Include="GameEngine\Math\Collision.cpp" />
     <ClCompile Include="GameEngine\Math\Matrix4x4_operation.cpp" />
     <ClCompile Include="GameEngine\Math\Vector3_operation.cpp" />
     <ClCompile Include="GameEngine\Resource\Audio.cpp" />
@@ -56,7 +56,6 @@
     <ClCompile Include="SampleScene.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Collision.h" />
     <ClInclude Include="externals\imgui\imconfig.h" />
     <ClInclude Include="externals\imgui\imgui.h" />
     <ClInclude Include="externals\imgui\imgui_impl_dx12.h" />
@@ -102,6 +101,7 @@
     <ClInclude Include="GameEngine\LoadFile\LoadMaterialTemplateFile.h" />
     <ClInclude Include="GameEngine\LoadFile\LoadObjFile.h" />
     <ClInclude Include="GameEngine\LoadFile\LoadTexture.h" />
+    <ClInclude Include="GameEngine\Math\Collision.h" />
     <ClInclude Include="GameEngine\Math\Matrix3x3.h" />
     <ClInclude Include="GameEngine\Math\Matrix4x4.h" />
     <ClInclude Include="GameEngine\Math\Matrix4x4_operation.h" />

@@ -1,4 +1,5 @@
 #include "Object_2D.h"
+#include "GameEngine.h"
 
 #include "Matrix4x4_operation.h"
 #include "Vector3_operation.h"
@@ -126,6 +127,9 @@ void Sprite_2D::Draw(Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& command
 	commandList->SetGraphicsRootConstantBufferView(0, materialResource_[index_]->GetGPUVirtualAddress());
 	//TransformationMatrixCBufferの場所を設定
 	commandList->SetGraphicsRootConstantBufferView(1, wvpResource_[index_]->GetGPUVirtualAddress());
+	commandList->SetPipelineState(GameEngine::TrianglePSO());	//PSOを設定
+	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
+	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	//ドローコール
 	commandList->DrawIndexedInstanced(6, 1, 0, 0, 0);
 
@@ -379,6 +383,9 @@ void Text_2D::Draw(Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& commandLi
 			commandList->SetGraphicsRootConstantBufferView(0, materialResource_[index_]->GetGPUVirtualAddress());
 			//TransformationMatrixCBufferの場所を設定
 			commandList->SetGraphicsRootConstantBufferView(1, wvpResource_[index_]->GetGPUVirtualAddress());
+			commandList->SetPipelineState(GameEngine::TrianglePSO());	//PSOを設定
+			//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
+			commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 			//ドローコール
 			commandList->DrawIndexedInstanced(6, 1, 0, 0, 0);
 
