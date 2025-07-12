@@ -193,6 +193,77 @@ public:
 
 # pragma endregion
 
+# pragma region Line_3D
+
+//3Dオブジェクト
+class Line_3D {
+private:
+	//頂点リソース
+	Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource_;
+	//頂点バッファビュー
+	D3D12_VERTEX_BUFFER_VIEW vertexBufferView_{};
+	//頂点リソースデータ
+	VertexData* vertexData_ = nullptr;
+
+	//インデックスリソース
+	Microsoft::WRL::ComPtr<ID3D12Resource> indexResource_;
+	//インデックスバッファビュー
+	D3D12_INDEX_BUFFER_VIEW indexBufferView_{};
+	//インデックスデータ
+	uint32_t* indexData_ = nullptr;
+
+	//マテリアルリソース
+	std::vector <Microsoft::WRL::ComPtr<ID3D12Resource>> materialResource_;
+	//マテリアルデータ
+	std::vector <Material*> materialData_;
+	//WVP用リソース
+	std::vector <Microsoft::WRL::ComPtr<ID3D12Resource>> wvpResource_;
+	//WVPデータ
+	std::vector <TransformationMatrix*> wvpData_;
+
+	//デバイス
+	Microsoft::WRL::ComPtr<ID3D12Device> device_;
+
+	//カメラ
+	Camera* camera_ = nullptr;
+
+	Texture* texture_ = nullptr;
+
+	//リソース番号の最大値
+	static const int kMaxIndex_ = 1024;
+	//使用するリソースの番号
+	int index_ = 0;
+
+public:
+
+	~Line_3D();
+
+	/// <summary>
+	/// 初期化
+	/// </summary>
+	/// <param name="directoryPath">.objファイルのある階層 (例:"resource")</param>
+	/// <param name="filename">ファイル名 (例:"plane.obj")</param>
+	/// <param name="device">デバイス</param>
+	void Initialize(const Vector3& start, const Vector3& end, Microsoft::WRL::ComPtr<ID3D12Device> device);
+
+	// Texture入力
+	void SetTexture(Texture* texture) { texture_ = texture; }
+	// Camera入力
+	void SetCamera(Camera* camera) { camera_ = camera; }
+
+	/// <summary>
+	/// 3Dオブジェクト描画
+	/// </summary>
+	/// <param name="commandList">コマンドリスト</param>
+	/// <param name="data">オブジェクトの各種データ</param>
+	void Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandList, Object_3D_Data& data);
+
+	//リソース初期化
+	void Reset();
+};
+
+# pragma endregion
+
 # pragma region AxisIndicator
 
 //軸表示
@@ -258,6 +329,62 @@ public:
 
 	//リソース初期化
 	void Reset();
+};
+
+# pragma endregion
+
+# pragma region Grid
+
+//3Dオブジェクト
+class Grid {
+private:
+	//Gridの中心からの範囲
+	const int kGridLength_ = 100;
+
+	//3D軸線
+	Line_3D* lineX_ = nullptr;
+	Line_3D* lineY_ = nullptr;
+	Line_3D* lineZ_ = nullptr;
+
+	//平面
+	bool xy_ = false;
+	bool xz_ = true;
+	bool yz_ = false;
+
+	//テクスチャ
+	Texture* white2x2_ = nullptr;
+
+	//描画中心点
+	Vector3 centerPoint_;
+
+	//カメラ
+	Camera* camera_ = nullptr;
+
+public:
+
+	~Grid();
+
+	/// <summary>
+	/// 初期化
+	/// </summary>
+	/// <param name="directoryPath">.objファイルのある階層 (例:"resource")</param>
+	/// <param name="filename">ファイル名 (例:"plane.obj")</param>
+	/// <param name="device">デバイス</param>
+	void Initialize(GameEngine* gameEngine);
+
+	// Camera入力
+	void SetCamera(Camera* camera) { camera_ = camera; }
+
+	void IsDrawXY(bool xy) { xy_ = xy; }
+	void IsDrawXZ(bool xz) { xz_ = xz; }
+	void IsDrawYZ(bool yz) { yz_ = yz; }
+
+	/// <summary>
+	/// 3Dオブジェクト描画
+	/// </summary>
+	/// <param name="commandList">コマンドリスト</param>
+	/// <param name="data">オブジェクトの各種データ</param>
+	void Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandList);
 };
 
 # pragma endregion

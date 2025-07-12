@@ -106,6 +106,8 @@ private:
 
 	//PSO
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> graphicsPipelineState_;
+	static Microsoft::WRL::ComPtr <ID3D12PipelineState> trianglePipelineState_;
+	static Microsoft::WRL::ComPtr <ID3D12PipelineState> linePipelineState_;
 	//WVP用のリソース
 	Microsoft::WRL::ComPtr <ID3D12Resource> wvpResource_;
 
@@ -216,6 +218,13 @@ public:
 	//コマンドリスト
 	[[nodiscard]]
 	Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& GetCommandList();
+
+
+	[[nodiscard]]
+	static ID3D12PipelineState* TrianglePSO() { return trianglePipelineState_.Get(); }
+
+	[[nodiscard]]
+	static ID3D12PipelineState* LinePSO() { return linePipelineState_.Get(); }
 
 	//ウィンドウ幅
 	[[nodiscard]]

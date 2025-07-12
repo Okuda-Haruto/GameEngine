@@ -10,6 +10,8 @@ SampleScene::~SampleScene() {
 	delete debugCamera_;
 	delete light_;
 	delete axis_;
+
+	delete grid_;
 }
 
 void SampleScene::Initialize(GameEngine* gameEngine) {
@@ -25,6 +27,9 @@ void SampleScene::Initialize(GameEngine* gameEngine) {
 	gameEngine_->LoadTexture(texture_,object_->ModelData().material.textureFilePath);
 	object_->SetTexture(texture_);
 
+	grid_ = new Grid;
+	grid_->Initialize(gameEngine_);
+
 	audio_ = new Audio;
 	gameEngine_->LoadAudio(audio_, "DebugResources/fanfare.wav",false);
 
@@ -35,6 +40,7 @@ void SampleScene::Initialize(GameEngine* gameEngine) {
 	camera_ = new Camera(gameEngine_);
 	camera_->Initialize();
 	object_->SetCamera(camera_);
+	grid_->SetCamera(camera_);
 
 	axis_ = new AxisIndicator;
 	axis_->Initialize(gameEngine_);
@@ -68,6 +74,9 @@ void SampleScene::Update() {
 	if (ImGui::Button("ResetDebugCamera")) {
 		debugCamera_->Reset();
 	}
+	ImGui::Checkbox("isDrawXY", &isDrawXY_);
+	ImGui::Checkbox("isDrawXZ", &isDrawXZ_);
+	ImGui::Checkbox("isDrawYZ", &isDrawYZ_);
 	
 	ImGui::ColorEdit4("light Color", &directionalLight.color.x);
 	ImGui::DragFloat3("light Direction", &directionalLight.direction.x, 0.01f, -1.0f, 1.0f);
@@ -94,6 +103,10 @@ void SampleScene::Update() {
 	}
 	ImGui::End();
 
+	grid_->IsDrawXY(isDrawXY_);
+	grid_->IsDrawXZ(isDrawXZ_);
+	grid_->IsDrawYZ(isDrawYZ_);
+
 	light_->SetDirectionalLight(directionalLight);
 }
 
@@ -101,6 +114,8 @@ void SampleScene::Draw() {
 	//描画処理
 
 	object_->Draw(gameEngine_->GetCommandList(), objectData_);
+
+	grid_->Draw(gameEngine_->GetCommandList());
 
 	axis_->Draw(gameEngine_->GetCommandList());
 

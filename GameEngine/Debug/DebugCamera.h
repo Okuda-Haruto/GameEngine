@@ -11,7 +11,7 @@ class DebugCamera
 {
 private:
 	//注目地点
-	Vector3 AttentionPoint{0.0f,0.0f,0.0f};
+	Vector3 centerPoint_{0.0f,0.0f,0.0f};
 	//球面座標系
 	Vector3 sphericalCoordinates_{ 10.0f,0.0f,0.0f };
 	//ローカル座標
@@ -40,5 +40,7 @@ public:
 
 	//出力
 	void UpdateCamera(Camera* camera);
+
+	Vector3 GetAttentionPoint() { return centerPoint_; }
 };
 

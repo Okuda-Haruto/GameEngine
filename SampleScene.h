@@ -12,6 +12,12 @@ private:
 	// テクスチャ
 	Texture* texture_ = nullptr;
 
+	Grid* grid_ = nullptr;
+
+	bool isDrawXY_ = false;
+	bool isDrawXZ_ = true;
+	bool isDrawYZ_ = false;
+
 	Audio* audio_ = nullptr;
 
 	// カメラ
@@ -23,7 +29,7 @@ private:
 	//デバッグカメラ
 	DebugCamera* debugCamera_ = nullptr;
 	//デバッグカメラを使用するか
-	bool isUseDebugCamera_ = false;
+	bool isUseDebugCamera_ = true;
 
 	//光源
 	DirectionalLight directionalLight;

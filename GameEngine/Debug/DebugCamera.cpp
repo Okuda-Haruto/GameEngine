@@ -16,7 +16,7 @@ void DebugCamera::Initialize() {
 
 	rotateMatrix_ = MakeIdentity4x4();
 	//正面状態
-	sphericalCoordinates_ = { -10.0f,0,std::numbers::pi_v<float> / 2 };
+	sphericalCoordinates_ = { -10.0f,0.0f,std::numbers::pi_v<float> / 4 * 3 };
 }
 
 void DebugCamera::Update(Mouse mouse, Keybord keybord) {
@@ -79,7 +79,7 @@ void DebugCamera::Update(Mouse mouse, Keybord keybord) {
 			//カメラの向きに合わせて変換
 			move = Transform(move, rotateMatrix_);
 
-			AttentionPoint = { AttentionPoint.x + move.x,AttentionPoint.y + move.y,AttentionPoint.z + move.z };
+			centerPoint_ = { centerPoint_.x + move.x,centerPoint_.y + move.y,centerPoint_.z + move.z };
 		}
 	}
 	//ズーム
@@ -87,6 +87,7 @@ void DebugCamera::Update(Mouse mouse, Keybord keybord) {
 		const float speed = mouse.Movement.z / 100.0f;
 		//sphericalCoordinates_.x は注目位置とカメラの距離
 		sphericalCoordinates_.x += speed;
+		sphericalCoordinates_.x = std::min(sphericalCoordinates_.x, 0.0f);
 	}
 	//回転
 	if (mouse.click[MOUSE_BOTTON_WHEEL] && !(keybord.hold[DIK_LSHIFT] || keybord.hold[DIK_RSHIFT])) {
@@ -96,15 +97,19 @@ void DebugCamera::Update(Mouse mouse, Keybord keybord) {
 
 			sphericalCoordinates_.z += speedX;	//0~πの範囲
 			sphericalCoordinates_.z = std::max(std::min(sphericalCoordinates_.z, std::numbers::pi_v<float>), 0.0f);
-			sphericalCoordinates_.y += speedY;	//-π~πの範囲
-			sphericalCoordinates_.y = std::max(std::min(sphericalCoordinates_.y, std::numbers::pi_v<float>), -std::numbers::pi_v<float>);
+			sphericalCoordinates_.y += speedY;	//1周したら0
+			if (sphericalCoordinates_.y > std::numbers::pi_v<float> * 2) {
+				sphericalCoordinates_.y -= std::numbers::pi_v<float> * 2;
+			} else if (sphericalCoordinates_.y < -std::numbers::pi_v<float> * 2) {
+				sphericalCoordinates_.y += std::numbers::pi_v<float> * 2;
+			}
 		}
 	}
 
 	//球面座標系から直交座標系へ
-	translation_.x = AttentionPoint.x + sphericalCoordinates_.x * std::sinf(sphericalCoordinates_.z) * std::cosf(sphericalCoordinates_.y + std::numbers::pi_v<float> / 2);	//-π~πの範囲にするために補正
-	translation_.y = AttentionPoint.y + sphericalCoordinates_.x * std::cosf(sphericalCoordinates_.z);
-	translation_.z = AttentionPoint.z + sphericalCoordinates_.x * std::sinf(sphericalCoordinates_.z) * std::sinf(sphericalCoordinates_.y + std::numbers::pi_v<float> / 2);	//-π~πの範囲にするために補正
+	translation_.x = centerPoint_.x + sphericalCoordinates_.x * std::sinf(sphericalCoordinates_.z) * std::cosf(sphericalCoordinates_.y + std::numbers::pi_v<float> / 2);	//-π~πの範囲にするために補正
+	translation_.y = centerPoint_.y + sphericalCoordinates_.x * std::cosf(sphericalCoordinates_.z);
+	translation_.z = centerPoint_.z + sphericalCoordinates_.x * std::sinf(sphericalCoordinates_.z) * std::sinf(sphericalCoordinates_.y + std::numbers::pi_v<float> / 2);	//-π~πの範囲にするために補正
 
 	//正面状態の初期値を基に、二つの角度を補正
 	rotateMatrix_ = Multiply(MakeRotateXMatrix(sphericalCoordinates_.z - std::numbers::pi_v<float> / 2), MakeRotateYMatrix(-sphericalCoordinates_.y));
@@ -117,12 +122,12 @@ void DebugCamera::Update(Mouse mouse, Keybord keybord) {
 
 void DebugCamera::Reset() {
 	translation_ = { 0,0,0 };
-	AttentionPoint = { 0,0,0 };
-	sphericalCoordinates_ = { 0,0,0 };
-	rotateMatrix_ = MakeIdentity4x4();
+	centerPoint_ = { 0,0,0 };
+	Initialize();
 }
 
 void DebugCamera::UpdateCamera(Camera* camera) {
 	camera->SetViewMatrix(viewMatrix_);
 	camera->SetProjectionMatrix(projectionMatrix_);
+	camera->SetCenterPoint(centerPoint_);
 };
