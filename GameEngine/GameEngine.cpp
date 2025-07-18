@@ -62,10 +62,10 @@ GameEngine::~GameEngine() {
 	CloseHandle(fenceEvent_);
 	CloseWindow(hwnd_);
 
-	CoUninitialize();
-
 	trianglePipelineState_.Reset();
 	linePipelineState_.Reset();
+
+	CoUninitialize();
 }
 
 GameEngine* GameEngine::getInstance() {
@@ -279,12 +279,17 @@ void GameEngine::Intialize_(const wchar_t* WindowName, int32_t kWindowWidth, int
 
 	//テクスチャ初期値としてwhite2x2を読み込む
 	TextureLoad_("resources/DebugResources/white2x2.png");
+
 }
 
 UINT GameEngine::TextureLoad_(const std::string& filePath) {
 
 	//ImGuiが0番を使用しているため、1番から使用する
 	UINT index = 1;
+	//パスがない場合はwhite2x2のテクスチャ番号を返す
+	if (filePath.size() <= 0) {
+		return 0;
+	}
 	//既知のテクスチャのパスの場合はTextureを読み込まず、テクスチャの番号を返す
 	for (const TextureData& textureDatum : textureData_) {
 		if (textureDatum.tetxureFilePaths == filePath) {

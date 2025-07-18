@@ -17,7 +17,7 @@ void SampleScene::Initialize() {
 
 	//3Dオブジェクト
 	object_ = new Object_3D;
-	object_->Initialize("resources/DebugResources/multiMaterial", "multiMaterial.obj");
+	object_->Initialize("resources/DebugResources/teapot", "teapot.obj");
 
 	audio_ = new Audio;
 	audio_->Initialize("resources/DebugResources/fanfare.wav",false);
@@ -52,6 +52,7 @@ void SampleScene::Initialize() {
 		1.0f
 	};
 	light_->SetDirectionalLight(directionalLight);
+	object_->isLighting(1);
 	object_->SetLight(light_);
 }
 
@@ -74,7 +75,21 @@ void SampleScene::Update() {
 	ImGui::Checkbox("isDrawXY", &isDrawXY_);
 	ImGui::Checkbox("isDrawXZ", &isDrawXZ_);
 	ImGui::Checkbox("isDrawYZ", &isDrawYZ_);
-	
+	const char* items[] = { "None", "Lambert", "HalfLambert"};
+	static const char* current_item = "Lambert";
+
+	if (ImGui::BeginCombo("Lighting", current_item))
+	{
+		for (int n = 0; n < IM_ARRAYSIZE(items); n++)
+		{
+			bool is_selected = (current_item == items[n]);
+			if (ImGui::Selectable(items[n], is_selected)) {
+				current_item = items[n];
+				object_->isLighting(n);
+			}
+		}
+		ImGui::EndCombo();
+	}
 	ImGui::ColorEdit4("light Color", &directionalLight.color.x);
 	ImGui::DragFloat3("light Direction", &directionalLight.direction.x, 0.01f, -1.0f, 1.0f);
 	ImGui::DragFloat("light Intensity", &directionalLight.intensity, 0.01f, 0.0f, 1.0f);
@@ -125,10 +140,10 @@ void SampleScene::Update() {
 void SampleScene::Draw() {
 	//描画処理
 
-	object_->Draw(GameEngine::GetCommandList(), objectData_);
-
 	grid_->Draw(GameEngine::GetCommandList());
 
 	axis_->Draw(GameEngine::GetCommandList());
+
+	object_->Draw(GameEngine::GetCommandList(), objectData_);
 
 }
