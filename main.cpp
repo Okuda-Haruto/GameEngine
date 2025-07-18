@@ -4,16 +4,14 @@
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	//ゲームエンジン
-	GameEngine* gameEngine = new GameEngine();
-	gameEngine->Intialize(L"CG2", 1280, 720);
-
+	GameEngine::Intialize(L"CG2", 1280, 720);
 	//サンプルシーン
 	SampleScene* sampleScene = new SampleScene();
-	sampleScene->Initialize(gameEngine);
+	sampleScene->Initialize();
 
 	//ウィンドウの×ボタンが押されるまでループ
-	while (gameEngine->WiodowState()) {
-		if (gameEngine->StartFlame()) {
+	while (GameEngine::WiodowState()) {
+		if (GameEngine::StartFlame()) {
 
 			//
 			//	更新処理
@@ -25,17 +23,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			//	描画処理
 			//
 
-			gameEngine->PreDraw();
+			GameEngine::PreDraw();
 
 			sampleScene->Draw();
 
-			gameEngine->PostDraw();
+			GameEngine::PostDraw();
 
 		}
 	}
 
 	delete sampleScene;
-	delete gameEngine;
 
 	return 0;
 }

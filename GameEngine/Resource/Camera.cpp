@@ -3,9 +3,9 @@
 #include "Matrix4x4_operation.h"
 #include <cassert>
 
-Camera::Camera(GameEngine* gameEngine) {
-	kWindowWidth_ = gameEngine->GetWindowWidth();
-	kWindowHeight_ = gameEngine->GetWindowHeight();
+Camera::Camera() {
+	kWindowWidth_ = GameEngine::GetWindowWidth();
+	kWindowHeight_ = GameEngine::GetWindowHeight();
 }
 
 void Camera::Initialize() {

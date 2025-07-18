@@ -21,7 +21,7 @@ public:
 	/// 初期化
 	/// </summary>
 	/// <param name="device">デバイス</param>
-	void Initialize(Microsoft::WRL::ComPtr<ID3D12Device> device);
+	void Initialize();
 
 	// Color入力
 	void SetColor(Vector4 color);

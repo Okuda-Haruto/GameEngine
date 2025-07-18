@@ -7,9 +7,9 @@
 #include <numbers>
 #include <cmath>
 
-DebugCamera::DebugCamera(GameEngine* gameEngine) {
-	kWindowWidth_ = gameEngine->GetWindowWidth();
-	kWindowHeight_ = gameEngine->GetWindowHeight();
+DebugCamera::DebugCamera() {
+	kWindowWidth_ = GameEngine::GetWindowWidth();
+	kWindowHeight_ = GameEngine::GetWindowHeight();
 }
 
 void DebugCamera::Initialize() {

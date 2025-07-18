@@ -1,4 +1,6 @@
 #include "Audio.h"
+#include "ConvertString.h"
+#include <GameEngine.h>
 
 #include <cassert>
 
@@ -15,19 +17,19 @@ Audio::~Audio() {
 
 }
 
-void Audio::Initialize(std::wstring path, Microsoft::WRL::ComPtr<IXAudio2> xAudio2, bool isLoop) {
+void Audio::Initialize(std::string path, bool isLoop) {
 
 	HRESULT hr;
 
-	xAudio2_ = xAudio2;
+	xAudio2_ = GameEngine::GetXAudio2();
 
 	Volume_ = 1.0f;
 	isLoop_ = isLoop;
 
-	path_ = path;
+	path_ = ConvertString(path);
 
 	//ソースリーダーを作成
-	MFCreateSourceReaderFromURL(path.c_str(), NULL, &pMFSourceReader_);
+	MFCreateSourceReaderFromURL(path_.c_str(), NULL, &pMFSourceReader_);
 	//メディアタイプを作成
 	MFCreateMediaType(&pMFMediaType_);
 	pMFMediaType_->SetGUID(MF_MT_MAJOR_TYPE, MFMediaType_Audio);

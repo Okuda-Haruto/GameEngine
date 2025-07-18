@@ -7,8 +7,7 @@
 #include "ModelData.h"
 #include "Material.h"
 #include "TransformationMatrix.h"
-#include "Object_2D_Data.h"
-#include "Texture.h"
+#include "Object_Single_Data.h"
 #include "Text.h"
 
 #pragma region Sprite_2D
@@ -49,8 +48,8 @@ private:
 	float spriteWidth_ = 640.0f;
 	float spriteHeight_ = 360.0f;
 
-	//テクスチャデータ
-	Texture* texture_ = nullptr;
+	//テクスチャ番号
+	UINT textureIndex_;
 
 	//リソース番号の最大値
 	static const int kMaxIndex_ = 128;
@@ -69,8 +68,6 @@ public:
 	/// <param name="kWindowHeight">ウィンドウの高さ</param>
 	void Initialize(Microsoft::WRL::ComPtr<ID3D12Device> device, uint32_t kWindowWidth, uint32_t kWindowHeight);
 
-	// Texture入力
-	void SetTexture(Texture* texture) { texture_ = texture; };
 	// スプライトの表示サイズ入力
 	void SetSpriteSize(float width, float height) { spriteWidth_ = width; spriteHeight_ = height;};
 
@@ -78,7 +75,7 @@ public:
 	/// 2Dオブジェクト描画
 	/// </summary>
 	/// <param name="commandList">コマンドリスト</param>
-	void Draw(Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& commandList, Object_2D_Data& data);
+	void Draw(Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& commandList, Object_Single_Data& data);
 	//リソース初期化
 	void Reset();
 
@@ -154,7 +151,7 @@ public:
 	/// </summary>
 	/// <param name="commandList">コマンドリスト</param>
 	/// <param name="data">オブジェクトの各種データ</param>
-	void Draw(Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& commandList, Object_2D_Data& data);
+	void Draw(Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& commandList, Object_Single_Data& data);
 
 	/// <summary>
 	/// 2Dテキスト描画 (描画範囲指定)
@@ -162,7 +159,7 @@ public:
 	/// <param name="commandList">コマンドリスト</param>
 	/// <param name="data">オブジェクトの各種データ</param>
 	/// <param name="index">テキストの描画範囲</param>
-	void Draw(Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& commandList, Object_2D_Data& data, int index);
+	void Draw(Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& commandList, Object_Single_Data& data, int index);
 
 	//リソース初期化
 	void Reset();

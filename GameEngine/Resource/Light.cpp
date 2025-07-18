@@ -1,15 +1,16 @@
 #include "Light.h"
 
 #include "CreateBufferResource.h"
+#include "GameEngine.h"
 
 Light::~Light() {
 	directionalLightData_ = nullptr;
 }
 
-void Light::Initialize(Microsoft::WRL::ComPtr<ID3D12Device> device) {
+void Light::Initialize() {
 
 	//光源用のリソースを作る
-	directionalLightResource_ = CreateBufferResource(device, sizeof(DirectionalLight));
+	directionalLightResource_ = CreateBufferResource(GameEngine::GetDevice(), sizeof(DirectionalLight));
 	//書き込むためのアドレスを取得
 	directionalLightResource_->Map(0, nullptr, reinterpret_cast<void**>(&directionalLightData_));
 

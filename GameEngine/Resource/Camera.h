@@ -18,7 +18,7 @@ private:
 	DebugCamera* debugCamera_ = nullptr;
 	Vector3 centerPoint_{};
 public:
-	Camera(GameEngine* gameEngine);
+	Camera();
 
 	void Initialize();
 	

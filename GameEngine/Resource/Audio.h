@@ -53,9 +53,8 @@ public:
 	/// 初期化
 	/// </summary>
 	/// <param name="filename">.wavファイル名 (例:resources/Audio.wav)</param>
-	/// <param name="xAudio2">XAudio2インスタンス</param>
 	/// <param name="isLoop">ループ再生するか</param>
-	void Initialize(std::wstring path, Microsoft::WRL::ComPtr<IXAudio2> xAudio2,bool isLoop);
+	void Initialize(std::string path,bool isLoop);
 
 	/// <summary>
 	/// .wavファイルの読み込み

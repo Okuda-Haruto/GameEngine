@@ -137,9 +137,6 @@
     <ClCompile Include="GameEngine\Resource\Object_3D.cpp">
       <Filter>GameEngine\Resource</Filter>
     </ClCompile>
-    <ClCompile Include="GameEngine\Resource\Texture.cpp">
-      <Filter>GameEngine\Resource</Filter>
-    </ClCompile>
     <ClCompile Include="GameEngine\Shader\CompileShader.cpp">
       <Filter>GameEngine\Shader</Filter>
     </ClCompile>
@@ -211,7 +208,7 @@
     <ClInclude Include="GameEngine\Data\ModelData.h">
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\Data\Object_3D_Data.h">
+    <ClInclude Include="GameEngine\Data\Object_Multi_Data.h">
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\Data\RiffHeader.h">
@@ -307,9 +304,6 @@
     <ClInclude Include="GameEngine\Resource\Object_3D.h">
       <Filter>GameEngine\Resource</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\Resource\Texture.h">
-      <Filter>GameEngine\Resource</Filter>
-    </ClInclude>
     <ClInclude Include="GameEngine\Shader\CompileShader.h">
       <Filter>GameEngine\Shader</Filter>
     </ClInclude>
@@ -325,7 +319,7 @@
     <ClInclude Include="GameEngine\LoadFile\LoadText.h">
       <Filter>GameEngine\LoadFile</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\Data\Object_2D_Data.h">
+    <ClInclude Include="GameEngine\Data\Object_Single_Data.h">
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\Resource\Camera.h">
@@ -354,6 +348,15 @@
     </ClInclude>
     <ClInclude Include="GameEngine\Math\Collision.h">
       <Filter>GameEngine\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Data\TextureData.h">
+      <Filter>GameEngine\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Data\ObjectData.h">
+      <Filter>GameEngine\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Data\ObjectMaterial.h">
+      <Filter>GameEngine\Data</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

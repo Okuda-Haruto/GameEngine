@@ -3,6 +3,15 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 
+#pragma comment(lib,"d3d12.lib")
+#pragma comment(lib,"dxgi.lib")
+#pragma comment(lib,"dxcompiler.lib")
+#pragma comment(lib,"Dbghelp.lib")
+#pragma comment(lib,"dxcompiler.lib")
+#pragma comment(lib,"dinput8.lib")
+#pragma comment(lib,"dxguid.lib")
+#pragma comment(lib,"xinput.lib")
+
 #include "CreateBufferResource.h"
 #include "CompileShader.h"
 #include "CreateDescriptorHeap.h"
@@ -10,14 +19,13 @@
 #include "GetDescriptorHandle.h"
 #include "ExportDump.h"
 #include "ConvertString.h"
+#include "LoadTexture.h"
+#include "CreateTextureResource.h"
+#include "UploadTextureData.h"
 
-#pragma comment(lib,"d3d12.lib")
 #include <d3d12.h>
-#pragma comment(lib,"dxgi.lib")
 #include <dxgi1_6.h>
-#pragma comment(lib,"dxcompiler.lib")
 #include <dxcapi.h>
-#pragma comment(lib,"Dbghelp.lib")
 #include <DbgHelp.h>
 #include <cassert>
 #include <wrl.h>
@@ -28,8 +36,15 @@
 #include "Initialvalue.h"
 #include "Matrix4x4_operation.h"
 
+int32_t GameEngine::kWindowWidth_;
+int32_t GameEngine::kWindowHeight_;
+
 Microsoft::WRL::ComPtr <ID3D12PipelineState> GameEngine::trianglePipelineState_ = nullptr;
 Microsoft::WRL::ComPtr <ID3D12PipelineState> GameEngine::linePipelineState_ = nullptr;
+
+GameEngine::GameEngine() {
+
+}
 
 GameEngine::~GameEngine() {
 
@@ -53,7 +68,12 @@ GameEngine::~GameEngine() {
 	linePipelineState_.Reset();
 }
 
-void GameEngine::Intialize(const wchar_t* WindowName, int32_t kWindowWidth, int32_t kWindowHeight) {
+GameEngine* GameEngine::getInstance() {
+	static GameEngine* instance = new GameEngine();
+	return instance;
+}
+
+void GameEngine::Intialize_(const wchar_t* WindowName, int32_t kWindowWidth, int32_t kWindowHeight) {
 
 	HRESULT hr;
 
@@ -238,10 +258,6 @@ void GameEngine::Intialize(const wchar_t* WindowName, int32_t kWindowWidth, int3
 	scissorRect_.top = 0;
 	scissorRect_.bottom = kWindowHeight_;
 
-	//ImGuiが0番を使用しているため、1番から使用する
-	kLastCPUIndex_ = 1;
-	kLastGPUIndex_ = 1;
-
 	//XAudioエンジンのインスタンスを生成
 	hr = XAudio2Create(&xAudio2_, 0, XAUDIO2_DEFAULT_PROCESSOR);
 	assert(SUCCEEDED(hr));
@@ -260,21 +276,103 @@ void GameEngine::Intialize(const wchar_t* WindowName, int32_t kWindowWidth, int3
 		srvDescriptorHeap_.Get(),
 		srvDescriptorHeap_->GetCPUDescriptorHandleForHeapStart(),
 		srvDescriptorHeap_->GetGPUDescriptorHandleForHeapStart());
+
+	//テクスチャ初期値としてwhite2x2を読み込む
+	TextureLoad_("resources/DebugResources/white2x2.png");
 }
 
-void GameEngine::LoadLight(Light* light) {
+UINT GameEngine::TextureLoad_(const std::string& filePath) {
 
-	light->Initialize(device_);
+	//ImGuiが0番を使用しているため、1番から使用する
+	UINT index = 1;
+	//既知のテクスチャのパスの場合はTextureを読み込まず、テクスチャの番号を返す
+	for (const TextureData& textureDatum : textureData_) {
+		if (textureDatum.tetxureFilePaths == filePath) {
+			return index;
+		}
+		index++;
+	}
 
+	TextureData data{};
+	data.tetxureFilePaths = filePath;
+
+	//Textureを読んで転送する
+	DirectX::ScratchImage mipImages = LoadTexture(data.tetxureFilePaths);
+	const DirectX::TexMetadata& metadata = mipImages.GetMetadata();
+	data.textureResource = CreateTextureResource(device_, metadata);
+	Microsoft::WRL::ComPtr <ID3D12Resource> intermediateResource = UploadTextureData(data.textureResource.Get(), mipImages, device_.Get(), commandList_.Get());
+	//コマンドリストの内容を確定させる。すべてのコマンドを詰んでからCloseすること
+	HRESULT hr = commandList_->Close();
+	assert(SUCCEEDED(hr));
+
+	//GPUにコマンドリストの実行を行わせる
+	ID3D12CommandList* commandLists[] = { commandList_.Get() };
+	commandQueue_->ExecuteCommandLists(1, commandLists);
+
+	//Fenceの値を更新
+	fenceValue_++;
+	//GPUがここまでたどり着いたときに、Fenceの値を指定した値に代入するようにSignalを送る
+	commandQueue_->Signal(fence_.Get(), fenceValue_);
+
+	//Fenceの値が指定したSignal値に辿り着いているか確認する
+	//GetCompletedValueの初期値はFence作成時に渡した初期値
+	if (fence_->GetCompletedValue() < fenceValue_) {
+		//指定したSignalに辿り着いていないので、辿り着くまで待つようにイベントを設定する
+		fence_->SetEventOnCompletion(fenceValue_, fenceEvent_);
+		//イベントを待つ
+		WaitForSingleObject(fenceEvent_, INFINITE);
+	}
+
+	//次のフレーム用のコマンドリストを準備
+	hr = commandAllocator_->Reset();
+	assert(SUCCEEDED(hr));
+	hr = commandList_->Reset(commandAllocator_.Get(), nullptr);
+	assert(SUCCEEDED(hr));
+
+	intermediateResource->Release();
+
+	//metaDataを基にSRVの設定
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
+	srvDesc.Format = metadata.format;
+	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;	//2Dテクスチャ
+	srvDesc.Texture2D.MipLevels = UINT(metadata.mipLevels);
+
+	index = 1;
+	//値が無効化されているデータ、もしくは最後尾のデータを作成して指定
+	for (const TextureData& textureDatum : textureData_) {
+		if (textureDatum.textureResource == nullptr) {
+			return index;
+		}
+		index++;
+	}
+	if (textureData_.size() >= index - 1) {
+		textureData_.push_back(data);
+	}
+
+	//SRVを作成するDescriptorHeapの場所を決める。ImGuiが最初を使うのでその次を使う
+	D3D12_CPU_DESCRIPTOR_HANDLE textureSrvHandleCPU = GetCPUDescriptorHandle(srvDescriptorHeap_, descriptorSizeSRV_, index);
+	D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU = GetGPUDescriptorHandle(srvDescriptorHeap_, descriptorSizeSRV_, index);
+	//SRVの生成
+	device_->CreateShaderResourceView(data.textureResource.Get(), &srvDesc, textureSrvHandleCPU);
+
+	//SRVを作成したindexの1つ前を返す
+	return index - 1;
 }
 
-void GameEngine::LoadTexture(Texture* texture, const std::string& filePath) {
-
-	texture->Initialize(filePath, device_, commandQueue_, commandAllocator_, commandList_, fence_, fenceValue_, fenceEvent_, srvDescriptorHeap_, descriptorSizeSRV_, kLastCPUIndex_, kLastGPUIndex_);
-
+D3D12_GPU_DESCRIPTOR_HANDLE GameEngine::TextureGet_(UINT index) {
+	//テクスチャリソースが無い場合止める
+	assert(textureData_[index].textureResource != nullptr);
+	return GetGPUDescriptorHandle(srvDescriptorHeap_, descriptorSizeSRV_, index + 1);
 }
 
-void GameEngine::LoadText(Text* text, LONG fontSize, LONG fontWeight, std::wstring str, const std::string& filePath, const std::string& fontName) {
+void GameEngine::TextureDelete_(UINT index) {
+	//textureData_の要素をDeleteするとデスクリプタの位置とズレるので値だけ初期化
+	textureData_[index].textureResource = nullptr;
+	textureData_[index].tetxureFilePaths.clear();
+}
+
+/*void GameEngine::LoadText(Text* text, LONG fontSize, LONG fontWeight, std::wstring str, const std::string& filePath, const std::string& fontName) {
 
 	text->Initialize(fontSize, fontWeight, filePath, fontName, hwnd_);
 
@@ -414,19 +512,7 @@ void GameEngine::LoadText(Text* text, LONG fontSize, LONG fontWeight, std::wstri
 			text->GetTextData(str.c_str()[i], device_, commandQueue_, commandAllocator_, commandList_, fence_, fenceValue_, fenceEvent_, srvDescriptorHeap_, descriptorSizeSRV_, kLastCPUIndex_, kLastGPUIndex_);
 		}
 	}
-}
-
-void GameEngine::LoadObject(Object_3D* object, const std::string& directoryPath, const std::string& filename) {
-
-	object->Initialize(directoryPath, filename, device_);
-
-}
-
-void GameEngine::LoadObject(Sprite_3D* sprite) {
-
-	sprite->Initialize(device_,kWindowWidth_,kWindowHeight_);
-
-}
+}*/
 
 void GameEngine::LoadObject(Sprite_2D* sprite) {
 
@@ -440,14 +526,8 @@ void GameEngine::LoadObject(Text_2D* text) {
 
 }
 
-void GameEngine::LoadAudio(Audio* audio, std::string filename,bool isLoop) {
-
-	audio->Initialize(ConvertString( filename), xAudio2_.Get(),isLoop);
-
-}
-
 [[nodiscard]]
-bool GameEngine::StartFlame() {
+bool GameEngine::StartFlame_() {
 	//Windowのメッセージが来てたら最優先で処理させる
 	if (PeekMessage(&msg_, NULL, 0, 0, PM_REMOVE)) {
 		TranslateMessage(&msg_);
@@ -515,14 +595,14 @@ bool GameEngine::StartFlame() {
 }
 
 [[nodiscard]]
-bool GameEngine::WiodowState() {
+bool GameEngine::WiodowState_() {
 	if (msg_.message != WM_QUIT) {
 		return true;
 	}
 	return false;
 }
 
-void GameEngine::PreDraw() {
+void GameEngine::PreDraw_() {
 
 	//描画用のDescriptorHeapの設定
 	ID3D12DescriptorHeap* descriptorHeaps[] = { srvDescriptorHeap_.Get() };
@@ -565,7 +645,7 @@ void GameEngine::PreDraw() {
 
 }
 
-void GameEngine::PostDraw() {
+void GameEngine::PostDraw_() {
 
 	//実際のcommandListのImGuiの描画コマンドを詰む
 	ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), commandList_.Get());
@@ -608,12 +688,12 @@ void GameEngine::PostDraw() {
 }
 
 [[nodiscard]]
-Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& GameEngine::GetCommandList() {
+Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& GameEngine::GetCommandList_() {
 	return commandList_;
 }
 
 [[nodiscard]]
-Keybord GameEngine::GetKeybord() {
+Keybord GameEngine::GetKeybord_() {
 
 	Keybord returnKeybord{};
 
@@ -628,7 +708,7 @@ Keybord GameEngine::GetKeybord() {
 }
 
 [[nodiscard]]
-Mouse GameEngine::GetMouse() {
+Mouse GameEngine::GetMouse_() {
 
 	Mouse returnMouse{};
 
@@ -648,7 +728,7 @@ Mouse GameEngine::GetMouse() {
 }
 
 [[nodiscard]]
-Pad GameEngine::GetPad(int usePadNum) {
+Pad GameEngine::GetPad_(int usePadNum) {
 
 	Pad returnPad{};
 
