@@ -1,13 +1,21 @@
 #include "LoadObjFile.h"
 #include "LoadMaterialTemplateFile.h"
 #include <cassert>
+#include "LoadObjFile.h"
+#include "LoadMaterialTemplateFile.h"
+#include <cassert>
 #include <fstream>
 #include <sstream>
+#include <list>
 
 //.objファイルからModelDataを構築する
-ModelData LoadObjFile(const std::string& directoryPath, const std::string& filename) {
+std::vector<ModelData> LoadObjFile(const std::string& directoryPath, const std::string& filename) {
 
-	ModelData modelData;	//構築するModelData
+	std::vector<ModelData> modelData;	//構築するModelData
+	ModelData modelDatum;				//単体のModelData
+
+	std::list<MaterialDatum> materialData;	//全てのMaterialDataを格納したリスト
+
 	std::vector<Vector4> positions;	//位置
 	std::vector<Vector3> normals;	//法線
 	std::vector<Vector2> texcoords;	//テクスチャ座標
@@ -23,7 +31,21 @@ ModelData LoadObjFile(const std::string& directoryPath, const std::string& filen
 		s >> identifier;	//先頭の識別子を読む
 
 		//identifierに応じた処理
-		if (identifier == "v") {	//頂点位置
+		if (identifier == "mtllib") {
+			//materialTemplateLibraryファイルの名前を取得する
+			std::string materialFilename;
+			s >> materialFilename;
+			//基本的にobjファイルと同一階層にmtlは存在させるので、ディレクトリ名とファイル名を渡す
+			materialData = LoadMaterialTemplateFile(directoryPath, materialFilename);
+		} else if (identifier == "o") {	//モデル名。次のモデルが始まる合図なので、モデルデータを格納しておく
+
+			//そのままでは最初のモデル名に反応してしまうので、中身のないモデルデータは無視する
+			if (modelDatum.vertices.size() > 0 && modelDatum.material.textureFilePath.size() > 0) {
+				modelData.push_back(modelDatum);
+				//初期化
+				modelDatum = {};
+			}
+		} else if (identifier == "v") {	//頂点位置
 			Vector4 position;
 			s >> position.x >> position.y >> position.z;	//	>>は空白を意味する
 			position.w = 1.0f;
@@ -62,16 +84,24 @@ ModelData LoadObjFile(const std::string& directoryPath, const std::string& filen
 				triangle[faceVertex] = { position,texcoord,normal };
 			}
 			//頂点を逆順に登録することで、周り順を逆にする
-			modelData.vertices.push_back(triangle[2]);
-			modelData.vertices.push_back(triangle[1]);
-			modelData.vertices.push_back(triangle[0]);
-		} else if (identifier == "mtllib") {
-			//materialTemplateLibraryファイルの名前を取得する
+			modelDatum.vertices.push_back(triangle[2]);
+			modelDatum.vertices.push_back(triangle[1]);
+			modelDatum.vertices.push_back(triangle[0]);
+		} else if (identifier == "usemtl") {
+			//使用するMaterialの名前を取得する
 			std::string materialFilename;
 			s >> materialFilename;
-			//基本的にobjファイルと同一階層にmtlは存在させるので、ディレクトリ名とファイル名を渡す
-			modelData.material = LoadMaterialTemplateFile(directoryPath, materialFilename);
+			//マテリアルデータのリストから同じ名称のマテリアルのデータを取得する
+			for (const MaterialDatum& materialDatum : materialData) {
+				if (materialDatum.materialName == materialFilename) {	//マテリアルの名称は必要ないので、それ以外を移す
+					modelDatum.material.materialName.clear();
+					modelDatum.material.textureFilePath = materialDatum.textureFilePath;
+				}
+			}
 		}
 	}
+	//ファイルの終わりでモデルデータを格納する
+	modelData.push_back(modelDatum);
+
 	return modelData;
 }

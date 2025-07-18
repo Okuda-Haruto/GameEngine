@@ -12,7 +12,6 @@ Sprite_2D::~Sprite_2D() {
 	vertexData_ = nullptr;
 	wvpData_.clear();
 	materialData_.clear();
-	delete texture_;
 }
 
 void Sprite_2D::Initialize(Microsoft::WRL::ComPtr<ID3D12Device> device, uint32_t kWindowWidth, uint32_t kWindowHeight) {
@@ -72,9 +71,7 @@ void Sprite_2D::Initialize(Microsoft::WRL::ComPtr<ID3D12Device> device, uint32_t
 
 }
 
-void Sprite_2D::Draw(Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& commandList, Object_2D_Data& data) {
-
-	assert(texture_ != nullptr);						//Textureがセットされていない場合止める
+void Sprite_2D::Draw(Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& commandList, Object_Single_Data& data) {
 
 	//頂点のローカル座標系を設定
 	vertexResource_->Map(0, nullptr, reinterpret_cast<void**>(&vertexData_));
@@ -114,15 +111,15 @@ void Sprite_2D::Draw(Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& command
 	//マテリアルデータを更新
 	materialResource_[index_]->Map(0, nullptr, reinterpret_cast<void**>(&materialData_[index_]));
 
-	materialData_[index_]->color = data.color;
-	materialData_[index_]->uvTransform = MakeAffineMatrix(data.uvTransform.scale, data.uvTransform.rotate, data.uvTransform.translate);
+	materialData_[index_]->color = data.material.color;
+	materialData_[index_]->uvTransform = MakeAffineMatrix(data.material.uvTransform.scale, data.material.uvTransform.rotate, data.material.uvTransform.translate);
 	materialData_[index_]->enableLighting = false;
 
 	materialResource_[index_]->Unmap(0, nullptr);
 
 	commandList->IASetVertexBuffers(0, 1, &vertexBufferView_);	//VBVを設定
 	commandList->IASetIndexBuffer(&indexBufferView_);	//IBVを設定
-	commandList->SetGraphicsRootDescriptorTable(2, texture_->textureSrvHandleGPU());
+	commandList->SetGraphicsRootDescriptorTable(2, GameEngine::TextureGet(data.material.textureIndex));
 	//マテリアルCBufferの場所を設定
 	commandList->SetGraphicsRootConstantBufferView(0, materialResource_[index_]->GetGPUVirtualAddress());
 	//TransformationMatrixCBufferの場所を設定
@@ -206,7 +203,7 @@ void Text_2D::Initialize(Microsoft::WRL::ComPtr<ID3D12Device> device, uint32_t k
 
 }
 
-void Text_2D::Draw(Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& commandList, Object_2D_Data& data) {
+void Text_2D::Draw(Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& commandList, Object_Single_Data& data) {
 
 	//頂点リソースを作る
 	vertexResource_ = CreateBufferResource(device_, sizeof(VertexData) * 4 * int(textData_.size()));
@@ -272,8 +269,8 @@ void Text_2D::Draw(Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& commandLi
 			//マテリアルデータを更新
 			materialResource_[index_]->Map(0, nullptr, reinterpret_cast<void**>(&materialData_[index_]));
 
-			materialData_[index_]->color = data.color;
-			materialData_[index_]->uvTransform = MakeAffineMatrix(data.uvTransform.scale, data.uvTransform.rotate, data.uvTransform.translate);
+			materialData_[index_]->color = data.material.color;
+			materialData_[index_]->uvTransform = MakeAffineMatrix(data.material.uvTransform.scale, data.material.uvTransform.rotate, data.material.uvTransform.translate);
 			materialData_[index_]->enableLighting = false;
 
 			materialResource_[index_]->Unmap(0, nullptr);
@@ -298,7 +295,7 @@ void Text_2D::Draw(Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& commandLi
 	}
 }
 
-void Text_2D::Draw(Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& commandList, Object_2D_Data& data,int index) {
+void Text_2D::Draw(Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& commandList, Object_Single_Data& data,int index) {
 
 	//頂点リソースを作る
 	vertexResource_ = CreateBufferResource(device_, sizeof(VertexData) * 4 * int(textData_.size()));
@@ -369,8 +366,8 @@ void Text_2D::Draw(Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& commandLi
 			//マテリアルデータを更新
 			materialResource_[index_]->Map(0, nullptr, reinterpret_cast<void**>(&materialData_[index_]));
 
-			materialData_[index_]->color = data.color;
-			materialData_[index_]->uvTransform = MakeAffineMatrix(data.uvTransform.scale, data.uvTransform.rotate, data.uvTransform.translate);
+			materialData_[index_]->color = data.material.color;
+			materialData_[index_]->uvTransform = MakeAffineMatrix(data.material.uvTransform.scale, data.material.uvTransform.rotate, data.material.uvTransform.translate);
 			materialData_[index_]->enableLighting = false;
 
 			materialResource_[index_]->Unmap(0, nullptr);

@@ -4,7 +4,6 @@
 SampleScene::~SampleScene() {
 	//解放
 	delete object_;
-	delete texture_;
 	delete audio_;
 	delete camera_;
 	delete debugCamera_;
@@ -14,41 +13,39 @@ SampleScene::~SampleScene() {
 	delete grid_;
 }
 
-void SampleScene::Initialize(GameEngine* gameEngine) {
-	//ゲームエンジン
-	gameEngine_ = gameEngine;
+void SampleScene::Initialize() {
 
 	//3Dオブジェクト
 	object_ = new Object_3D;
-	gameEngine_->LoadObject(object_,"DebugResources", "axis.obj");
-
-	//テクスチャ
-	texture_ = new Texture;
-	gameEngine_->LoadTexture(texture_,object_->ModelData().material.textureFilePath);
-	object_->SetTexture(texture_);
-
-	grid_ = new Grid;
-	grid_->Initialize(gameEngine_);
+	object_->Initialize("resources/DebugResources/multiMaterial", "multiMaterial.obj");
 
 	audio_ = new Audio;
-	gameEngine_->LoadAudio(audio_, "DebugResources/fanfare.wav",false);
+	audio_->Initialize("resources/DebugResources/fanfare.wav",false);
 
 	//デバッグカメラ
-	debugCamera_ = new DebugCamera(gameEngine_);
+	debugCamera_ = new DebugCamera();
 	debugCamera_->Initialize();
 
-	camera_ = new Camera(gameEngine_);
+	camera_ = new Camera();
 	camera_->Initialize();
 	object_->SetCamera(camera_);
-	grid_->SetCamera(camera_);
+
+	std::vector<ModelData> modelData = object_->GetModelData();
+	for (ModelData modelDatum : modelData) {
+		ObjectMaterial material;
+		material.textureIndex = GameEngine::TextureLoad(modelDatum.material.textureFilePath);
+		objectData_.material.push_back(material);
+	}
+	
+	grid_ = new Grid;
+	grid_->Initialize(camera_);
 
 	axis_ = new AxisIndicator;
-	axis_->Initialize(gameEngine_);
-	axis_->SetCamera(camera_);
+	axis_->Initialize(camera_);
 
 	//光源
 	light_ = new Light;
-	gameEngine_->LoadLight(light_);
+	light_->Initialize();
 	directionalLight = {
 		{1.0f,1.0f,1.0f,1.0f},
 		{0.0f,-1.0f,0.0f},
@@ -60,8 +57,8 @@ void SampleScene::Initialize(GameEngine* gameEngine) {
 
 void SampleScene::Update() {
 	//入力処理
-	keyBord_ = gameEngine_->GetKeybord();
-	mouse_ = gameEngine_->GetMouse();
+	keyBord_ = GameEngine::GetKeybord();
+	mouse_ = GameEngine::GetMouse();
 
 	//カメラアップデート
 	if (isUseDebugCamera_) {
@@ -85,12 +82,27 @@ void SampleScene::Update() {
 	directionalLight.direction.x = directionalLight.direction.x / sqrtNumber;
 	directionalLight.direction.y = directionalLight.direction.y / sqrtNumber;
 	directionalLight.direction.z = directionalLight.direction.z / sqrtNumber;
-	ImGui::ColorEdit4("Object Color", &objectData_.color.x);
+	ImGui::ColorEdit4("Object Color", &objectData_.material[0].color.x);
 	ImGui::DragFloat3("Object Scale", & objectData_.transform.scale.x, 0.1f);
 	ImGui::SliderAngle("Object RotateX", &objectData_.transform.rotate.x);
 	ImGui::SliderAngle("Object RotateY", &objectData_.transform.rotate.y);
 	ImGui::SliderAngle("Object RotateZ", &objectData_.transform.rotate.z);
 	ImGui::DragFloat3("Object Translate", &objectData_.transform.translate.x, 0.1f);
+	for (INT i = 0; i < objectData_.material.size(); i++) {
+		std::string str;
+		str = "Material " + std::to_string(i) + " uvScale";
+		ImGui::DragFloat3(str.c_str(), &objectData_.material[i].uvTransform.scale.x, 0.1f);
+		str = "Material " + std::to_string(i) + " uvRotateX";
+		ImGui::SliderAngle(str.c_str(), &objectData_.material[i].uvTransform.rotate.x);
+		str = "Material " + std::to_string(i) + " uvRotateY";
+		ImGui::SliderAngle(str.c_str(), &objectData_.material[i].uvTransform.rotate.y);
+		str = "Material " + std::to_string(i) + " uvRotateZ";
+		ImGui::SliderAngle(str.c_str(), &objectData_.material[i].uvTransform.rotate.z);
+		str = "Material " + std::to_string(i) + " uvTransrate";
+		ImGui::DragFloat3(str.c_str(), &objectData_.material[i].uvTransform.translate.x, 0.1f);
+		str = "Material " + std::to_string(i) + " Color";
+		ImGui::ColorEdit4(str.c_str(), &objectData_.material[i].color.x);
+	}
 
 	if (ImGui::Button("play")) {
 		audio_->SoundPlayWave();
@@ -113,10 +125,10 @@ void SampleScene::Update() {
 void SampleScene::Draw() {
 	//描画処理
 
-	object_->Draw(gameEngine_->GetCommandList(), objectData_);
+	object_->Draw(GameEngine::GetCommandList(), objectData_);
 
-	grid_->Draw(gameEngine_->GetCommandList());
+	grid_->Draw(GameEngine::GetCommandList());
 
-	axis_->Draw(gameEngine_->GetCommandList());
+	axis_->Draw(GameEngine::GetCommandList());
 
 }

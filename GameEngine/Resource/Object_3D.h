@@ -2,20 +2,17 @@
 
 #include "DirectXTex/DirectXTex.h"
 
-#pragma comment(lib,"d3d12.lib")
 #include <d3d12.h>
 
 #include <wrl.h>
 #include <vector>
-#include "ModelData.h"
+#include <ObjectData.h>
 #include "Material.h"
 #include "TransformationMatrix.h"
-#include "Object_3D_Data.h"
+#include "Object_Multi_Data.h"
+#include "Object_Single_Data.h"
 #include "Camera.h"
-#include "Texture.h"
 #include "Light.h"
-
-#include "Line.h"
 
 # pragma region Object_3D
 
@@ -23,20 +20,9 @@
 class Object_3D {
 private:
 	//ロードしたモデルのデータ
-	ModelData modelData_;
-	//頂点リソース
-	Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource_;
-	//頂点バッファビュー
-	D3D12_VERTEX_BUFFER_VIEW vertexBufferView_{};
-	//頂点リソースデータ
-	VertexData* vertexData_ = nullptr;
-
-	//インデックスリソース
-	Microsoft::WRL::ComPtr<ID3D12Resource> indexResource_;
-	//インデックスバッファビュー
-	D3D12_INDEX_BUFFER_VIEW indexBufferView_{};
-	//インデックスデータ
-	uint32_t* indexData_ = nullptr;
+	std::vector<ModelData> modelData_;
+	//描画用に変換したモデルのデータ
+	std::vector<ObjectData> objectData_;
 
 	//マテリアルリソース
 	std::vector <Microsoft::WRL::ComPtr<ID3D12Resource>> materialResource_;
@@ -55,9 +41,6 @@ private:
 	//ライティングを使用するか
 	bool isLighting_ = true;
 
-	//テクスチャデータ
-	Texture* texture_ = nullptr;
-
 	//カメラ
 	Camera* camera_ = nullptr;
 
@@ -69,19 +52,16 @@ private:
 public:
 
 	~Object_3D();
-	
+
 	/// <summary>
 	/// 初期化
 	/// </summary>
 	/// <param name="directoryPath">.objファイルのある階層 (例:"resource")</param>
 	/// <param name="filename">ファイル名 (例:"plane.obj")</param>
-	/// <param name="device">デバイス</param>
-	void Initialize(const std::string& directoryPath, const std::string& filename, Microsoft::WRL::ComPtr<ID3D12Device> device);
- 
+	void Initialize(const std::string& directoryPath, const std::string& filename);
+
 	// Light入力
 	void SetLight(Light* light) { light_ = light; }
-	// Texture入力
-	void SetTexture(Texture* texture) { texture_ = texture; }
 	// Lightを使用するか
 	void isLighting(bool isLighting) { isLighting_ = isLighting; }
 	// Camera入力
@@ -92,14 +72,9 @@ public:
 	/// </summary>
 	/// <param name="commandList">コマンドリスト</param>
 	/// <param name="data">オブジェクトの各種データ</param>
-	void Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandList, Object_3D_Data& data);
+	void Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandList, Object_Multi_Data& data);
 
-	//リソース初期化
-	void Reset();
-
-	// モデルデータ
-	[[nodiscard]]
-	ModelData ModelData();
+	std::vector<ModelData> GetModelData() { return modelData_; }
 };
 
 # pragma endregion
@@ -115,7 +90,7 @@ private:
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView_{};
 	//頂点リソースデータ
 	VertexData* vertexData_ = nullptr;
-	
+
 	//インデックスリソース
 	Microsoft::WRL::ComPtr<ID3D12Resource> indexResource_;
 	//インデックスバッファビュー
@@ -148,9 +123,6 @@ private:
 	//ライティングを使用するか
 	bool isLighting_ = true;
 
-	//テクスチャデータ
-	Texture* texture_ = nullptr;
-
 	//カメラ
 	Camera* camera_ = nullptr;
 
@@ -171,8 +143,6 @@ public:
 
 	// Light入力
 	void SetLight(Light* light) { light_ = light; }
-	// Texture入力
-	void SetTexture(Texture* texture) { texture_ = texture; }
 	// Lightを使用するか
 	void isLighting(bool isLighting) { isLighting_ = isLighting; }
 	// Camera入力
@@ -185,7 +155,7 @@ public:
 	/// </summary>
 	/// <param name="commandList">コマンドリスト</param>
 	/// <param name="data">オブジェクトの各種データ</param>
-	void Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandList, Object_3D_Data& data);
+	void Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandList, Object_Multi_Data& data);
 
 	//リソース初期化
 	void Reset();
@@ -227,8 +197,6 @@ private:
 	//カメラ
 	Camera* camera_ = nullptr;
 
-	Texture* texture_ = nullptr;
-
 	//リソース番号の最大値
 	static const int kMaxIndex_ = 1024;
 	//使用するリソースの番号
@@ -246,8 +214,6 @@ public:
 	/// <param name="device">デバイス</param>
 	void Initialize(const Vector3& start, const Vector3& end, Microsoft::WRL::ComPtr<ID3D12Device> device);
 
-	// Texture入力
-	void SetTexture(Texture* texture) { texture_ = texture; }
 	// Camera入力
 	void SetCamera(Camera* camera) { camera_ = camera; }
 
@@ -256,7 +222,7 @@ public:
 	/// </summary>
 	/// <param name="commandList">コマンドリスト</param>
 	/// <param name="data">オブジェクトの各種データ</param>
-	void Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandList, Object_3D_Data& data);
+	void Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandList, Object_Single_Data& data);
 
 	//リソース初期化
 	void Reset();
@@ -270,20 +236,9 @@ public:
 class AxisIndicator {
 private:
 	//ロードしたモデルのデータ
-	ModelData modelData_;
-	//頂点リソース
-	Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource_;
-	//頂点バッファビュー
-	D3D12_VERTEX_BUFFER_VIEW vertexBufferView_{};
-	//頂点リソースデータ
-	VertexData* vertexData_ = nullptr;
-
-	//インデックスリソース
-	Microsoft::WRL::ComPtr<ID3D12Resource> indexResource_;
-	//インデックスバッファビュー
-	D3D12_INDEX_BUFFER_VIEW indexBufferView_{};
-	//インデックスデータ
-	uint32_t* indexData_ = nullptr;
+	std::vector<ModelData> modelData_;
+	//描画用に変換したモデルのデータ
+	std::vector<ObjectData> objectData_;
 
 	//マテリアルリソース
 	Microsoft::WRL::ComPtr<ID3D12Resource> materialResource_;
@@ -297,15 +252,10 @@ private:
 	//デバイス
 	Microsoft::WRL::ComPtr<ID3D12Device> device_;
 
-	//Windowのサイズ
-	uint32_t kWindowWidth_ = 1280;
-	uint32_t kWindowHeight_ = 720;
-
-	//テクスチャデータ
-	Texture* texture_ = nullptr;
-
 	//カメラ
 	Camera* camera_ = nullptr;
+
+	UINT textureIndex_ = 0;
 
 public:
 
@@ -315,7 +265,7 @@ public:
 	/// 初期化
 	/// </summary>
 	/// <param name="device">デバイス</param>
-	void Initialize(GameEngine* gameEngine);
+	void Initialize(Camera* camera);
 
 	// Camera入力
 	void SetCamera(Camera* camera) { camera_ = camera; }
@@ -351,9 +301,6 @@ private:
 	bool xz_ = true;
 	bool yz_ = false;
 
-	//テクスチャ
-	Texture* white2x2_ = nullptr;
-
 	//描画中心点
 	Vector3 centerPoint_;
 
@@ -367,10 +314,7 @@ public:
 	/// <summary>
 	/// 初期化
 	/// </summary>
-	/// <param name="directoryPath">.objファイルのある階層 (例:"resource")</param>
-	/// <param name="filename">ファイル名 (例:"plane.obj")</param>
-	/// <param name="device">デバイス</param>
-	void Initialize(GameEngine* gameEngine);
+	void Initialize(Camera* camera);
 
 	// Camera入力
 	void SetCamera(Camera* camera) { camera_ = camera; }

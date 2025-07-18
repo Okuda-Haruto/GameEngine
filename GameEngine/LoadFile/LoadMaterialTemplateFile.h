@@ -1,4 +1,5 @@
 #pragma once
 #include "MaterialData.h"
+#include <list>
 
-MaterialData LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename);
+std::list<MaterialDatum> LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename);

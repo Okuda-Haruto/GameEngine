@@ -27,7 +27,7 @@ private:
 	Matrix4x4 projectionMatrix_;
 public:
 
-	DebugCamera(GameEngine* gameEngine);
+	DebugCamera();
 
 	//初期化
 	void Initialize();

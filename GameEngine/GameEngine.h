@@ -6,34 +6,33 @@
 #include "imgui/imgui_impl_win32.h"
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-#pragma comment(lib,"dxcompiler.lib")
 #include <dxcapi.h>
 
 #define DIRECTINPUT_VERSION 0x0800	//DirectInputのバージョン指定
-#pragma comment(lib,"dinput8.lib")
-#pragma comment(lib,"dxguid.lib")
 #include <dinput.h>
 
-#pragma comment(lib,"xinput.lib")
 #include <Xinput.h>
 
 #include "D3DResourceLeakChecker.h"
 #include "Light.h"
 #include "Object_3D.h"
 #include "Object_2D.h"
-#include "Texture.h"
 #include "Text.h"
 #include "Audio.h"
 #include "Input.h"
 #include "DebugCamera.h"
 
+#include "TextureData.h"
+
+#include <vector>
+
 class GameEngine {
 private:
 
 	//ウィンドウの幅
-	int32_t kWindowWidth_;
+	static int32_t kWindowWidth_;
 	//ウィンドウの高さ
-	int32_t kWindowHeight_;
+	static int32_t kWindowHeight_;
 
 #ifdef _DEBUG
 	//リソースチェック
@@ -128,23 +127,56 @@ private:
 	//マウスデバイス
 	IDirectInputDevice8* mouseDevice_ = nullptr;
 
-	//CPUの最後尾Index
-	uint32_t kLastCPUIndex_;
-	//GPUの最後尾Index
-	uint32_t kLastGPUIndex_;
+#pragma region 入力関係
 
+	//キー入力
 	BYTE keys_[256]{};
 	BYTE preKeys_[256]{};
 
+	//マウス入力
 	DIMOUSESTATE preMouse_;
 	DIMOUSESTATE mouse_;
 
+	//パッド入力
 	XINPUT_STATE pad_[4];
 	DWORD dwResult_[4];
 	XINPUT_STATE prePad_[4];
-public:
-	//デストラクタ
+#pragma endregion
+
+	//テクスチャデータ
+	std::vector<TextureData> textureData_;
+
+	//コンストラクタ
+	GameEngine();
+	// デストラクタ
 	~GameEngine();
+
+	void Intialize_(const wchar_t* WindowName, int32_t kWindowWidth = 1280, int32_t kWindowHeight = 720);
+
+	UINT TextureLoad_(const std::string& filePath);
+	D3D12_GPU_DESCRIPTOR_HANDLE TextureGet_(UINT index);
+	void TextureDelete_(UINT index);
+	Microsoft::WRL::ComPtr<IXAudio2> GetXAudio2_() { return xAudio2_; }
+
+	bool StartFlame_();
+	bool WiodowState_();
+	void PreDraw_();
+	void PostDraw_();
+
+	Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& GetCommandList_();
+	Microsoft::WRL::ComPtr<ID3D12Device> GetDevice_() { return device_; }
+
+	Keybord GetKeybord_();
+	Mouse GetMouse_();
+	Pad GetPad_(int usePadNum = 0);
+public:
+
+	// インスタンス生成
+	static GameEngine* getInstance();
+
+	// コピー、代入を禁止する
+	GameEngine(const GameEngine*) = delete;
+	GameEngine* operator=(const GameEngine*) = delete;
 
 	/// <summary>
 	/// 初期化
@@ -152,32 +184,29 @@ public:
 	/// <param name="WindowName">ウィンドウ名 (例:L"LE2A_00_ミョウジ_ナマエ")</param>
 	/// <param name="kWindowWidth">ウィンドウの幅 (例:1280)</param>
 	/// <param name="kWindowHeight">ウィンドウの高さ (例:720)</param>
-	void Intialize(const wchar_t* WindowName, int32_t kWindowWidth = 1280, int32_t kWindowHeight = 720);
-
-	/// <summary>
-	/// 光源のロード
-	/// </summary>
-	/// <param name="light">ロードするLightクラス</param>
-	void LoadLight(Light* light);
+	static void Intialize(const wchar_t* WindowName, int32_t kWindowWidth = 1280, int32_t kWindowHeight = 720) { getInstance()->Intialize_(WindowName, kWindowWidth, kWindowHeight); }
 
 	/// <summary>
 	/// テクスチャのロード
 	/// </summary>
-	/// <param name="texture">ロードするTextureクラス (例:white1x1_texture)</param>
-	/// <param name="filePath">テクスチャがあるフォルダへのパス (例:""resources/white1x1.png"")</param>
-	void LoadTexture(Texture* texture, const std::string& filePath);
-
-	void LoadText(Text* text, LONG fontSize, LONG fontWeight, std::wstring str, const std::string& filePath, const std::string& fontName);
+	/// <param name="filePath">テクスチャにする画像へのパス</param>
+	/// <returns>テクスチャ番号</returns>
+	static UINT TextureLoad(const std::string& filePath) { return getInstance()->TextureLoad_(filePath); }
 
 	/// <summary>
-	/// 3Dオブジェクトのロード
+	/// テクスチャのデスクリプタハンドル出力
 	/// </summary>
-	/// <param name="object">ロードするObject_3Dクラス</param>
-	/// <param name="directoryPath">.objファイルのある階層 (例:"resource")</param>
-	/// <param name="filename">ファイル名 (例:"plane.obj")</param>
-	void LoadObject(Object_3D* object, const std::string& directoryPath, const std::string& filename);
+	/// <param name="index">テクスチャ番号</param>
+	/// <returns>テクスチャのデスクリプタハンドル</returns>
+	static D3D12_GPU_DESCRIPTOR_HANDLE TextureGet(UINT index) { return getInstance()->TextureGet_(index); }
 
-	void LoadObject(Sprite_3D* sprite);
+	/// <summary>
+	/// テクスチャの無効化
+	/// </summary>
+	/// <param name="index">テクスチャ番号</param>
+	static void TextureDelete(UINT index) { return getInstance()->TextureDelete_(index); }
+
+	//void LoadText(Text* text, LONG fontSize, LONG fontWeight, std::wstring str, const std::string& filePath, const std::string& fontName);
 
 	/// <summary>
 	/// 2Dオブジェクトのロード
@@ -187,37 +216,32 @@ public:
 
 	void LoadObject(Text_2D* text);
 
-	/// <summary>
-	/// 音声のロード
-	/// </summary>
-	/// <param name="audio">ロードするAudioクラス</param>
-	/// <param name="filename">.wavファイル名 (例:resources/Audio.wav)</param>
-	/// <param name="isLoop">ループ再生するか</param>
-	void LoadAudio(Audio* audio, std::string filename,bool isLoop);
+	[[nodiscard]]
+	static Microsoft::WRL::ComPtr<IXAudio2> GetXAudio2() { return getInstance()->GetXAudio2_(); }
 
 	/// <summary>
 	/// フレームの開始
 	/// </summary>
 	/// <returns>Windowsのメッセージがあるか</returns>
 	[[nodiscard]]
-	bool StartFlame();
+	static bool StartFlame() { return getInstance()->StartFlame_(); }
 
 	/// <summary>
 	/// ウィンドウ状態
 	/// </summary>
 	/// <returns>ウィンドウを閉じているか</returns>
 	[[nodiscard]]
-	bool WiodowState();
+	static bool WiodowState() { return getInstance()->WiodowState_(); }
 
 	//描画前処理
-	void PreDraw();
+	static void PreDraw() { getInstance()->PreDraw_(); }
 
 	//描画後処理
-	void PostDraw();
+	static void PostDraw() { getInstance()->PostDraw_(); }
 
 	//コマンドリスト
 	[[nodiscard]]
-	Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& GetCommandList();
+	static Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& GetCommandList() { return getInstance()->GetCommandList_(); }
 
 
 	[[nodiscard]]
@@ -228,28 +252,28 @@ public:
 
 	//ウィンドウ幅
 	[[nodiscard]]
-	int32_t GetWindowWidth() { return kWindowWidth_; }
+	static int32_t GetWindowWidth() { return kWindowWidth_; }
 
 	//ウィンドウ高さ
 	[[nodiscard]]
-	int32_t GetWindowHeight() { return kWindowHeight_; }
+	static int32_t GetWindowHeight() { return kWindowHeight_; }
 
 	//デバイス
 	[[nodiscard]]
-	Microsoft::WRL::ComPtr<ID3D12Device> GetDevice() { return device_; }
+	static Microsoft::WRL::ComPtr<ID3D12Device> GetDevice() { return getInstance()->GetDevice_(); }
 
 	//キーボード入力
 	[[nodiscard]]
-	Keybord GetKeybord();
+	static Keybord GetKeybord() { return getInstance()->GetKeybord_(); }
 
 	//マウス入力
 	[[nodiscard]]
-	Mouse GetMouse();
+	static Mouse GetMouse() { return getInstance()->GetMouse_(); }
 
 	/// <summary>
 	/// パッド入力
 	/// </summary>
 	/// <param name="usePadNum">参照するパッドの番号。1つ目なら0を入力</param>
 	[[nodiscard]]
-	Pad GetPad(int usePadNum = 0);
+	static Pad GetPad(int usePadNum = 0) { return getInstance()->GetPad_(usePadNum); }
 };
