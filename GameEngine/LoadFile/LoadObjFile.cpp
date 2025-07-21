@@ -73,14 +73,26 @@ std::vector<ModelData> LoadObjFile(const std::string& directoryPath, const std::
 				for (int32_t element = 0; element < 3; ++element) {
 					std::string index;
 					std::getline(v, index, '/');	//	/区切りでインデックスを読んでいく
-					elementIndices[element] = std::stoi(index);
+
+					//ない場合は通さない
+					if (index != "") {
+						elementIndices[element] = std::stoi(index);
+					}
 				}
 				//要素へのIndexから、実際の要素の値を取得して、頂点を構築する
 				Vector4 position = positions[elementIndices[0] - 1];	//1始まりなので添字には-1をつける
-				Vector2 texcoord = texcoords[elementIndices[1] - 1];
-				Vector3 normal = normals[elementIndices[2] - 1];
-				//VertexData vertex = { position,texcoord,normal };
-				//modelData.vertices.push_back(vertex);
+				Vector2 texcoord;
+				if (texcoords.size() > 0) {
+					texcoord = texcoords[elementIndices[1] - 1];
+				} else {
+					texcoord = {};
+				}
+				Vector3 normal;
+				if (normals.size() > 0) {
+					normal = normals[elementIndices[2] - 1];
+				} else {
+					normal = {};
+				}
 				triangle[faceVertex] = { position,texcoord,normal };
 			}
 			//頂点を逆順に登録することで、周り順を逆にする

@@ -39,7 +39,7 @@ private:
 	//光源データ
 	Light* light_ = nullptr;
 	//ライティングを使用するか
-	bool isLighting_ = true;
+	int isLighting_ = 0;
 
 	//カメラ
 	Camera* camera_ = nullptr;
@@ -63,7 +63,7 @@ public:
 	// Light入力
 	void SetLight(Light* light) { light_ = light; }
 	// Lightを使用するか
-	void isLighting(bool isLighting) { isLighting_ = isLighting; }
+	void isLighting(int isLighting) { isLighting_ = isLighting; }
 	// Camera入力
 	void SetCamera(Camera* camera) { camera_ = camera; }
 
