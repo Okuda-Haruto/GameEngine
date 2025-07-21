@@ -208,12 +208,6 @@ public:
 
 	//void LoadText(Text* text, LONG fontSize, LONG fontWeight, std::wstring str, const std::string& filePath, const std::string& fontName);
 
-	/// <summary>
-	/// 2Dオブジェクトのロード
-	/// </summary>
-	/// /// <param name="object">ロードするSprote_2Dクラス</param>
-	void LoadObject(Sprite_2D* sprite);
-
 	void LoadObject(Text_2D* text);
 
 	[[nodiscard]]

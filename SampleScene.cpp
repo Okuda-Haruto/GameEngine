@@ -3,7 +3,9 @@
 
 SampleScene::~SampleScene() {
 	//解放
-	delete object_;
+	for (Object_3D* object : object_) {
+		delete object;
+	}
 	delete audio_;
 	delete camera_;
 	delete debugCamera_;
@@ -16,9 +18,26 @@ SampleScene::~SampleScene() {
 void SampleScene::Initialize() {
 
 	//3Dオブジェクト
-	object_ = new Object_3D;
-	object_->Initialize("resources/DebugResources/teapot", "teapot.obj");
+	object_[0] = new Object_3D;
+	object_[0]->Initialize("resources/DebugResources/plane", "plane.obj");
+	object_[1] = new Object_3D;
+	object_[1]->Initialize("resources/DebugResources/sphere", "sphere.obj");
+	object_[2] = new Object_3D;
+	object_[2]->Initialize("resources/DebugResources/multiMesh", "multiMesh.obj");
+	object_[3] = new Object_3D;
+	object_[3]->Initialize("resources/DebugResources/multiMaterial", "multiMaterial.obj");
+	object_[4] = new Object_3D;
+	object_[4]->Initialize("resources/DebugResources/teapot", "teapot.obj");
+	object_[5] = new Object_3D;
+	object_[5]->Initialize("resources/DebugResources/bunny", "bunny.obj");
+	object_[6] = new Object_3D;
+	object_[6]->Initialize("resources/DebugResources/suzanne", "suzanne.obj");
 
+	//2Dスプライト
+	sprite_ = new Sprite_2D;
+	sprite_->Initialize();
+
+	//音源
 	audio_ = new Audio;
 	audio_->Initialize("resources/DebugResources/fanfare.wav",false);
 
@@ -26,16 +45,23 @@ void SampleScene::Initialize() {
 	debugCamera_ = new DebugCamera();
 	debugCamera_->Initialize();
 
+	//カメラ
 	camera_ = new Camera();
 	camera_->Initialize();
-	object_->SetCamera(camera_);
-
-	std::vector<ModelData> modelData = object_->GetModelData();
-	for (ModelData modelDatum : modelData) {
-		ObjectMaterial material;
-		material.textureIndex = GameEngine::TextureLoad(modelDatum.material.textureFilePath);
-		objectData_.material.push_back(material);
+	for (Object_3D* object : object_) {
+		object->SetCamera(camera_);
 	}
+
+	//テクスチャ
+	for (INT i = 0; i < object_.size(); i++) {
+		std::vector<ModelData> modelData = object_[i]->GetModelData();
+		for (ModelData modelDatum : modelData) {
+			ObjectMaterial material;
+			material.textureIndex = GameEngine::TextureLoad(modelDatum.material.textureFilePath);
+			objectData_[i].material.push_back(material);
+		}
+	}
+	spriteData_.material.textureIndex = GameEngine::TextureLoad("resources/Debugresources/uvChecker.png");
 	
 	grid_ = new Grid;
 	grid_->Initialize(camera_);
@@ -52,14 +78,46 @@ void SampleScene::Initialize() {
 		1.0f
 	};
 	light_->SetDirectionalLight(directionalLight);
-	object_->isLighting(1);
-	object_->SetLight(light_);
+	isLighting_ = 2;
+	for (Object_3D* object : object_) {
+		object->SetLight(light_);
+		object->isLighting(isLighting_);
+	}
+	for (INT i = 0; i < objectData_.size(); i++) {
+		objectData_[i].transform.translate.x = i * 3 - 9.0f;
+	}
 }
 
 void SampleScene::Update() {
 	//入力処理
 	keyBord_ = GameEngine::GetKeybord();
 	mouse_ = GameEngine::GetMouse();
+	pad_ = GameEngine::GetPad();
+	if (pad_.Button[PAD_BOTTON_UP].trigger) {
+		for (Object_Multi_Data data : objectData_) {
+			data.transform.translate.y += 0.1f;
+		}
+	}
+	if (pad_.Button[PAD_BOTTON_DOWN].trigger) {
+		for (Object_Multi_Data data : objectData_) {
+			data.transform.translate.y -= 0.1f;
+		}
+	}
+	if (pad_.Button[PAD_BOTTON_RIGHT].trigger) {
+		for (Object_Multi_Data data : objectData_) {
+			data.transform.translate.x += 0.1f;
+		}
+	}
+	if (pad_.Button[PAD_BOTTON_LEFT].trigger) {
+		for (Object_Multi_Data data : objectData_) {
+			data.transform.translate.x += 0.1f;
+		}
+	}
+	if (pad_.Button[PAD_BOTTON_START].hit || pad_.Button[PAD_BOTTON_BACK].hit) {
+		for (Object_Multi_Data data : objectData_) {
+			data.transform.translate = {};
+		}
+	}
 
 	//カメラアップデート
 	if (isUseDebugCamera_) {
@@ -76,7 +134,7 @@ void SampleScene::Update() {
 	ImGui::Checkbox("isDrawXZ", &isDrawXZ_);
 	ImGui::Checkbox("isDrawYZ", &isDrawYZ_);
 	const char* items[] = { "None", "Lambert", "HalfLambert"};
-	static const char* current_item = "Lambert";
+	static const char* current_item = "HalfLambert";
 
 	if (ImGui::BeginCombo("Lighting", current_item))
 	{
@@ -85,7 +143,10 @@ void SampleScene::Update() {
 			bool is_selected = (current_item == items[n]);
 			if (ImGui::Selectable(items[n], is_selected)) {
 				current_item = items[n];
-				object_->isLighting(n);
+				isLighting_ = n;
+				for (Object_3D* object : object_) {
+					object->isLighting(isLighting_);
+				}
 			}
 		}
 		ImGui::EndCombo();
@@ -97,26 +158,49 @@ void SampleScene::Update() {
 	directionalLight.direction.x = directionalLight.direction.x / sqrtNumber;
 	directionalLight.direction.y = directionalLight.direction.y / sqrtNumber;
 	directionalLight.direction.z = directionalLight.direction.z / sqrtNumber;
-	ImGui::ColorEdit4("Object Color", &objectData_.material[0].color.x);
-	ImGui::DragFloat3("Object Scale", & objectData_.transform.scale.x, 0.1f);
-	ImGui::SliderAngle("Object RotateX", &objectData_.transform.rotate.x);
-	ImGui::SliderAngle("Object RotateY", &objectData_.transform.rotate.y);
-	ImGui::SliderAngle("Object RotateZ", &objectData_.transform.rotate.z);
-	ImGui::DragFloat3("Object Translate", &objectData_.transform.translate.x, 0.1f);
-	for (INT i = 0; i < objectData_.material.size(); i++) {
+	ImGui::Checkbox("isSpriteDraw", &isSpriteDraw_);
+	ImGui::DragFloat3("Sprite Scale", &spriteData_.transform.scale.x, 0.1f);
+	ImGui::SliderAngle("Sprite RotateX", &spriteData_.transform.rotate.x);
+	ImGui::SliderAngle("Sprite RotateY", &spriteData_.transform.rotate.y);
+	ImGui::SliderAngle("Sprite RotateZ", &spriteData_.transform.rotate.z);
+	ImGui::DragFloat3("Sprite Transrate", &spriteData_.transform.translate.x, 0.1f);
+	ImGui::DragFloat3("Sprite uvScale", &spriteData_.material.uvTransform.scale.x, 0.1f);
+	ImGui::SliderAngle("Sprite uvRotateX", &spriteData_.material.uvTransform.rotate.x);
+	ImGui::SliderAngle("Sprite uvRotateY", &spriteData_.material.uvTransform.rotate.y);
+	ImGui::SliderAngle("Sprite uvRotateZ", &spriteData_.material.uvTransform.rotate.z);
+	ImGui::DragFloat3("Sprite uvTransrate", &spriteData_.material.uvTransform.translate.x, 0.1f);
+	ImGui::ColorEdit4("Sprite Color", &spriteData_.material.color.x);
+	for (INT i = 0; i < objectData_.size(); i++) {
 		std::string str;
-		str = "Material " + std::to_string(i) + " uvScale";
-		ImGui::DragFloat3(str.c_str(), &objectData_.material[i].uvTransform.scale.x, 0.1f);
-		str = "Material " + std::to_string(i) + " uvRotateX";
-		ImGui::SliderAngle(str.c_str(), &objectData_.material[i].uvTransform.rotate.x);
-		str = "Material " + std::to_string(i) + " uvRotateY";
-		ImGui::SliderAngle(str.c_str(), &objectData_.material[i].uvTransform.rotate.y);
-		str = "Material " + std::to_string(i) + " uvRotateZ";
-		ImGui::SliderAngle(str.c_str(), &objectData_.material[i].uvTransform.rotate.z);
-		str = "Material " + std::to_string(i) + " uvTransrate";
-		ImGui::DragFloat3(str.c_str(), &objectData_.material[i].uvTransform.translate.x, 0.1f);
-		str = "Material " + std::to_string(i) + " Color";
-		ImGui::ColorEdit4(str.c_str(), &objectData_.material[i].color.x);
+		str = "Object[" + std::to_string(i) + "]";
+		if (ImGui::CollapsingHeader(str.c_str())) {
+			str = "Object[" + std::to_string(i) + "] isDraw";
+			ImGui::Checkbox(str.c_str(), &isObjectDraw_[i]);
+			str = "Object[" + std::to_string(i) + "] Scale";
+			ImGui::DragFloat3(str.c_str(), &objectData_[i].transform.scale.x, 0.1f);
+			str = "Object[" + std::to_string(i) + "] RotateX";
+			ImGui::SliderAngle(str.c_str(), &objectData_[i].transform.rotate.x);
+			str = "Object[" + std::to_string(i) + "] RotateY";
+			ImGui::SliderAngle(str.c_str(), &objectData_[i].transform.rotate.y);
+			str = "Object[" + std::to_string(i) + "] RotateZ";
+			ImGui::SliderAngle(str.c_str(), &objectData_[i].transform.rotate.z);
+			str = "Object[" + std::to_string(i) + "] Translate";
+			ImGui::DragFloat3(str.c_str(), &objectData_[i].transform.translate.x, 0.1f);
+			for (INT j = 0; j < objectData_[i].material.size(); j++) {
+				str = "Object[" + std::to_string(i) + "]" + "Material " + std::to_string(j) + " uvScale";
+				ImGui::DragFloat3(str.c_str(), &objectData_[i].material[j].uvTransform.scale.x, 0.1f);
+				str = "Object[" + std::to_string(i) + "]" + "Material " + std::to_string(j) + " uvRotateX";
+				ImGui::SliderAngle(str.c_str(), &objectData_[i].material[j].uvTransform.rotate.x);
+				str = "Object[" + std::to_string(i) + "]" + "Material " + std::to_string(j) + " uvRotateY";
+				ImGui::SliderAngle(str.c_str(), &objectData_[i].material[j].uvTransform.rotate.y);
+				str = "Object[" + std::to_string(i) + "]" + "Material " + std::to_string(j) + " uvRotateZ";
+				ImGui::SliderAngle(str.c_str(), &objectData_[i].material[j].uvTransform.rotate.z);
+				str = "Object[" + std::to_string(i) + "]" + "Material " + std::to_string(j) + " uvTransrate";
+				ImGui::DragFloat3(str.c_str(), &objectData_[i].material[j].uvTransform.translate.x, 0.1f);
+				str = "Object[" + std::to_string(i) + "]" + "Material " + std::to_string(j) + " Color";
+				ImGui::ColorEdit4(str.c_str(), &objectData_[i].material[j].color.x);
+			}
+		}
 	}
 
 	if (ImGui::Button("play")) {
@@ -138,12 +222,21 @@ void SampleScene::Update() {
 }
 
 void SampleScene::Draw() {
+
+	if (isSpriteDraw_) {
+		sprite_->Draw(GameEngine::GetCommandList(), spriteData_);
+	}
+
 	//描画処理
 
 	grid_->Draw(GameEngine::GetCommandList());
 
 	axis_->Draw(GameEngine::GetCommandList());
 
-	object_->Draw(GameEngine::GetCommandList(), objectData_);
+	for (INT i = 0; i < object_.size(); i++) {
+		if (isObjectDraw_[i]) {
+			object_[i]->Draw(GameEngine::GetCommandList(), objectData_[i]);
+		}
+	}
 
 }

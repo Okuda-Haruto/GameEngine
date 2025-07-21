@@ -520,12 +520,6 @@ void GameEngine::TextureDelete_(UINT index) {
 	}
 }*/
 
-void GameEngine::LoadObject(Sprite_2D* sprite) {
-
-	sprite->Initialize(device_,kWindowWidth_,kWindowHeight_);
-
-}
-
 void GameEngine::LoadObject(Text_2D* text) {
 
 	text->Initialize(device_, kWindowWidth_, kWindowHeight_);

@@ -63,10 +63,7 @@ public:
 	/// <summary>
 	/// 初期化
 	/// </summary>
-	/// <param name="device">デバイス</param>
-	/// <param name="kWindowWidth">ウィンドウの幅</param>
-	/// <param name="kWindowHeight">ウィンドウの高さ</param>
-	void Initialize(Microsoft::WRL::ComPtr<ID3D12Device> device, uint32_t kWindowWidth, uint32_t kWindowHeight);
+	void Initialize();
 
 	// スプライトの表示サイズ入力
 	void SetSpriteSize(float width, float height) { spriteWidth_ = width; spriteHeight_ = height;};
