@@ -14,15 +14,15 @@ Sprite_2D::~Sprite_2D() {
 	materialData_.clear();
 }
 
-void Sprite_2D::Initialize(Microsoft::WRL::ComPtr<ID3D12Device> device, uint32_t kWindowWidth, uint32_t kWindowHeight) {
+void Sprite_2D::Initialize() {
 
-	device_ = device;
+	device_ = GameEngine::GetDevice();
 
-	kWindowWidth_ = kWindowWidth;
-	kWindowHeight_ = kWindowHeight;
+	kWindowWidth_ = GameEngine::GetWindowWidth();
+	kWindowHeight_ = GameEngine::GetWindowHeight();
 
 	//頂点リソースを作る
-	vertexResource_ = CreateBufferResource(device, sizeof(VertexData) * 4);
+	vertexResource_ = CreateBufferResource(device_, sizeof(VertexData) * 4);
 
 	//頂点バッファビューを作成する
 	//リソースの先頭のアドレスから使う
@@ -33,7 +33,7 @@ void Sprite_2D::Initialize(Microsoft::WRL::ComPtr<ID3D12Device> device, uint32_t
 	vertexBufferView_.StrideInBytes = sizeof(VertexData);
 
 	//Sprite用のインデックスリソースを作る
-	indexResource_ = CreateBufferResource(device, sizeof(uint32_t) * 6);
+	indexResource_ = CreateBufferResource(device_, sizeof(uint32_t) * 6);
 
 	//インデックスバッファビューを作成する
 	//リソースの先頭のアドレスから使う
