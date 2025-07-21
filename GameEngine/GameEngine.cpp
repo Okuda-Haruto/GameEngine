@@ -334,7 +334,8 @@ UINT GameEngine::TextureLoad_(const std::string& filePath) {
 	hr = commandList_->Reset(commandAllocator_.Get(), nullptr);
 	assert(SUCCEEDED(hr));
 
-	intermediateResource->Release();
+	//intermediateResource->Release();だとReleaseで警告が発生するのでintermediateResource.Reset();
+	intermediateResource.Reset();
 
 	//metaDataを基にSRVの設定
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
