@@ -50,7 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
-    <None Include="GameEngine\Shader\Object3d.hlsli">
+    <None Include="resources\Shader\Object3d.hlsli">
       <Filter>GameEngine\Shader</Filter>
     </None>
   </ItemGroup>
@@ -365,10 +365,10 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="GameEngine\Shader\Object3d.PS.hlsl">
+    <FxCompile Include="resources\Shader\Object3d.PS.hlsl">
       <Filter>GameEngine\Shader</Filter>
     </FxCompile>
-    <FxCompile Include="GameEngine\Shader\Object3d.VS.hlsl">
+    <FxCompile Include="resources\Shader\Object3d.VS.hlsl">
       <Filter>GameEngine\Shader</Filter>
     </FxCompile>
   </ItemGroup>

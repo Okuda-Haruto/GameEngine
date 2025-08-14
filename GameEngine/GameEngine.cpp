@@ -219,14 +219,14 @@ void GameEngine::Intialize_(const wchar_t* WindowName, int32_t kWindowWidth, int
 	rootSignature_ = rootSignatureInitialvalue(device_, logStream_);
 
 	//Shaderをコンパイルする
-	IDxcBlob* vertexShaderBlob = CompileShader(L"./GameEngine/Shader/Object3D.VS.hlsl", L"vs_6_0", dxcUtils, dxcCompiler, includeHandler_.Get(), logStream_);
+	IDxcBlob* vertexShaderBlob = CompileShader(L"./resources/Shader/Object3D.VS.hlsl", L"vs_6_0", dxcUtils, dxcCompiler, includeHandler_.Get(), logStream_);
 	assert(vertexShaderBlob != nullptr);
-	IDxcBlob* pixelShaderBlob = CompileShader(L"./GameEngine/Shader/OBject3D.PS.hlsl", L"ps_6_0", dxcUtils, dxcCompiler, includeHandler_.Get(), logStream_);
+	IDxcBlob* pixelShaderBlob = CompileShader(L"./resources/Shader/OBject3D.PS.hlsl", L"ps_6_0", dxcUtils, dxcCompiler, includeHandler_.Get(), logStream_);
 	assert(pixelShaderBlob != nullptr);
 
 	//DepthStencilTextureをウィンドウのサイズで作成
 	depthStencilResource_ = CreateDepthStencilTextureResource(device_, kWindowWidth_, kWindowHeight_);
-	//DSV用のヒープれディスクリプタの数は1。DSVはShader内で触る物ではないので、ShaderVisibleはfalse
+	//DSV用のヒープディスクリプタの数は1。DSVはShader内で触る物ではないので、ShaderVisibleはfalse
 	dsvDescriptorheap_ = CreateDescriptorHeap(device_, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1, false);
 	//DSVの設定
 	dsvDesc_.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;	//Format。基本的にはResourceに合わせる
@@ -293,7 +293,7 @@ UINT GameEngine::TextureLoad_(const std::string& filePath) {
 	//既知のテクスチャのパスの場合はTextureを読み込まず、テクスチャの番号を返す
 	for (const TextureData& textureDatum : textureData_) {
 		if (textureDatum.tetxureFilePaths == filePath) {
-			return index;
+			return index - 1;
 		}
 		index++;
 	}
@@ -716,7 +716,7 @@ Mouse GameEngine::GetMouse_() {
 	POINT p;
 	GetCursorPos(&p);
 	//スクリーン上からウィンドウ上へ
-	ScreenToClient(FindWindowW(w_.lpszClassName, nullptr) ,&p);
+	ScreenToClient(hwnd_ ,&p);
 
 	returnMouse.Position = { float(p.x),float(p.y) };
 	returnMouse.Movement = { float(mouse_.lX),float(mouse_.lY),float(mouse_.lZ) };
@@ -796,23 +796,23 @@ Pad GameEngine::GetPad_(int usePadNum) {
 
 		//ボタンの入力変換
 		for (int i = 0; i <= 16; i++) {
-			int trigger = 0x0001 << i;
+			int hold = 0x0001 << i;
 			if (i != PAD_BOTTON_LT && i != PAD_BOTTON_RT) {
-				returnPad.Button[i].trigger = pad_[usePadNum].Gamepad.wButtons & trigger;
-				returnPad.Button[i].leave = ~(pad_[usePadNum].Gamepad.wButtons & trigger);
-				returnPad.Button[i].hit = (pad_[usePadNum].Gamepad.wButtons & trigger) & ~(prePad_[usePadNum].Gamepad.wButtons & trigger);
-				returnPad.Button[i].hit = ~(pad_[usePadNum].Gamepad.wButtons & trigger) & (prePad_[usePadNum].Gamepad.wButtons & trigger);
+				returnPad.Button[i].hold = pad_[usePadNum].Gamepad.wButtons & hold;
+				returnPad.Button[i].idle = ~(pad_[usePadNum].Gamepad.wButtons & hold);
+				returnPad.Button[i].trigger = (pad_[usePadNum].Gamepad.wButtons & hold) & ~(prePad_[usePadNum].Gamepad.wButtons & hold);
+				returnPad.Button[i].release = ~(pad_[usePadNum].Gamepad.wButtons & hold) & (prePad_[usePadNum].Gamepad.wButtons & hold);
 			} else {
 				if (i == PAD_BOTTON_LT) {
-					returnPad.Button[i].trigger = pad_[usePadNum].Gamepad.bLeftTrigger >= 0x80;
-					returnPad.Button[i].leave = !(pad_[usePadNum].Gamepad.bLeftTrigger >= 0x80);
-					returnPad.Button[i].hit = (pad_[usePadNum].Gamepad.bLeftTrigger >= 0x80) && !(prePad_[usePadNum].Gamepad.bLeftTrigger >= 0x80);
-					returnPad.Button[i].hit = !(pad_[usePadNum].Gamepad.bLeftTrigger >= 0x80) && (prePad_[usePadNum].Gamepad.bLeftTrigger >= 0x80);
+					returnPad.Button[i].hold = pad_[usePadNum].Gamepad.bLeftTrigger >= 0x80;
+					returnPad.Button[i].idle = !(pad_[usePadNum].Gamepad.bLeftTrigger >= 0x80);
+					returnPad.Button[i].trigger = (pad_[usePadNum].Gamepad.bLeftTrigger >= 0x80) && !(prePad_[usePadNum].Gamepad.bLeftTrigger >= 0x80);
+					returnPad.Button[i].release = !(pad_[usePadNum].Gamepad.bLeftTrigger >= 0x80) && (prePad_[usePadNum].Gamepad.bLeftTrigger >= 0x80);
 				} else {
-					returnPad.Button[i].trigger = pad_[usePadNum].Gamepad.bRightTrigger >= 0x80;
-					returnPad.Button[i].leave = !(pad_[usePadNum].Gamepad.bRightTrigger >= 0x80);
-					returnPad.Button[i].hit = (pad_[usePadNum].Gamepad.bRightTrigger >= 0x80) && !(prePad_[usePadNum].Gamepad.bRightTrigger >= 0x80);
-					returnPad.Button[i].hit = !(pad_[usePadNum].Gamepad.bRightTrigger >= 0x80) && (prePad_[usePadNum].Gamepad.bRightTrigger >= 0x80);
+					returnPad.Button[i].hold = pad_[usePadNum].Gamepad.bRightTrigger >= 0x80;
+					returnPad.Button[i].idle = !(pad_[usePadNum].Gamepad.bRightTrigger >= 0x80);
+					returnPad.Button[i].trigger = (pad_[usePadNum].Gamepad.bRightTrigger >= 0x80) && !(prePad_[usePadNum].Gamepad.bRightTrigger >= 0x80);
+					returnPad.Button[i].release = !(pad_[usePadNum].Gamepad.bRightTrigger >= 0x80) && (prePad_[usePadNum].Gamepad.bRightTrigger >= 0x80);
 				}
 			}
 		}
@@ -822,4 +822,18 @@ Pad GameEngine::GetPad_(int usePadNum) {
 	}
 
 	return returnPad;
+}
+
+void Object_Multi_Data::SetMaterial(ModelData modelData) {
+	ObjectMaterial material;
+	material.textureIndex = GameEngine::TextureLoad(modelData.material.textureFilePath);
+	this->material.push_back(material);
+}
+
+void Object_Multi_Data::SetMaterial(std::vector<ModelData> modelData) {
+	ObjectMaterial material;
+	for (ModelData modeldatum : modelData) {
+		material.textureIndex = GameEngine::TextureLoad(modeldatum.material.textureFilePath);
+		this->material.push_back(material);
+	}
 }
