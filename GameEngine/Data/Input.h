@@ -48,9 +48,9 @@ enum PAD_BUTTON {
 
 //パッドボタン入力	単体では使用しないこと
 struct PadTrigger {
-	bool trigger = {};	//押している
-	bool leave = {};	//離している
-	bool hit = {};		//押した瞬間
+	bool hold = {};	//押している
+	bool idle = {};	//離している
+	bool trigger = {};	//押した瞬間
 	bool release = {};	//離した瞬間
 };
 

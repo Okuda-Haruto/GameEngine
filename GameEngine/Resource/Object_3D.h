@@ -14,6 +14,8 @@
 #include "Camera.h"
 #include "Light.h"
 
+#include "Line.h"
+
 # pragma region Object_3D
 
 //3Dオブジェクト
@@ -171,7 +173,7 @@ private:
 	//頂点リソース
 	Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource_;
 	//頂点バッファビュー
-	D3D12_VERTEX_BUFFER_VIEW vertexBufferView_{};
+	std::vector<D3D12_VERTEX_BUFFER_VIEW> vertexBufferView_{};
 	//頂点リソースデータ
 	VertexData* vertexData_ = nullptr;
 
@@ -212,7 +214,7 @@ public:
 	/// <param name="directoryPath">.objファイルのある階層 (例:"resource")</param>
 	/// <param name="filename">ファイル名 (例:"plane.obj")</param>
 	/// <param name="device">デバイス</param>
-	void Initialize(const Vector3& start, const Vector3& end, Microsoft::WRL::ComPtr<ID3D12Device> device);
+	void Initialize();
 
 	// Camera入力
 	void SetCamera(Camera* camera) { camera_ = camera; }
@@ -222,7 +224,7 @@ public:
 	/// </summary>
 	/// <param name="commandList">コマンドリスト</param>
 	/// <param name="data">オブジェクトの各種データ</param>
-	void Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandList, Object_Single_Data& data);
+	void Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandList, const Segment& segment, const Vector4& color, Camera* camera_);
 
 	//リソース初期化
 	void Reset();
