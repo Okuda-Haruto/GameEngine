@@ -36,11 +36,7 @@ private:
 	//光源
 	DirectionalLight directionalLight;
 	Light* light_;
-	bool autoChangeLighting = true;
 	UINT isLighting_ = 1;
-
-	const UINT kMaxLightingChangFlame = 240;
-	UINT lightingChangFlame = 0;
 
 	//インプット
 	Keybord keyBord_;

@@ -41,6 +41,8 @@ private:
 	//オーディオデータ
 	std::vector<BYTE> mediaData;
 
+	Microsoft::WRL::ComPtr<IMFAttributes> pAttr_ = nullptr;
+
 	//音量
 	float Volume_ = 1.0f;
 	//音声データのループ再生するか

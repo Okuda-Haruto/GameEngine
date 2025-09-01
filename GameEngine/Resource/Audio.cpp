@@ -19,6 +19,8 @@ Audio::~Audio() {
 
 void Audio::Initialize(std::string path, bool isLoop) {
 
+	MFStartup(MF_VERSION);
+
 	HRESULT hr;
 
 	xAudio2_ = GameEngine::GetXAudio2();
@@ -29,7 +31,11 @@ void Audio::Initialize(std::string path, bool isLoop) {
 	path_ = ConvertString(path);
 
 	//ソースリーダーを作成
-	MFCreateSourceReaderFromURL(path_.c_str(), NULL, &pMFSourceReader_);
+	MFCreateAttributes(&pAttr_, 1);
+	pAttr_->SetUINT32(MF_LOW_LATENCY, TRUE);
+	hr = MFCreateSourceReaderFromURL(path_.c_str(), pAttr_.Get(), &pMFSourceReader_);
+	assert(SUCCEEDED(hr));
+
 	//メディアタイプを作成
 	MFCreateMediaType(&pMFMediaType_);
 	pMFMediaType_->SetGUID(MF_MT_MAJOR_TYPE, MFMediaType_Audio);
@@ -92,6 +98,8 @@ void Audio::Initialize(std::string path, bool isLoop) {
 	assert(SUCCEEDED(hr));
 
 	pSourceVoice_->GetVolume(&Volume_);
+
+	MFShutdown();
 
 }
 

@@ -34,7 +34,7 @@ void SampleScene::Initialize() {
 	object_[4] = new Object_3D;
 	object_[4]->Initialize("resources/DebugResources/teapot", "teapot.obj");
 	object_[5] = new Object_3D;
-	object_[5]->Initialize("resources/DebugResources/bunny", "bunny.obj");
+	object_[5]->Initialize("resources/DebugResources/sphere", "sphere.obj");
 	object_[6] = new Object_3D;
 	object_[6]->Initialize("resources/DebugResources/suzanne", "suzanne.obj");
 
@@ -94,31 +94,6 @@ void SampleScene::Update() {
 	keyBord_ = GameEngine::GetKeybord();
 	mouse_ = GameEngine::GetMouse();
 	pad_ = GameEngine::GetPad();
-
-	if (autoChangeLighting) {
-		if (lightingChangFlame >= kMaxLightingChangFlame) {
-			switch (isLighting_)
-			{
-			case 0:
-				isLighting_ = 1;
-				break;
-			case 1:
-				isLighting_ = 2;
-				break;
-			case 2:
-				isLighting_ = 0;
-				break;
-			default:
-				break;
-			}
-			for (Object_3D* object : object_) {
-				object->isLighting(isLighting_);
-			}
-			lightingChangFlame = 0;
-		} else {
-			lightingChangFlame++;
-		}
-	}
 
 	if (keyBord_.hold[DIK_W] || pad_.Button[PAD_BOTTON_UP].hold) {
 		for (INT i = 0; i < INT(objectData_.size());i++) {
@@ -216,12 +191,12 @@ void SampleScene::Update() {
 		camera_->Update();
 	}
 	if (isDisplayUI) {
-		ImGui::Begin("Debug");
+
+		ImGui::Begin("デバッグ");
 		ImGui::Checkbox("isUseDebugCamera", &isUseDebugCamera_);
 		if (ImGui::Button("ResetDebugCamera")) {
 			debugCamera_->Reset();
 		}
-		ImGui::Checkbox("autoChangeLighting", &autoChangeLighting);
 		const char* items[] = { "None", "Lambert", "HalfLambert" };
 		static const char* current_item = "HalfLambert";
 

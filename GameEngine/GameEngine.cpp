@@ -277,6 +277,9 @@ void GameEngine::Intialize_(const wchar_t* WindowName, int32_t kWindowWidth, int
 		srvDescriptorHeap_->GetCPUDescriptorHandleForHeapStart(),
 		srvDescriptorHeap_->GetGPUDescriptorHandleForHeapStart());
 
+	ImGuiIO& io = ImGui::GetIO();
+	io.Fonts->AddFontFromFileTTF("resources/DebugResources/x12y16pxMaruMonica .ttf", 16.0f, nullptr, io.Fonts->GetGlyphRangesJapanese());
+
 	//テクスチャ初期値としてwhite2x2を読み込む
 	TextureLoad_("resources/DebugResources/white2x2.png");
 
