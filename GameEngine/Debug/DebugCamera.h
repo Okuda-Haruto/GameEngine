@@ -14,6 +14,8 @@ enum class DebugCameraMode {
 
 class BaseCameraMode {
 public: // 純粋仮想関数	＊派生クラスに実装を強要する
+	//初期化
+	virtual void Initialize();
 	//更新
 	virtual void Update(DebugCamera* debugCamera);
 };
@@ -26,6 +28,7 @@ private:
 	Vector3 sphericalCoordinates_{ 10.0f,0.0f,0.0f };
 
 public:
+	void Initialize();
 	void Update(DebugCamera* debugCamera);
 };
 
@@ -37,6 +40,7 @@ private:
 	Vector3 sphericalCoordinates_{ 10.0f,0.0f,0.0f };
 
 public:
+	void Initialize();
 	void Update(DebugCamera* debugCamera);
 };
 
@@ -61,6 +65,8 @@ private:
 	Matrix4x4 projectionMatrix_;
 
 	BaseCameraMode* cameraMode_;
+
+	void SetDebugCameraType(BaseCameraMode* cameraMode) { cameraMode_ = cameraMode; }
 public:
 
 	DebugCamera();
@@ -79,12 +85,12 @@ public:
 
 	void ChangeCameraMode(BaseCameraMode* newCameraMode);
 
+	void ChangeCameraMode(DebugCameraMode debugCameraMode);
+
 	Vector3 GetAttentionPoint() { return centerPoint_; }
 
 	Vector3 GetSphericalCoordinates() { return sphericalCoordinates_; }
 	void SetSphericalCoordinates(const Vector3& sphericalCoordinates) { sphericalCoordinates_ = sphericalCoordinates; }
-
-	void SetDebugCameraType(BaseCameraMode* cameraMode) { cameraMode_ = cameraMode; }
 
 	Matrix4x4 GetViewMatrix() { return viewMatrix_; }
 	void SetViewMatrix(Matrix4x4 viewMatrix) { viewMatrix_ = viewMatrix; }
