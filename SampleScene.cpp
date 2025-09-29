@@ -95,34 +95,24 @@ void SampleScene::Update() {
 	mouse_ = GameEngine::GetMouse();
 	pad_ = GameEngine::GetPad();
 
-	if (keyBord_.hold[DIK_W] || pad_.Button[PAD_BOTTON_UP].hold) {
+	if (keyBord_.hold[DIK_UP] || pad_.Button[PAD_BOTTON_UP].hold) {
 		for (INT i = 0; i < INT(objectData_.size());i++) {
 			objectData_[i].transform.translate.y += 0.1f;
 		}
 	}
-	if (keyBord_.hold[DIK_S] || pad_.Button[PAD_BOTTON_DOWN].hold) {
+	if (keyBord_.hold[DIK_DOWN] || pad_.Button[PAD_BOTTON_DOWN].hold) {
 		for (INT i = 0; i < INT(objectData_.size()); i++) {
 			objectData_[i].transform.translate.y -= 0.1f;
 		}
 	}
-	if (keyBord_.hold[DIK_D] || pad_.Button[PAD_BOTTON_RIGHT].hold) {
+	if (keyBord_.hold[DIK_RIGHT] || pad_.Button[PAD_BOTTON_RIGHT].hold) {
 		for (INT i = 0; i < INT(objectData_.size()); i++) {
 			objectData_[i].transform.translate.x += 0.1f;
 		}
 	}
-	if (keyBord_.hold[DIK_A] || pad_.Button[PAD_BOTTON_LEFT].hold) {
+	if (keyBord_.hold[DIK_LEFT] || pad_.Button[PAD_BOTTON_LEFT].hold) {
 		for (INT i = 0; i < INT(objectData_.size()); i++) {
 			objectData_[i].transform.translate.x -= 0.1f;
-		}
-	}
-	if (keyBord_.hold[DIK_Q]) {
-		for (INT i = 0; i < INT(objectData_.size()); i++) {
-			objectData_[i].transform.rotate.y -= std::numbers::pi_v<float> / 180;
-		}
-	}
-	if (keyBord_.hold[DIK_E]) {
-		for (INT i = 0; i < INT(objectData_.size()); i++) {
-			objectData_[i].transform.rotate.y += std::numbers::pi_v<float> / 180;
 		}
 	}
 	if (keyBord_.trigger[DIK_R] || pad_.Button[PAD_BOTTON_BACK].trigger) {
@@ -193,10 +183,42 @@ void SampleScene::Update() {
 	if (isDisplayUI) {
 
 		ImGui::Begin("デバッグ");
-		ImGui::Checkbox("isUseDebugCamera", &isUseDebugCamera_);
-		if (ImGui::Button("ResetDebugCamera")) {
-			debugCamera_->Reset();
+		ImGui::Checkbox("デバッグカメラ", &isUseDebugCamera_);
+		if (isUseDebugCamera_) {
+			if (ImGui::Button("カメラリセット")) {
+				debugCamera_->Reset();
+			}
+
+			const char* cameraMode[] = { "PlayerCamera", "SphericalCoordinates" };
+			static int modeNum = 1;
+			static const char* current_Mode = "SphericalCoordinates";
+
+			current_Mode = cameraMode[modeNum];
+
+			if (ImGui::BeginCombo("DebugCameraMode", current_Mode))
+			{
+				for (int n = 0; n < IM_ARRAYSIZE(cameraMode); n++)
+				{
+					bool is_selected = (current_Mode == cameraMode[n]);
+					if (ImGui::Selectable(cameraMode[n], is_selected)) {
+						modeNum = n;
+						switch (n)
+						{
+						case 0:
+							debugCamera_->ChangeCameraMode(DebugCameraMode::PlayerCamera);
+							break;
+						case 1:
+							debugCamera_->ChangeCameraMode(DebugCameraMode::SphericalCoordinates);
+							break;
+						default:
+							break;
+						}
+					}
+				}
+				ImGui::EndCombo();
+			}
 		}
+
 		const char* items[] = { "None", "Lambert", "HalfLambert" };
 		static const char* current_item = "HalfLambert";
 
@@ -223,7 +245,7 @@ void SampleScene::Update() {
 		directionalLight.direction.x = directionalLight.direction.x / sqrtNumber;
 		directionalLight.direction.y = directionalLight.direction.y / sqrtNumber;
 		directionalLight.direction.z = directionalLight.direction.z / sqrtNumber;
-		ImGui::Checkbox("isSpriteDraw", &isSpriteDraw_);
+		ImGui::Checkbox("スプライト描画", &isSpriteDraw_);
 		if (isSpriteDraw_) {
 			ImGui::DragFloat3("Sprite Scale", &spriteData_.transform.scale.x, 0.1f);
 			ImGui::SliderAngle("Sprite RotateX", &spriteData_.transform.rotate.x);
@@ -270,13 +292,13 @@ void SampleScene::Update() {
 			}
 		}
 
-		if (ImGui::Button("play")) {
+		if (ImGui::Button("オーディオ再生")) {
 			audio_->SoundPlayWave();
 		}
-		if (ImGui::Button("stop")) {
+		if (ImGui::Button("オーディオ停止")) {
 			audio_->SoundStopWave();
 		}
-		if (ImGui::Button("end")) {
+		if (ImGui::Button("オーディオ終了")) {
 			audio_->SoundEndWave();
 		}
 		ImGui::End();

@@ -31,9 +31,9 @@ void DebugCamera::Update() {
 }
 
 void DebugCamera::Reset() {
-	translation_ = { 0,0,0 };
-	centerPoint_ = { 0,0,0 };
-	Initialize();
+	//正面状態
+	sphericalCoordinates_ = { -10.0f,0.0f,std::numbers::pi_v<float> / 4 * 3 };
+	cameraMode_->Initialize();
 }
 
 void DebugCamera::UpdateCamera(Camera* camera) {
@@ -42,7 +42,12 @@ void DebugCamera::UpdateCamera(Camera* camera) {
 	camera->SetViewMatrix(viewMatrix_);
 };
 
+void BaseCameraMode::Initialize() {}
 void BaseCameraMode::Update(DebugCamera* debugCamera) {}
+
+void CameraModePlayerCamera::Initialize() {
+	centerPoint_ = {0,10,-10};
+}
 
 void CameraModePlayerCamera::Update(DebugCamera* debugCamera) {
 	Keybord key = GameEngine::GetKeybord();
@@ -120,6 +125,10 @@ void CameraModePlayerCamera::Update(DebugCamera* debugCamera) {
 	debugCamera->SetViewMatrix(viewMatrix);
 }
 
+void CameraModeSphericalCoordinates::Initialize() {
+	centerPoint_ = { 0,0,0 };
+}
+
 void CameraModeSphericalCoordinates::Update(DebugCamera* debugCamera) {
 	Keybord key = GameEngine::GetKeybord();
 	Mouse mouse = GameEngine::GetMouse();
@@ -185,4 +194,21 @@ void CameraModeSphericalCoordinates::Update(DebugCamera* debugCamera) {
 void DebugCamera::ChangeCameraMode(BaseCameraMode* newCameraMode) {
 	delete cameraMode_;
 	cameraMode_ = newCameraMode;
+	//正面状態
+	sphericalCoordinates_ = { -10.0f,0.0f,std::numbers::pi_v<float> / 4 * 3 };
+	newCameraMode->Initialize();
+}
+
+void DebugCamera::ChangeCameraMode(DebugCameraMode debugCameraMode) {
+	switch (debugCameraMode)
+	{
+	case DebugCameraMode::PlayerCamera:
+		ChangeCameraMode(new CameraModePlayerCamera);
+		break;
+	case DebugCameraMode::SphericalCoordinates:
+		ChangeCameraMode(new CameraModeSphericalCoordinates);
+		break;
+	default:
+		break;
+	}
 }
