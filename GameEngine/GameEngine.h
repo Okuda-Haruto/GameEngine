@@ -121,11 +121,11 @@ private:
 	IXAudio2MasteringVoice* masterVoice_ = nullptr;
 
 	//DirectInput
-	IDirectInput8* directInput_ = nullptr;
+	Microsoft::WRL::ComPtr <IDirectInput8> directInput_ = nullptr;
 	//キーボードデバイス
-	IDirectInputDevice8* keyboardDevice_ = nullptr;
+	Microsoft::WRL::ComPtr <IDirectInputDevice8> keyboardDevice_ = nullptr;
 	//マウスデバイス
-	IDirectInputDevice8* mouseDevice_ = nullptr;
+	Microsoft::WRL::ComPtr <IDirectInputDevice8> mouseDevice_ = nullptr;
 
 #pragma region 入力関係
 
@@ -177,6 +177,9 @@ public:
 	// コピー、代入を禁止する
 	GameEngine(const GameEngine*) = delete;
 	GameEngine* operator=(const GameEngine*) = delete;
+
+	//デストラクタ呼び出し
+	static void Delete() { delete getInstance(); }
 
 	/// <summary>
 	/// 初期化

@@ -11,20 +11,20 @@ SampleScene::~SampleScene() {
 	for (Object_3D* object : object_) {
 		delete object;
 	}
+	delete sprite_;
+	delete grid_;
 	delete audio_;
 	delete camera_;
+	delete axis_;
 	delete debugCamera_;
 	delete light_;
-	delete axis_;
-
-	delete grid_;
 }
 
 void SampleScene::Initialize() {
 
 	//3Dオブジェクト
 	object_[0] = new Object_3D;
-	object_[0]->Initialize("resources", "Player.obj");
+	object_[0]->Initialize("resources/DebugResources/plane", "plane.obj");
 	object_[1] = new Object_3D;
 	object_[1]->Initialize("resources/DebugResources/sphere", "sphere.obj");
 	object_[2] = new Object_3D;
@@ -34,7 +34,7 @@ void SampleScene::Initialize() {
 	object_[4] = new Object_3D;
 	object_[4]->Initialize("resources/DebugResources/teapot", "teapot.obj");
 	object_[5] = new Object_3D;
-	object_[5]->Initialize("resources/DebugResources/sphere", "sphere.obj");
+	object_[5]->Initialize("resources/DebugResources/bunny", "bunny.obj");
 	object_[6] = new Object_3D;
 	object_[6]->Initialize("resources/DebugResources/suzanne", "suzanne.obj");
 
