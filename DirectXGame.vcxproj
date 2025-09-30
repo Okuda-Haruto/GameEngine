@@ -33,14 +33,14 @@
     <ClCompile Include="GameEngine\Debug\DebugCamera.cpp" />
     <ClCompile Include="GameEngine\Debug\ExportDump.cpp" />
     <ClCompile Include="GameEngine\Debug\Log.cpp" />
-    <ClCompile Include="GameEngine\Direct3D12\ConvertString.cpp" />
-    <ClCompile Include="GameEngine\Direct3D12\CreateBufferResource.cpp" />
-    <ClCompile Include="GameEngine\Direct3D12\CreateDepthStencilTextureResource.cpp" />
-    <ClCompile Include="GameEngine\Direct3D12\CreateDescriptorHeap.cpp" />
-    <ClCompile Include="GameEngine\Direct3D12\CreateTextureResource.cpp" />
-    <ClCompile Include="GameEngine\Direct3D12\GetDescriptorHandle.cpp" />
-    <ClCompile Include="GameEngine\Direct3D12\Initialvalue.cpp" />
-    <ClCompile Include="GameEngine\Direct3D12\UploadTextreData.cpp" />
+    <ClCompile Include="GameEngine\Modules\ConvertString\ConvertString.cpp" />
+    <ClCompile Include="GameEngine\Modules\CreateBufferResource\CreateBufferResource.cpp" />
+    <ClCompile Include="GameEngine\Modules\CreateDepthStencilTextureResource\CreateDepthStencilTextureResource.cpp" />
+    <ClCompile Include="GameEngine\Modules\CreateDescriptorHeap\CreateDescriptorHeap.cpp" />
+    <ClCompile Include="GameEngine\Modules\CreateTextureResource\CreateTextureResource.cpp" />
+    <ClCompile Include="GameEngine\Modules\GetDescriptorHandle\GetDescriptorHandle.cpp" />
+    <ClCompile Include="GameEngine\Modules\Initialvalue\Initialvalue.cpp" />
+    <ClCompile Include="GameEngine\Modules\UploadTextreData\UploadTextreData.cpp" />
     <ClCompile Include="GameEngine\GameEngine.cpp" />
     <ClCompile Include="GameEngine\LoadFile\LoadText.cpp" />
     <ClCompile Include="GameEngine\LoadFile\LoadMaterialTemplateFile.cpp" />
@@ -55,8 +55,8 @@
     <ClCompile Include="GameEngine\Resource\Light.cpp" />
     <ClCompile Include="GameEngine\Resource\Object_2D.cpp" />
     <ClCompile Include="GameEngine\Resource\Object_3D.cpp" />
-    <ClCompile Include="GameEngine\Shader\CompileShader.cpp" />
-    <ClCompile Include="GameEngine\Window\Window.cpp" />
+    <ClCompile Include="GameEngine\Modules\CompileShader\CompileShader.cpp" />
+    <ClCompile Include="GameEngine\Modules\Window\Window.cpp" />
     <ClCompile Include="main.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Development|x64'">MaxSpeed</Optimization>
     </ClCompile>
@@ -71,41 +71,41 @@
     <ClInclude Include="externals\imgui\imstb_rectpack.h" />
     <ClInclude Include="externals\imgui\imstb_textedit.h" />
     <ClInclude Include="externals\imgui\imstb_truetype.h" />
-    <ClInclude Include="GameEngine\Data\AABB.h" />
+    <ClInclude Include="GameEngine\Math\Shape\AABB.h" />
     <ClInclude Include="GameEngine\Data\ChunkHeader.h" />
     <ClInclude Include="GameEngine\Data\DirectionalLight.h" />
     <ClInclude Include="GameEngine\Data\FormatChunk.h" />
     <ClInclude Include="GameEngine\Data\Input.h" />
-    <ClInclude Include="GameEngine\Data\Line.h" />
+    <ClInclude Include="GameEngine\Math\Shape\Line.h" />
     <ClInclude Include="GameEngine\Data\Material.h" />
     <ClInclude Include="GameEngine\Data\MaterialData.h" />
     <ClInclude Include="GameEngine\Data\ModelData.h" />
-    <ClInclude Include="GameEngine\Data\OBB.h" />
+    <ClInclude Include="GameEngine\Math\Shape\OBB.h" />
     <ClInclude Include="GameEngine\Data\ObjectData.h" />
     <ClInclude Include="GameEngine\Data\Object_Single_Data.h" />
     <ClInclude Include="GameEngine\Data\Object_Multi_Data.h" />
     <ClInclude Include="GameEngine\Data\ObjectMaterial.h" />
-    <ClInclude Include="GameEngine\Data\Plane.h" />
+    <ClInclude Include="GameEngine\Math\Shape\Plane.h" />
     <ClInclude Include="GameEngine\Data\RiffHeader.h" />
     <ClInclude Include="GameEngine\Data\SoundData.h" />
-    <ClInclude Include="GameEngine\Data\Sphere.h" />
+    <ClInclude Include="GameEngine\Math\Shape\Sphere.h" />
     <ClInclude Include="GameEngine\Data\SRT.h" />
     <ClInclude Include="GameEngine\Data\TextureData.h" />
     <ClInclude Include="GameEngine\Data\TransformationMatrix.h" />
-    <ClInclude Include="GameEngine\Data\Triangle.h" />
+    <ClInclude Include="GameEngine\Math\Shape\Triangle.h" />
     <ClInclude Include="GameEngine\Data\VertexData.h" />
     <ClInclude Include="GameEngine\Debug\D3DResourceLeakChecker.h" />
     <ClInclude Include="GameEngine\Debug\DebugCamera.h" />
     <ClInclude Include="GameEngine\Debug\ExportDump.h" />
     <ClInclude Include="GameEngine\Debug\Log.h" />
-    <ClInclude Include="GameEngine\Direct3D12\ConvertString.h" />
-    <ClInclude Include="GameEngine\Direct3D12\CreateBufferResource.h" />
-    <ClInclude Include="GameEngine\Direct3D12\CreateDepthStencilTextureResource.h" />
-    <ClInclude Include="GameEngine\Direct3D12\CreateDescriptorHeap.h" />
-    <ClInclude Include="GameEngine\Direct3D12\CreateTextureResource.h" />
-    <ClInclude Include="GameEngine\Direct3D12\GetDescriptorHandle.h" />
-    <ClInclude Include="GameEngine\Direct3D12\Initialvalue.h" />
-    <ClInclude Include="GameEngine\Direct3D12\UploadTextureData.h" />
+    <ClInclude Include="GameEngine\Modules\ConvertString\ConvertString.h" />
+    <ClInclude Include="GameEngine\Modules\CreateBufferResource\CreateBufferResource.h" />
+    <ClInclude Include="GameEngine\Modules\CreateDepthStencilTextureResource\CreateDepthStencilTextureResource.h" />
+    <ClInclude Include="GameEngine\Modules\CreateDescriptorHeap\CreateDescriptorHeap.h" />
+    <ClInclude Include="GameEngine\Modules\CreateTextureResource\CreateTextureResource.h" />
+    <ClInclude Include="GameEngine\Modules\GetDescriptorHandle\GetDescriptorHandle.h" />
+    <ClInclude Include="GameEngine\Modules\Initialvalue\Initialvalue.h" />
+    <ClInclude Include="GameEngine\Modules\UploadTextreData\UploadTextureData.h" />
     <ClInclude Include="GameEngine\GameEngine.h" />
     <ClInclude Include="GameEngine\LoadFile\LoadText.h" />
     <ClInclude Include="GameEngine\LoadFile\LoadMaterialTemplateFile.h" />
@@ -125,8 +125,8 @@
     <ClInclude Include="GameEngine\Resource\Light.h" />
     <ClInclude Include="GameEngine\Resource\Object_2D.h" />
     <ClInclude Include="GameEngine\Resource\Object_3D.h" />
-    <ClInclude Include="GameEngine\Shader\CompileShader.h" />
-    <ClInclude Include="GameEngine\Window\Window.h" />
+    <ClInclude Include="GameEngine\Modules\CompileShader\CompileShader.h" />
+    <ClInclude Include="GameEngine\Modules\Window\Window.h" />
     <ClInclude Include="SampleScene.h" />
   </ItemGroup>
   <ItemGroup>
@@ -193,13 +193,16 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir)GameEngine\Window;$(ProjectDir)GameEngine\Shader;$(ProjectDir)GameEngine\Resource;$(ProjectDir)GameEngine\Math;$(ProjectDir)GameEngine\LoadFile;$(ProjectDir)GameEngine\Direct3D12;$(ProjectDir)GameEngine\Debug;$(ProjectDir)GameEngine\Data;$(ProjectDir)GameEngine;$(ProjectDir)externals;$(IncludePath)</IncludePath>
+    <IncludePath>
+    </IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(ProjectDir)GameEngine\Window;$(ProjectDir)GameEngine\Shader;$(ProjectDir)GameEngine\Resource;$(ProjectDir)GameEngine\Math;$(ProjectDir)GameEngine\LoadFile;$(ProjectDir)GameEngine\Direct3D12;$(ProjectDir)GameEngine\Debug;$(ProjectDir)GameEngine\Data;$(ProjectDir)GameEngine;$(ProjectDir)externals;$(IncludePath)</IncludePath>
+    <IncludePath>
+    </IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Development|x64'">
-    <IncludePath>$(ProjectDir)GameEngine\Window;$(ProjectDir)GameEngine\Shader;$(ProjectDir)GameEngine\Resource;$(ProjectDir)GameEngine\Math;$(ProjectDir)GameEngine\LoadFile;$(ProjectDir)GameEngine\Direct3D12;$(ProjectDir)GameEngine\Debug;$(ProjectDir)GameEngine\Data;$(ProjectDir)GameEngine;$(ProjectDir)externals;$(IncludePath)</IncludePath>
+    <IncludePath>
+    </IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -212,6 +215,7 @@
       <TreatWarningAsError>true</TreatWarningAsError>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalIncludeDirectories>$(ProjectDir)GameEngine\Resource;$(ProjectDir)GameEngine\Math;$(ProjectDir)GameEngine\Math/Shape;$(ProjectDir)GameEngine\LoadFile;$(ProjectDir)GameEngine\Debug;$(ProjectDir)GameEngine\Data;$(ProjectDir)GameEngine\Modules/CompileShader;$(ProjectDir)GameEngine\Modules/ConvertString;$(ProjectDir)GameEngine\Modules/CreateBufferResource;$(ProjectDir)GameEngine\Modules/CreateDepthStencilTextureResource;$(ProjectDir)GameEngine\Modules/CreateDescriptorHeap;$(ProjectDir)GameEngine\Modules/CreateTextureResource;$(ProjectDir)GameEngine\Modules/GetDescriptorHandle;$(ProjectDir)GameEngine\Modules/Initialvalue;$(ProjectDir)GameEngine\Modules/UploadTextreData;$(ProjectDir)GameEngine\Modules/Window;$(ProjectDir)GameEngine;$(ProjectDir)externals</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -238,6 +242,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <Optimization>MinSpace</Optimization>
+      <AdditionalIncludeDirectories>$(ProjectDir)GameEngine\Resource;$(ProjectDir)GameEngine\Math;$(ProjectDir)GameEngine\Math/Shape;$(ProjectDir)GameEngine\LoadFile;$(ProjectDir)GameEngine\Debug;$(ProjectDir)GameEngine\Data;$(ProjectDir)GameEngine\Modules/CompileShader;$(ProjectDir)GameEngine\Modules/ConvertString;$(ProjectDir)GameEngine\Modules/CreateBufferResource;$(ProjectDir)GameEngine\Modules/CreateDepthStencilTextureResource;$(ProjectDir)GameEngine\Modules/CreateDescriptorHeap;$(ProjectDir)GameEngine\Modules/CreateTextureResource;$(ProjectDir)GameEngine\Modules/GetDescriptorHandle;$(ProjectDir)GameEngine\Modules/Initialvalue;$(ProjectDir)GameEngine\Modules/UploadTextreData;$(ProjectDir)GameEngine\Modules/Window;$(ProjectDir)GameEngine;$(ProjectDir)externals</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -260,6 +265,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(ProjectDir)GameEngine\Resource;$(ProjectDir)GameEngine\Math;$(ProjectDir)GameEngine\Math/Shape;$(ProjectDir)GameEngine\LoadFile;$(ProjectDir)GameEngine\Debug;$(ProjectDir)GameEngine\Data;$(ProjectDir)GameEngine\Modules/CompileShader;$(ProjectDir)GameEngine\Modules/ConvertString;$(ProjectDir)GameEngine\Modules/CreateBufferResource;$(ProjectDir)GameEngine\Modules/CreateDepthStencilTextureResource;$(ProjectDir)GameEngine\Modules/CreateDescriptorHeap;$(ProjectDir)GameEngine\Modules/CreateTextureResource;$(ProjectDir)GameEngine\Modules/GetDescriptorHandle;$(ProjectDir)GameEngine\Modules/Initialvalue;$(ProjectDir)GameEngine\Modules/UploadTextreData;$(ProjectDir)GameEngine\Modules/Window;$(ProjectDir)GameEngine;$(ProjectDir)externals</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
