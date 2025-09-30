@@ -1,10 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="リソース ファイル">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
     <Filter Include="GameEngine">
       <UniqueIdentifier>{0480b6fc-5e57-4102-a927-c2589e4861b2}</UniqueIdentifier>
     </Filter>
@@ -13,9 +9,6 @@
     </Filter>
     <Filter Include="GameEngine\Debug">
       <UniqueIdentifier>{9475e4e7-f0dd-4df6-8193-b8f5d4a2f903}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GameEngine\Direct3D12">
-      <UniqueIdentifier>{4cd64860-14ba-4e47-b3e5-15cd293a6246}</UniqueIdentifier>
     </Filter>
     <Filter Include="GameEngine\LoadFile">
       <UniqueIdentifier>{32a2c5da-8f49-499d-8204-bbd731023d4e}</UniqueIdentifier>
@@ -26,26 +19,65 @@
     <Filter Include="GameEngine\Math">
       <UniqueIdentifier>{cae11d21-f42d-4462-a36d-6f9b0f933d4a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="GameEngine\Shader">
-      <UniqueIdentifier>{9c37cdff-4c36-4bb7-ace9-13b3c7cdb5e6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GameEngine\Window">
-      <UniqueIdentifier>{13d67548-3f79-49ab-a373-aa1f10b2a2ff}</UniqueIdentifier>
-    </Filter>
     <Filter Include="GameEngine\Math\Operation">
       <UniqueIdentifier>{a2c3f59f-5c30-442b-a796-947122bee967}</UniqueIdentifier>
     </Filter>
-    <Filter Include="imgui">
+    <Filter Include="GameEngine\Modules">
+      <UniqueIdentifier>{4cd64860-14ba-4e47-b3e5-15cd293a6246}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\Modules\Window">
+      <UniqueIdentifier>{13d67548-3f79-49ab-a373-aa1f10b2a2ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\Shader">
+      <UniqueIdentifier>{9c37cdff-4c36-4bb7-ace9-13b3c7cdb5e6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\Modules\CompileShader">
+      <UniqueIdentifier>{b6caf225-cbda-41f7-9ea0-e071c27325a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="externals">
+      <UniqueIdentifier>{efd8410f-142e-4d9a-a546-8819947c2f55}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="externals\imgui">
       <UniqueIdentifier>{338148ca-9d44-40c9-9106-a7f27feaf903}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ヘッダーファイル">
-      <UniqueIdentifier>{c615723d-ffde-41aa-979c-c9ed43ac7d1e}</UniqueIdentifier>
+    <Filter Include="Application">
+      <UniqueIdentifier>{509aab06-33fd-402d-be68-f66470297d0d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソースファイル">
+    <Filter Include="Application\Sample">
+      <UniqueIdentifier>{ef64ba62-2663-42df-9cff-1d7ac32f22e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\ソースファイル">
       <UniqueIdentifier>{8a836276-aa58-460c-bb9a-0e55c629ced2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Sample">
-      <UniqueIdentifier>{ef64ba62-2663-42df-9cff-1d7ac32f22e3}</UniqueIdentifier>
+    <Filter Include="Application\ヘッダーファイル">
+      <UniqueIdentifier>{c615723d-ffde-41aa-979c-c9ed43ac7d1e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\Modules\ConvertString">
+      <UniqueIdentifier>{54c5bcf1-75a9-427c-b361-3e49c24be12c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\Modules\CreateBufferResource">
+      <UniqueIdentifier>{846a78e4-44c3-4f87-8ce1-9865d830ff91}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\Modules\CreateDepthStencilTextureResource">
+      <UniqueIdentifier>{0687b532-b6d2-4bee-ab37-4094476655bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\Modules\CreateDescriptorHeap">
+      <UniqueIdentifier>{66753dcc-9ad5-4918-b5fb-901c1cd7551f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\Modules\CreateTextureResource">
+      <UniqueIdentifier>{4afb0399-1e43-42b9-b0c0-df613296b207}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\Modules\GetDescriptorHandle">
+      <UniqueIdentifier>{7dd6fd9d-3172-4bcc-ba38-23809a2dfd53}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\Modules\Initialvalue">
+      <UniqueIdentifier>{148c43c0-7774-4cac-b9ed-65d9379e2efd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\Modules\UploadTextreData">
+      <UniqueIdentifier>{a9859021-6379-434c-a25b-4cbcf3c881f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\Math\Shape">
+      <UniqueIdentifier>{e7405c49-dc57-4756-a7ba-b4a4ec1f1f90}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -55,27 +87,26 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
     <ClCompile Include="externals\imgui\imgui.cpp">
-      <Filter>imgui</Filter>
+      <Filter>externals\imgui</Filter>
     </ClCompile>
     <ClCompile Include="externals\imgui\imgui_demo.cpp">
-      <Filter>imgui</Filter>
+      <Filter>externals\imgui</Filter>
     </ClCompile>
     <ClCompile Include="externals\imgui\imgui_draw.cpp">
-      <Filter>imgui</Filter>
+      <Filter>externals\imgui</Filter>
     </ClCompile>
     <ClCompile Include="externals\imgui\imgui_impl_dx12.cpp">
-      <Filter>imgui</Filter>
+      <Filter>externals\imgui</Filter>
     </ClCompile>
     <ClCompile Include="externals\imgui\imgui_impl_win32.cpp">
-      <Filter>imgui</Filter>
+      <Filter>externals\imgui</Filter>
     </ClCompile>
     <ClCompile Include="externals\imgui\imgui_tables.cpp">
-      <Filter>imgui</Filter>
+      <Filter>externals\imgui</Filter>
     </ClCompile>
     <ClCompile Include="externals\imgui\imgui_widgets.cpp">
-      <Filter>imgui</Filter>
+      <Filter>externals\imgui</Filter>
     </ClCompile>
     <ClCompile Include="GameEngine\Debug\DebugCamera.cpp">
       <Filter>GameEngine\Debug</Filter>
@@ -85,30 +116,6 @@
     </ClCompile>
     <ClCompile Include="GameEngine\Debug\Log.cpp">
       <Filter>GameEngine\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GameEngine\Modules\ConvertString\ConvertString.cpp">
-      <Filter>GameEngine\Direct3D12</Filter>
-    </ClCompile>
-    <ClCompile Include="GameEngine\Modules\CreateBufferResource\CreateBufferResource.cpp">
-      <Filter>GameEngine\Direct3D12</Filter>
-    </ClCompile>
-    <ClCompile Include="GameEngine\Modules\CreateDepthStencilTextureResource\CreateDepthStencilTextureResource.cpp">
-      <Filter>GameEngine\Direct3D12</Filter>
-    </ClCompile>
-    <ClCompile Include="GameEngine\Modules\CreateDescriptorHeap\CreateDescriptorHeap.cpp">
-      <Filter>GameEngine\Direct3D12</Filter>
-    </ClCompile>
-    <ClCompile Include="GameEngine\Modules\CreateTextureResource\CreateTextureResource.cpp">
-      <Filter>GameEngine\Direct3D12</Filter>
-    </ClCompile>
-    <ClCompile Include="GameEngine\Modules\GetDescriptorHandle\GetDescriptorHandle.cpp">
-      <Filter>GameEngine\Direct3D12</Filter>
-    </ClCompile>
-    <ClCompile Include="GameEngine\Modules\Initialvalue\Initialvalue.cpp">
-      <Filter>GameEngine\Direct3D12</Filter>
-    </ClCompile>
-    <ClCompile Include="GameEngine\Modules\UploadTextreData\UploadTextreData.cpp">
-      <Filter>GameEngine\Direct3D12</Filter>
     </ClCompile>
     <ClCompile Include="GameEngine\LoadFile\LoadMaterialTemplateFile.cpp">
       <Filter>GameEngine\LoadFile</Filter>
@@ -137,11 +144,8 @@
     <ClCompile Include="GameEngine\Resource\Object_3D.cpp">
       <Filter>GameEngine\Resource</Filter>
     </ClCompile>
-    <ClCompile Include="GameEngine\Modules\CompileShader\CompileShader.cpp">
-      <Filter>GameEngine\Shader</Filter>
-    </ClCompile>
     <ClCompile Include="GameEngine\Modules\Window\Window.cpp">
-      <Filter>GameEngine\Window</Filter>
+      <Filter>GameEngine\Modules\Window</Filter>
     </ClCompile>
     <ClCompile Include="GameEngine\Resource\Text.cpp">
       <Filter>GameEngine\Resource</Filter>
@@ -150,7 +154,7 @@
       <Filter>GameEngine\LoadFile</Filter>
     </ClCompile>
     <ClCompile Include="SampleScene.cpp">
-      <Filter>Sample</Filter>
+      <Filter>Application\Sample</Filter>
     </ClCompile>
     <ClCompile Include="GameEngine\GameEngine.cpp">
       <Filter>GameEngine</Filter>
@@ -161,31 +165,59 @@
     <ClCompile Include="GameEngine\Math\Collision.cpp">
       <Filter>GameEngine\Math</Filter>
     </ClCompile>
+    <ClCompile Include="GameEngine\Modules\CompileShader\CompileShader.cpp">
+      <Filter>GameEngine\Modules\CompileShader</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="GameEngine\Modules\ConvertString\ConvertString.cpp">
+      <Filter>GameEngine\Modules\ConvertString</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEngine\Modules\CreateBufferResource\CreateBufferResource.cpp">
+      <Filter>GameEngine\Modules\CreateBufferResource</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEngine\Modules\CreateDepthStencilTextureResource\CreateDepthStencilTextureResource.cpp">
+      <Filter>GameEngine\Modules\CreateDepthStencilTextureResource</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEngine\Modules\CreateDescriptorHeap\CreateDescriptorHeap.cpp">
+      <Filter>GameEngine\Modules\CreateDescriptorHeap</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEngine\Modules\CreateTextureResource\CreateTextureResource.cpp">
+      <Filter>GameEngine\Modules\CreateTextureResource</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEngine\Modules\GetDescriptorHandle\GetDescriptorHandle.cpp">
+      <Filter>GameEngine\Modules\GetDescriptorHandle</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEngine\Modules\Initialvalue\Initialvalue.cpp">
+      <Filter>GameEngine\Modules\Initialvalue</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEngine\Modules\UploadTextreData\UploadTextreData.cpp">
+      <Filter>GameEngine\Modules\UploadTextreData</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="externals\imgui\imconfig.h">
-      <Filter>imgui</Filter>
+      <Filter>externals\imgui</Filter>
     </ClInclude>
     <ClInclude Include="externals\imgui\imgui.h">
-      <Filter>imgui</Filter>
+      <Filter>externals\imgui</Filter>
     </ClInclude>
     <ClInclude Include="externals\imgui\imgui_impl_dx12.h">
-      <Filter>imgui</Filter>
+      <Filter>externals\imgui</Filter>
     </ClInclude>
     <ClInclude Include="externals\imgui\imgui_impl_win32.h">
-      <Filter>imgui</Filter>
+      <Filter>externals\imgui</Filter>
     </ClInclude>
     <ClInclude Include="externals\imgui\imgui_internal.h">
-      <Filter>imgui</Filter>
+      <Filter>externals\imgui</Filter>
     </ClInclude>
     <ClInclude Include="externals\imgui\imstb_rectpack.h">
-      <Filter>imgui</Filter>
+      <Filter>externals\imgui</Filter>
     </ClInclude>
     <ClInclude Include="externals\imgui\imstb_textedit.h">
-      <Filter>imgui</Filter>
+      <Filter>externals\imgui</Filter>
     </ClInclude>
     <ClInclude Include="externals\imgui\imstb_truetype.h">
-      <Filter>imgui</Filter>
+      <Filter>externals\imgui</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\Data\ChunkHeader.h">
       <Filter>GameEngine\Data</Filter>
@@ -238,30 +270,6 @@
     <ClInclude Include="GameEngine\Debug\Log.h">
       <Filter>GameEngine\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\Modules\ConvertString\ConvertString.h">
-      <Filter>GameEngine\Direct3D12</Filter>
-    </ClInclude>
-    <ClInclude Include="GameEngine\Modules\CreateBufferResource\CreateBufferResource.h">
-      <Filter>GameEngine\Direct3D12</Filter>
-    </ClInclude>
-    <ClInclude Include="GameEngine\Modules\CreateDepthStencilTextureResource\CreateDepthStencilTextureResource.h">
-      <Filter>GameEngine\Direct3D12</Filter>
-    </ClInclude>
-    <ClInclude Include="GameEngine\Modules\CreateDescriptorHeap\CreateDescriptorHeap.h">
-      <Filter>GameEngine\Direct3D12</Filter>
-    </ClInclude>
-    <ClInclude Include="GameEngine\Modules\CreateTextureResource\CreateTextureResource.h">
-      <Filter>GameEngine\Direct3D12</Filter>
-    </ClInclude>
-    <ClInclude Include="GameEngine\Modules\GetDescriptorHandle\GetDescriptorHandle.h">
-      <Filter>GameEngine\Direct3D12</Filter>
-    </ClInclude>
-    <ClInclude Include="GameEngine\Modules\Initialvalue\Initialvalue.h">
-      <Filter>GameEngine\Direct3D12</Filter>
-    </ClInclude>
-    <ClInclude Include="GameEngine\Modules\UploadTextreData\UploadTextureData.h">
-      <Filter>GameEngine\Direct3D12</Filter>
-    </ClInclude>
     <ClInclude Include="GameEngine\LoadFile\LoadMaterialTemplateFile.h">
       <Filter>GameEngine\LoadFile</Filter>
     </ClInclude>
@@ -304,11 +312,8 @@
     <ClInclude Include="GameEngine\Resource\Object_3D.h">
       <Filter>GameEngine\Resource</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\Modules\CompileShader\CompileShader.h">
-      <Filter>GameEngine\Shader</Filter>
-    </ClInclude>
     <ClInclude Include="GameEngine\Modules\Window\Window.h">
-      <Filter>GameEngine\Window</Filter>
+      <Filter>GameEngine\Modules\Window</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\GameEngine.h">
       <Filter>GameEngine</Filter>
@@ -326,25 +331,7 @@
       <Filter>GameEngine\Resource</Filter>
     </ClInclude>
     <ClInclude Include="SampleScene.h">
-      <Filter>Sample</Filter>
-    </ClInclude>
-    <ClInclude Include="GameEngine\Math\Shape\AABB.h">
-      <Filter>GameEngine\Data</Filter>
-    </ClInclude>
-    <ClInclude Include="GameEngine\Math\Shape\Line.h">
-      <Filter>GameEngine\Data</Filter>
-    </ClInclude>
-    <ClInclude Include="GameEngine\Math\Shape\OBB.h">
-      <Filter>GameEngine\Data</Filter>
-    </ClInclude>
-    <ClInclude Include="GameEngine\Math\Shape\Plane.h">
-      <Filter>GameEngine\Data</Filter>
-    </ClInclude>
-    <ClInclude Include="GameEngine\Math\Shape\Sphere.h">
-      <Filter>GameEngine\Data</Filter>
-    </ClInclude>
-    <ClInclude Include="GameEngine\Math\Shape\Triangle.h">
-      <Filter>GameEngine\Data</Filter>
+      <Filter>Application\Sample</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\Math\Collision.h">
       <Filter>GameEngine\Math</Filter>
@@ -358,10 +345,55 @@
     <ClInclude Include="GameEngine\Data\ObjectMaterial.h">
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
+    <ClInclude Include="GameEngine\Modules\CompileShader\CompileShader.h">
+      <Filter>GameEngine\Modules\CompileShader</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Modules\ConvertString\ConvertString.h">
+      <Filter>GameEngine\Modules\ConvertString</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Modules\CreateBufferResource\CreateBufferResource.h">
+      <Filter>GameEngine\Modules\CreateBufferResource</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Modules\CreateDepthStencilTextureResource\CreateDepthStencilTextureResource.h">
+      <Filter>GameEngine\Modules\CreateDepthStencilTextureResource</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Modules\CreateDescriptorHeap\CreateDescriptorHeap.h">
+      <Filter>GameEngine\Modules\CreateDescriptorHeap</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Modules\CreateTextureResource\CreateTextureResource.h">
+      <Filter>GameEngine\Modules\CreateTextureResource</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Modules\GetDescriptorHandle\GetDescriptorHandle.h">
+      <Filter>GameEngine\Modules\GetDescriptorHandle</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Modules\Initialvalue\Initialvalue.h">
+      <Filter>GameEngine\Modules\Initialvalue</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Modules\UploadTextreData\UploadTextureData.h">
+      <Filter>GameEngine\Modules\UploadTextreData</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Math\Shape\AABB.h">
+      <Filter>GameEngine\Math\Shape</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Math\Shape\Line.h">
+      <Filter>GameEngine\Math\Shape</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Math\Shape\Plane.h">
+      <Filter>GameEngine\Math\Shape</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Math\Shape\OBB.h">
+      <Filter>GameEngine\Math\Shape</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Math\Shape\Triangle.h">
+      <Filter>GameEngine\Math\Shape</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Math\Shape\Sphere.h">
+      <Filter>GameEngine\Math\Shape</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt">
-      <Filter>imgui</Filter>
+      <Filter>externals\imgui</Filter>
     </Text>
   </ItemGroup>
   <ItemGroup>
