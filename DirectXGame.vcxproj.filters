@@ -86,28 +86,28 @@
     <ClCompile Include="GameEngine\Debug\Log.cpp">
       <Filter>GameEngine\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="GameEngine\Direct3D12\ConvertString.cpp">
+    <ClCompile Include="GameEngine\Modules\ConvertString\ConvertString.cpp">
       <Filter>GameEngine\Direct3D12</Filter>
     </ClCompile>
-    <ClCompile Include="GameEngine\Direct3D12\CreateBufferResource.cpp">
+    <ClCompile Include="GameEngine\Modules\CreateBufferResource\CreateBufferResource.cpp">
       <Filter>GameEngine\Direct3D12</Filter>
     </ClCompile>
-    <ClCompile Include="GameEngine\Direct3D12\CreateDepthStencilTextureResource.cpp">
+    <ClCompile Include="GameEngine\Modules\CreateDepthStencilTextureResource\CreateDepthStencilTextureResource.cpp">
       <Filter>GameEngine\Direct3D12</Filter>
     </ClCompile>
-    <ClCompile Include="GameEngine\Direct3D12\CreateDescriptorHeap.cpp">
+    <ClCompile Include="GameEngine\Modules\CreateDescriptorHeap\CreateDescriptorHeap.cpp">
       <Filter>GameEngine\Direct3D12</Filter>
     </ClCompile>
-    <ClCompile Include="GameEngine\Direct3D12\CreateTextureResource.cpp">
+    <ClCompile Include="GameEngine\Modules\CreateTextureResource\CreateTextureResource.cpp">
       <Filter>GameEngine\Direct3D12</Filter>
     </ClCompile>
-    <ClCompile Include="GameEngine\Direct3D12\GetDescriptorHandle.cpp">
+    <ClCompile Include="GameEngine\Modules\GetDescriptorHandle\GetDescriptorHandle.cpp">
       <Filter>GameEngine\Direct3D12</Filter>
     </ClCompile>
-    <ClCompile Include="GameEngine\Direct3D12\Initialvalue.cpp">
+    <ClCompile Include="GameEngine\Modules\Initialvalue\Initialvalue.cpp">
       <Filter>GameEngine\Direct3D12</Filter>
     </ClCompile>
-    <ClCompile Include="GameEngine\Direct3D12\UploadTextreData.cpp">
+    <ClCompile Include="GameEngine\Modules\UploadTextreData\UploadTextreData.cpp">
       <Filter>GameEngine\Direct3D12</Filter>
     </ClCompile>
     <ClCompile Include="GameEngine\LoadFile\LoadMaterialTemplateFile.cpp">
@@ -137,10 +137,10 @@
     <ClCompile Include="GameEngine\Resource\Object_3D.cpp">
       <Filter>GameEngine\Resource</Filter>
     </ClCompile>
-    <ClCompile Include="GameEngine\Shader\CompileShader.cpp">
+    <ClCompile Include="GameEngine\Modules\CompileShader\CompileShader.cpp">
       <Filter>GameEngine\Shader</Filter>
     </ClCompile>
-    <ClCompile Include="GameEngine\Window\Window.cpp">
+    <ClCompile Include="GameEngine\Modules\Window\Window.cpp">
       <Filter>GameEngine\Window</Filter>
     </ClCompile>
     <ClCompile Include="GameEngine\Resource\Text.cpp">
@@ -238,28 +238,28 @@
     <ClInclude Include="GameEngine\Debug\Log.h">
       <Filter>GameEngine\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\Direct3D12\ConvertString.h">
+    <ClInclude Include="GameEngine\Modules\ConvertString\ConvertString.h">
       <Filter>GameEngine\Direct3D12</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\Direct3D12\CreateBufferResource.h">
+    <ClInclude Include="GameEngine\Modules\CreateBufferResource\CreateBufferResource.h">
       <Filter>GameEngine\Direct3D12</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\Direct3D12\CreateDepthStencilTextureResource.h">
+    <ClInclude Include="GameEngine\Modules\CreateDepthStencilTextureResource\CreateDepthStencilTextureResource.h">
       <Filter>GameEngine\Direct3D12</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\Direct3D12\CreateDescriptorHeap.h">
+    <ClInclude Include="GameEngine\Modules\CreateDescriptorHeap\CreateDescriptorHeap.h">
       <Filter>GameEngine\Direct3D12</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\Direct3D12\CreateTextureResource.h">
+    <ClInclude Include="GameEngine\Modules\CreateTextureResource\CreateTextureResource.h">
       <Filter>GameEngine\Direct3D12</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\Direct3D12\GetDescriptorHandle.h">
+    <ClInclude Include="GameEngine\Modules\GetDescriptorHandle\GetDescriptorHandle.h">
       <Filter>GameEngine\Direct3D12</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\Direct3D12\Initialvalue.h">
+    <ClInclude Include="GameEngine\Modules\Initialvalue\Initialvalue.h">
       <Filter>GameEngine\Direct3D12</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\Direct3D12\UploadTextureData.h">
+    <ClInclude Include="GameEngine\Modules\UploadTextreData\UploadTextureData.h">
       <Filter>GameEngine\Direct3D12</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\LoadFile\LoadMaterialTemplateFile.h">
@@ -304,10 +304,10 @@
     <ClInclude Include="GameEngine\Resource\Object_3D.h">
       <Filter>GameEngine\Resource</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\Shader\CompileShader.h">
+    <ClInclude Include="GameEngine\Modules\CompileShader\CompileShader.h">
       <Filter>GameEngine\Shader</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\Window\Window.h">
+    <ClInclude Include="GameEngine\Modules\Window\Window.h">
       <Filter>GameEngine\Window</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\GameEngine.h">
@@ -328,22 +328,22 @@
     <ClInclude Include="SampleScene.h">
       <Filter>Sample</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\Data\AABB.h">
+    <ClInclude Include="GameEngine\Math\Shape\AABB.h">
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\Data\Line.h">
+    <ClInclude Include="GameEngine\Math\Shape\Line.h">
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\Data\OBB.h">
+    <ClInclude Include="GameEngine\Math\Shape\OBB.h">
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\Data\Plane.h">
+    <ClInclude Include="GameEngine\Math\Shape\Plane.h">
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\Data\Sphere.h">
+    <ClInclude Include="GameEngine\Math\Shape\Sphere.h">
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\Data\Triangle.h">
+    <ClInclude Include="GameEngine\Math\Shape\Triangle.h">
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\Math\Collision.h">
