@@ -45,6 +45,9 @@ private:
 	//ライティングを使用するか
 	int isLighting_ = 0;
 
+	//光沢度
+	float shininess_ = 0.0f;
+
 	//カメラ
 	Camera* camera_ = nullptr;
 
@@ -70,6 +73,8 @@ public:
 	void isLighting(int isLighting) { isLighting_ = isLighting; }
 	// Camera入力
 	void SetCamera(Camera* camera) { camera_ = camera; }
+
+	void SetShininess(float shininess) { shininess_ = shininess; }
 
 	/// <summary>
 	/// 3Dオブジェクト描画

@@ -3,7 +3,10 @@ class GameEngine;
 class DebugCamera;
 #include "Matrix4x4.h"
 #include "SRT.h"
+#include "CameraForGPU.h"
 #include <format>
+#include <d3d12.h>
+#include <wrl.h>
 
 //カメラ
 class Camera {
@@ -21,6 +24,11 @@ private:
 	Vector3 sphericalCoordinates_{ 10.0f,0.0f,0.0f };
 
 	DebugCamera* debugCamera_ = nullptr;
+
+	//カメラワールド座標用のリソース
+	Microsoft::WRL::ComPtr<ID3D12Resource> cameraResource_;
+	//カメラ座標データ
+	CameraForGPU* cameraData_ = nullptr;
 public:
 	Camera();
 
@@ -28,8 +36,6 @@ public:
 	
 	void Update(SRT transform);
 	void Update();
-
-	void UpdateSphericalCoordinatesCamera();
 
 	void SetViewMatrix(Matrix4x4 viewMatrix) { viewMatrix_ = viewMatrix; }
 	void SetProjectionMatrix(Matrix4x4 projectionMatrix) { projectionMatrix_ = projectionMatrix; }
@@ -44,4 +50,8 @@ public:
 	Vector3 GetCenterPoint() { return centerPoint_; }
 
 	void setDebugCamera(DebugCamera* debugCamera) { debugCamera_ = debugCamera; }
+
+	//カメラワールド座標用のリソース
+	[[nodiscard]]
+	Microsoft::WRL::ComPtr<ID3D12Resource>& CameraResource() { return cameraResource_; }
 };

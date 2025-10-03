@@ -111,6 +111,7 @@ void Object_3D::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandL
 		materialData_[index_]->color = data.material[i].color;
 		materialData_[index_]->uvTransform = MakeAffineMatrix(data.material[i].uvTransform.scale, data.material[i].uvTransform.rotate, data.material[i].uvTransform.translate);
 		materialData_[index_]->enableLighting = isLighting_;
+		materialData_[index_]->shininess = shininess_;
 
 		materialResource_[index_]->Unmap(0, nullptr);
 
@@ -125,6 +126,9 @@ void Object_3D::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandL
 		if (isLighting_ != 0 && light_ != nullptr) {
 			commandList->SetGraphicsRootConstantBufferView(3, light_->directionalLightResource()->GetGPUVirtualAddress());	//Lighting
 		}
+
+		//カメラのワールド座標をCBufferに送る
+		commandList->SetGraphicsRootConstantBufferView(4, camera_->CameraResource()->GetGPUVirtualAddress());
 
 		//マテリアルCBufferの場所を設定
 		commandList->SetGraphicsRootConstantBufferView(0, materialResource_[index_]->GetGPUVirtualAddress());
@@ -265,6 +269,9 @@ void Instance_3D::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& comman
 		if (isLighting_ != 0 && light_ != nullptr) {
 			commandList->SetGraphicsRootConstantBufferView(3, light_->directionalLightResource()->GetGPUVirtualAddress());	//Lighting
 		}
+
+		//カメラのワールド座標をCBufferに送る
+		commandList->SetGraphicsRootConstantBufferView(4, camera_->CameraResource()->GetGPUVirtualAddress());
 
 		//マテリアルCBufferの場所を設定
 		commandList->SetGraphicsRootConstantBufferView(0, materialResource_[index_]->GetGPUVirtualAddress());
@@ -425,6 +432,9 @@ void Sprite_3D::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandL
 	if (isLighting_ != 0 && light_ != nullptr) {
 		commandList->SetGraphicsRootConstantBufferView(3, light_->directionalLightResource()->GetGPUVirtualAddress());	//Lighting
 	}
+
+	//カメラのワールド座標をCBufferに送る
+	commandList->SetGraphicsRootConstantBufferView(4, camera_->CameraResource()->GetGPUVirtualAddress());
 
 	//マテリアルCBufferの場所を設定
 	commandList->SetGraphicsRootConstantBufferView(0, materialResource_[index_]->GetGPUVirtualAddress());
@@ -628,6 +638,9 @@ void Particle_3D::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& comman
 		commandList->SetGraphicsRootConstantBufferView(3, light_->directionalLightResource()->GetGPUVirtualAddress());	//Lighting
 	}
 
+	//カメラのワールド座標をCBufferに送る
+	commandList->SetGraphicsRootConstantBufferView(4, camera_->CameraResource()->GetGPUVirtualAddress());
+
 	//マテリアルCBufferの場所を設定
 	commandList->SetGraphicsRootConstantBufferView(0, materialResource_[index_]->GetGPUVirtualAddress());
 	//wvp用のCBufferの場所を設定
@@ -756,6 +769,10 @@ void Line_3D::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandLis
 	commandList->IASetIndexBuffer(&indexBufferView_);	//IBVを設定
 	//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
 	commandList->SetGraphicsRootDescriptorTable(2, GameEngine::TextureGet(0));
+
+	//カメラのワールド座標をCBufferに送る
+	commandList->SetGraphicsRootConstantBufferView(4, camera_->CameraResource()->GetGPUVirtualAddress());
+
 	//マテリアルCBufferの場所を設定
 	commandList->SetGraphicsRootConstantBufferView(0, materialResource_[index_]->GetGPUVirtualAddress());
 	//wvp用のCBufferの場所を設定
@@ -888,6 +905,9 @@ void AxisIndicator::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& comm
 		commandList->IASetIndexBuffer(&objectData_[i].indexBufferView_);	//IBVを設定
 		//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
 		commandList->SetGraphicsRootDescriptorTable(2, GameEngine::TextureGet(textureIndex_));
+
+		//カメラのワールド座標をCBufferに送る
+		commandList->SetGraphicsRootConstantBufferView(4, camera_->CameraResource()->GetGPUVirtualAddress());
 
 		//マテリアルCBufferの場所を設定
 		commandList->SetGraphicsRootConstantBufferView(0, materialResource_->GetGPUVirtualAddress());

@@ -414,6 +414,9 @@
     <ClInclude Include="GameEngine\Resource\Field.h">
       <Filter>GameEngine\Resource</Filter>
     </ClInclude>
+    <ClInclude Include="GameEngine\Data\CameraForGPU.h">
+      <Filter>GameEngine\Data</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt">
