@@ -85,6 +85,9 @@
     <None Include="resources\Shader\Object3d.hlsli">
       <Filter>GameEngine\Shader</Filter>
     </None>
+    <None Include="resources\Shader\Particle.hlsli">
+      <Filter>GameEngine\Shader</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="externals\imgui\imgui.cpp">
@@ -192,6 +195,12 @@
     </ClCompile>
     <ClCompile Include="GameEngine\Modules\UploadTextreData\UploadTextreData.cpp">
       <Filter>GameEngine\Modules\UploadTextreData</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEngine\Resource\Effect.cpp">
+      <Filter>GameEngine\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEngine\Resource\Field.cpp">
+      <Filter>GameEngine\Resource</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -390,6 +399,21 @@
     <ClInclude Include="GameEngine\Math\Shape\Sphere.h">
       <Filter>GameEngine\Math\Shape</Filter>
     </ClInclude>
+    <ClInclude Include="GameEngine\Resource\Effect.h">
+      <Filter>GameEngine\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Data\ParticleForGPU.h">
+      <Filter>GameEngine\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Data\Particle.h">
+      <Filter>GameEngine\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Data\Emitter.h">
+      <Filter>GameEngine\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Resource\Field.h">
+      <Filter>GameEngine\Resource</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt">
@@ -401,6 +425,15 @@
       <Filter>GameEngine\Shader</Filter>
     </FxCompile>
     <FxCompile Include="resources\Shader\Object3d.VS.hlsl">
+      <Filter>GameEngine\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="resources\Shader\InstanceObject3d.VS.hlsl">
+      <Filter>GameEngine\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="resources\Shader\Particle.PS.hlsl">
+      <Filter>GameEngine\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="resources\Shader\Particle.VS.hlsl">
       <Filter>GameEngine\Shader</Filter>
     </FxCompile>
   </ItemGroup>

@@ -12,6 +12,7 @@ SampleScene::~SampleScene() {
 		delete object;
 	}
 	delete sprite_;
+	delete effect_;
 	delete grid_;
 	delete audio_;
 	delete camera_;
@@ -42,6 +43,11 @@ void SampleScene::Initialize() {
 	sprite_ = new Sprite_2D;
 	sprite_->Initialize();
 
+	//エフェクト
+	effect_ = new Effect();
+	effect_->Initialize();
+	EffectTransform.scale.x = 1.0f;
+
 	//音源
 	audio_ = new Audio;
 	audio_->Initialize("resources/DebugResources/fanfare.wav",false);
@@ -57,6 +63,7 @@ void SampleScene::Initialize() {
 	for (Object_3D* object : object_) {
 		object->SetCamera(camera_);
 	}
+	effect_->SetCamera(camera_);
 
 	//テクスチャ
 	for (INT i = 0; i < objectData_.size(); i++) {
@@ -176,6 +183,8 @@ void SampleScene::Update() {
 	}
 
 
+	effect_->Update();
+
 	//カメラアップデート
 	if (isUseDebugCamera_) {
 		camera_->Update();
@@ -245,6 +254,22 @@ void SampleScene::Update() {
 		directionalLight.direction.x = directionalLight.direction.x / sqrtNumber;
 		directionalLight.direction.y = directionalLight.direction.y / sqrtNumber;
 		directionalLight.direction.z = directionalLight.direction.z / sqrtNumber;
+		if (ImGui::Button("パーティクル発生")) {
+			effect_->Emit();
+		}
+		static bool isUseField = false;
+		ImGui::Checkbox("fieldを使用するか", &isUseField);
+		effect_->IsUseField(isUseField);
+
+		ImGui::DragFloat("パーティクル Scale", &EffectTransform.scale.x, 0.1f);
+		EffectTransform.scale = { EffectTransform.scale.x ,EffectTransform.scale.x ,EffectTransform.scale.x };
+		ImGui::SliderAngle("パーティクル RotateX", &EffectTransform.rotate.x);
+		ImGui::SliderAngle("パーティクル RotateY", &EffectTransform.rotate.y);
+		ImGui::SliderAngle("パーティクル Rotatez", &EffectTransform.rotate.z);
+		ImGui::DragFloat3("パーティクル Translate", &EffectTransform.translate.x, 0.1f);
+		ImGui::ColorPicker4("color", &EffectColor.x);
+		effect_->SetColor(EffectColor);
+		effect_->SetTransform(EffectTransform);
 		ImGui::Checkbox("スプライト描画", &isSpriteDraw_);
 		if (isSpriteDraw_) {
 			ImGui::DragFloat3("Sprite Scale", &spriteData_.transform.scale.x, 0.1f);
@@ -320,6 +345,8 @@ void SampleScene::Draw() {
 			object_[i]->Draw(GameEngine::GetCommandList(), objectData_[i]);
 		}
 	}
+
+	effect_->Draw();
 
 	if (isSpriteDraw_ && isDisplayUI) {
 		sprite_->Draw(GameEngine::GetCommandList(), spriteData_);
