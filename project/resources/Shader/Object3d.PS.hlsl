@@ -7,15 +7,22 @@ struct DirectionalLight
     float intensity;
 };
 
+struct Camera
+{
+    float3 WorldPosition;
+};
+
 struct Material
 {
     float4 color;
     int enableLighting;
     float4x4 uvTransform;
+    float shininess;
 };
 
 ConstantBuffer<Material> gMaterial : register(b0);
 ConstantBuffer<DirectionalLight> gDirectionalLight : register(b1);
+ConstantBuffer<Camera> gCamera : register(b2);
 
 struct PixelShaderOutput
 {
@@ -36,27 +43,51 @@ PixelShaderOutput main(VertexShaderOutput input)
     {
         discard;
     }
-    
+        
     if (gMaterial.enableLighting == 2)          //HalfLambert
     {
         float NdotL = dot(normalize(input.normal), -gDirectionalLight.direction);
         float cos = pow(NdotL * 0.5f + 0.5f, 2.0f);
-        float4 lightColor;
-        lightColor[0] = gDirectionalLight.color[0] * cos * gDirectionalLight.intensity;
-        lightColor[1] = gDirectionalLight.color[1] * cos * gDirectionalLight.intensity;
-        lightColor[2] = gDirectionalLight.color[2] * cos * gDirectionalLight.intensity;
-        lightColor[3] = 1.0f;
-        output.color = gMaterial.color * textureColor * lightColor;
+        
+        float3 diffuse = gMaterial.color.rgb * textureColor.rgb * gDirectionalLight.color.rgb * cos * gDirectionalLight.intensity;
+        if (gMaterial.shininess > 0)
+        {
+            float3 toEye = normalize(gCamera.WorldPosition - input.worldPosition);
+            float3 reflectLight = reflect(gDirectionalLight.direction, normalize(input.normal));
+            float RdotE = dot(reflectLight, toEye);
+            float specularPow = pow(saturate(RdotE), gMaterial.shininess);
+            
+            float3 specular = gDirectionalLight.color.rgb * gDirectionalLight.intensity * specularPow * float3(1.0f, 1.0f, 1.0f);
+        
+            output.color.rgb = diffuse + specular;
+        }
+        else
+        {
+            output.color.rgb = diffuse;
+        }
+        output.color.a = gMaterial.color.a * textureColor.a;
     }
     else if (gMaterial.enableLighting == 1)     //Lambert
     {
         float cos = saturate(dot(normalize(input.normal), -gDirectionalLight.direction));
-        float4 lightColor;
-        lightColor[0] = gDirectionalLight.color[0] * cos * gDirectionalLight.intensity;
-        lightColor[1] = gDirectionalLight.color[1] * cos * gDirectionalLight.intensity;
-        lightColor[2] = gDirectionalLight.color[2] * cos * gDirectionalLight.intensity;
-        lightColor[3] = 1.0f;
-        output.color = gMaterial.color * textureColor * lightColor;
+        
+        float3 diffuse = gMaterial.color.rgb * textureColor.rgb * gDirectionalLight.color.rgb * cos * gDirectionalLight.intensity;
+        if (gMaterial.shininess > 0)
+        {
+            float3 toEye = normalize(gCamera.WorldPosition - input.worldPosition);
+            float3 reflectLight = reflect(gDirectionalLight.direction, normalize(input.normal));
+            float RdotE = dot(reflectLight, toEye);
+            float specularPow = pow(saturate(RdotE), gMaterial.shininess);
+            
+            float3 specular = gDirectionalLight.color.rgb * gDirectionalLight.intensity * specularPow * float3(1.0f, 1.0f, 1.0f);
+        
+            output.color.rgb = diffuse + specular;
+        }
+        else
+        {
+            output.color.rgb = diffuse;
+        }
+        output.color.a = gMaterial.color.a * textureColor.a;
     }
     else    //none
     {

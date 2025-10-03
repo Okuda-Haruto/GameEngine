@@ -378,6 +378,7 @@ void Text_2D::Draw(Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& commandLi
 			commandList->IASetVertexBuffers(0, 1, &vertexBufferView_[i]);	//VBVを設定
 			commandList->IASetIndexBuffer(&indexBufferView_);	//IBVを設定
 			commandList->SetGraphicsRootDescriptorTable(2, textData_[i].textureSrvHandleGPU_);
+
 			//マテリアルCBufferの場所を設定
 			commandList->SetGraphicsRootConstantBufferView(0, materialResource_[index_]->GetGPUVirtualAddress());
 			//TransformationMatrixCBufferの場所を設定

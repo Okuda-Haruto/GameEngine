@@ -247,6 +247,11 @@ void SampleScene::Update() {
 			}
 			ImGui::EndCombo();
 		}
+		static float shininess = 0.0f;
+		ImGui::DragFloat("light Shininess", &shininess);
+		for (Object_3D* object : object_) {
+			object->SetShininess(shininess);
+		}
 		ImGui::ColorEdit4("light Color", &directionalLight.color.x);
 		ImGui::DragFloat3("light Direction", &directionalLight.direction.x, 0.01f, -1.0f, 1.0f);
 		ImGui::DragFloat("light Intensity", &directionalLight.intensity, 0.01f, 0.0f, 1.0f);
