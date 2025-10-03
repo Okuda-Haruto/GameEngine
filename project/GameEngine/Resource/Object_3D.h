@@ -13,6 +13,8 @@
 #include "Object_Single_Data.h"
 #include "Camera.h"
 #include "Light.h"
+#include "Particle.h"
+#include "ParticleForGPU.h"
 
 #include "Line.h"
 
@@ -74,7 +76,74 @@ public:
 	/// </summary>
 	/// <param name="commandList">コマンドリスト</param>
 	/// <param name="data">オブジェクトの各種データ</param>
-	void Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandList, Object_Multi_Data& data);
+	void Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandList, const Object_Multi_Data& data);
+
+	std::vector<ModelData> GetModelData() { return modelData_; }
+};
+
+# pragma endregion
+
+# pragma region Instance_3D
+
+//3Dオブジェクト
+class Instance_3D {
+private:
+	//ロードしたモデルのデータ
+	std::vector<ModelData> modelData_;
+	//描画用に変換したモデルのデータ
+	std::vector<ObjectData> objectData_;
+
+	//マテリアルリソース
+	std::vector <Microsoft::WRL::ComPtr<ID3D12Resource>> materialResource_;
+	//マテリアルデータ
+	std::vector <Material*> materialData_;
+	//インスタンス数
+	static const uint32_t kMaxNumInstance = 32;
+	//インスタンス用リソース
+	std::vector <Microsoft::WRL::ComPtr<ID3D12Resource>> instancingResource_;
+	//インスタンスデータ
+	std::vector <ParticleForGPU*> instancingData_;
+
+	//デバイス
+	Microsoft::WRL::ComPtr<ID3D12Device> device_;
+
+	//光源データ
+	Light* light_ = nullptr;
+	//ライティングを使用するか
+	int isLighting_ = 0;
+
+	//カメラ
+	Camera* camera_ = nullptr;
+
+	//リソース番号の最大値
+	static const int kMaxIndex_ = 128;
+	//使用するリソースの番号
+	int index_ = 0;
+
+public:
+
+	~Instance_3D();
+
+	/// <summary>
+	/// 初期化
+	/// </summary>
+	/// <param name="directoryPath">.objファイルのある階層 (例:"resource")</param>
+	/// <param name="filename">ファイル名 (例:"plane.obj")</param>
+	void Initialize(const std::string& directoryPath, const std::string& filename);
+
+	// Light入力
+	void SetLight(Light* light) { light_ = light; }
+	// Lightを使用するか
+	void isLighting(int isLighting) { isLighting_ = isLighting; }
+	// Camera入力
+	void SetCamera(Camera* camera) { camera_ = camera; }
+
+	/// <summary>
+	/// 3Dオブジェクト描画
+	/// </summary>
+	/// <param name="commandList">コマンドリスト</param>
+	/// <param name="data">オブジェクトの各種データ</param>
+	void Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandList, std::list< Object_Multi_Data> data);
 
 	std::vector<ModelData> GetModelData() { return modelData_; }
 };
@@ -141,7 +210,7 @@ public:
 	/// 初期化
 	/// </summary>
 	/// <param name="device">デバイス</param>
-	void Initialize(Microsoft::WRL::ComPtr<ID3D12Device> device, uint32_t kWindowWidth, uint32_t kWindowHeight);
+	void Initialize();
 
 	// Light入力
 	void SetLight(Light* light) { light_ = light; }
@@ -158,6 +227,93 @@ public:
 	/// <param name="commandList">コマンドリスト</param>
 	/// <param name="data">オブジェクトの各種データ</param>
 	void Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandList, Object_Multi_Data& data);
+
+	//リソース初期化
+	void Reset();
+};
+
+# pragma endregion
+
+# pragma region Particle_3D
+
+//3Dパーティクル　(ビルボード)
+class Particle_3D {
+private:
+	//頂点リソース
+	Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource_;
+	//頂点バッファビュー
+	D3D12_VERTEX_BUFFER_VIEW vertexBufferView_{};
+	//頂点リソースデータ
+	VertexData* vertexData_ = nullptr;
+
+	//インデックスリソース
+	Microsoft::WRL::ComPtr<ID3D12Resource> indexResource_;
+	//インデックスバッファビュー
+	D3D12_INDEX_BUFFER_VIEW indexBufferView_{};
+	//インデックスデータ
+	uint32_t* indexData_ = nullptr;
+
+	//マテリアルリソース
+	std::vector <Microsoft::WRL::ComPtr<ID3D12Resource>> materialResource_;
+	//マテリアルデータ
+	std::vector <Material*> materialData_;
+
+	//インスタンス数
+	static const uint32_t kMaxNumInstance = 128;
+	//インスタンス用リソース
+	std::vector <Microsoft::WRL::ComPtr<ID3D12Resource>> instancingResource_;
+	//インスタンスデータ
+	std::vector <ParticleForGPU*> instancingData_;
+
+	//デバイス
+	Microsoft::WRL::ComPtr<ID3D12Device> device_;
+
+	//Windowのサイズ
+	uint32_t kWindowWidth_ = 1280;
+	uint32_t kWindowHeight_ = 720;
+
+	//Spriteの表示サイズ
+	float spriteWidth_ = 1280;
+	float spriteHeight_ = 720;
+
+	//光源データ
+	Light* light_ = nullptr;
+	//ライティングを使用するか
+	bool isLighting_ = true;
+
+	//カメラ
+	Camera* camera_ = nullptr;
+
+	//リソース番号の最大値
+	static const int kMaxIndex_ = 128;
+	//使用するリソースの番号
+	int index_ = 0;
+
+public:
+
+	~Particle_3D();
+
+	/// <summary>
+	/// 初期化
+	/// </summary>
+	/// <param name="device">デバイス</param>
+	void Initialize();
+
+	// Light入力
+	void SetLight(Light* light) { light_ = light; }
+	// Lightを使用するか
+	void isLighting(bool isLighting) { isLighting_ = isLighting; }
+	// Camera入力
+	void SetCamera(Camera* camera) { camera_ = camera; }
+	// スプライトの表示サイズ入力
+	void SetSpriteSize(float width, float height) { spriteWidth_ = width; spriteHeight_ = height; }
+
+	/// <summary>
+	/// 3Dオブジェクト描画
+	/// </summary>
+	/// <param name="commandList">コマンドリスト</param>
+	/// <param name="data">オブジェクトの各種データ</param>
+	void Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandList, Particles);
 
 	//リソース初期化
 	void Reset();

@@ -12,6 +12,7 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #include <dinput.h>
 
 #include <Xinput.h>
+#include <random>
 
 #include "D3DResourceLeakChecker.h"
 #include "Light.h"
@@ -23,6 +24,7 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #include "DebugCamera.h"
 
 #include "TextureData.h"
+#include "ParticleForGPU.h"
 
 #include <vector>
 
@@ -64,6 +66,7 @@ private:
 	Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList> commandList_;
 	//RootSignature
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> rootSignature_;
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> instancingRootSignature_;
 
 	//swapChain
 	Microsoft::WRL::ComPtr <IDXGISwapChain4> swapChain_;
@@ -104,9 +107,10 @@ private:
 	D3D12_RESOURCE_BARRIER barrier_{};
 
 	//PSO
-	Microsoft::WRL::ComPtr <ID3D12PipelineState> graphicsPipelineState_;
-	static Microsoft::WRL::ComPtr <ID3D12PipelineState> trianglePipelineState_;
-	static Microsoft::WRL::ComPtr <ID3D12PipelineState> linePipelineState_;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> trianglePipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> instancingTrianglePipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> particlePipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> linePipelineState_ = nullptr;
 	//WVP用のリソース
 	Microsoft::WRL::ComPtr <ID3D12Resource> wvpResource_;
 
@@ -121,11 +125,13 @@ private:
 	IXAudio2MasteringVoice* masterVoice_ = nullptr;
 
 	//DirectInput
-	Microsoft::WRL::ComPtr <IDirectInput8> directInput_ = nullptr;
+	IDirectInput8* directInput_ = nullptr;
 	//キーボードデバイス
-	Microsoft::WRL::ComPtr <IDirectInputDevice8> keyboardDevice_ = nullptr;
+	IDirectInputDevice8* keyboardDevice_ = nullptr;
 	//マウスデバイス
-	Microsoft::WRL::ComPtr <IDirectInputDevice8> mouseDevice_ = nullptr;
+	IDirectInputDevice8* mouseDevice_ = nullptr;
+
+	std::mt19937 randomEngine_;
 
 #pragma region 入力関係
 
@@ -153,10 +159,16 @@ private:
 
 	void Intialize_(const wchar_t* WindowName, int32_t kWindowWidth = 1280, int32_t kWindowHeight = 720);
 
+	D3D12_GPU_DESCRIPTOR_HANDLE GetInstancingSRV_(Microsoft::WRL::ComPtr<ID3D12Resource> instancingResource, int32_t numInstance);
+
+	static const UINT textureStart = 2;
 	UINT TextureLoad_(const std::string& filePath);
 	D3D12_GPU_DESCRIPTOR_HANDLE TextureGet_(UINT index);
 	void TextureDelete_(UINT index);
 	Microsoft::WRL::ComPtr<IXAudio2> GetXAudio2_() { return xAudio2_; }
+
+	float randomFloat_(float minFloat, float maxFloat);
+	int32_t randomInt_(int32_t minInt,int32_t maxInt);
 
 	bool StartFlame_();
 	bool WiodowState_();
@@ -166,19 +178,27 @@ private:
 	Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& GetCommandList_();
 	Microsoft::WRL::ComPtr<ID3D12Device> GetDevice_() { return device_; }
 
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> RootSignature_() { return rootSignature_; }
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> InstancingRootSignature_() { return instancingRootSignature_; }
+
+	ID3D12PipelineState* TrianglePSO_() { return trianglePipelineState_.Get(); }
+	ID3D12PipelineState* InstancingTrianglePSO_() { return particlePipelineState_.Get(); }
+	ID3D12PipelineState* ParticlePSO_() { return particlePipelineState_.Get(); }
+	ID3D12PipelineState* LinePSO_() { return linePipelineState_.Get(); }
+
 	Keybord GetKeybord_();
 	Mouse GetMouse_();
 	Pad GetPad_(int usePadNum = 0);
-public:
 
 	// インスタンス生成
 	static GameEngine* getInstance();
+
+public:
 
 	// コピー、代入を禁止する
 	GameEngine(const GameEngine*) = delete;
 	GameEngine* operator=(const GameEngine*) = delete;
 
-	//デストラクタ呼び出し
 	static void Delete() { delete getInstance(); }
 
 	/// <summary>
@@ -188,6 +208,13 @@ public:
 	/// <param name="kWindowWidth">ウィンドウの幅 (例:1280)</param>
 	/// <param name="kWindowHeight">ウィンドウの高さ (例:720)</param>
 	static void Intialize(const wchar_t* WindowName, int32_t kWindowWidth = 1280, int32_t kWindowHeight = 720) { getInstance()->Intialize_(WindowName, kWindowWidth, kWindowHeight); }
+
+	/// <summary>
+	/// インスタンスSRV
+	/// </summary>
+	/// <param name="instancingResource">インスタンスのリソース</param>
+	/// <param name="instanceNum">インスタンスの大きさ</param>
+	static D3D12_GPU_DESCRIPTOR_HANDLE GetInstancingSRV(Microsoft::WRL::ComPtr<ID3D12Resource> instancingResource, int32_t numInstance) { return getInstance()->GetInstancingSRV_(instancingResource, numInstance); }
 
 	/// <summary>
 	/// テクスチャのロード
@@ -216,6 +243,9 @@ public:
 	[[nodiscard]]
 	static Microsoft::WRL::ComPtr<IXAudio2> GetXAudio2() { return getInstance()->GetXAudio2_(); }
 
+	static float randomFloat(float minFloat, float maxFloat) { return getInstance()->randomFloat_(minFloat, maxFloat); }
+	static int32_t randomInt(int32_t minInt, int32_t maxInt) { return getInstance()->randomInt_(minInt, maxInt); }
+
 	/// <summary>
 	/// フレームの開始
 	/// </summary>
@@ -241,11 +271,17 @@ public:
 	static Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& GetCommandList() { return getInstance()->GetCommandList_(); }
 
 
-	[[nodiscard]]
-	static ID3D12PipelineState* TrianglePSO() { return trianglePipelineState_.Get(); }
+	static Microsoft::WRL::ComPtr <ID3D12RootSignature> RootSignature() { return getInstance()->RootSignature_(); }
+	static Microsoft::WRL::ComPtr <ID3D12RootSignature> InstancingRootSignature() { return getInstance()->InstancingRootSignature_(); }
 
 	[[nodiscard]]
-	static ID3D12PipelineState* LinePSO() { return linePipelineState_.Get(); }
+	static ID3D12PipelineState* TrianglePSO() { return getInstance()->TrianglePSO_(); }
+
+	[[nodiscard]]
+	static ID3D12PipelineState* ParticlePSO() { return getInstance()->ParticlePSO_(); }
+
+	[[nodiscard]]
+	static ID3D12PipelineState* LinePSO() { return getInstance()->LinePSO_(); }
 
 	//ウィンドウ幅
 	[[nodiscard]]

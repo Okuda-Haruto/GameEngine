@@ -117,6 +117,9 @@ void Sprite_2D::Draw(Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& command
 
 	materialResource_[index_]->Unmap(0, nullptr);
 
+	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
+	commandList->SetGraphicsRootSignature(GameEngine::RootSignature().Get());
+	commandList->SetPipelineState(GameEngine::TrianglePSO());	//PSOを設定
 	commandList->IASetVertexBuffers(0, 1, &vertexBufferView_);	//VBVを設定
 	commandList->IASetIndexBuffer(&indexBufferView_);	//IBVを設定
 	commandList->SetGraphicsRootDescriptorTable(2, GameEngine::TextureGet(data.material.textureIndex));
@@ -124,7 +127,6 @@ void Sprite_2D::Draw(Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& command
 	commandList->SetGraphicsRootConstantBufferView(0, materialResource_[index_]->GetGPUVirtualAddress());
 	//TransformationMatrixCBufferの場所を設定
 	commandList->SetGraphicsRootConstantBufferView(1, wvpResource_[index_]->GetGPUVirtualAddress());
-	commandList->SetPipelineState(GameEngine::TrianglePSO());	//PSOを設定
 	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	//ドローコール

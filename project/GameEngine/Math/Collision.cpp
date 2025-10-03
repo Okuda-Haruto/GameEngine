@@ -104,6 +104,16 @@ bool IsCollision(const Triangle& triangle, const Segment& segment) {
 	return false;
 }
 
+//AABBと点の衝突
+bool IsCollision(const AABB& aabb, const Vector3& point) {
+	if (aabb.min.x <= point.x && aabb.max.x >= point.x &&
+		aabb.min.y <= point.y && aabb.max.y >= point.y &&
+		aabb.min.z <= point.z && aabb.max.z >= point.z) {
+		return true;
+	}
+	return false;
+}
+
 //AABBとAABBの衝突
 bool IsCollision(const AABB& aabb1, const AABB& aabb2) {
 	if ((aabb1.min.x <= aabb2.max.x && aabb2.min.x <= aabb1.max.x) &&

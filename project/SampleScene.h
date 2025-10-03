@@ -2,6 +2,7 @@
 #include <GameEngine.h>
 #include <Line.h>
 #include <array>
+#include <Effect.h>
 
 class SampleScene
 {
@@ -11,6 +12,10 @@ private:
 	std::array<Object_3D*, 7> object_{ nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr };
 	// 3Dモデルデータ
 	std::array<Object_Multi_Data, 7> objectData_;
+
+	SRT EffectTransform;
+	Vector4 EffectColor = { 1,1,1,1 };
+	Effect* effect_ = nullptr;
 
 	//2Dモデル
 	bool isSpriteDraw_ = TRUE;

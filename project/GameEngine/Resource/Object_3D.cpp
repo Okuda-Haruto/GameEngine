@@ -92,7 +92,7 @@ void Object_3D::Initialize(const std::string& directoryPath, const std::string& 
 	index_ = 0;
 }
 
-void Object_3D::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandList, Object_Multi_Data& data) {
+void Object_3D::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandList, const Object_Multi_Data& data) {
 
 	for (INT i = 0; i < objectData_.size();i++) {
 		//WVPデータを更新
@@ -114,6 +114,10 @@ void Object_3D::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandL
 
 		materialResource_[index_]->Unmap(0, nullptr);
 
+		//RootSignatureを設定。PSOに設定しているけど別途設定が必要
+		commandList->SetGraphicsRootSignature(GameEngine::RootSignature().Get());
+		commandList->SetPipelineState(GameEngine::TrianglePSO());	//PSOを設定
+
 		commandList->IASetVertexBuffers(0, 1, &objectData_[i].vertexBufferView_);	//VBVを設定
 		commandList->IASetIndexBuffer(&objectData_[i].indexBufferView_);	//IBVを設定
 		//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
@@ -126,7 +130,145 @@ void Object_3D::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandL
 		commandList->SetGraphicsRootConstantBufferView(0, materialResource_[index_]->GetGPUVirtualAddress());
 		//wvp用のCBufferの場所を設定
 		commandList->SetGraphicsRootConstantBufferView(1, wvpResource_[index_]->GetGPUVirtualAddress());
+		//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
+		commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		//描画(DrawCall)
+		commandList->DrawIndexedInstanced(UINT(modelData_[i].vertices.size()), 1, 0, 0, 0);
+
+		//最大値を超えたら最初から
+		index_++;
+		if (index_ >= kMaxIndex_) {
+			index_ = 0;
+		}
+	}
+}
+
+# pragma endregion
+
+# pragma region Instance_3D
+
+Instance_3D::~Instance_3D() {
+	instancingResource_.clear();
+	instancingData_.clear();
+	materialResource_.clear();
+	materialData_.clear();
+}
+
+void Instance_3D::Initialize(const std::string& directoryPath, const std::string& filename) {
+
+	device_ = GameEngine::GetDevice();
+
+	//モデル読み込み
+	modelData_ = LoadObjFile(directoryPath, filename);
+
+	//マテリアルの数だけ行う
+	for (ModelData modelDatum : modelData_) {
+
+		ObjectData objectDatum{};
+
+		//頂点リソースを作る
+		objectDatum.vertexResource_ = CreateBufferResource(device_, sizeof(VertexData) * modelDatum.vertices.size());
+
+		//頂点バッファビューを作成する
+		//リソースの先頭のアドレスから使う
+		objectDatum.vertexBufferView_.BufferLocation = objectDatum.vertexResource_->GetGPUVirtualAddress();
+		//使用するリソースのサイズは頂点のサイズ
+		objectDatum.vertexBufferView_.SizeInBytes = UINT(sizeof(VertexData) * modelDatum.vertices.size());
+		//1頂点あたりのサイズ
+		objectDatum.vertexBufferView_.StrideInBytes = sizeof(VertexData);
+
+		//頂点リソースにデータを書き込む
+		objectDatum.vertexResource_->Map(0, nullptr, reinterpret_cast<void**>(&objectDatum.vertexData_));	//書き込むためのアドレスを取得
+
+		std::memcpy(objectDatum.vertexData_, modelDatum.vertices.data(), sizeof(VertexData) * modelDatum.vertices.size());	//頂点データにリソースにコピー
+
+		objectDatum.vertexResource_->Unmap(0, nullptr);
+
+		//Sprite用のインデックスリソースを作る
+		objectDatum.indexResource_ = CreateBufferResource(device_, sizeof(uint32_t) * modelDatum.vertices.size());
+
+		//インデックスバッファビューを作成する
+		//リソースの先頭のアドレスから使う
+		objectDatum.indexBufferView_.BufferLocation = objectDatum.indexResource_->GetGPUVirtualAddress();
+		//使用するリソースのサイズはインデックスは3つサイズ
+		objectDatum.indexBufferView_.SizeInBytes = UINT(sizeof(uint32_t) * modelDatum.vertices.size());
+		//インデックスはuint32_tとする
+		objectDatum.indexBufferView_.Format = DXGI_FORMAT_R32_UINT;
+
+		//インデックスデータを書き込む
+		objectDatum.indexResource_->Map(0, nullptr, reinterpret_cast<void**>(&objectDatum.indexData_));
+
+		//3角形2つを組合わせ4角形にする
+		for (int i = 0; i < modelDatum.vertices.size(); i++) {
+			objectDatum.indexData_[i] = i;
+		}
+
+		objectDatum.indexResource_->Unmap(0, nullptr);
+		objectData_.push_back(objectDatum);
+	}
+
+	//使用するリソースの要素を予め用意する
+	instancingResource_.resize(kMaxIndex_);
+	instancingData_.resize(kMaxIndex_);
+	materialResource_.resize(kMaxIndex_);
+	materialData_.resize(kMaxIndex_);
+
+	//初期化
+	for (int i = 0; i < kMaxIndex_; i++) {
+		instancingResource_[i] = CreateBufferResource(device_, sizeof(TransformationMatrix) * kMaxNumInstance);
+		instancingData_[i] = nullptr;
+		materialResource_[i] = CreateBufferResource(device_, sizeof(Material));
+		materialData_[i] = nullptr;
+	}
+
+	//最初から始める
+	index_ = 0;
+}
+
+void Instance_3D::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandList, std::list<Object_Multi_Data> data) {
+
+	for (INT i = 0; i < objectData_.size(); i++) {
+		//WVPデータを更新
+		instancingResource_[index_]->Map(0, nullptr, reinterpret_cast<void**>(&instancingData_[index_]));
+
+		uint32_t numInstance = 0;
+		for (std::list<Object_Multi_Data>::iterator objectIterator = data.begin();
+			objectIterator != data.end(); ++objectIterator) {
+
+			Matrix4x4 worldMatrix = MakeAffineMatrix((*objectIterator).transform.scale, (*objectIterator).transform.rotate, (*objectIterator).transform.translate);
+			instancingData_[index_]->World = worldMatrix;
+			Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(camera_->GetViewMatrix(), camera_->GetProjectionMatrix()));
+			instancingData_[index_]->WVP = worldViewProjectionMatrix;
+
+			++numInstance;
+		}
+
+		instancingResource_[index_]->Unmap(0, nullptr);
+
+		//マテリアルデータを更新
+		materialResource_[index_]->Map(0, nullptr, reinterpret_cast<void**>(&materialData_[index_]));
+
+		materialData_[index_]->color = data.begin()->material[i].color;
+		materialData_[index_]->uvTransform = MakeAffineMatrix(data.begin()->material[i].uvTransform.scale, data.begin()->material[i].uvTransform.rotate, data.begin()->material[i].uvTransform.translate);
+		materialData_[index_]->enableLighting = isLighting_;
+
+		materialResource_[index_]->Unmap(0, nullptr);
+
+		//RootSignatureを設定。PSOに設定しているけど別途設定が必要
+		commandList->SetGraphicsRootSignature(GameEngine::RootSignature().Get());
 		commandList->SetPipelineState(GameEngine::TrianglePSO());	//PSOを設定
+
+		commandList->IASetVertexBuffers(0, 1, &objectData_[i].vertexBufferView_);	//VBVを設定
+		commandList->IASetIndexBuffer(&objectData_[i].indexBufferView_);	//IBVを設定
+		//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
+		commandList->SetGraphicsRootDescriptorTable(2, GameEngine::TextureGet(data.begin()->material[i].textureIndex));
+		if (isLighting_ != 0 && light_ != nullptr) {
+			commandList->SetGraphicsRootConstantBufferView(3, light_->directionalLightResource()->GetGPUVirtualAddress());	//Lighting
+		}
+
+		//マテリアルCBufferの場所を設定
+		commandList->SetGraphicsRootConstantBufferView(0, materialResource_[index_]->GetGPUVirtualAddress());
+		//wvp用のCBufferの場所を設定
 		//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
 		commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		//描画(DrawCall)
@@ -152,12 +294,15 @@ Sprite_3D::~Sprite_3D() {
 	vertexData_ = nullptr;
 }
 
-void Sprite_3D::Initialize(Microsoft::WRL::ComPtr<ID3D12Device> device, uint32_t kWindowWidth, uint32_t kWindowHeight) {
+void Sprite_3D::Initialize() {
 
-	device_ = device;
+	device_ = GameEngine::GetDevice();
+
+	kWindowWidth_ = GameEngine::GetWindowWidth();
+	kWindowHeight_ = GameEngine::GetWindowHeight();
 
 	//頂点リソースを作る
-	vertexResource_ = CreateBufferResource(device, sizeof(VertexData) * 4);
+	vertexResource_ = CreateBufferResource(device_, sizeof(VertexData) * 4);
 
 	//頂点バッファビューを作成する
 	//リソースの先頭のアドレスから使う
@@ -168,7 +313,7 @@ void Sprite_3D::Initialize(Microsoft::WRL::ComPtr<ID3D12Device> device, uint32_t
 	vertexBufferView_.StrideInBytes = sizeof(VertexData);
 
 	//Sprite用のインデックスリソースを作る
-	indexResource_ = CreateBufferResource(device, sizeof(uint32_t) * 6);
+	indexResource_ = CreateBufferResource(device_, sizeof(uint32_t) * 6);
 
 	//インデックスバッファビューを作成する
 	//リソースの先頭のアドレスから使う
@@ -231,30 +376,29 @@ void Sprite_3D::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandL
 
 	vertexResource_->Unmap(0, nullptr);
 
-	Matrix4x4 inverseMatrix = Inverse(camera_->GetViewMatrix());
-
-	//カメラからスプライトへの距離
-	Vector3 CameraToSprite{
-		data.transform.translate.x - inverseMatrix.m[3][0],
-		0,
-		data.transform.translate.z - inverseMatrix.m[3][2],
-	};
-	//正規化
-	CameraToSprite = Normalize(CameraToSprite);
-
-	Vector3 rotate{};
-	rotate = data.transform.rotate;
-	if (CameraToSprite.z > 0) {
-		rotate.y = sinf(CameraToSprite.x) * std::numbers::pi_v<float> / 2;
-	} else {
-		rotate.y = sinf(CameraToSprite.x) * -std::numbers::pi_v<float> / 2 + std::numbers::pi_v<float>;
-	}
-	data.transform.rotate = rotate;
+	Matrix4x4 cameraMatrix = Inverse(camera_->GetViewMatrix());
+	Matrix4x4 billbordMatrix = cameraMatrix;
+	billbordMatrix.m[3][0] = 0.0f;
+	billbordMatrix.m[3][1] = 0.0f;
+	billbordMatrix.m[3][2] = 0.0f;
 
 	//WVPデータを更新
 	wvpResource_[index_]->Map(0, nullptr, reinterpret_cast<void**>(&wvpData_[index_]));
 
-	Matrix4x4 worldMatrix = MakeAffineMatrix(data.transform.scale, rotate, data.transform.translate);
+	Matrix4x4 worldMatrix = billbordMatrix;
+	for (int i = 0; i < 3; i++) {
+		worldMatrix.m[0][i] *= data.transform.scale.x;
+	}
+	for (int i = 0; i < 3; i++) {
+		worldMatrix.m[1][i] *= data.transform.scale.y;
+	}
+	for (int i = 0; i < 3; i++) {
+		worldMatrix.m[2][i] *= data.transform.scale.z;
+	}
+	worldMatrix.m[3][0] = data.transform.translate.x;
+	worldMatrix.m[3][1] = data.transform.translate.y;
+	worldMatrix.m[3][2] = data.transform.translate.z;
+
 	wvpData_[index_]->World = worldMatrix;
 	Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(camera_->GetViewMatrix(), camera_->GetProjectionMatrix()));
 	wvpData_[index_]->WVP = worldViewProjectionMatrix;
@@ -270,6 +414,10 @@ void Sprite_3D::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandL
 
 	materialResource_[index_]->Unmap(0, nullptr);
 
+	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
+	commandList->SetGraphicsRootSignature(GameEngine::RootSignature().Get());
+	commandList->SetPipelineState(GameEngine::TrianglePSO());	//PSOを設定
+
 	commandList->IASetVertexBuffers(0, 1, &vertexBufferView_);	//VBVを設定
 	commandList->IASetIndexBuffer(&indexBufferView_);	//IBVを設定
 	//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
@@ -282,7 +430,6 @@ void Sprite_3D::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandL
 	commandList->SetGraphicsRootConstantBufferView(0, materialResource_[index_]->GetGPUVirtualAddress());
 	//wvp用のCBufferの場所を設定
 	commandList->SetGraphicsRootConstantBufferView(1, wvpResource_[index_]->GetGPUVirtualAddress());
-	commandList->SetPipelineState(GameEngine::TrianglePSO());	//PSOを設定
 	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	//描画(DrawCall)
@@ -318,6 +465,184 @@ void Sprite_3D::Reset() {
 
 	//最初から始める
 	index_ = 0;
+}
+
+# pragma endregion
+
+# pragma region Particle_3D
+
+Particle_3D::~Particle_3D() {
+	instancingResource_.clear();
+	instancingData_.clear();
+	materialResource_.clear();
+	materialData_.clear();
+	vertexData_ = nullptr;
+}
+
+void Particle_3D::Initialize() {
+
+	device_ = GameEngine::GetDevice();
+
+	kWindowWidth_ = GameEngine::GetWindowWidth();
+	kWindowHeight_ = GameEngine::GetWindowHeight();
+
+	//頂点リソースを作る
+	vertexResource_ = CreateBufferResource(device_, sizeof(VertexData) * 4);
+
+	//頂点バッファビューを作成する
+	//リソースの先頭のアドレスから使う
+	vertexBufferView_.BufferLocation = vertexResource_->GetGPUVirtualAddress();
+	//使用するリソースのサイズは頂点は4つサイズ
+	vertexBufferView_.SizeInBytes = sizeof(VertexData) * 4;
+	//1頂点あたりのサイズ
+	vertexBufferView_.StrideInBytes = sizeof(VertexData);
+
+	//Sprite用のインデックスリソースを作る
+	indexResource_ = CreateBufferResource(device_, sizeof(uint32_t) * 6);
+
+	//インデックスバッファビューを作成する
+	//リソースの先頭のアドレスから使う
+	indexBufferView_.BufferLocation = indexResource_->GetGPUVirtualAddress();
+	//使用するリソースのサイズはインデックスは6つサイズ
+	indexBufferView_.SizeInBytes = sizeof(uint32_t) * 6;
+	//インデックスはuint32_tとする
+	indexBufferView_.Format = DXGI_FORMAT_R32_UINT;
+
+	//インデックスデータを書き込む
+	indexResource_->Map(0, nullptr, reinterpret_cast<void**>(&indexData_));
+
+	//3角形2つを組合わせ4角形にする
+	indexData_[0] = 0; indexData_[1] = 1; indexData_[2] = 2;
+	indexData_[3] = 1; indexData_[4] = 3; indexData_[5] = 2;
+
+	indexResource_->Unmap(0, nullptr);
+
+	//使用するリソースの要素を予め用意する
+	instancingResource_.resize(kMaxIndex_);
+	instancingData_.resize(kMaxIndex_);
+	materialResource_.resize(kMaxIndex_);
+	materialData_.resize(kMaxIndex_);
+
+	//初期化
+	for (int i = 0; i < kMaxIndex_; i++) {
+		instancingResource_[i] = CreateBufferResource(device_, sizeof(ParticleForGPU) * kMaxNumInstance);
+		//WVPデータを更新
+		instancingResource_[index_]->Map(0, nullptr, reinterpret_cast<void**>(&instancingData_[i]));
+		for (uint32_t index = 0; index < kMaxNumInstance; index++) {
+			instancingData_[i][index].WVP = MakeIdentity4x4();
+			instancingData_[i][index].World = MakeIdentity4x4();
+			instancingData_[i][index].color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+		}
+		instancingResource_[index_]->Unmap(0, nullptr);
+		materialResource_[i] = CreateBufferResource(device_, sizeof(Material));
+		materialData_[i] = nullptr;
+	}
+
+	//最初から始める
+	index_ = 0;
+}
+
+void Particle_3D::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandList, Particles particles) {
+
+	//頂点のローカル座標系を設定
+	vertexResource_->Map(0, nullptr, reinterpret_cast<void**>(&vertexData_));
+
+	//左下
+	vertexData_[0].position = { -spriteWidth_ / 2 / kWindowWidth_,-spriteHeight_ / 2 / kWindowHeight_,0.0f,1.0f };
+	vertexData_[0].texcoord = { 0.0f,1.0f };
+	vertexData_[0].normal = { 0.0f,0.0f,-1.0f };
+	//左上
+	vertexData_[1].position = { -spriteWidth_ / 2 / kWindowWidth_,spriteHeight_ / 2 / kWindowHeight_,0.0f,1.0f };
+	vertexData_[1].texcoord = { 0.0f,0.0f };
+	vertexData_[1].normal = { 0.0f,0.0f,-1.0f };
+	//右下
+	vertexData_[2].position = { spriteWidth_ / 2 / kWindowWidth_,-spriteHeight_ / 2 / kWindowHeight_,0.0f,1.0f };
+	vertexData_[2].texcoord = { 1.0f,1.0f };
+	vertexData_[2].normal = { 0.0f,0.0f,-1.0f };
+	//右上
+	vertexData_[3].position = { spriteWidth_ / 2 / kWindowWidth_,spriteHeight_ / 2 / kWindowHeight_,0.0f,1.0f };
+	vertexData_[3].texcoord = { 1.0f,0.0f };
+	vertexData_[3].normal = { 0.0f,0.0f,-1.0f };
+
+	vertexResource_->Unmap(0, nullptr);
+
+	Matrix4x4 cameraMatrix = Inverse(camera_->GetViewMatrix());
+	Matrix4x4 billbordMatrix = cameraMatrix;
+	billbordMatrix.m[3][0] = 0.0f;
+	billbordMatrix.m[3][1] = 0.0f;
+	billbordMatrix.m[3][2] = 0.0f;
+
+	D3D12_GPU_DESCRIPTOR_HANDLE handle = GameEngine::GetInstancingSRV(instancingResource_[index_],kMaxNumInstance);
+
+	//WVPデータを更新
+	instancingResource_[index_]->Map(0, nullptr, reinterpret_cast<void**>(&instancingData_[index_]));
+
+	uint32_t numInstance = 0;
+	for (std::list<Particle>::iterator particleIterator = particles.particle.begin();
+		particleIterator != particles.particle.end(); ++particleIterator) {
+		if ((*particleIterator).lifeTime <= (*particleIterator).currentTime || numInstance >= kMaxNumInstance) {
+			continue;
+		}
+
+		Matrix4x4 worldMatrix = cameraMatrix;
+		worldMatrix.m[3][0] = (*particleIterator).transform.translate.x;
+		worldMatrix.m[3][1] = (*particleIterator).transform.translate.y;
+		worldMatrix.m[3][2] = (*particleIterator).transform.translate.z;
+		for (int i = 0; i < 3; i++) {
+			worldMatrix.m[0][i] *= (*particleIterator).transform.scale.x;
+		}
+		for (int i = 0; i < 3; i++) {
+			worldMatrix.m[1][i] *= (*particleIterator).transform.scale.y;
+		}
+		for (int i = 0; i < 3; i++) {
+			worldMatrix.m[2][i] *= (*particleIterator).transform.scale.z;
+		}
+
+		instancingData_[index_][numInstance].World = worldMatrix;
+		Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(camera_->GetViewMatrix(), camera_->GetProjectionMatrix()));
+		instancingData_[index_][numInstance].WVP = worldViewProjectionMatrix;
+		instancingData_[index_][numInstance].color = (*particleIterator).color;
+		++numInstance;
+	}
+
+	instancingResource_[index_]->Unmap(0, nullptr);
+
+	//マテリアルデータを更新
+	materialResource_[index_]->Map(0, nullptr, reinterpret_cast<void**>(&materialData_[index_]));
+
+	materialData_[index_]->color = {1,1,1,1};
+	materialData_[index_]->uvTransform = MakeIdentity4x4();
+	materialData_[index_]->enableLighting = isLighting_;
+
+	materialResource_[index_]->Unmap(0, nullptr);
+
+	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
+	commandList->SetGraphicsRootSignature(GameEngine::InstancingRootSignature().Get());
+	commandList->SetPipelineState(GameEngine::ParticlePSO());	//PSOを設定
+
+	commandList->IASetVertexBuffers(0, 1, &vertexBufferView_);	//VBVを設定
+	commandList->IASetIndexBuffer(&indexBufferView_);	//IBVを設定
+	//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
+	commandList->SetGraphicsRootDescriptorTable(2, GameEngine::TextureGet(particles.texture));
+	if (isLighting_ != 0 && light_ != nullptr) {
+		commandList->SetGraphicsRootConstantBufferView(3, light_->directionalLightResource()->GetGPUVirtualAddress());	//Lighting
+	}
+
+	//マテリアルCBufferの場所を設定
+	commandList->SetGraphicsRootConstantBufferView(0, materialResource_[index_]->GetGPUVirtualAddress());
+	//wvp用のCBufferの場所を設定
+	//instancing用のDataを読むためにStructuredBufferを設定する
+	commandList->SetGraphicsRootDescriptorTable(1, handle);
+	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
+	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	//描画(DrawCall)
+	commandList->DrawIndexedInstanced(6, numInstance, 0, 0, 0);
+
+	//最大値を超えたら最初から
+	index_++;
+	if (index_ >= kMaxIndex_) {
+		index_ = 0;
+	}
 }
 
 # pragma endregion
@@ -424,18 +749,17 @@ void Line_3D::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandLis
 
 	materialResource_[index_]->Unmap(0, nullptr);
 
+	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
+	commandList->SetGraphicsRootSignature(GameEngine::RootSignature().Get());
+	commandList->SetPipelineState(GameEngine::LinePSO());
 	commandList->IASetVertexBuffers(0, 1, &vertexBufferView_[index_]); // VBVを設定
 	commandList->IASetIndexBuffer(&indexBufferView_);	//IBVを設定
 	//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
 	commandList->SetGraphicsRootDescriptorTable(2, GameEngine::TextureGet(0));
-
 	//マテリアルCBufferの場所を設定
 	commandList->SetGraphicsRootConstantBufferView(0, materialResource_[index_]->GetGPUVirtualAddress());
 	//wvp用のCBufferの場所を設定
 	commandList->SetGraphicsRootConstantBufferView(1, wvpResource_[index_]->GetGPUVirtualAddress());
-
-
-	commandList->SetPipelineState(GameEngine::LinePSO());
 	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 	//描画(DrawCall)
@@ -555,7 +879,11 @@ void AxisIndicator::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& comm
 
 	materialResource_->Unmap(0, nullptr);
 
+	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
+	commandList->SetGraphicsRootSignature(GameEngine::RootSignature().Get());
+	commandList->SetPipelineState(GameEngine::TrianglePSO());	//PSOを設定
 	for (INT i = 0; i < objectData_.size(); i++) {
+
 		commandList->IASetVertexBuffers(0, 1, &objectData_[i].vertexBufferView_);	//VBVを設定
 		commandList->IASetIndexBuffer(&objectData_[i].indexBufferView_);	//IBVを設定
 		//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である

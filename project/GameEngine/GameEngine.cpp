@@ -39,9 +39,6 @@
 int32_t GameEngine::kWindowWidth_;
 int32_t GameEngine::kWindowHeight_;
 
-Microsoft::WRL::ComPtr <ID3D12PipelineState> GameEngine::trianglePipelineState_ = nullptr;
-Microsoft::WRL::ComPtr <ID3D12PipelineState> GameEngine::linePipelineState_ = nullptr;
-
 GameEngine::GameEngine() {
 
 }
@@ -63,6 +60,8 @@ GameEngine::~GameEngine() {
 	CloseWindow(hwnd_);
 
 	trianglePipelineState_.Reset();
+	instancingTrianglePipelineState_.Reset();
+	particlePipelineState_.Reset();
 	linePipelineState_.Reset();
 
 	CoUninitialize();
@@ -216,12 +215,19 @@ void GameEngine::Intialize_(const wchar_t* WindowName, int32_t kWindowWidth, int
 	assert(SUCCEEDED(hr));
 
 	//RootSignature作成
-	rootSignature_ = rootSignatureInitialvalue(device_, logStream_);
+	rootSignature_ = TriangleRootSignatureInitialvalue(device_, logStream_);
+	instancingRootSignature_ = InstancingRootSignatureInitialvalue(device_, logStream_);
 
 	//Shaderをコンパイルする
 	IDxcBlob* vertexShaderBlob = CompileShader(L"./resources/Shader/Object3D.VS.hlsl", L"vs_6_0", dxcUtils, dxcCompiler, includeHandler_.Get(), logStream_);
 	assert(vertexShaderBlob != nullptr);
 	IDxcBlob* pixelShaderBlob = CompileShader(L"./resources/Shader/OBject3D.PS.hlsl", L"ps_6_0", dxcUtils, dxcCompiler, includeHandler_.Get(), logStream_);
+	assert(pixelShaderBlob != nullptr);
+	IDxcBlob* instancingVertexShaderBlob = CompileShader(L"./resources/Shader/InstanceObject3D.VS.hlsl", L"vs_6_0", dxcUtils, dxcCompiler, includeHandler_.Get(), logStream_);
+	assert(vertexShaderBlob != nullptr);
+	IDxcBlob* particleVSBlob = CompileShader(L"./resources/Shader/Particle.VS.hlsl", L"vs_6_0", dxcUtils, dxcCompiler, includeHandler_.Get(), logStream_);
+	assert(vertexShaderBlob != nullptr);
+	IDxcBlob* particlePSBlob = CompileShader(L"./resources/Shader/Particle.PS.hlsl", L"ps_6_0", dxcUtils, dxcCompiler, includeHandler_.Get(), logStream_);
 	assert(pixelShaderBlob != nullptr);
 
 	//DepthStencilTextureをウィンドウのサイズで作成
@@ -235,8 +241,9 @@ void GameEngine::Intialize_(const wchar_t* WindowName, int32_t kWindowWidth, int
 	device_->CreateDepthStencilView(depthStencilResource_.Get(), &dsvDesc_, dsvDescriptorheap_->GetCPUDescriptorHandleForHeapStart());
 
 	//PSOを生成
-	graphicsPipelineState_ = TrianglePipelineStateInitialvalue(device_, logStream_, rootSignature_, vertexShaderBlob, pixelShaderBlob);
 	trianglePipelineState_ = TrianglePipelineStateInitialvalue(device_, logStream_, rootSignature_, vertexShaderBlob, pixelShaderBlob);
+	instancingTrianglePipelineState_ = TrianglePipelineStateInitialvalue(device_, logStream_, instancingRootSignature_, instancingVertexShaderBlob, pixelShaderBlob);
+	particlePipelineState_ = NoDepthAddBlendTrianglePipelineStateInitialvalue(device_, logStream_, instancingRootSignature_, particleVSBlob, particlePSBlob);
 	linePipelineState_ = LinePipelineStateInitialvalue(device_, logStream_, rootSignature_, vertexShaderBlob, pixelShaderBlob);
 
 	//WVP用のリソースを作る
@@ -266,6 +273,10 @@ void GameEngine::Intialize_(const wchar_t* WindowName, int32_t kWindowWidth, int
 	hr = xAudio2_->CreateMasteringVoice(&masterVoice_);
 	assert(SUCCEEDED(hr));
 
+	//乱数シード初期化
+	std::random_device seedGenerator;
+	randomEngine_.seed(seedGenerator());
+
 	//ImGui初期化
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -285,10 +296,31 @@ void GameEngine::Intialize_(const wchar_t* WindowName, int32_t kWindowWidth, int
 
 }
 
+D3D12_GPU_DESCRIPTOR_HANDLE GameEngine::GetInstancingSRV_(Microsoft::WRL::ComPtr<ID3D12Resource> instancingResource, int32_t numInstance) {
+	//metaDataを基にSRVの設定
+	D3D12_SHADER_RESOURCE_VIEW_DESC instancingSrvDesc{};
+	instancingSrvDesc.Format = DXGI_FORMAT_UNKNOWN;
+	instancingSrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	instancingSrvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;	//バッファ
+	instancingSrvDesc.Buffer.FirstElement = 0;
+	instancingSrvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
+	instancingSrvDesc.Buffer.NumElements = numInstance;
+	instancingSrvDesc.Buffer.StructureByteStride = sizeof(ParticleForGPU);
+
+	//SRVを作成するDescriptorHeapの場所を決める。ImGuiが最初を使うのでその次を使う
+	D3D12_CPU_DESCRIPTOR_HANDLE textureSrvHandleCPU = GetCPUDescriptorHandle(srvDescriptorHeap_, descriptorSizeSRV_, 1);
+	D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU = GetGPUDescriptorHandle(srvDescriptorHeap_, descriptorSizeSRV_, 1);
+	//SRVの生成
+	device_->CreateShaderResourceView(instancingResource.Get(), &instancingSrvDesc, textureSrvHandleCPU);
+
+	return textureSrvHandleGPU;
+
+}
+
 UINT GameEngine::TextureLoad_(const std::string& filePath) {
 
-	//ImGuiが0番を使用しているため、1番から使用する
-	UINT index = 1;
+	//ImGuiが0番、インスタンスが1番を使用しているため、2番から使用する
+	UINT index = textureStart;
 	//パスがない場合はwhite2x2のテクスチャ番号を返す
 	if (filePath.size() <= 0) {
 		return 0;
@@ -296,7 +328,7 @@ UINT GameEngine::TextureLoad_(const std::string& filePath) {
 	//既知のテクスチャのパスの場合はTextureを読み込まず、テクスチャの番号を返す
 	for (const TextureData& textureDatum : textureData_) {
 		if (textureDatum.tetxureFilePaths == filePath) {
-			return index - 1;
+			return index - textureStart;
 		}
 		index++;
 	}
@@ -347,7 +379,7 @@ UINT GameEngine::TextureLoad_(const std::string& filePath) {
 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;	//2Dテクスチャ
 	srvDesc.Texture2D.MipLevels = UINT(metadata.mipLevels);
 
-	index = 1;
+	index = textureStart;
 	//値が無効化されているデータ、もしくは最後尾のデータを作成して指定
 	for (const TextureData& textureDatum : textureData_) {
 		if (textureDatum.textureResource == nullptr) {
@@ -355,7 +387,7 @@ UINT GameEngine::TextureLoad_(const std::string& filePath) {
 		}
 		index++;
 	}
-	if (textureData_.size() >= index - 1) {
+	if (textureData_.size() >= index - textureStart) {
 		textureData_.push_back(data);
 	}
 
@@ -365,14 +397,14 @@ UINT GameEngine::TextureLoad_(const std::string& filePath) {
 	//SRVの生成
 	device_->CreateShaderResourceView(data.textureResource.Get(), &srvDesc, textureSrvHandleCPU);
 
-	//SRVを作成したindexの1つ前を返す
-	return index - 1;
+	//SRVを作成したindexの2つ前を返す
+	return index - textureStart;
 }
 
 D3D12_GPU_DESCRIPTOR_HANDLE GameEngine::TextureGet_(UINT index) {
 	//テクスチャリソースが無い場合止める
 	assert(textureData_[index].textureResource != nullptr);
-	return GetGPUDescriptorHandle(srvDescriptorHeap_, descriptorSizeSRV_, index + 1);
+	return GetGPUDescriptorHandle(srvDescriptorHeap_, descriptorSizeSRV_, index + textureStart);
 }
 
 void GameEngine::TextureDelete_(UINT index) {
@@ -529,6 +561,20 @@ void GameEngine::LoadObject(Text_2D* text) {
 
 }
 
+float GameEngine::randomFloat_(float minFloat, float maxFloat) {
+	assert(minFloat <= maxFloat);
+	std::uniform_real_distribution<float> distribution(minFloat, maxFloat);
+	return distribution(randomEngine_);
+}
+int32_t GameEngine::randomInt_(int32_t minInt, int32_t maxInt) {
+	assert(minInt > maxInt);
+	float minFloat = float(minInt);
+	float maxFloat = float(maxInt);
+	std::uniform_real_distribution<float> distribution(minFloat, maxFloat);
+	float randomNum = distribution(randomEngine_);
+	return int32_t(randomNum);
+}
+
 [[nodiscard]]
 bool GameEngine::StartFlame_() {
 	//Windowのメッセージが来てたら最優先で処理させる
@@ -643,8 +689,6 @@ void GameEngine::PreDraw_() {
 	//オブジェクト描画前処理
 	commandList_->RSSetViewports(1, &viewport_);			//Viewportを設定
 	commandList_->RSSetScissorRects(1, &scissorRect_);	//Scirssorを設定
-	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-	commandList_->SetGraphicsRootSignature(rootSignature_.Get());
 
 }
 

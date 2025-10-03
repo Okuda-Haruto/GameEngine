@@ -21,6 +21,11 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
     </None>
+    <None Include="resources\Shader\Particle.hlsli">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="externals\imgui\imgui.cpp" />
@@ -51,6 +56,8 @@
     <ClCompile Include="GameEngine\Math\Vector3_operation.cpp" />
     <ClCompile Include="GameEngine\Resource\Audio.cpp" />
     <ClCompile Include="GameEngine\Resource\Camera.cpp" />
+    <ClCompile Include="GameEngine\Resource\Effect.cpp" />
+    <ClCompile Include="GameEngine\Resource\Field.cpp" />
     <ClCompile Include="GameEngine\Resource\Text.cpp" />
     <ClCompile Include="GameEngine\Resource\Light.cpp" />
     <ClCompile Include="GameEngine\Resource\Object_2D.cpp" />
@@ -71,6 +78,9 @@
     <ClInclude Include="externals\imgui\imstb_rectpack.h" />
     <ClInclude Include="externals\imgui\imstb_textedit.h" />
     <ClInclude Include="externals\imgui\imstb_truetype.h" />
+    <ClInclude Include="GameEngine\Data\Emitter.h" />
+    <ClInclude Include="GameEngine\Data\Particle.h" />
+    <ClInclude Include="GameEngine\Data\ParticleForGPU.h" />
     <ClInclude Include="GameEngine\Math\Shape\AABB.h" />
     <ClInclude Include="GameEngine\Data\ChunkHeader.h" />
     <ClInclude Include="GameEngine\Data\DirectionalLight.h" />
@@ -121,6 +131,8 @@
     <ClInclude Include="GameEngine\Math\Vector4.h" />
     <ClInclude Include="GameEngine\Resource\Audio.h" />
     <ClInclude Include="GameEngine\Resource\Camera.h" />
+    <ClInclude Include="GameEngine\Resource\Effect.h" />
+    <ClInclude Include="GameEngine\Resource\Field.h" />
     <ClInclude Include="GameEngine\Resource\Text.h" />
     <ClInclude Include="GameEngine\Resource\Light.h" />
     <ClInclude Include="GameEngine\Resource\Object_2D.h" />
@@ -138,6 +150,11 @@
     <Text Include="externals\imgui\LICENSE.txt" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="resources\Shader\InstanceObject3d.VS.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
     <FxCompile Include="resources\Shader\Object3d.PS.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
@@ -147,6 +164,16 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="resources\Shader\Particle.PS.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="resources\Shader\Particle.VS.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -221,7 +248,7 @@
       <TreatWarningAsError>true</TreatWarningAsError>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(ProjectDir)GameEngine\Resource;$(ProjectDir)GameEngine\Math;$(ProjectDir)GameEngine\Math/Shape;$(ProjectDir)GameEngine\LoadFile;$(ProjectDir)GameEngine\Debug;$(ProjectDir)GameEngine\Data;$(ProjectDir)GameEngine\Modules/CompileShader;$(ProjectDir)GameEngine\Modules/ConvertString;$(ProjectDir)GameEngine\Modules/CreateBufferResource;$(ProjectDir)GameEngine\Modules/CreateDepthStencilTextureResource;$(ProjectDir)GameEngine\Modules/CreateDescriptorHeap;$(ProjectDir)GameEngine\Modules/CreateTextureResource;$(ProjectDir)GameEngine\Modules/GetDescriptorHandle;$(ProjectDir)GameEngine\Modules/Initialvalue;$(ProjectDir)GameEngine\Modules/UploadTextreData;$(ProjectDir)GameEngine\Modules/Window;$(ProjectDir)GameEngine;$(ProjectDir)externals</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)GameEngine\Resource;$(ProjectDir)GameEngine\Math;$(ProjectDir)GameEngine\Math/Shape;$(ProjectDir)GameEngine\LoadFile;$(ProjectDir)GameEngine\Debug;$(ProjectDir)GameEngine\Data;$(ProjectDir)GameEngine\Modules/CompileShader;$(ProjectDir)GameEngine\Modules/ConvertString;$(ProjectDir)GameEngine\Modules/CreateBufferResource;$(ProjectDir)GameEngine\Modules/CreateDepthStencilTextureResource;$(ProjectDir)GameEngine\Modules/CreateDescriptorHeap;$(ProjectDir)GameEngine\Modules/CreateTextureResource;$(ProjectDir)GameEngine\Modules/GetDescriptorHandle;$(ProjectDir)GameEngine\Modules/Initialvalue;$(ProjectDir)GameEngine\Modules/UploadTextreData;$(ProjectDir)GameEngine\Modules/Window;$(ProjectDir)GameEngine;$(ProjectDir)externals;$(ProjectDir)Scene</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -248,7 +275,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <Optimization>MinSpace</Optimization>
-      <AdditionalIncludeDirectories>$(ProjectDir)GameEngine\Resource;$(ProjectDir)GameEngine\Math;$(ProjectDir)GameEngine\Math/Shape;$(ProjectDir)GameEngine\LoadFile;$(ProjectDir)GameEngine\Debug;$(ProjectDir)GameEngine\Data;$(ProjectDir)GameEngine\Modules/CompileShader;$(ProjectDir)GameEngine\Modules/ConvertString;$(ProjectDir)GameEngine\Modules/CreateBufferResource;$(ProjectDir)GameEngine\Modules/CreateDepthStencilTextureResource;$(ProjectDir)GameEngine\Modules/CreateDescriptorHeap;$(ProjectDir)GameEngine\Modules/CreateTextureResource;$(ProjectDir)GameEngine\Modules/GetDescriptorHandle;$(ProjectDir)GameEngine\Modules/Initialvalue;$(ProjectDir)GameEngine\Modules/UploadTextreData;$(ProjectDir)GameEngine\Modules/Window;$(ProjectDir)GameEngine;$(ProjectDir)externals</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)GameEngine\Resource;$(ProjectDir)GameEngine\Math;$(ProjectDir)GameEngine\Math/Shape;$(ProjectDir)GameEngine\LoadFile;$(ProjectDir)GameEngine\Debug;$(ProjectDir)GameEngine\Data;$(ProjectDir)GameEngine\Modules/CompileShader;$(ProjectDir)GameEngine\Modules/ConvertString;$(ProjectDir)GameEngine\Modules/CreateBufferResource;$(ProjectDir)GameEngine\Modules/CreateDepthStencilTextureResource;$(ProjectDir)GameEngine\Modules/CreateDescriptorHeap;$(ProjectDir)GameEngine\Modules/CreateTextureResource;$(ProjectDir)GameEngine\Modules/GetDescriptorHandle;$(ProjectDir)GameEngine\Modules/Initialvalue;$(ProjectDir)GameEngine\Modules/UploadTextreData;$(ProjectDir)GameEngine\Modules/Window;$(ProjectDir)GameEngine;$(ProjectDir)externals;$(ProjectDir)Scene</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -271,7 +298,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(ProjectDir)GameEngine\Resource;$(ProjectDir)GameEngine\Math;$(ProjectDir)GameEngine\Math/Shape;$(ProjectDir)GameEngine\LoadFile;$(ProjectDir)GameEngine\Debug;$(ProjectDir)GameEngine\Data;$(ProjectDir)GameEngine\Modules/CompileShader;$(ProjectDir)GameEngine\Modules/ConvertString;$(ProjectDir)GameEngine\Modules/CreateBufferResource;$(ProjectDir)GameEngine\Modules/CreateDepthStencilTextureResource;$(ProjectDir)GameEngine\Modules/CreateDescriptorHeap;$(ProjectDir)GameEngine\Modules/CreateTextureResource;$(ProjectDir)GameEngine\Modules/GetDescriptorHandle;$(ProjectDir)GameEngine\Modules/Initialvalue;$(ProjectDir)GameEngine\Modules/UploadTextreData;$(ProjectDir)GameEngine\Modules/Window;$(ProjectDir)GameEngine;$(ProjectDir)externals</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)GameEngine\Resource;$(ProjectDir)GameEngine\Math;$(ProjectDir)GameEngine\Math/Shape;$(ProjectDir)GameEngine\LoadFile;$(ProjectDir)GameEngine\Debug;$(ProjectDir)GameEngine\Data;$(ProjectDir)GameEngine\Modules/CompileShader;$(ProjectDir)GameEngine\Modules/ConvertString;$(ProjectDir)GameEngine\Modules/CreateBufferResource;$(ProjectDir)GameEngine\Modules/CreateDepthStencilTextureResource;$(ProjectDir)GameEngine\Modules/CreateDescriptorHeap;$(ProjectDir)GameEngine\Modules/CreateTextureResource;$(ProjectDir)GameEngine\Modules/GetDescriptorHandle;$(ProjectDir)GameEngine\Modules/Initialvalue;$(ProjectDir)GameEngine\Modules/UploadTextreData;$(ProjectDir)GameEngine\Modules/Window;$(ProjectDir)GameEngine;$(ProjectDir)externals;$(ProjectDir)Scene</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
