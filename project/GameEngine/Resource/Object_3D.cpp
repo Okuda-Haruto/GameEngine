@@ -100,6 +100,7 @@ void Object_3D::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandL
 
 		Matrix4x4 worldMatrix = MakeAffineMatrix(data.transform.scale, data.transform.rotate, data.transform.translate);
 		wvpData_[index_]->World = worldMatrix;
+		wvpData_[index_]->WorldInverseTranspose = Inverse(worldMatrix);
 		Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(camera_->GetViewMatrix(), camera_->GetProjectionMatrix()));
 		wvpData_[index_]->WVP = worldViewProjectionMatrix;
 
@@ -407,6 +408,7 @@ void Sprite_3D::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandL
 	worldMatrix.m[3][2] = data.transform.translate.z;
 
 	wvpData_[index_]->World = worldMatrix;
+	wvpData_[index_]->WorldInverseTranspose = Inverse(worldMatrix);
 	Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(camera_->GetViewMatrix(), camera_->GetProjectionMatrix()));
 	wvpData_[index_]->WVP = worldViewProjectionMatrix;
 
@@ -748,6 +750,7 @@ void Line_3D::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandLis
 
 	Matrix4x4 worldMatrix = MakeAffineMatrix({ 1, 1, 1 }, { 0, 0, 0 }, { 0,0,0 });
 	wvpData_[index_]->World = worldMatrix;
+	wvpData_[index_]->WorldInverseTranspose = Inverse(worldMatrix);
 	Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(camera_->GetViewMatrix(), camera_->GetProjectionMatrix()));
 	wvpData_[index_]->WVP = worldViewProjectionMatrix;
 

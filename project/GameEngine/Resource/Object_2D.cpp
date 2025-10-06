@@ -103,6 +103,8 @@ void Sprite_2D::Draw(Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& command
 
 	Matrix4x4 worldMatrix = MakeAffineMatrix(data.transform.scale, data.transform.rotate, data.transform.translate);
 	wvpData_[index_]->World = worldMatrix;
+	wvpData_[index_]->WorldInverseTranspose = Inverse(worldMatrix);
+
 	Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
 	wvpData_[index_]->WVP = worldViewProjectionMatrix;
 
