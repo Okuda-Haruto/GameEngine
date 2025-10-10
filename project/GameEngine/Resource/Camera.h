@@ -23,6 +23,8 @@ private:
 	//球面座標系
 	Vector3 sphericalCoordinates_{ 10.0f,0.0f,0.0f };
 
+	SRT* parentTransform_ = nullptr;
+
 	DebugCamera* debugCamera_ = nullptr;
 
 	//カメラワールド座標用のリソース
@@ -36,6 +38,9 @@ public:
 	
 	void Update(SRT transform);
 	void Update();
+
+	void SetParent(SRT* transform);
+	void ResetParent();
 
 	void SetViewMatrix(Matrix4x4 viewMatrix) { viewMatrix_ = viewMatrix; }
 	void SetProjectionMatrix(Matrix4x4 projectionMatrix) { projectionMatrix_ = projectionMatrix; }

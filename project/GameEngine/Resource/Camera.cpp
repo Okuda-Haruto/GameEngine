@@ -52,3 +52,11 @@ void Camera::Update() {
 
 	cameraResource_->Unmap(0, nullptr);
 }
+
+void Camera::SetParent(SRT* transform) {
+	parentTransform_ = transform;
+}
+
+void Camera::ResetParent() {
+	parentTransform_ = nullptr;
+}

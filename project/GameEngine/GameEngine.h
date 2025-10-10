@@ -20,7 +20,7 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #include "Object_2D.h"
 #include "Text.h"
 #include "Audio.h"
-#include "Input.h"
+#include "Input/Input.h"
 #include "DebugCamera.h"
 
 #include "TextureData.h"
@@ -190,6 +190,9 @@ private:
 	Mouse GetMouse_();
 	Pad GetPad_(int usePadNum = 0);
 
+	WNDCLASS GetWNDCLASS_() { return w_; }
+	HWND GetHWND_() { return hwnd_; }
+
 	// インスタンス生成
 	static GameEngine* getInstance();
 
@@ -309,4 +312,10 @@ public:
 	/// <param name="usePadNum">参照するパッドの番号。1つ目なら0を入力</param>
 	[[nodiscard]]
 	static Pad GetPad(int usePadNum = 0) { return getInstance()->GetPad_(usePadNum); }
+
+	[[nodiscard]]
+	static WNDCLASS GetWNDCLASS() { return getInstance()->GetWNDCLASS_(); }
+
+	[[nodiscard]]
+	static HWND GetHWND() { return getInstance()->GetHWND_(); }
 };

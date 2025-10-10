@@ -1,5 +1,6 @@
 #include "GameEngine.h"
 #include "SampleScene.h"
+#include "Scene/GameScene/GameScene.h"
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
