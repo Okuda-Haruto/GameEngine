@@ -3,6 +3,7 @@
 #include <Line.h>
 #include <array>
 #include <Effect.h>
+#include <Input/Input.h>
 
 class SampleScene
 {
@@ -44,9 +45,7 @@ private:
 	UINT isLighting_ = 1;
 
 	//インプット
-	Keybord keyBord_;
-	Mouse mouse_;
-	Pad pad_;
+	Input* input = nullptr;
 
 
 	bool isDisplayUI = true;

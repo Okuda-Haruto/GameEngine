@@ -19,6 +19,7 @@ SampleScene::~SampleScene() {
 	delete axis_;
 	delete debugCamera_;
 	delete light_;
+	delete input;
 }
 
 void SampleScene::Initialize() {
@@ -94,52 +95,53 @@ void SampleScene::Initialize() {
 	for (INT i = 0; i < objectData_.size(); i++) {
 		objectData_[i].transform.translate.x = i * 3 - 9.0f;
 	}
+
+	input = new Input;
+	input->Initialize(GameEngine::GetWNDCLASS().hInstance, GameEngine::GetHWND());	//元々GameEngineでまとめて管理していたので一時的に呼び出せるようにした
 }
 
 void SampleScene::Update() {
 	//入力処理
-	keyBord_ = GameEngine::GetKeybord();
-	mouse_ = GameEngine::GetMouse();
-	pad_ = GameEngine::GetPad();
+	input->Update();
 
-	if (keyBord_.hold[DIK_UP] || pad_.Button[PAD_BOTTON_UP].hold) {
+	if (input->PushKey(DIK_UP) || input->PushPadButton(PAD_BUTTON_UP)) {
 		for (INT i = 0; i < INT(objectData_.size());i++) {
 			objectData_[i].transform.translate.y += 0.1f;
 		}
 	}
-	if (keyBord_.hold[DIK_DOWN] || pad_.Button[PAD_BOTTON_DOWN].hold) {
+	if (input->PushKey(DIK_DOWN) || input->PushPadButton(PAD_BUTTON_DOWN)) {
 		for (INT i = 0; i < INT(objectData_.size()); i++) {
 			objectData_[i].transform.translate.y -= 0.1f;
 		}
 	}
-	if (keyBord_.hold[DIK_RIGHT] || pad_.Button[PAD_BOTTON_RIGHT].hold) {
+	if (input->PushKey(DIK_RIGHT) || input->PushPadButton(PAD_BUTTON_RIGHT)) {
 		for (INT i = 0; i < INT(objectData_.size()); i++) {
 			objectData_[i].transform.translate.x += 0.1f;
 		}
 	}
-	if (keyBord_.hold[DIK_LEFT] || pad_.Button[PAD_BOTTON_LEFT].hold) {
+	if (input->PushKey(DIK_LEFT) || input->PushPadButton(PAD_BUTTON_LEFT)) {
 		for (INT i = 0; i < INT(objectData_.size()); i++) {
 			objectData_[i].transform.translate.x -= 0.1f;
 		}
 	}
-	if (keyBord_.trigger[DIK_R] || pad_.Button[PAD_BOTTON_BACK].trigger) {
+	if (input->PushKey(DIK_R) || input->TriggerPadButton(PAD_BUTTON_BACK)) {
 		for (INT i = 0; i < INT(objectData_.size()); i++) {
 			objectData_[i].transform.translate = {};
 			objectData_[i].transform.rotate = {};
 			objectData_[i].transform.translate.x = i * 3 - 9.0f;
 		}
 	}
-	if (pad_.Button[PAD_BOTTON_START].trigger) {
+	if (input->TriggerPadButton(PAD_BUTTON_START)) {
 		if (isDisplayUI) {
 			isDisplayUI = false;
 		} else {
 			isDisplayUI = true;
 		}
 	}
-	if (keyBord_.trigger[DIK_P] || pad_.Button[PAD_BOTTON_RT].trigger) {
+	if (input->PushKey(DIK_P) || input->TriggerPadButton(PAD_BUTTON_RT)) {
 		audio_->SoundPlayWave();
 	}
-	if (keyBord_.trigger[DIK_L] || pad_.Button[PAD_BOTTON_LT].trigger) {
+	if (input->PushKey(DIK_L) || input->TriggerPadButton(PAD_BUTTON_LT)) {
 		switch (isLighting_)
 		{
 		case 0:
@@ -158,25 +160,25 @@ void SampleScene::Update() {
 			object->isLighting(isLighting_);
 		}
 	}
-	if (pad_.RightStick.magnitude > 0.001) {
+	if (input->PadRightStick().magnitude > 0.001) {
 		Vector3 sphericalCoordinates = debugCamera_->GetSphericalCoordinates();
-		sphericalCoordinates.y += pad_.RightStick.vector.x * pad_.RightStick.magnitude * 0.1f;
+		sphericalCoordinates.y += input->PadRightStick().vector.x * input->PadRightStick().magnitude * 0.1f;
 		if (sphericalCoordinates.y > std::numbers::pi_v<float> *2) {
 			sphericalCoordinates.y -= std::numbers::pi_v<float> *2;
 		} else if (sphericalCoordinates.y < -std::numbers::pi_v<float> *2) {
 			sphericalCoordinates.y += std::numbers::pi_v<float> *2;
 		}
-		sphericalCoordinates.z += pad_.RightStick.vector.y * pad_.RightStick.magnitude * 0.1f;
+		sphericalCoordinates.z += input->PadRightStick().vector.y * input->PadRightStick().magnitude * 0.1f;
 		sphericalCoordinates.z = std::max(std::min(sphericalCoordinates.z, std::numbers::pi_v<float>), 0.0f);
 		debugCamera_->SetSphericalCoordinates(sphericalCoordinates);
 	}
-	if (pad_.Button[PAD_BOTTON_LB].hold) {
+	if (input->PushPadButton(PAD_BUTTON_LB)) {
 		Vector3 sphericalCoordinates = debugCamera_->GetSphericalCoordinates();
 		sphericalCoordinates.x -= 0.1f;
 		sphericalCoordinates.x = std::min(sphericalCoordinates.x, 0.0f);
 		debugCamera_->SetSphericalCoordinates(sphericalCoordinates);
 	}
-	if (pad_.Button[PAD_BOTTON_RB].hold) {
+	if (input->PushPadButton(PAD_BUTTON_RB)) {
 		Vector3 sphericalCoordinates = debugCamera_->GetSphericalCoordinates();
 		sphericalCoordinates.x += 0.1f;
 		debugCamera_->SetSphericalCoordinates(sphericalCoordinates);

@@ -844,13 +844,13 @@ Pad GameEngine::GetPad_(int usePadNum) {
 		//ボタンの入力変換
 		for (int i = 0; i <= 16; i++) {
 			int hold = 0x0001 << i;
-			if (i != PAD_BOTTON_LT && i != PAD_BOTTON_RT) {
+			if (i != PAD_BUTTON_LT && i != PAD_BUTTON_RT) {
 				returnPad.Button[i].hold = pad_[usePadNum].Gamepad.wButtons & hold;
 				returnPad.Button[i].idle = ~(pad_[usePadNum].Gamepad.wButtons & hold);
 				returnPad.Button[i].trigger = (pad_[usePadNum].Gamepad.wButtons & hold) & ~(prePad_[usePadNum].Gamepad.wButtons & hold);
 				returnPad.Button[i].release = ~(pad_[usePadNum].Gamepad.wButtons & hold) & (prePad_[usePadNum].Gamepad.wButtons & hold);
 			} else {
-				if (i == PAD_BOTTON_LT) {
+				if (i == PAD_BUTTON_LT) {
 					returnPad.Button[i].hold = pad_[usePadNum].Gamepad.bLeftTrigger >= 0x80;
 					returnPad.Button[i].idle = !(pad_[usePadNum].Gamepad.bLeftTrigger >= 0x80);
 					returnPad.Button[i].trigger = (pad_[usePadNum].Gamepad.bLeftTrigger >= 0x80) && !(prePad_[usePadNum].Gamepad.bLeftTrigger >= 0x80);

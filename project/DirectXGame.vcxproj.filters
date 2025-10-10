@@ -79,6 +79,9 @@
     <Filter Include="GameEngine\Math\Shape">
       <UniqueIdentifier>{e7405c49-dc57-4756-a7ba-b4a4ec1f1f90}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GameEngine\Modules\Input">
+      <UniqueIdentifier>{3d19159c-aa9e-43d2-962d-a3d0b5e1a53c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -156,7 +159,7 @@
     <ClCompile Include="GameEngine\LoadFile\LoadText.cpp">
       <Filter>GameEngine\LoadFile</Filter>
     </ClCompile>
-    <ClCompile Include="SampleScene.cpp">
+    <ClCompile Include="Application\SampleScene\SampleScene.cpp">
       <Filter>Application\Sample</Filter>
     </ClCompile>
     <ClCompile Include="GameEngine\GameEngine.cpp">
@@ -202,6 +205,15 @@
     <ClCompile Include="GameEngine\Resource\Field.cpp">
       <Filter>GameEngine\Resource</Filter>
     </ClCompile>
+    <ClCompile Include="GameEngine\Modules\Input\Input.cpp">
+      <Filter>GameEngine\Modules\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Caracter\Player\Player.cpp" />
+    <ClCompile Include="Application\BackGround\Skydome\Skydome.cpp" />
+    <ClCompile Include="Application\Scene\GameScene\GameScene.cpp" />
+    <ClCompile Include="Application\GameCamera\GameCamera.cpp" />
+    <ClCompile Include="Application\BackGround\Ground\Ground.cpp" />
+    <ClCompile Include="GameEngine\Math\Lerp.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="externals\imgui\imconfig.h">
@@ -339,7 +351,7 @@
     <ClInclude Include="GameEngine\Resource\Camera.h">
       <Filter>GameEngine\Resource</Filter>
     </ClInclude>
-    <ClInclude Include="SampleScene.h">
+    <ClInclude Include="Application\SampleScene\SampleScene.h">
       <Filter>Application\Sample</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\Math\Collision.h">
@@ -417,6 +429,15 @@
     <ClInclude Include="GameEngine\Data\CameraForGPU.h">
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
+    <ClInclude Include="GameEngine\Modules\Input\Input.h">
+      <Filter>GameEngine\Modules\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Caracter\Player\Player.h" />
+    <ClInclude Include="Application\BackGround\Skydome\Skydome.h" />
+    <ClInclude Include="Application\Scene\GameScene\GameScene.h" />
+    <ClInclude Include="Application\GameCamera\GameCamera.h" />
+    <ClInclude Include="Application\BackGround\Ground\Ground.h" />
+    <ClInclude Include="GameEngine\Math\Lerp.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt">
