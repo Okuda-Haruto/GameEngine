@@ -18,7 +18,8 @@ SampleScene::~SampleScene() {
 	delete camera_;
 	delete axis_;
 	delete debugCamera_;
-	delete light_;
+	delete directionalLight_;
+	delete pointLight_;
 	delete input;
 }
 
@@ -32,7 +33,7 @@ void SampleScene::Initialize() {
 	object_[2] = new Object_3D;
 	object_[2]->Initialize("resources/DebugResources/multiMesh", "multiMesh.obj");
 	object_[3] = new Object_3D;
-	object_[3]->Initialize("resources/DebugResources/multiMaterial", "multiMaterial.obj");
+	object_[3]->Initialize("resources/DebugResources/terrain", "terrain.obj");
 	object_[4] = new Object_3D;
 	object_[4]->Initialize("resources/DebugResources/teapot", "teapot.obj");
 	object_[5] = new Object_3D;
@@ -79,18 +80,30 @@ void SampleScene::Initialize() {
 	axis_->Initialize(camera_);
 
 	//光源
-	light_ = new Light;
-	light_->Initialize();
-	directionalLight = {
+	directionalLight_ = new DirectionalLight;
+	directionalLight_->Initialize();
+	directionalLightElement_ = {
 		{1.0f,1.0f,1.0f,1.0f},
 		{0.0f,-1.0f,0.0f},
+		0.0f
+	};
+	directionalLight_->SetDirectionalLightElement(directionalLightElement_);
+
+	pointLight_ = new PointLight;
+	pointLight_->Initialize();
+	pointLightElement_ = {
+		{1.0f,1.0f,1.0f,1.0f},
+		{0.0f,2.0f,0.0f},
+		1.0f,
+		20.0f,
 		1.0f
 	};
-	light_->SetDirectionalLight(directionalLight);
-	isLighting_ = 2;
+	pointLight_->SetPointLightElement(pointLightElement_);
+
 	for (Object_3D* object : object_) {
-		object->SetLight(light_);
-		object->isLighting(isLighting_);
+		object->SetDirectionalLight(directionalLight_);
+		object->SetPointLight(pointLight_);
+		object->SetReflection(isLighting_);
 	}
 	for (INT i = 0; i < objectData_.size(); i++) {
 		objectData_[i].transform.translate.x = i * 3 - 9.0f;
@@ -157,7 +170,7 @@ void SampleScene::Update() {
 			break;
 		}
 		for (Object_3D* object : object_) {
-			object->isLighting(isLighting_);
+			object->SetReflection(isLighting_);
 		}
 	}
 	if (input->PadRightStick().magnitude > 0.001) {
@@ -183,7 +196,6 @@ void SampleScene::Update() {
 		sphericalCoordinates.x += 0.1f;
 		debugCamera_->SetSphericalCoordinates(sphericalCoordinates);
 	}
-
 
 	effect_->Update();
 
@@ -243,40 +255,45 @@ void SampleScene::Update() {
 				if (ImGui::Selectable(items[n], is_selected)) {
 					isLighting_ = n;
 					for (Object_3D* object : object_) {
-						object->isLighting(isLighting_);
+						object->SetReflection(isLighting_);
 					}
 				}
 			}
 			ImGui::EndCombo();
 		}
-		static float shininess = 0.0f;
+		static float shininess = 40.0f;
 		ImGui::DragFloat("light Shininess", &shininess);
 		for (Object_3D* object : object_) {
 			object->SetShininess(shininess);
 		}
-		ImGui::ColorEdit4("light Color", &directionalLight.color.x);
-		ImGui::DragFloat3("light Direction", &directionalLight.direction.x, 0.01f, -1.0f, 1.0f);
-		ImGui::DragFloat("light Intensity", &directionalLight.intensity, 0.01f, 0.0f, 1.0f);
-		float sqrtNumber = sqrtf(sqrtf(powf(directionalLight.direction.x, 2) + powf(directionalLight.direction.y, 2)) + powf(directionalLight.direction.z, 2));
-		directionalLight.direction.x = directionalLight.direction.x / sqrtNumber;
-		directionalLight.direction.y = directionalLight.direction.y / sqrtNumber;
-		directionalLight.direction.z = directionalLight.direction.z / sqrtNumber;
-		if (ImGui::Button("パーティクル発生")) {
-			effect_->Emit();
-		}
-		static bool isUseField = false;
-		ImGui::Checkbox("fieldを使用するか", &isUseField);
-		effect_->IsUseField(isUseField);
+		ImGui::ColorEdit4("directionalLight Color", &directionalLightElement_.color.x);
+		ImGui::DragFloat3("directionalLight Direction", &directionalLightElement_.direction.x, 0.01f, -1.0f, 1.0f);
+		ImGui::DragFloat("directionalLight Intensity", &directionalLightElement_.intensity, 0.01f, 0.0f, 1.0f);
+		float sqrtNumber = sqrtf(sqrtf(powf(directionalLightElement_.direction.x, 2) + powf(directionalLightElement_.direction.y, 2)) + powf(directionalLightElement_.direction.z, 2));
+		directionalLightElement_.direction.x = directionalLightElement_.direction.x / sqrtNumber;
+		directionalLightElement_.direction.y = directionalLightElement_.direction.y / sqrtNumber;
+		directionalLightElement_.direction.z = directionalLightElement_.direction.z / sqrtNumber;
 
-		ImGui::DragFloat("パーティクル Scale", &EffectTransform.scale.x, 0.1f);
-		EffectTransform.scale = { EffectTransform.scale.x ,EffectTransform.scale.x ,EffectTransform.scale.x };
-		ImGui::SliderAngle("パーティクル RotateX", &EffectTransform.rotate.x);
-		ImGui::SliderAngle("パーティクル RotateY", &EffectTransform.rotate.y);
-		ImGui::SliderAngle("パーティクル Rotatez", &EffectTransform.rotate.z);
-		ImGui::DragFloat3("パーティクル Translate", &EffectTransform.translate.x, 0.1f);
-		ImGui::ColorPicker4("color", &EffectColor.x);
-		effect_->SetColor(EffectColor);
-		effect_->SetTransform(EffectTransform);
+		ImGui::ColorEdit4("pointLight Color", &pointLightElement_.color.x);
+		ImGui::DragFloat3("pointLight Position", &pointLightElement_.position.x, 0.1f);
+		ImGui::DragFloat("pointLight Intensity", &pointLightElement_.intensity, 0.01f, 0.0f, 1.0f);
+		ImGui::DragFloat("pointLight Radius", &pointLightElement_.radius, 0.01f, 0.0f,100.0f);
+		ImGui::DragFloat("pointLight Decay", &pointLightElement_.decay, 0.01f, 0.0f,10.0f);
+
+		ImGui::Checkbox("パーティクルを発生させるか", &isSpawnEffect_);
+		if (isSpawnEffect_) {
+			ImGui::Checkbox("fieldを使用するか", &isUseField);
+			effect_->IsUseField(isUseField);
+			ImGui::DragFloat("パーティクル Scale", &EffectTransform.scale.x, 0.1f);
+			EffectTransform.scale = { EffectTransform.scale.x ,EffectTransform.scale.x ,EffectTransform.scale.x };
+			ImGui::SliderAngle("パーティクル RotateX", &EffectTransform.rotate.x);
+			ImGui::SliderAngle("パーティクル RotateY", &EffectTransform.rotate.y);
+			ImGui::SliderAngle("パーティクル Rotatez", &EffectTransform.rotate.z);
+			ImGui::DragFloat3("パーティクル Translate", &EffectTransform.translate.x, 0.1f);
+			ImGui::ColorPicker4("color", &EffectColor.x);
+			effect_->SetColor(EffectColor);
+			effect_->SetTransform(EffectTransform);
+		}
 		ImGui::Checkbox("スプライト描画", &isSpriteDraw_);
 		if (isSpriteDraw_) {
 			ImGui::DragFloat3("Sprite Scale", &spriteData_.transform.scale.x, 0.1f);
@@ -336,7 +353,8 @@ void SampleScene::Update() {
 		ImGui::End();
 	}
 
-	light_->SetDirectionalLight(directionalLight);
+	directionalLight_->SetDirectionalLightElement(directionalLightElement_);
+	pointLight_->SetPointLightElement(pointLightElement_);
 }
 
 void SampleScene::Draw() {
@@ -353,7 +371,9 @@ void SampleScene::Draw() {
 		}
 	}
 
-	effect_->Draw();
+	if (isSpawnEffect_) {
+		effect_->Draw();
+	}
 
 	if (isSpriteDraw_ && isDisplayUI) {
 		sprite_->Draw(GameEngine::GetCommandList(), spriteData_);

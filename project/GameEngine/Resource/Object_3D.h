@@ -12,7 +12,8 @@
 #include "Object_Multi_Data.h"
 #include "Object_Single_Data.h"
 #include "Camera.h"
-#include "Light.h"
+#include "DirectionalLight.h"
+#include "PointLight.h"
 #include "Particle.h"
 #include "ParticleForGPU.h"
 
@@ -41,9 +42,13 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12Device> device_;
 
 	//光源データ
-	Light* light_ = nullptr;
+	DirectionalLight* directionalLight_ = nullptr;
+	PointLight* pointLight_ = nullptr;
+
 	//ライティングを使用するか
-	int isLighting_ = 0;
+	int reflection_ = 0;
+	bool isUseDirectionalLight = 0;
+	bool isUsePointLight = 0;
 
 	//光沢度
 	float shininess_ = 0.0f;
@@ -68,9 +73,11 @@ public:
 	void Initialize(const std::string& directoryPath, const std::string& filename);
 
 	// Light入力
-	void SetLight(Light* light) { light_ = light; }
+	void SetDirectionalLight(DirectionalLight* directionaLlight) { directionalLight_ = directionaLlight; }
+	// Light入力
+	void SetPointLight(PointLight* pointLlight) { pointLight_ = pointLlight; }
 	// Lightを使用するか
-	void isLighting(int isLighting) { isLighting_ = isLighting; }
+	void SetReflection(int reflection) { reflection_ = reflection; }
 	// Camera入力
 	void SetCamera(Camera* camera) { camera_ = camera; }
 
@@ -113,9 +120,16 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12Device> device_;
 
 	//光源データ
-	Light* light_ = nullptr;
+	DirectionalLight* directionalLight_ = nullptr;
+	PointLight* pointLight_ = nullptr;
+
 	//ライティングを使用するか
-	int isLighting_ = 0;
+	int reflection_ = 0;
+	bool isUseDirectionalLight = 0;
+	bool isUsePointLight = 0;
+
+	//光沢度
+	float shininess_ = 0.0f;
 
 	//カメラ
 	Camera* camera_ = nullptr;
@@ -137,9 +151,11 @@ public:
 	void Initialize(const std::string& directoryPath, const std::string& filename);
 
 	// Light入力
-	void SetLight(Light* light) { light_ = light; }
+	void SetDirectionalLight(DirectionalLight* directionaLlight) { directionalLight_ = directionaLlight; }
+	// Light入力
+	void SetPointLight(PointLight* pointLight) { pointLight_ = pointLight; }
 	// Lightを使用するか
-	void isLighting(int isLighting) { isLighting_ = isLighting; }
+	void SetReflection(int reflection) { reflection_ = reflection; }
 	// Camera入力
 	void SetCamera(Camera* camera) { camera_ = camera; }
 
@@ -195,9 +211,13 @@ private:
 	float spriteHeight_ = 720;
 
 	//光源データ
-	Light* light_ = nullptr;
+	DirectionalLight* directionalLight_ = nullptr;
+	PointLight* pointLight_ = nullptr;
+
 	//ライティングを使用するか
-	bool isLighting_ = true;
+	int reflection_ = true;
+	bool isUseDirectionalLight = 0;
+	bool isUsePointLight = 0;
 
 	//カメラ
 	Camera* camera_ = nullptr;
@@ -218,9 +238,11 @@ public:
 	void Initialize();
 
 	// Light入力
-	void SetLight(Light* light) { light_ = light; }
+	void SetDirectionalLight(DirectionalLight* directionaLlight) { directionalLight_ = directionaLlight; }
+	// Light入力
+	void SetPointLight(PointLight* pointLight) { pointLight_ = pointLight; }
 	// Lightを使用するか
-	void isLighting(bool isLighting) { isLighting_ = isLighting; }
+	void SetReflection(int reflection) { reflection_ = reflection; }
 	// Camera入力
 	void SetCamera(Camera* camera) { camera_ = camera; }
 	// スプライトの表示サイズ入力
@@ -282,9 +304,13 @@ private:
 	float spriteHeight_ = 720;
 
 	//光源データ
-	Light* light_ = nullptr;
+	DirectionalLight* directionalLight_ = nullptr;
+	PointLight* pointLight_ = nullptr;
+
 	//ライティングを使用するか
-	bool isLighting_ = true;
+	int reflection_ = true;
+	bool isUseDirectionalLight = 0;
+	bool isUsePointLight = 0;
 
 	//カメラ
 	Camera* camera_ = nullptr;
@@ -305,9 +331,11 @@ public:
 	void Initialize();
 
 	// Light入力
-	void SetLight(Light* light) { light_ = light; }
+	void SetDirectionalLight(DirectionalLight* directionaLlight) { directionalLight_ = directionaLlight; }
+	// Light入力
+	void SetPointLight(PointLight* pointLight) { pointLight_ = pointLight; }
 	// Lightを使用するか
-	void isLighting(bool isLighting) { isLighting_ = isLighting; }
+	void SetReflection(int reflection) { reflection_ = reflection; }
 	// Camera入力
 	void SetCamera(Camera* camera) { camera_ = camera; }
 	// スプライトの表示サイズ入力

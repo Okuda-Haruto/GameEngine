@@ -115,7 +115,10 @@ void Sprite_2D::Draw(Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& command
 
 	materialData_[index_]->color = data.material.color;
 	materialData_[index_]->uvTransform = MakeAffineMatrix(data.material.uvTransform.scale, data.material.uvTransform.rotate, data.material.uvTransform.translate);
-	materialData_[index_]->enableLighting = false;
+	materialData_[index_]->reflection = false;
+	materialData_[index_]->enableDirectionalLighting = false;
+	materialData_[index_]->enablePointLighting = false;
+	materialData_[index_]->shininess = 0.0f;
 
 	materialResource_[index_]->Unmap(0, nullptr);
 
@@ -275,7 +278,10 @@ void Text_2D::Draw(Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& commandLi
 
 			materialData_[index_]->color = data.material.color;
 			materialData_[index_]->uvTransform = MakeAffineMatrix(data.material.uvTransform.scale, data.material.uvTransform.rotate, data.material.uvTransform.translate);
-			materialData_[index_]->enableLighting = false;
+			materialData_[index_]->reflection = false;
+			materialData_[index_]->enableDirectionalLighting = false;
+			materialData_[index_]->enablePointLighting = false;
+			materialData_[index_]->shininess = 0.0f;
 
 			materialResource_[index_]->Unmap(0, nullptr);
 
@@ -372,7 +378,10 @@ void Text_2D::Draw(Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& commandLi
 
 			materialData_[index_]->color = data.material.color;
 			materialData_[index_]->uvTransform = MakeAffineMatrix(data.material.uvTransform.scale, data.material.uvTransform.rotate, data.material.uvTransform.translate);
-			materialData_[index_]->enableLighting = false;
+			materialData_[index_]->reflection = false;
+			materialData_[index_]->enableDirectionalLighting = false;
+			materialData_[index_]->enablePointLighting = false;
+			materialData_[index_]->shininess = 0.0f;
 
 			materialResource_[index_]->Unmap(0, nullptr);
 

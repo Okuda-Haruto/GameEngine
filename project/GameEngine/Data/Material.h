@@ -5,8 +5,10 @@
 
 struct Material {
 	Vector4 color;
-	int32_t enableLighting;
-	float padding[3];
+	int32_t reflection;
+	int32_t enableDirectionalLighting;
+	int32_t enablePointLighting;
+	float padding;
 	Matrix4x4 uvTransform;
 	float shininess = 0.0f;
 };

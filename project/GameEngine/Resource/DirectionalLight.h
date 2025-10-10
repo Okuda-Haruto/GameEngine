@@ -3,18 +3,18 @@
 #include <d3d12.h>
 
 #include <wrl.h>
-#include "DirectionalLight.h"
+#include "DirectionalLightElement.h"
 
 //光源
-class Light {
+class DirectionalLight {
 private:
 	//光源用のリソース
-	Microsoft::WRL::ComPtr<ID3D12Resource> directionalLightResource_;
+	Microsoft::WRL::ComPtr<ID3D12Resource> DirectionalLightElementResource_;
 	//光源データ
-	DirectionalLight* directionalLightData_ = nullptr;
+	DirectionalLightElement* directionalLightElementData_ = nullptr;
 public:
 
-	~Light();
+	~DirectionalLight();
 
 	/// <summary>
 	/// 初期化
@@ -28,11 +28,11 @@ public:
 	void SetDirection(Vector3 direction);
 	// Intensity入力
 	void SetIntensity(float intensity);
-	// DirectionalLight入力
-	void SetDirectionalLight(DirectionalLight directionalLight);
+	// DirectionalLightElement入力
+	void SetDirectionalLightElement(DirectionalLightElement directionalLightElement);
 
 	//光源用のリソース
 	[[nodiscard]]
-	Microsoft::WRL::ComPtr<ID3D12Resource>& directionalLightResource();
+	Microsoft::WRL::ComPtr<ID3D12Resource>& DirectionalLightElementResource();
 
 };

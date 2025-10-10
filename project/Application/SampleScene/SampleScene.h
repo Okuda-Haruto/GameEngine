@@ -4,6 +4,7 @@
 #include <array>
 #include <Effect.h>
 #include <Input/Input.h>
+#include <PointLight.h>
 
 class SampleScene
 {
@@ -17,9 +18,11 @@ private:
 	SRT EffectTransform;
 	Vector4 EffectColor = { 1,1,1,1 };
 	Effect* effect_ = nullptr;
+	bool isSpawnEffect_ = false;
+	bool isUseField = false;
 
 	//2Dモデル
-	bool isSpriteDraw_ = TRUE;
+	bool isSpriteDraw_ = false;
 	Sprite_2D* sprite_ = nullptr;
 	// 2Dモデルデータ
 	Object_Single_Data spriteData_;
@@ -40,9 +43,13 @@ private:
 	bool isUseDebugCamera_ = true;
 
 	//光源
-	DirectionalLight directionalLight;
-	Light* light_;
-	UINT isLighting_ = 1;
+	DirectionalLightElement directionalLightElement_;
+	DirectionalLight* directionalLight_ = nullptr;
+	UINT isLighting_ = 2;
+
+	PointLightElement pointLightElement_;
+	PointLight* pointLight_ = nullptr;
+
 
 	//インプット
 	Input* input = nullptr;

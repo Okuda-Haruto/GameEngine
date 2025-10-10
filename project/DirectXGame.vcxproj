@@ -59,8 +59,9 @@
     <ClCompile Include="GameEngine\Resource\Camera.cpp" />
     <ClCompile Include="GameEngine\Resource\Effect.cpp" />
     <ClCompile Include="GameEngine\Resource\Field.cpp" />
+    <ClCompile Include="GameEngine\Resource\PointLight.cpp" />
     <ClCompile Include="GameEngine\Resource\Text.cpp" />
-    <ClCompile Include="GameEngine\Resource\Light.cpp" />
+    <ClCompile Include="GameEngine\Resource\DirectionalLight.cpp" />
     <ClCompile Include="GameEngine\Resource\Object_2D.cpp" />
     <ClCompile Include="GameEngine\Resource\Object_3D.cpp" />
     <ClCompile Include="GameEngine\Modules\CompileShader\CompileShader.cpp" />
@@ -90,9 +91,10 @@
     <ClInclude Include="GameEngine\Data\Emitter.h" />
     <ClInclude Include="GameEngine\Data\Particle.h" />
     <ClInclude Include="GameEngine\Data\ParticleForGPU.h" />
+    <ClInclude Include="GameEngine\Data\PointLightElement.h" />
     <ClInclude Include="GameEngine\Math\Shape\AABB.h" />
     <ClInclude Include="GameEngine\Data\ChunkHeader.h" />
-    <ClInclude Include="GameEngine\Data\DirectionalLight.h" />
+    <ClInclude Include="GameEngine\Data\DirectionalLightElement.h" />
     <ClInclude Include="GameEngine\Data\FormatChunk.h" />
     <ClInclude Include="GameEngine\Data\Input.h" />
     <ClInclude Include="GameEngine\Math\Shape\Line.h" />
@@ -142,8 +144,9 @@
     <ClInclude Include="GameEngine\Resource\Camera.h" />
     <ClInclude Include="GameEngine\Resource\Effect.h" />
     <ClInclude Include="GameEngine\Resource\Field.h" />
+    <ClInclude Include="GameEngine\Resource\PointLight.h" />
     <ClInclude Include="GameEngine\Resource\Text.h" />
-    <ClInclude Include="GameEngine\Resource\Light.h" />
+    <ClInclude Include="GameEngine\Resource\DirectionalLight.h" />
     <ClInclude Include="GameEngine\Resource\Object_2D.h" />
     <ClInclude Include="GameEngine\Resource\Object_3D.h" />
     <ClInclude Include="GameEngine\Modules\CompileShader\CompileShader.h" />
