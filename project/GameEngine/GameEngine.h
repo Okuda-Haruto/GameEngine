@@ -15,7 +15,7 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #include <random>
 
 #include "D3DResourceLeakChecker.h"
-#include "Light.h"
+#include "DirectionalLight.h"
 #include "Object_3D.h"
 #include "Object_2D.h"
 #include "Text.h"

@@ -111,7 +111,9 @@ void Object_3D::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandL
 
 		materialData_[index_]->color = data.material[i].color;
 		materialData_[index_]->uvTransform = MakeAffineMatrix(data.material[i].uvTransform.scale, data.material[i].uvTransform.rotate, data.material[i].uvTransform.translate);
-		materialData_[index_]->enableLighting = isLighting_;
+		materialData_[index_]->reflection = reflection_;
+		materialData_[index_]->enableDirectionalLighting = true;
+		materialData_[index_]->enablePointLighting = true;
 		materialData_[index_]->shininess = shininess_;
 
 		materialResource_[index_]->Unmap(0, nullptr);
@@ -124,8 +126,12 @@ void Object_3D::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandL
 		commandList->IASetIndexBuffer(&objectData_[i].indexBufferView_);	//IBVを設定
 		//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
 		commandList->SetGraphicsRootDescriptorTable(2, GameEngine::TextureGet(data.material[i].textureIndex));
-		if (isLighting_ != 0 && light_ != nullptr) {
-			commandList->SetGraphicsRootConstantBufferView(3, light_->directionalLightResource()->GetGPUVirtualAddress());	//Lighting
+		if (reflection_ != 0 && directionalLight_ != nullptr) {
+			commandList->SetGraphicsRootConstantBufferView(3, directionalLight_->DirectionalLightElementResource()->GetGPUVirtualAddress());	//DirectionalLighting
+		}
+
+		if (reflection_ != 0 && pointLight_ != nullptr) {
+			commandList->SetGraphicsRootConstantBufferView(5, pointLight_->PointLightElementResource()->GetGPUVirtualAddress());	//DirectionalLighting
 		}
 
 		//カメラのワールド座標をCBufferに送る
@@ -255,7 +261,10 @@ void Instance_3D::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& comman
 
 		materialData_[index_]->color = data.begin()->material[i].color;
 		materialData_[index_]->uvTransform = MakeAffineMatrix(data.begin()->material[i].uvTransform.scale, data.begin()->material[i].uvTransform.rotate, data.begin()->material[i].uvTransform.translate);
-		materialData_[index_]->enableLighting = isLighting_;
+		materialData_[index_]->reflection = reflection_;
+		materialData_[index_]->enableDirectionalLighting = isUseDirectionalLight;
+		materialData_[index_]->enablePointLighting = isUsePointLight;
+		materialData_[index_]->shininess = shininess_;
 
 		materialResource_[index_]->Unmap(0, nullptr);
 
@@ -267,8 +276,8 @@ void Instance_3D::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& comman
 		commandList->IASetIndexBuffer(&objectData_[i].indexBufferView_);	//IBVを設定
 		//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
 		commandList->SetGraphicsRootDescriptorTable(2, GameEngine::TextureGet(data.begin()->material[i].textureIndex));
-		if (isLighting_ != 0 && light_ != nullptr) {
-			commandList->SetGraphicsRootConstantBufferView(3, light_->directionalLightResource()->GetGPUVirtualAddress());	//Lighting
+		if (reflection_ != 0 && directionalLight_ != nullptr) {
+			commandList->SetGraphicsRootConstantBufferView(3, directionalLight_->DirectionalLightElementResource()->GetGPUVirtualAddress());	//Lighting
 		}
 
 		//カメラのワールド座標をCBufferに送る
@@ -360,7 +369,7 @@ void Sprite_3D::Initialize() {
 
 void Sprite_3D::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandList, Object_Multi_Data& data) {
 
-	assert(light_ != nullptr || isLighting_ == true);	//Lightがセットされていない場合止める
+	assert(directionalLight_ == nullptr && reflection_ != 0);	//Lightがセットされていない場合止める
 
 	//頂点のローカル座標系を設定
 	vertexResource_->Map(0, nullptr, reinterpret_cast<void**>(&vertexData_));
@@ -419,7 +428,10 @@ void Sprite_3D::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandL
 
 	materialData_[index_]->color = data.material[0].color;
 	materialData_[index_]->uvTransform = MakeAffineMatrix(data.material[0].uvTransform.scale, data.material[0].uvTransform.rotate, data.material[0].uvTransform.translate);
-	materialData_[index_]->enableLighting = isLighting_;
+	materialData_[index_]->reflection = reflection_;
+	materialData_[index_]->enableDirectionalLighting = isUseDirectionalLight;
+	materialData_[index_]->enablePointLighting = isUsePointLight;
+	materialData_[index_]->shininess = 0.0f;
 
 	materialResource_[index_]->Unmap(0, nullptr);
 
@@ -431,8 +443,8 @@ void Sprite_3D::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandL
 	commandList->IASetIndexBuffer(&indexBufferView_);	//IBVを設定
 	//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
 	commandList->SetGraphicsRootDescriptorTable(2, GameEngine::TextureGet(data.material[0].textureIndex));
-	if (isLighting_ != 0 && light_ != nullptr) {
-		commandList->SetGraphicsRootConstantBufferView(3, light_->directionalLightResource()->GetGPUVirtualAddress());	//Lighting
+	if (reflection_ != 0 && directionalLight_ != nullptr) {
+		commandList->SetGraphicsRootConstantBufferView(3, directionalLight_->DirectionalLightElementResource()->GetGPUVirtualAddress());	//Lighting
 	}
 
 	//カメラのワールド座標をCBufferに送る
@@ -624,7 +636,10 @@ void Particle_3D::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& comman
 
 	materialData_[index_]->color = {1,1,1,1};
 	materialData_[index_]->uvTransform = MakeIdentity4x4();
-	materialData_[index_]->enableLighting = isLighting_;
+	materialData_[index_]->reflection = reflection_;
+	materialData_[index_]->enableDirectionalLighting = isUseDirectionalLight;
+	materialData_[index_]->enablePointLighting = isUsePointLight;
+	materialData_[index_]->shininess = 0.0f;
 
 	materialResource_[index_]->Unmap(0, nullptr);
 
@@ -636,8 +651,8 @@ void Particle_3D::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& comman
 	commandList->IASetIndexBuffer(&indexBufferView_);	//IBVを設定
 	//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
 	commandList->SetGraphicsRootDescriptorTable(2, GameEngine::TextureGet(particles.texture));
-	if (isLighting_ != 0 && light_ != nullptr) {
-		commandList->SetGraphicsRootConstantBufferView(3, light_->directionalLightResource()->GetGPUVirtualAddress());	//Lighting
+	if (reflection_ != 0 && directionalLight_ != nullptr) {
+		commandList->SetGraphicsRootConstantBufferView(3, directionalLight_->DirectionalLightElementResource()->GetGPUVirtualAddress());	//Lighting
 	}
 
 	//カメラのワールド座標をCBufferに送る
@@ -761,7 +776,10 @@ void Line_3D::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandLis
 
 	materialData_[index_]->color = color;
 	materialData_[index_]->uvTransform = MakeIdentity4x4();
-	materialData_[index_]->enableLighting = false;
+	materialData_[index_]->reflection = false;
+	materialData_[index_]->enableDirectionalLighting = 0;
+	materialData_[index_]->enablePointLighting = 0;
+	materialData_[index_]->shininess = 0.0f;
 
 	materialResource_[index_]->Unmap(0, nullptr);
 
@@ -896,6 +914,10 @@ void AxisIndicator::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& comm
 
 	materialData_->color = {1.0f,1.0f,1.0f,1.0f};
 	materialData_->uvTransform = MakeIdentity4x4();
+	materialData_->reflection = 0;
+	materialData_->enableDirectionalLighting = 0;
+	materialData_->enablePointLighting = 0;
+	materialData_->shininess = 0.0f;
 
 	materialResource_->Unmap(0, nullptr);
 
