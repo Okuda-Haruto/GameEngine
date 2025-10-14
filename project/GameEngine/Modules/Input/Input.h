@@ -6,6 +6,8 @@
 #include <Xinput.h>
 #include <Vector2.h>
 
+#include "WindowsAPI/WindowsAPI.h"
+
 //マウスクリック
 enum PAD_BUTTON {
 	PAD_BUTTON_UP,		//上ボタン
@@ -56,6 +58,9 @@ public:
 	template <class T> using Comptr = Microsoft::WRL::ComPtr<T>;
 private:
 
+	//WindowsAPI
+	WindowsAPI* winApp_ = nullptr;
+
 	//DirectInputのインスタンス
 	Comptr<IDirectInput8> directInput;
 	//キーボードデバイス
@@ -72,7 +77,7 @@ private:
 
 public:
 	//初期化
-	void Initialize(HINSTANCE hInstance, HWND hwnd);
+	void Initialize(WindowsAPI* winApp);
 	//更新
 	void Update();
 

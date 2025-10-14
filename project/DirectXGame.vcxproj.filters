@@ -25,9 +25,6 @@
     <Filter Include="GameEngine\Modules">
       <UniqueIdentifier>{4cd64860-14ba-4e47-b3e5-15cd293a6246}</UniqueIdentifier>
     </Filter>
-    <Filter Include="GameEngine\Modules\Window">
-      <UniqueIdentifier>{13d67548-3f79-49ab-a373-aa1f10b2a2ff}</UniqueIdentifier>
-    </Filter>
     <Filter Include="GameEngine\Shader">
       <UniqueIdentifier>{9c37cdff-4c36-4bb7-ace9-13b3c7cdb5e6}</UniqueIdentifier>
     </Filter>
@@ -81,6 +78,9 @@
     </Filter>
     <Filter Include="GameEngine\Modules\Input">
       <UniqueIdentifier>{3d19159c-aa9e-43d2-962d-a3d0b5e1a53c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\Modules\WindowsAPI">
+      <UniqueIdentifier>{7b005644-fbea-4e96-a266-1a2764316b60}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -150,9 +150,6 @@
     <ClCompile Include="GameEngine\Resource\Object_3D.cpp">
       <Filter>GameEngine\Resource</Filter>
     </ClCompile>
-    <ClCompile Include="GameEngine\Modules\Window\Window.cpp">
-      <Filter>GameEngine\Modules\Window</Filter>
-    </ClCompile>
     <ClCompile Include="GameEngine\Resource\Text.cpp">
       <Filter>GameEngine\Resource</Filter>
     </ClCompile>
@@ -218,6 +215,9 @@
     </ClCompile>
     <ClCompile Include="GameEngine\Resource\PointLight.cpp">
       <Filter>GameEngine\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEngine\Modules\WindowsAPI\WindowsAPI.cpp">
+      <Filter>GameEngine\Modules\WindowsAPI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -338,9 +338,6 @@
     <ClInclude Include="GameEngine\Resource\Object_3D.h">
       <Filter>GameEngine\Resource</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\Modules\Window\Window.h">
-      <Filter>GameEngine\Modules\Window</Filter>
-    </ClInclude>
     <ClInclude Include="GameEngine\GameEngine.h">
       <Filter>GameEngine</Filter>
     </ClInclude>
@@ -450,6 +447,9 @@
     </ClInclude>
     <ClInclude Include="GameEngine\Resource\PointLight.h">
       <Filter>GameEngine\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Modules\WindowsAPI\WindowsAPI.h">
+      <Filter>GameEngine\Modules\WindowsAPI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

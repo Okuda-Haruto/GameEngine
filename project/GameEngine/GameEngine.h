@@ -13,6 +13,8 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 
 #include <Xinput.h>
 #include <random>
+#include <iostream>
+#include <algorithm>
 
 #include "D3DResourceLeakChecker.h"
 #include "DirectionalLight.h"
@@ -25,6 +27,8 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 
 #include "TextureData.h"
 #include "ParticleForGPU.h"
+
+#include "WindowsAPI/WindowsAPI.h"
 
 #include <vector>
 
@@ -40,8 +44,7 @@ private:
 	//リソースチェック
 	D3DResourceLeakChecker leakCheck_;
 #endif
-	//ウィンドウクラス
-	WNDCLASS w_;
+	WindowsAPI* winApp_ = nullptr;
 
 	//ログファイルの生成
 	std::ofstream logStream_;
@@ -51,8 +54,6 @@ private:
 	Microsoft::WRL::ComPtr <IDXGIAdapter4> useAdapter_;
 	//使用するデバイス
 	Microsoft::WRL::ComPtr<ID3D12Device> device_;
-	//ウィンドウ
-	HWND hwnd_;
 
 	uint32_t descriptorSizeSRV_;
 	uint32_t descriptorSizeRTV_;
@@ -171,7 +172,7 @@ private:
 	int32_t randomInt_(int32_t minInt,int32_t maxInt);
 
 	bool StartFlame_();
-	bool WiodowState_();
+	bool WindowState_();
 	void PreDraw_();
 	void PostDraw_();
 
@@ -190,8 +191,7 @@ private:
 	Mouse GetMouse_();
 	Pad GetPad_(int usePadNum = 0);
 
-	WNDCLASS GetWNDCLASS_() { return w_; }
-	HWND GetHWND_() { return hwnd_; }
+	WindowsAPI* GetWindowsAPI_() { return winApp_; }
 
 	// インスタンス生成
 	static GameEngine* getInstance();
@@ -261,7 +261,7 @@ public:
 	/// </summary>
 	/// <returns>ウィンドウを閉じているか</returns>
 	[[nodiscard]]
-	static bool WiodowState() { return getInstance()->WiodowState_(); }
+	static bool WindowState() { return getInstance()->WindowState_(); }
 
 	//描画前処理
 	static void PreDraw() { getInstance()->PreDraw_(); }
@@ -314,8 +314,5 @@ public:
 	static Pad GetPad(int usePadNum = 0) { return getInstance()->GetPad_(usePadNum); }
 
 	[[nodiscard]]
-	static WNDCLASS GetWNDCLASS() { return getInstance()->GetWNDCLASS_(); }
-
-	[[nodiscard]]
-	static HWND GetHWND() { return getInstance()->GetHWND_(); }
+	static WindowsAPI* GetWindowsAPI() { return getInstance()->GetWindowsAPI_(); }
 };

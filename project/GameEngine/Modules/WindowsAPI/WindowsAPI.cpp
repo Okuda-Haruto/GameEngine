@@ -1,13 +1,37 @@
-#include"Window.h"
+#include "WindowsAPI.h"
 #include <wrl.h>
 
 #include "imgui/imgui.h"
-#include "imgui/imgui_impl_dx12.h"
-#include "imgui/imgui_impl_win32.h"
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
+int32_t WindowsAPI::kClientWidth_ = 1280;
+int32_t WindowsAPI::kClientHeight_ = 720;
+
+void WindowsAPI::Initialize(const wchar_t* WindowName, int32_t kWindowWidth = 1280, int32_t kWindowHeight = 720) {
+
+	//COMの初期化
+	HRESULT hr = CoInitializeEx(0, COINIT_MULTITHREADED);
+
+	//ウィンドウクラスの生成
+	w_ = WindowClass();
+
+	//ウィンドウの生成
+	hwnd_ = WindowInitialvalue(WindowName, kWindowWidth, kWindowHeight, w_);
+}
+
+void WindowsAPI::Update() {
+
+}
+
+void WindowsAPI::Finalize() {
+	CloseWindow(hwnd_);
+	CoUninitialize();
+}
+
+
+
 /// ウィンドウプロシージャ
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
+LRESULT CALLBACK WindowsAPI::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
 
 	if (ImGui_ImplWin32_WndProcHandler(hwnd, msg, wparam, lparam)) {
 		return true;
@@ -25,7 +49,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
 }
 
 // ウィンドウクラス
-WNDCLASS WindowClass() {
+WNDCLASS WindowsAPI::WindowClass() {
 	//ウィンドウクラス
 	WNDCLASS wc{};
 	//ウィンドウプロシージャ
@@ -44,17 +68,22 @@ WNDCLASS WindowClass() {
 }
 
 // ウィンドウサイズ
-RECT WindowSize(const int32_t ClientWidth,const int32_t ClientHeight){
+RECT WindowsAPI::WindowSize(const int32_t ClientWidth, const int32_t ClientHeight) {
+
+	kClientWidth_ = ClientWidth;
+	kClientHeight_ = ClientHeight;
+
 	//ウィンドウサイズを表す構造体にクライアント領域を入れる
-	RECT wrc = { 0,0,ClientWidth,ClientHeight };
+	RECT wrc = { 0,0,kClientWidth_,kClientHeight_ };
 
 	//クライアント領域を元に実際のサイズにwrcを変更してもらう
 	AdjustWindowRect(&wrc, WS_OVERLAPPEDWINDOW, false);
 
 	return wrc;
 }
+
 // ウィンドウの生成
-HWND WindowInitialvalue(const wchar_t* WindowName, const int32_t ClientWidth, const int32_t ClientHeight, WNDCLASS wc) {
+HWND WindowsAPI::WindowInitialvalue(const wchar_t* WindowName, const int32_t ClientWidth, const int32_t ClientHeight, WNDCLASS wc) {
 
 	//ウィンドウクラスの生成
 	wc = WindowClass();
@@ -91,4 +120,19 @@ HWND WindowInitialvalue(const wchar_t* WindowName, const int32_t ClientWidth, co
 	ShowWindow(hwnd, SW_SHOW);
 
 	return hwnd;
+}
+
+
+
+bool WindowsAPI::ProcessMessage() {
+	MSG msg{};
+	if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+	}
+	
+	if (msg.message == WM_QUIT) {
+		return true;
+	}
+	return false;
 }

@@ -6,12 +6,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	//ゲームエンジン
 	GameEngine::Intialize(L"CG2", 1280, 720);
+
 	//サンプルシーン
 	SampleScene* sampleScene = new SampleScene();
-	sampleScene->Initialize();
+	sampleScene->Initialize(GameEngine::GetWindowsAPI());
 
 	//ウィンドウの×ボタンが押されるまでループ
-	while (GameEngine::WiodowState()) {
+	while (GameEngine::WindowState()) {
 		if (GameEngine::StartFlame()) {
 
 			//

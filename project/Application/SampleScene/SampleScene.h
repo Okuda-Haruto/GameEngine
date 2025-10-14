@@ -5,10 +5,13 @@
 #include <Effect.h>
 #include <Input/Input.h>
 #include <PointLight.h>
+#include <WindowsAPI/WindowsAPI.h>
 
 class SampleScene
 {
 private:
+	WindowsAPI* winApp_ = nullptr;
+
 	// 3Dモデル
 	std::array<bool, 7>isObjectDraw_{ TRUE ,TRUE ,TRUE ,TRUE ,TRUE ,TRUE ,TRUE };
 	std::array<Object_3D*, 7> object_{ nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr };
@@ -61,7 +64,7 @@ public:
 	//デストラクタ
 	~SampleScene();
 	//初期化
-	void Initialize();
+	void Initialize(WindowsAPI* winApp);
 	//更新
 	void Update();
 	//描画
