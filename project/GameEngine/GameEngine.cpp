@@ -31,7 +31,6 @@
 #include <wrl.h>
 #include <strsafe.h>
 
-#include "Window.h"
 #include "Log.h"
 #include "Initialvalue.h"
 #include "Matrix4x4_operation.h"
@@ -57,14 +56,11 @@ GameEngine::~GameEngine() {
 	ImGui::DestroyContext();
 
 	CloseHandle(fenceEvent_);
-	CloseWindow(hwnd_);
 
 	trianglePipelineState_.Reset();
 	instancingTrianglePipelineState_.Reset();
 	particlePipelineState_.Reset();
 	linePipelineState_.Reset();
-
-	CoUninitialize();
 }
 
 GameEngine* GameEngine::getInstance() {
@@ -77,8 +73,8 @@ void GameEngine::Intialize_(const wchar_t* WindowName, int32_t kWindowWidth, int
 	HRESULT hr;
 
 	//画面サイズを入力
-	kWindowWidth_ = kWindowWidth;
-	kWindowHeight_ = kWindowHeight;
+	kWindowWidth_ = winApp_->kClientWidth_;
+	kWindowHeight_ = winApp_->kClientHeight_;
 
 	//誰も捕捉しなかった場合に(Unhandled),捕捉する関数を登録
 	SetUnhandledExceptionFilter(ExportDump);
@@ -89,14 +85,11 @@ void GameEngine::Intialize_(const wchar_t* WindowName, int32_t kWindowWidth, int
 	//メディアファンデーションの初期化
 	MFStartup(MF_VERSION, MFSTARTUP_NOSOCKET);
 
-	//ウィンドウクラスの生成
-	w_ = WindowClass();
-
-	//ウィンドウの生成
-	hwnd_ = WindowInitialvalue(WindowName, kWindowWidth_, kWindowHeight_,w_);
+	winApp_ = new WindowsAPI;
+	winApp_->Initialize(WindowName, kWindowWidth, kWindowHeight);
 
 	//DirectInputの初期化
-	hr = DirectInput8Create(w_.hInstance, DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&directInput_, nullptr);
+	hr = DirectInput8Create(winApp_->GetHInstance(), DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&directInput_, nullptr);
 	assert(SUCCEEDED(hr));
 
 	//キーボードデバイスの生成
@@ -106,7 +99,7 @@ void GameEngine::Intialize_(const wchar_t* WindowName, int32_t kWindowWidth, int
 	hr = keyboardDevice_->SetDataFormat(&c_dfDIKeyboard);	//標準形式
 	assert(SUCCEEDED(hr));
 	//排他制御レベルのセット
-	hr = keyboardDevice_->SetCooperativeLevel(hwnd_, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE | DISCL_NOWINKEY);
+	hr = keyboardDevice_->SetCooperativeLevel(winApp_->GetHwnd(), DISCL_FOREGROUND | DISCL_NONEXCLUSIVE | DISCL_NOWINKEY);
 
 	//マウスデバイスの生成
 	hr = directInput_->CreateDevice(GUID_SysMouse, &mouseDevice_, NULL);
@@ -115,7 +108,7 @@ void GameEngine::Intialize_(const wchar_t* WindowName, int32_t kWindowWidth, int
 	hr = mouseDevice_->SetDataFormat(&c_dfDIMouse);	//標準形式
 	assert(SUCCEEDED(hr));
 	//排他制御レベルのセット
-	hr = mouseDevice_->SetCooperativeLevel(hwnd_, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE | DISCL_NOWINKEY);
+	hr = mouseDevice_->SetCooperativeLevel(winApp_->GetHwnd(), DISCL_FOREGROUND | DISCL_NONEXCLUSIVE | DISCL_NOWINKEY);
 
 	//ログファイルの生成
 	logStream_ = CreateLogFile();
@@ -162,7 +155,7 @@ void GameEngine::Intialize_(const wchar_t* WindowName, int32_t kWindowWidth, int
 	swapChainDesc_.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 
 	//コマンドキュー、ウィンドウハンドル、設定を渡して生成する
-	hr = dxgiFactory_->CreateSwapChainForHwnd(commandQueue_.Get(), hwnd_, &swapChainDesc_, nullptr, nullptr, reinterpret_cast<IDXGISwapChain1**>(swapChain_.GetAddressOf()));
+	hr = dxgiFactory_->CreateSwapChainForHwnd(commandQueue_.Get(), winApp_->GetHwnd(), &swapChainDesc_, nullptr, nullptr, reinterpret_cast<IDXGISwapChain1**>(swapChain_.GetAddressOf()));
 	assert(SUCCEEDED(hr));
 
 	//RTV用のヒープでディスクリプタ数は2。RTVはShader内で触る物ではないので、ShaderVisibleはfalse
@@ -281,7 +274,7 @@ void GameEngine::Intialize_(const wchar_t* WindowName, int32_t kWindowWidth, int
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGui::StyleColorsDark();
-	ImGui_ImplWin32_Init(hwnd_);
+	ImGui_ImplWin32_Init(winApp_->GetHwnd());
 	ImGui_ImplDX12_Init(device_.Get(), swapChainDesc_.BufferCount,
 		rtvDesc_.Format,
 		srvDescriptorHeap_.Get(),
@@ -644,7 +637,7 @@ bool GameEngine::StartFlame_() {
 }
 
 [[nodiscard]]
-bool GameEngine::WiodowState_() {
+bool GameEngine::WindowState_() {
 	if (msg_.message != WM_QUIT) {
 		return true;
 	}
@@ -763,7 +756,7 @@ Mouse GameEngine::GetMouse_() {
 	POINT p;
 	GetCursorPos(&p);
 	//スクリーン上からウィンドウ上へ
-	ScreenToClient(hwnd_ ,&p);
+	ScreenToClient(winApp_->GetHwnd(), &p);
 
 	returnMouse.Position = { float(p.x),float(p.y) };
 	returnMouse.Movement = { float(mouse_.lX),float(mouse_.lY),float(mouse_.lZ) };

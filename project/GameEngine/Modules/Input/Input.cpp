@@ -10,10 +10,12 @@
 
 using namespace Microsoft::WRL;
 
-void Input::Initialize(HINSTANCE hInstance,HWND hwnd) {
+void Input::Initialize(WindowsAPI* winApp) {
+
+	winApp_ = winApp;
 
 	//DirectInputの初期化
-	HRESULT hr = DirectInput8Create(hInstance, DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&directInput, nullptr);
+	HRESULT hr = DirectInput8Create(winApp_->GetHInstance(), DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&directInput, nullptr);
 	assert(SUCCEEDED(hr));
 
 	//キーボードデバイスの生成
@@ -23,7 +25,7 @@ void Input::Initialize(HINSTANCE hInstance,HWND hwnd) {
 	hr = keyboardDevice_->SetDataFormat(&c_dfDIKeyboard);	//標準形式
 	assert(SUCCEEDED(hr));
 	//排他制御レベルのセット
-	hr = keyboardDevice_->SetCooperativeLevel(hwnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE | DISCL_NOWINKEY);
+	hr = keyboardDevice_->SetCooperativeLevel(winApp_->GetHwnd(), DISCL_FOREGROUND | DISCL_NONEXCLUSIVE | DISCL_NOWINKEY);
 	assert(SUCCEEDED(hr));
 }
 

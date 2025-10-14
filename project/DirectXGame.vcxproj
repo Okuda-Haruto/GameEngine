@@ -55,6 +55,7 @@
     <ClCompile Include="GameEngine\Math\Collision.cpp" />
     <ClCompile Include="GameEngine\Math\Matrix4x4_operation.cpp" />
     <ClCompile Include="GameEngine\Math\Vector3_operation.cpp" />
+    <ClCompile Include="GameEngine\Modules\WindowsAPI\WindowsAPI.cpp" />
     <ClCompile Include="GameEngine\Resource\Audio.cpp" />
     <ClCompile Include="GameEngine\Resource\Camera.cpp" />
     <ClCompile Include="GameEngine\Resource\Effect.cpp" />
@@ -65,7 +66,6 @@
     <ClCompile Include="GameEngine\Resource\Object_2D.cpp" />
     <ClCompile Include="GameEngine\Resource\Object_3D.cpp" />
     <ClCompile Include="GameEngine\Modules\CompileShader\CompileShader.cpp" />
-    <ClCompile Include="GameEngine\Modules\Window\Window.cpp" />
     <ClCompile Include="GameEngine\Modules\Input\Input.cpp" />
     <ClCompile Include="Application\Scene\GameScene\GameScene.cpp" />
     <ClCompile Include="Application\BackGround\Ground\Ground.cpp" />
@@ -140,6 +140,7 @@
     <ClInclude Include="GameEngine\Math\Vector3.h" />
     <ClInclude Include="GameEngine\Math\Vector3_operation.h" />
     <ClInclude Include="GameEngine\Math\Vector4.h" />
+    <ClInclude Include="GameEngine\Modules\WindowsAPI\WindowsAPI.h" />
     <ClInclude Include="GameEngine\Resource\Audio.h" />
     <ClInclude Include="GameEngine\Resource\Camera.h" />
     <ClInclude Include="GameEngine\Resource\Effect.h" />
@@ -150,7 +151,6 @@
     <ClInclude Include="GameEngine\Resource\Object_2D.h" />
     <ClInclude Include="GameEngine\Resource\Object_3D.h" />
     <ClInclude Include="GameEngine\Modules\CompileShader\CompileShader.h" />
-    <ClInclude Include="GameEngine\Modules\Window\Window.h" />
     <ClInclude Include="GameEngine\Modules\Input\Input.h" />
     <ClInclude Include="Application\SampleScene\SampleScene.h" />
     <ClInclude Include="Application\Caracter\Player\Player.h" />

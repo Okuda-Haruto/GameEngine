@@ -23,7 +23,9 @@ SampleScene::~SampleScene() {
 	delete input;
 }
 
-void SampleScene::Initialize() {
+void SampleScene::Initialize(WindowsAPI* winApp) {
+
+	winApp_ = winApp;
 
 	//3Dオブジェクト
 	object_[0] = new Object_3D;
@@ -110,7 +112,7 @@ void SampleScene::Initialize() {
 	}
 
 	input = new Input;
-	input->Initialize(GameEngine::GetWNDCLASS().hInstance, GameEngine::GetHWND());	//元々GameEngineでまとめて管理していたので一時的に呼び出せるようにした
+	input->Initialize(winApp_);	//元々GameEngineでまとめて管理していたので一時的に呼び出せるようにした
 }
 
 void SampleScene::Update() {
