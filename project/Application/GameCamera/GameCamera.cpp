@@ -2,6 +2,7 @@
 #include "Math/Vector3_operation.h"
 #include "GameEngine.h"
 #include "Math/Matrix4x4_operation.h"
+#include <numbers>
 
 
 void GameCamera::Initialize() {
@@ -21,9 +22,10 @@ void GameCamera::Update() {
 
 		const float rotateSpeed = 0.2f;
 
-		Vector3 rotate = Normalize(Vector3(pad.RightStick.vector.x, pad.RightStick.vector.y, 0.0f)) * pad.RightStick.magnitude;
+		Vector3 rotate = Normalize(Vector3(pad.RightStick.vector.x, pad.RightStick.vector.y, 0.0f));
 
-		transform_->rotate.y += float(pad.RightStick.vector.x);
+		transform_->rotate.y += rotate.x * std::numbers::pi_v<float> * 0.01f * pad.RightStick.magnitude;
+		transform_->rotate.x += -rotate.y * std::numbers::pi_v<float> * 0.01f * pad.RightStick.magnitude;
 
 	}
 	//追従対象がいれば

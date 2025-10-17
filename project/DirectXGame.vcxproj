@@ -28,6 +28,8 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Application\Character\BaseCharacter.cpp" />
+    <ClCompile Include="Application\Character\Player\Player.cpp" />
     <ClCompile Include="externals\imgui\imgui.cpp" />
     <ClCompile Include="externals\imgui\imgui_demo.cpp" />
     <ClCompile Include="externals\imgui\imgui_draw.cpp" />
@@ -44,6 +46,7 @@
     <ClCompile Include="GameEngine\Modules\CreateDepthStencilTextureResource\CreateDepthStencilTextureResource.cpp" />
     <ClCompile Include="GameEngine\Modules\CreateDescriptorHeap\CreateDescriptorHeap.cpp" />
     <ClCompile Include="GameEngine\Modules\CreateTextureResource\CreateTextureResource.cpp" />
+    <ClCompile Include="GameEngine\Modules\DirectXCommon\DirectXCommon.cpp" />
     <ClCompile Include="GameEngine\Modules\GetDescriptorHandle\GetDescriptorHandle.cpp" />
     <ClCompile Include="GameEngine\Modules\Initialvalue\Initialvalue.cpp" />
     <ClCompile Include="GameEngine\Modules\UploadTextreData\UploadTextreData.cpp" />
@@ -60,7 +63,11 @@
     <ClCompile Include="GameEngine\Resource\Camera.cpp" />
     <ClCompile Include="GameEngine\Resource\Effect.cpp" />
     <ClCompile Include="GameEngine\Resource\Field.cpp" />
+    <ClCompile Include="GameEngine\Resource\InstancingObject\InstancingObject.cpp" />
+    <ClCompile Include="GameEngine\Resource\Model\Model.cpp" />
+    <ClCompile Include="GameEngine\Resource\Object\Object.cpp" />
     <ClCompile Include="GameEngine\Resource\PointLight.cpp" />
+    <ClCompile Include="GameEngine\Resource\SpotLight.cpp" />
     <ClCompile Include="GameEngine\Resource\Text.cpp" />
     <ClCompile Include="GameEngine\Resource\DirectionalLight.cpp" />
     <ClCompile Include="GameEngine\Resource\Object_2D.cpp" />
@@ -74,10 +81,11 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Development|x64'">MaxSpeed</Optimization>
     </ClCompile>
     <ClCompile Include="Application\SampleScene\SampleScene.cpp" />
-    <ClCompile Include="Application\Caracter\Player\Player.cpp" />
     <ClCompile Include="Application\BackGround\Skydome\Skydome.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Application\Character\BaseCharacter.h" />
+    <ClInclude Include="Application\Character\Player\Player.h" />
     <ClInclude Include="externals\imgui\imconfig.h" />
     <ClInclude Include="externals\imgui\imgui.h" />
     <ClInclude Include="externals\imgui\imgui_impl_dx12.h" />
@@ -89,9 +97,12 @@
     <ClInclude Include="Application\GameCamera\GameCamera.h" />
     <ClInclude Include="GameEngine\Data\CameraForGPU.h" />
     <ClInclude Include="GameEngine\Data\Emitter.h" />
+    <ClInclude Include="GameEngine\Data\MaterialData.h" />
     <ClInclude Include="GameEngine\Data\Particle.h" />
     <ClInclude Include="GameEngine\Data\ParticleForGPU.h" />
+    <ClInclude Include="GameEngine\Data\Parts.h" />
     <ClInclude Include="GameEngine\Data\PointLightElement.h" />
+    <ClInclude Include="GameEngine\Data\SpotLightElement.h" />
     <ClInclude Include="GameEngine\Math\Shape\AABB.h" />
     <ClInclude Include="GameEngine\Data\ChunkHeader.h" />
     <ClInclude Include="GameEngine\Data\DirectionalLightElement.h" />
@@ -99,13 +110,10 @@
     <ClInclude Include="GameEngine\Data\Input.h" />
     <ClInclude Include="GameEngine\Math\Shape\Line.h" />
     <ClInclude Include="GameEngine\Data\Material.h" />
-    <ClInclude Include="GameEngine\Data\MaterialData.h" />
     <ClInclude Include="GameEngine\Data\ModelData.h" />
     <ClInclude Include="GameEngine\Math\Shape\OBB.h" />
-    <ClInclude Include="GameEngine\Data\ObjectData.h" />
     <ClInclude Include="GameEngine\Data\Object_Single_Data.h" />
     <ClInclude Include="GameEngine\Data\Object_Multi_Data.h" />
-    <ClInclude Include="GameEngine\Data\ObjectMaterial.h" />
     <ClInclude Include="GameEngine\Math\Shape\Plane.h" />
     <ClInclude Include="GameEngine\Data\RiffHeader.h" />
     <ClInclude Include="GameEngine\Data\SoundData.h" />
@@ -124,6 +132,7 @@
     <ClInclude Include="GameEngine\Modules\CreateDepthStencilTextureResource\CreateDepthStencilTextureResource.h" />
     <ClInclude Include="GameEngine\Modules\CreateDescriptorHeap\CreateDescriptorHeap.h" />
     <ClInclude Include="GameEngine\Modules\CreateTextureResource\CreateTextureResource.h" />
+    <ClInclude Include="GameEngine\Modules\DirectXCommon\DirectXCommon.h" />
     <ClInclude Include="GameEngine\Modules\GetDescriptorHandle\GetDescriptorHandle.h" />
     <ClInclude Include="GameEngine\Modules\Initialvalue\Initialvalue.h" />
     <ClInclude Include="GameEngine\Modules\UploadTextreData\UploadTextureData.h" />
@@ -145,7 +154,11 @@
     <ClInclude Include="GameEngine\Resource\Camera.h" />
     <ClInclude Include="GameEngine\Resource\Effect.h" />
     <ClInclude Include="GameEngine\Resource\Field.h" />
+    <ClInclude Include="GameEngine\Resource\InstancingObject\InstancingObject.h" />
+    <ClInclude Include="GameEngine\Resource\Model\Model.h" />
+    <ClInclude Include="GameEngine\Resource\Object\Object.h" />
     <ClInclude Include="GameEngine\Resource\PointLight.h" />
+    <ClInclude Include="GameEngine\Resource\SpotLight.h" />
     <ClInclude Include="GameEngine\Resource\Text.h" />
     <ClInclude Include="GameEngine\Resource\DirectionalLight.h" />
     <ClInclude Include="GameEngine\Resource\Object_2D.h" />
@@ -153,7 +166,6 @@
     <ClInclude Include="GameEngine\Modules\CompileShader\CompileShader.h" />
     <ClInclude Include="GameEngine\Modules\Input\Input.h" />
     <ClInclude Include="Application\SampleScene\SampleScene.h" />
-    <ClInclude Include="Application\Caracter\Player\Player.h" />
     <ClInclude Include="Application\BackGround\Skydome\Skydome.h" />
     <ClInclude Include="Application\Scene\GameScene\GameScene.h" />
     <ClInclude Include="Application\BackGround\Ground\Ground.h" />

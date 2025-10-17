@@ -2,7 +2,7 @@
 #include "GameCamera/GameCamera.h"
 #include "BackGround/Skydome/Skydome.h"
 #include "BackGround/Ground/Ground.h"
-#include "Caracter/Player/Player.h"
+#include "Character/Player/Player.h"
 
 #include <memory>
 

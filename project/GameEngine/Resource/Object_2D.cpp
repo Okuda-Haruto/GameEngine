@@ -1,5 +1,5 @@
 #include "Object_2D.h"
-#include "GameEngine.h"
+/*#include "GameEngine.h"
 
 #include "Matrix4x4_operation.h"
 #include "Vector3_operation.h"
@@ -417,4 +417,4 @@ void Text_2D::Reset() {
 	materialData_.clear();
 }
 
-#pragma endregion
+#pragma endregion*/

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "DirectXTex/DirectXTex.h"
+/*#include "DirectXTex/DirectXTex.h"
 
 #include <d3d12.h>
 
@@ -522,4 +522,4 @@ public:
 	void Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandList);
 };
 
-# pragma endregion
+# pragma endregion*/

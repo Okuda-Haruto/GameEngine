@@ -82,6 +82,42 @@
     <Filter Include="GameEngine\Modules\WindowsAPI">
       <UniqueIdentifier>{7b005644-fbea-4e96-a266-1a2764316b60}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GameEngine\Modules\DirectXCommon">
+      <UniqueIdentifier>{b1663182-73bb-468a-bab8-51b929cc5507}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Scene">
+      <UniqueIdentifier>{9c243a85-318f-403b-8ea5-f6682981618d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Scene\GameScene">
+      <UniqueIdentifier>{85f40215-5658-4239-be34-98d699949382}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\GameCamera">
+      <UniqueIdentifier>{6760fddf-452a-4117-8dd1-f5ab1743d4bf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\BackGround">
+      <UniqueIdentifier>{dec9eeab-20ea-4493-b6e8-c883a273b71f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\BackGround\Skydome">
+      <UniqueIdentifier>{b54c5019-dc3b-4262-b29b-e74d8c405316}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\BackGround\Ground">
+      <UniqueIdentifier>{ebe6355c-1bcf-49d8-b50a-3df02cc3373b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Character">
+      <UniqueIdentifier>{3ff24b62-11d9-43d6-b939-32a2f4ba22da}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Character\Player">
+      <UniqueIdentifier>{0a05f8da-5f03-4267-bc15-fd1586b0d3dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\Resource\Object">
+      <UniqueIdentifier>{0e54ffcf-10c8-4185-a512-b6424a9bfdc7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\Resource\InstancingObject">
+      <UniqueIdentifier>{59d342ec-6cdc-4ddd-9221-c999eb0878ec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\Resource\Model">
+      <UniqueIdentifier>{a69cadce-1c28-42c2-b62a-c179ad4e9f24}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -205,11 +241,6 @@
     <ClCompile Include="GameEngine\Modules\Input\Input.cpp">
       <Filter>GameEngine\Modules\Input</Filter>
     </ClCompile>
-    <ClCompile Include="Application\Caracter\Player\Player.cpp" />
-    <ClCompile Include="Application\BackGround\Skydome\Skydome.cpp" />
-    <ClCompile Include="Application\Scene\GameScene\GameScene.cpp" />
-    <ClCompile Include="Application\GameCamera\GameCamera.cpp" />
-    <ClCompile Include="Application\BackGround\Ground\Ground.cpp" />
     <ClCompile Include="GameEngine\Math\Lerp.cpp">
       <Filter>GameEngine\Math</Filter>
     </ClCompile>
@@ -218,6 +249,39 @@
     </ClCompile>
     <ClCompile Include="GameEngine\Modules\WindowsAPI\WindowsAPI.cpp">
       <Filter>GameEngine\Modules\WindowsAPI</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEngine\Modules\DirectXCommon\DirectXCommon.cpp">
+      <Filter>GameEngine\Modules\DirectXCommon</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Scene\GameScene\GameScene.cpp">
+      <Filter>Application\Scene\GameScene</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\GameCamera\GameCamera.cpp">
+      <Filter>Application\GameCamera</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\BackGround\Skydome\Skydome.cpp">
+      <Filter>Application\BackGround\Skydome</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\BackGround\Ground\Ground.cpp">
+      <Filter>Application\BackGround\Ground</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Character\Player\Player.cpp">
+      <Filter>Application\Character\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Character\BaseCharacter.cpp">
+      <Filter>Application\Character</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEngine\Resource\Model\Model.cpp">
+      <Filter>GameEngine\Resource\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEngine\Resource\Object\Object.cpp">
+      <Filter>GameEngine\Resource\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEngine\Resource\InstancingObject\InstancingObject.cpp">
+      <Filter>GameEngine\Resource\InstancingObject</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEngine\Resource\SpotLight.cpp">
+      <Filter>GameEngine\Resource</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -258,9 +322,6 @@
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\Data\Material.h">
-      <Filter>GameEngine\Data</Filter>
-    </ClInclude>
-    <ClInclude Include="GameEngine\Data\MaterialData.h">
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\Data\ModelData.h">
@@ -362,12 +423,6 @@
     <ClInclude Include="GameEngine\Data\TextureData.h">
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\Data\ObjectData.h">
-      <Filter>GameEngine\Data</Filter>
-    </ClInclude>
-    <ClInclude Include="GameEngine\Data\ObjectMaterial.h">
-      <Filter>GameEngine\Data</Filter>
-    </ClInclude>
     <ClInclude Include="GameEngine\Modules\CompileShader\CompileShader.h">
       <Filter>GameEngine\Modules\CompileShader</Filter>
     </ClInclude>
@@ -434,11 +489,6 @@
     <ClInclude Include="GameEngine\Modules\Input\Input.h">
       <Filter>GameEngine\Modules\Input</Filter>
     </ClInclude>
-    <ClInclude Include="Application\Caracter\Player\Player.h" />
-    <ClInclude Include="Application\BackGround\Skydome\Skydome.h" />
-    <ClInclude Include="Application\Scene\GameScene\GameScene.h" />
-    <ClInclude Include="Application\GameCamera\GameCamera.h" />
-    <ClInclude Include="Application\BackGround\Ground\Ground.h" />
     <ClInclude Include="GameEngine\Math\Lerp.h">
       <Filter>GameEngine\Math</Filter>
     </ClInclude>
@@ -450,6 +500,48 @@
     </ClInclude>
     <ClInclude Include="GameEngine\Modules\WindowsAPI\WindowsAPI.h">
       <Filter>GameEngine\Modules\WindowsAPI</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Modules\DirectXCommon\DirectXCommon.h">
+      <Filter>GameEngine\Modules\DirectXCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Scene\GameScene\GameScene.h">
+      <Filter>Application\Scene\GameScene</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\GameCamera\GameCamera.h">
+      <Filter>Application\GameCamera</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\BackGround\Skydome\Skydome.h">
+      <Filter>Application\BackGround\Skydome</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\BackGround\Ground\Ground.h">
+      <Filter>Application\BackGround\Ground</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Character\BaseCharacter.h">
+      <Filter>Application\Character</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Character\Player\Player.h">
+      <Filter>Application\Character\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Data\Parts.h">
+      <Filter>GameEngine\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Data\MaterialData.h">
+      <Filter>GameEngine\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Resource\Model\Model.h">
+      <Filter>GameEngine\Resource\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Resource\Object\Object.h">
+      <Filter>GameEngine\Resource\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Resource\InstancingObject\InstancingObject.h">
+      <Filter>GameEngine\Resource\InstancingObject</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Resource\SpotLight.h">
+      <Filter>GameEngine\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Data\SpotLightElement.h">
+      <Filter>GameEngine\Data</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

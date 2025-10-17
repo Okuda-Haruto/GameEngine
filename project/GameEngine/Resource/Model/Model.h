@@ -3,10 +3,14 @@
 #include <vector>
 #include <ModelData.h>
 #include <d3d12.h>
+#include <string>
+#include <VertexData.h>
 
-struct ObjectData {
-	//ロードしたモデルのデータ
-	std::vector<ModelData> modelData_;
+struct Model {
+public:
+	//頂点の数
+	UINT vertexIndex_;
+
 	//頂点リソース
 	Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource_;
 	//頂点バッファビュー

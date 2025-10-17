@@ -1,13 +1,16 @@
 #pragma once
 #include <memory>
-#include <Resource/Object_3D.h>
+#include <Resource/Object/Object.h>
+#include <Camera.h>
 
 class Player
 {
 private:
 	//自キャラモデル
-	std::unique_ptr<Object_3D> model_;
-	Object_Multi_Data data_;
+	std::unique_ptr<Object> object_;
+	SRT objectTransform;
+
+	Camera* camera_;
 
 	float angle;
 
@@ -27,6 +30,6 @@ public:
 
 	void SetCameraTransform(const SRT* transform) { cameraTransform_ = transform; }
 
-	void SetCamera(Camera* camera) { model_->SetCamera(camera); }
+	void SetCamera(Camera* camera) { camera_ = camera; }
 };
 

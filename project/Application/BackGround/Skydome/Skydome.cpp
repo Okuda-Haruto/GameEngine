@@ -4,11 +4,10 @@
 
 void Skydome::Initialize() {
 	//モデルの生成
-	model_ = std::make_unique<Object_3D>();
-	model_->Initialize("resources/BackGround/Skydome", "Skydome.obj");
-	data_.SetMaterial(model_->GetModelData());
+	object_ = std::make_unique<Object>();
+	object_->Initialize("resources/BackGround/Skydome", "Skydome.obj");
 }
 
 void Skydome::Draw() {
-	model_->Draw(GameEngine::GetCommandList(), data_);
+	object_->Draw3D(camera_, 0, 40,nullptr,nullptr);
 }

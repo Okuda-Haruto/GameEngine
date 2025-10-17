@@ -1,6 +1,6 @@
 #pragma once
 #include <SRT.h>
-#include <ObjectMaterial.h>
+#include <Material.h>
 
 struct Object_Single_Data {
 	SRT transform = {
@@ -8,5 +8,5 @@ struct Object_Single_Data {
 		{0.0f,0.0f,0.0f},
 		{0.0f,0.0f,0.0f}
 	};
-	ObjectMaterial material;
+	Material material;
 };

@@ -3,10 +3,10 @@
 #include <fstream>
 #include <cassert>
 
-std::list<MaterialDatum> LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename) {
+std::list<MaterialData> LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename) {
 	//変数の宣言
-	std::list<MaterialDatum> materialData;	//構築するMaterialData
-	MaterialDatum materialDatum;	//単体のマテリアルデータ
+	std::list<MaterialData> materialData;	//構築するMaterialData
+	MaterialData MaterialData;	//単体のマテリアルデータ
 	std::string line;	//ファイルから読んだ1行を格納するもの
 	std::ifstream file(directoryPath + "/" + filename);	//ファイルを開く
 	assert(file.is_open());	//開けていない場合止める
@@ -22,16 +22,16 @@ std::list<MaterialDatum> LoadMaterialTemplateFile(const std::string& directoryPa
 			std::string materialName;
 			s >> materialName;
 
-			materialDatum.materialName = materialName;
+			MaterialData.materialName = materialName;
 
 		} else if (identifier == "map_Kd") {	//map_Kdにはtextureのファイル名が記載されている
 			std::string textureFilename;
 			s >> textureFilename;
 			//連結してファイルパスにする
-			materialDatum.textureFilePath = directoryPath + "/" + textureFilename;
+			MaterialData.textureFilePath = directoryPath + "/" + textureFilename;
 
 			//materialDataの最後尾に格納する
-			materialData.push_back(materialDatum);
+			materialData.push_back(MaterialData);
 		}
 	}
 	return materialData;
