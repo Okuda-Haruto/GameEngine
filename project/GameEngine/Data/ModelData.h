@@ -1,9 +1,9 @@
 #pragma once
 #include <vector>
 #include "VertexData.h"
-#include "MaterialData.h"
+#include <windows.h>
 
 struct ModelData {
 	std::vector<VertexData> vertices;
-	MaterialData material;
+	int16_t textureIndex = -1;
 };

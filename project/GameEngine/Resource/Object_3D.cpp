@@ -1,6 +1,6 @@
 #include "Object_3D.h"
 
-#include <numbers>
+/*#include <numbers>
 
 #include "Matrix4x4_operation.h"
 #include "Vector3_operation.h"
@@ -1079,4 +1079,4 @@ void Grid::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandList) 
 	}
 }
 
-# pragma endregion
+# pragma endregion*/

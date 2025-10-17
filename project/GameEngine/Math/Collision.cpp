@@ -1,3 +1,4 @@
+#define NOMINMAX
 #include "Collision.h"
 #include "Vector3_operation.h"
 #include "Matrix4x4_operation.h"

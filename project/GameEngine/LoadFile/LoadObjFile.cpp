@@ -7,6 +7,7 @@
 #include <fstream>
 #include <sstream>
 #include <list>
+#include <GameEngine.h>
 
 //.objファイルからModelDataを構築する
 std::vector<ModelData> LoadObjFile(const std::string& directoryPath, const std::string& filename) {
@@ -14,7 +15,7 @@ std::vector<ModelData> LoadObjFile(const std::string& directoryPath, const std::
 	std::vector<ModelData> modelData;	//構築するModelData
 	ModelData modelDatum;				//単体のModelData
 
-	std::list<MaterialDatum> materialData;	//全てのMaterialDataを格納したリスト
+	std::list<MaterialData> materialData;	//全てのMaterialDataを格納したリスト
 
 	std::vector<Vector4> positions;	//位置
 	std::vector<Vector3> normals;	//法線
@@ -40,7 +41,7 @@ std::vector<ModelData> LoadObjFile(const std::string& directoryPath, const std::
 		} else if (identifier == "o") {	//モデル名。次のモデルが始まる合図なので、モデルデータを格納しておく
 
 			//そのままでは最初のモデル名に反応してしまうので、中身のないモデルデータは無視する
-			if (modelDatum.vertices.size() > 0 && modelDatum.material.textureFilePath.size() > 0) {
+			if (modelDatum.vertices.size() > 0 && modelDatum.textureIndex != -1) {
 				modelData.push_back(modelDatum);
 				//初期化
 				modelDatum = {};
@@ -104,10 +105,9 @@ std::vector<ModelData> LoadObjFile(const std::string& directoryPath, const std::
 			std::string materialFilename;
 			s >> materialFilename;
 			//マテリアルデータのリストから同じ名称のマテリアルのデータを取得する
-			for (const MaterialDatum& materialDatum : materialData) {
-				if (materialDatum.materialName == materialFilename) {	//マテリアルの名称は必要ないので、それ以外を移す
-					modelDatum.material.materialName.clear();
-					modelDatum.material.textureFilePath = materialDatum.textureFilePath;
+			for (const MaterialData& MaterialData : materialData) {
+				if (MaterialData.materialName == materialFilename) {	//マテリアルの名称は必要ないので、それ以外を移す
+					modelDatum.textureIndex = GameEngine::TextureLoad(MaterialData.textureFilePath);
 				}
 			}
 		}

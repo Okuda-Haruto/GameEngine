@@ -20,6 +20,11 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #include "DirectionalLight.h"
 #include "Object_3D.h"
 #include "Object_2D.h"
+
+#include "Object/Object.h"
+#include "InstancingObject/InstancingObject.h"
+#include "TransformationMatrix.h"
+
 #include "Text.h"
 #include "Audio.h"
 #include "Input/Input.h"
@@ -31,6 +36,7 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #include "WindowsAPI/WindowsAPI.h"
 
 #include <vector>
+#include <array>
 
 class GameEngine {
 private:
@@ -112,8 +118,60 @@ private:
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> instancingTrianglePipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> particlePipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> linePipelineState_ = nullptr;
-	//WVP用のリソース
-	Microsoft::WRL::ComPtr <ID3D12Resource> wvpResource_;
+
+	//描画可能なモデルの数
+	static const int16_t kMaxIndex = 1024;
+	//インスタンス数
+	static const uint32_t kMaxNumInstance = 32;
+#pragma region object
+	int16_t objectIndex;
+	//マテリアルリソース
+	std::array <Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxIndex> objectMaterialResource_;
+	//マテリアルデータ
+	std::array <Material*, kMaxIndex> objectMaterialData_;
+	//WVP用リソース
+	std::array <Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxIndex > objectWvpResource_;
+	//WVPデータ
+	std::array <TransformationMatrix*, kMaxIndex> objectWvpData_;
+#pragma endregion
+
+#pragma region instancingObject
+	int16_t instancingObjectIndex;
+	//マテリアルリソース
+	Microsoft::WRL::ComPtr<ID3D12Resource> instancingObjectMaterialResource_;
+	//マテリアルデータ
+	std::array <Material*, kMaxIndex> instancingObjectMaterialData_;
+	//インスタンス用リソース
+	Microsoft::WRL::ComPtr<ID3D12Resource> instancingObjectResource_;
+	//インスタンスデータ
+	std::array <ParticleForGPU*, kMaxIndex> instancingObjectData_;
+#pragma endregion
+
+#pragma region sprite
+	int16_t spriteIndex;
+	//マテリアルリソース
+	Microsoft::WRL::ComPtr<ID3D12Resource> spriteMaterialResource_;
+	//マテリアルデータ
+	std::array <Material*, kMaxIndex> spriteMaterialData_;
+	//WVP用リソース
+	Microsoft::WRL::ComPtr<ID3D12Resource> spriteWvpResource_;
+	//WVPデータ
+	std::array <TransformationMatrix*, kMaxIndex> spriteWvpData_;
+#pragma endregion
+
+#pragma region instancingSprite
+	int16_t instancingSpriteIndex;
+	//マテリアルリソース
+	Microsoft::WRL::ComPtr<ID3D12Resource> instancingSpriteMaterialResource_;
+	//マテリアルデータ
+	std::array <Material*, kMaxIndex> instancingSpriteMaterialData_;
+	//インスタンス用リソース
+	Microsoft::WRL::ComPtr<ID3D12Resource> instancingSpriteResource_;
+	//インスタンスデータ
+	std::array <ParticleForGPU*, kMaxIndex> instancingSpriteData_;
+#pragma endregion
+
+
 
 	//ビューポート
 	D3D12_VIEWPORT viewport_{};
@@ -187,6 +245,23 @@ private:
 	ID3D12PipelineState* ParticlePSO_() { return particlePipelineState_.Get(); }
 	ID3D12PipelineState* LinePSO_() { return linePipelineState_.Get(); }
 
+	void DrawObject_3D_(Object* object, Camera* camera, int reflection, float shininess, DirectionalLight* directionalLight, PointLight* pointLight);
+	void DrawInstancingObject_3D_(InstancingObject* objects, Camera* camera, int reflection, DirectionalLight* directionalLight, PointLight* pointLight);
+	/*void DrawSprite_3D_();
+	void DrawInstancingSprite_3D_();
+	void DrawBillbord_3D_();
+	void DrawInstancingBillbord_3D_();
+	void DrawLine_3D_();
+	void DrawInstancingLine_3D_();
+	void DrawAxisIndicator_3D_();
+	void DrawGrid_3D_();
+	void DrawObject_2D_();
+	void DrawInstancingObject_2D_();
+	void DrawSprite_2D_();
+	void DrawInstancingSprite_2D_();
+	void DrawLine_2D_();
+	void DrawInstancingLine_2D_();*/
+
 	Keybord GetKeybord_();
 	Mouse GetMouse_();
 	Pad GetPad_(int usePadNum = 0);
@@ -238,10 +313,6 @@ public:
 	/// </summary>
 	/// <param name="index">テクスチャ番号</param>
 	static void TextureDelete(UINT index) { return getInstance()->TextureDelete_(index); }
-
-	//void LoadText(Text* text, LONG fontSize, LONG fontWeight, std::wstring str, const std::string& filePath, const std::string& fontName);
-
-	void LoadObject(Text_2D* text);
 
 	[[nodiscard]]
 	static Microsoft::WRL::ComPtr<IXAudio2> GetXAudio2() { return getInstance()->GetXAudio2_(); }
@@ -298,6 +369,9 @@ public:
 	[[nodiscard]]
 	static Microsoft::WRL::ComPtr<ID3D12Device> GetDevice() { return getInstance()->GetDevice_(); }
 
+
+	static void DrawObject_3D(Object* object, Camera* camera, int reflection, float shininess, DirectionalLight* directionalLight, PointLight* pointLight) { return getInstance()->DrawObject_3D_(object, camera, reflection, shininess, directionalLight, pointLight); }
+	static void DrawInstancingObject_3D(InstancingObject* objects, Camera* camera, int reflection, DirectionalLight* directionalLight, PointLight* pointLight) { return getInstance()->DrawInstancingObject_3D_(objects, camera, reflection, directionalLight, pointLight); }
 	//キーボード入力
 	[[nodiscard]]
 	static Keybord GetKeybord() { return getInstance()->GetKeybord_(); }

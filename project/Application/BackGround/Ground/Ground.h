@@ -1,13 +1,15 @@
 #pragma once
 #include <memory>
-#include <Resource/Object_3D.h>
+#include <Object/Object.h>
+#include <Camera.h>
 
 class Ground
 {
 private:
 	//天球モデル
-	std::unique_ptr<Object_3D> model_;
-	Object_Multi_Data data_;
+	std::unique_ptr<Object> object_;
+
+	Camera* camera_;
 
 public:
 	//初期化
@@ -15,5 +17,5 @@ public:
 	//描画
 	void Draw();
 
-	void SetCamera(Camera* camera) { model_->SetCamera(camera); }
+	void SetCamera(Camera* camera) { camera_ = camera; }
 };

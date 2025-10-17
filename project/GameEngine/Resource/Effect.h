@@ -4,7 +4,7 @@
 #include "Emitter.h"
 #include <Field.h>
 
-enum class EffectType {
+/*enum class EffectType {
 	constant,				//一定の動きをする
 	random_diffusion,		//ランダムで拡散する
 	constant_convergence,	//一定の動きで収束する
@@ -44,4 +44,4 @@ public:
 	void SetAfterColor(Vector4 color) { emitter_.afterColor = color; }
 	void SetColor(Vector4 color) { emitter_.beforeColor = color; emitter_.afterColor = color; }
 	void IsUseField(bool isUseField) { isUseField_ = isUseField; }
-};
+};*/

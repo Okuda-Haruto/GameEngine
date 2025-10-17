@@ -2,4 +2,4 @@
 #include "MaterialData.h"
 #include <list>
 
-std::list<MaterialDatum> LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename);
+std::list<MaterialData> LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename);

@@ -1,5 +1,5 @@
 #include "Effect.h"
-#include <list>
+/*#include <list>
 #include <Vector3_operation.h>
 #include <numbers>
 #include <Collision.h>
@@ -121,4 +121,4 @@ void Effect::Emit() {
 
 	//Emitで得たエフェクトを追加
 	particles_.particle.splice(particles_.particle.end(), particle);
-}
+}*/
