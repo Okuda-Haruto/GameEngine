@@ -34,6 +34,7 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #include "ParticleForGPU.h"
 
 #include "WindowsAPI/WindowsAPI.h"
+#include "DirectXCommon/DirectXCommon.h"
 
 #include <vector>
 #include <array>
@@ -52,66 +53,17 @@ private:
 #endif
 	WindowsAPI* winApp_ = nullptr;
 
-	//ログファイルの生成
-	std::ofstream logStream_;
-	//DXGIファクトリー
-	Microsoft::WRL::ComPtr<IDXGIFactory7> dxgiFactory_ = nullptr;
-	//使用するアダプタ用変数
-	Microsoft::WRL::ComPtr <IDXGIAdapter4> useAdapter_;
-	//使用するデバイス
-	Microsoft::WRL::ComPtr<ID3D12Device> device_;
+	DirectXCommon* dxCommon_ = nullptr;
 
-	uint32_t descriptorSizeSRV_;
-	uint32_t descriptorSizeRTV_;
-	uint32_t descriptorSizeDSV_;
+	ID3D12Device* device_ = nullptr;
+	ID3D12GraphicsCommandList* commandList_ = nullptr;
 
-	//コマンドキュー
-	Microsoft::WRL::ComPtr <ID3D12CommandQueue> commandQueue_;
-	//コマンドアロケータ
-	Microsoft::WRL::ComPtr <ID3D12CommandAllocator> commandAllocator_;
-	//コマンドリスト
-	Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList> commandList_;
 	//RootSignature
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> rootSignature_;
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> instancingRootSignature_;
 
-	//swapChain
-	Microsoft::WRL::ComPtr <IDXGISwapChain4> swapChain_;
-	//swapChainのバッファ
-	DXGI_SWAP_CHAIN_DESC1 swapChainDesc_{};
-	//swapChainリソース
-	Microsoft::WRL::ComPtr<ID3D12Resource> swapChainResources_[2] = {nullptr};
-
-	//RTVのバッファ
-	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc_{};
-	//RTVディスクリプタ
-	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles_[2];
-	//フェンス
-	Microsoft::WRL::ComPtr <ID3D12Fence> fence_ = nullptr;
-	//フェンスの値
-	uint64_t fenceValue_ = 0;
-	//FenceのSignalを待つためのイベント
-	HANDLE fenceEvent_ = nullptr;
-
-	//インクルードハンドル
-	Microsoft::WRL::ComPtr <IDxcIncludeHandler> includeHandler_ = nullptr;
-
-	//DepthStencilTexture
-	Microsoft::WRL::ComPtr<ID3D12Resource> depthStencilResource_;
-
-	//SRV用のヒープディスクリプタ
-	Microsoft::WRL::ComPtr <ID3D12DescriptorHeap> srvDescriptorHeap_;
-	//RTV用のヒープディスクリプタ
-	Microsoft::WRL::ComPtr <ID3D12DescriptorHeap> rtvDescriptorHeap_;
-	//DSV用のヒープディスクリプタ
-	Microsoft::WRL::ComPtr <ID3D12DescriptorHeap> dsvDescriptorheap_;
-	//DSV
-	D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc_{};
-
 	//Windowのメッセージ
 	MSG msg_{};
-	//TransitionBarrier
-	D3D12_RESOURCE_BARRIER barrier_{};
 
 	//PSO
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> trianglePipelineState_ = nullptr;
@@ -171,13 +123,6 @@ private:
 	std::array <ParticleForGPU*, kMaxIndex> instancingSpriteData_;
 #pragma endregion
 
-
-
-	//ビューポート
-	D3D12_VIEWPORT viewport_{};
-	//シザー矩形
-	D3D12_RECT scissorRect_{};
-
 	//XAudio2インスタンス
 	Microsoft::WRL::ComPtr<IXAudio2> xAudio2_;
 	//オーディオ宛先
@@ -234,8 +179,7 @@ private:
 	void PreDraw_();
 	void PostDraw_();
 
-	Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& GetCommandList_();
-	Microsoft::WRL::ComPtr<ID3D12Device> GetDevice_() { return device_; }
+	Microsoft::WRL::ComPtr<ID3D12Device> GetDevice_() { return dxCommon_->GetDevice(); }
 
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> RootSignature_() { return rootSignature_; }
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> InstancingRootSignature_() { return instancingRootSignature_; }
@@ -339,11 +283,6 @@ public:
 
 	//描画後処理
 	static void PostDraw() { getInstance()->PostDraw_(); }
-
-	//コマンドリスト
-	[[nodiscard]]
-	static Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& GetCommandList() { return getInstance()->GetCommandList_(); }
-
 
 	static Microsoft::WRL::ComPtr <ID3D12RootSignature> RootSignature() { return getInstance()->RootSignature_(); }
 	static Microsoft::WRL::ComPtr <ID3D12RootSignature> InstancingRootSignature() { return getInstance()->InstancingRootSignature_(); }

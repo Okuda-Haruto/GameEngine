@@ -33,22 +33,19 @@ Microsoft::WRL::ComPtr <ID3D12RootSignature> TriangleRootSignatureInitialvalue(M
 Microsoft::WRL::ComPtr <ID3D12RootSignature> InstancingRootSignatureInitialvalue(Microsoft::WRL::ComPtr<ID3D12Device>& device, std::ofstream& logStream);
 
 //PSOを生成する
-Microsoft::WRL::ComPtr <ID3D12PipelineState> TrianglePipelineStateInitialvalue(Microsoft::WRL::ComPtr<ID3D12Device>& device,
-	std::ofstream& logStream,
+Microsoft::WRL::ComPtr <ID3D12PipelineState> TrianglePipelineStateInitialvalue(ID3D12Device* device,
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> rootSignature,
 	IDxcBlob* vertexShaderBlob,
 	IDxcBlob* pixelShaderBlob);
 
 //PSOを生成する
-Microsoft::WRL::ComPtr <ID3D12PipelineState> NoDepthAddBlendTrianglePipelineStateInitialvalue(Microsoft::WRL::ComPtr<ID3D12Device>& device,
-	std::ofstream& logStream,
+Microsoft::WRL::ComPtr <ID3D12PipelineState> NoDepthAddBlendTrianglePipelineStateInitialvalue(ID3D12Device* device,
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> rootSignature,
 	IDxcBlob* vertexShaderBlob,
 	IDxcBlob* pixelShaderBlob);
 
 //PSOを生成する
-Microsoft::WRL::ComPtr <ID3D12PipelineState> LinePipelineStateInitialvalue(Microsoft::WRL::ComPtr<ID3D12Device>& device,
-	std::ofstream& logStream,
+Microsoft::WRL::ComPtr <ID3D12PipelineState> LinePipelineStateInitialvalue(ID3D12Device* device,
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> rootSignature,
 	IDxcBlob* vertexShaderBlob,
 	IDxcBlob* pixelShaderBlob);

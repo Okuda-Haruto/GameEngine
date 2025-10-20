@@ -38,6 +38,7 @@
     <ClCompile Include="externals\imgui\imgui_tables.cpp" />
     <ClCompile Include="externals\imgui\imgui_widgets.cpp" />
     <ClCompile Include="Application\GameCamera\GameCamera.cpp" />
+    <ClCompile Include="GameEngine\Debug\D3DResourceLeakChecker.cpp" />
     <ClCompile Include="GameEngine\Debug\DebugCamera.cpp" />
     <ClCompile Include="GameEngine\Debug\ExportDump.cpp" />
     <ClCompile Include="GameEngine\Debug\Log.cpp" />
