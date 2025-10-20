@@ -283,6 +283,9 @@
     <ClCompile Include="GameEngine\Resource\SpotLight.cpp">
       <Filter>GameEngine\Resource</Filter>
     </ClCompile>
+    <ClCompile Include="GameEngine\Debug\D3DResourceLeakChecker.cpp">
+      <Filter>GameEngine\Debug</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="externals\imgui\imconfig.h">
