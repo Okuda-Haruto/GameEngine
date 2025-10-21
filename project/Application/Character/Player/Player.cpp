@@ -8,7 +8,7 @@
 void Player::Initialize() {
 	//モデルの生成
 	object_ = std::make_unique<Object>();
-	object_->Initialize("resources/Caracter/Player", "Player.obj");
+	object_->Initialize("resources/Caracter/Player", "Player.obj", GameEngine::GetDirectXCommon());
 	objectTransform.translate.y += 1.0f;
 	object_->SetTransform(objectTransform);
 

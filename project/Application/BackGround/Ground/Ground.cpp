@@ -5,7 +5,7 @@
 void Ground::Initialize() {
 	//モデルの生成
 	object_ = std::make_unique<Object>();
-	object_->Initialize("resources/BackGround/Ground", "Ground.obj");
+	object_->Initialize("resources/BackGround/Ground", "Ground.obj", GameEngine::GetDirectXCommon());
 }
 
 void Ground::Draw() {

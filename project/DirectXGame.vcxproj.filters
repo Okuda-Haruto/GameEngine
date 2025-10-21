@@ -28,9 +28,6 @@
     <Filter Include="GameEngine\Shader">
       <UniqueIdentifier>{9c37cdff-4c36-4bb7-ace9-13b3c7cdb5e6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="GameEngine\Modules\CompileShader">
-      <UniqueIdentifier>{b6caf225-cbda-41f7-9ea0-e071c27325a9}</UniqueIdentifier>
-    </Filter>
     <Filter Include="externals">
       <UniqueIdentifier>{efd8410f-142e-4d9a-a546-8819947c2f55}</UniqueIdentifier>
     </Filter>
@@ -52,26 +49,11 @@
     <Filter Include="GameEngine\Modules\ConvertString">
       <UniqueIdentifier>{54c5bcf1-75a9-427c-b361-3e49c24be12c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="GameEngine\Modules\CreateBufferResource">
-      <UniqueIdentifier>{846a78e4-44c3-4f87-8ce1-9865d830ff91}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GameEngine\Modules\CreateDepthStencilTextureResource">
-      <UniqueIdentifier>{0687b532-b6d2-4bee-ab37-4094476655bb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GameEngine\Modules\CreateDescriptorHeap">
-      <UniqueIdentifier>{66753dcc-9ad5-4918-b5fb-901c1cd7551f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GameEngine\Modules\CreateTextureResource">
-      <UniqueIdentifier>{4afb0399-1e43-42b9-b0c0-df613296b207}</UniqueIdentifier>
-    </Filter>
     <Filter Include="GameEngine\Modules\GetDescriptorHandle">
       <UniqueIdentifier>{7dd6fd9d-3172-4bcc-ba38-23809a2dfd53}</UniqueIdentifier>
     </Filter>
     <Filter Include="GameEngine\Modules\Initialvalue">
       <UniqueIdentifier>{148c43c0-7774-4cac-b9ed-65d9379e2efd}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GameEngine\Modules\UploadTextreData">
-      <UniqueIdentifier>{a9859021-6379-434c-a25b-4cbcf3c881f8}</UniqueIdentifier>
     </Filter>
     <Filter Include="GameEngine\Math\Shape">
       <UniqueIdentifier>{e7405c49-dc57-4756-a7ba-b4a4ec1f1f90}</UniqueIdentifier>
@@ -117,6 +99,9 @@
     </Filter>
     <Filter Include="GameEngine\Resource\Model">
       <UniqueIdentifier>{a69cadce-1c28-42c2-b62a-c179ad4e9f24}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\Resource\Sprite">
+      <UniqueIdentifier>{41bda6f2-70b7-4a89-9e50-a260a2d789e3}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -165,9 +150,6 @@
     <ClCompile Include="GameEngine\LoadFile\LoadObjFile.cpp">
       <Filter>GameEngine\LoadFile</Filter>
     </ClCompile>
-    <ClCompile Include="GameEngine\LoadFile\LoadTexture.cpp">
-      <Filter>GameEngine\LoadFile</Filter>
-    </ClCompile>
     <ClCompile Include="GameEngine\Math\Matrix4x4_operation.cpp">
       <Filter>GameEngine\Math\Operation</Filter>
     </ClCompile>
@@ -189,9 +171,6 @@
     <ClCompile Include="GameEngine\Resource\Text.cpp">
       <Filter>GameEngine\Resource</Filter>
     </ClCompile>
-    <ClCompile Include="GameEngine\LoadFile\LoadText.cpp">
-      <Filter>GameEngine\LoadFile</Filter>
-    </ClCompile>
     <ClCompile Include="Application\SampleScene\SampleScene.cpp">
       <Filter>Application\Sample</Filter>
     </ClCompile>
@@ -204,33 +183,12 @@
     <ClCompile Include="GameEngine\Math\Collision.cpp">
       <Filter>GameEngine\Math</Filter>
     </ClCompile>
-    <ClCompile Include="GameEngine\Modules\CompileShader\CompileShader.cpp">
-      <Filter>GameEngine\Modules\CompileShader</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="GameEngine\Modules\ConvertString\ConvertString.cpp">
       <Filter>GameEngine\Modules\ConvertString</Filter>
     </ClCompile>
-    <ClCompile Include="GameEngine\Modules\CreateBufferResource\CreateBufferResource.cpp">
-      <Filter>GameEngine\Modules\CreateBufferResource</Filter>
-    </ClCompile>
-    <ClCompile Include="GameEngine\Modules\CreateDepthStencilTextureResource\CreateDepthStencilTextureResource.cpp">
-      <Filter>GameEngine\Modules\CreateDepthStencilTextureResource</Filter>
-    </ClCompile>
-    <ClCompile Include="GameEngine\Modules\CreateDescriptorHeap\CreateDescriptorHeap.cpp">
-      <Filter>GameEngine\Modules\CreateDescriptorHeap</Filter>
-    </ClCompile>
-    <ClCompile Include="GameEngine\Modules\CreateTextureResource\CreateTextureResource.cpp">
-      <Filter>GameEngine\Modules\CreateTextureResource</Filter>
-    </ClCompile>
-    <ClCompile Include="GameEngine\Modules\GetDescriptorHandle\GetDescriptorHandle.cpp">
-      <Filter>GameEngine\Modules\GetDescriptorHandle</Filter>
-    </ClCompile>
     <ClCompile Include="GameEngine\Modules\Initialvalue\Initialvalue.cpp">
       <Filter>GameEngine\Modules\Initialvalue</Filter>
-    </ClCompile>
-    <ClCompile Include="GameEngine\Modules\UploadTextreData\UploadTextreData.cpp">
-      <Filter>GameEngine\Modules\UploadTextreData</Filter>
     </ClCompile>
     <ClCompile Include="GameEngine\Resource\Effect.cpp">
       <Filter>GameEngine\Resource</Filter>
@@ -366,9 +324,6 @@
     <ClInclude Include="GameEngine\LoadFile\LoadObjFile.h">
       <Filter>GameEngine\LoadFile</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\LoadFile\LoadTexture.h">
-      <Filter>GameEngine\LoadFile</Filter>
-    </ClInclude>
     <ClInclude Include="GameEngine\Math\Matrix4x4_operation.h">
       <Filter>GameEngine\Math\Operation</Filter>
     </ClInclude>
@@ -408,9 +363,6 @@
     <ClInclude Include="GameEngine\Resource\Text.h">
       <Filter>GameEngine\Resource</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\LoadFile\LoadText.h">
-      <Filter>GameEngine\LoadFile</Filter>
-    </ClInclude>
     <ClInclude Include="GameEngine\Data\Object_Single_Data.h">
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
@@ -426,32 +378,11 @@
     <ClInclude Include="GameEngine\Data\TextureData.h">
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\Modules\CompileShader\CompileShader.h">
-      <Filter>GameEngine\Modules\CompileShader</Filter>
-    </ClInclude>
     <ClInclude Include="GameEngine\Modules\ConvertString\ConvertString.h">
       <Filter>GameEngine\Modules\ConvertString</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\Modules\CreateBufferResource\CreateBufferResource.h">
-      <Filter>GameEngine\Modules\CreateBufferResource</Filter>
-    </ClInclude>
-    <ClInclude Include="GameEngine\Modules\CreateDepthStencilTextureResource\CreateDepthStencilTextureResource.h">
-      <Filter>GameEngine\Modules\CreateDepthStencilTextureResource</Filter>
-    </ClInclude>
-    <ClInclude Include="GameEngine\Modules\CreateDescriptorHeap\CreateDescriptorHeap.h">
-      <Filter>GameEngine\Modules\CreateDescriptorHeap</Filter>
-    </ClInclude>
-    <ClInclude Include="GameEngine\Modules\CreateTextureResource\CreateTextureResource.h">
-      <Filter>GameEngine\Modules\CreateTextureResource</Filter>
-    </ClInclude>
-    <ClInclude Include="GameEngine\Modules\GetDescriptorHandle\GetDescriptorHandle.h">
-      <Filter>GameEngine\Modules\GetDescriptorHandle</Filter>
-    </ClInclude>
     <ClInclude Include="GameEngine\Modules\Initialvalue\Initialvalue.h">
       <Filter>GameEngine\Modules\Initialvalue</Filter>
-    </ClInclude>
-    <ClInclude Include="GameEngine\Modules\UploadTextreData\UploadTextureData.h">
-      <Filter>GameEngine\Modules\UploadTextreData</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\Math\Shape\AABB.h">
       <Filter>GameEngine\Math\Shape</Filter>

@@ -29,19 +29,19 @@ void SampleScene::Initialize(WindowsAPI* winApp) {
 
 	//3Dオブジェクト
 	object_[0] = new Object;
-	object_[0]->Initialize("resources/DebugResources/plane", "plane.obj");
+	object_[0]->Initialize("resources/DebugResources/plane", "plane.obj", GameEngine::GetDirectXCommon());
 	object_[1] = new Object;
-	object_[1]->Initialize("resources/DebugResources/sphere", "sphere.obj");
+	object_[1]->Initialize("resources/DebugResources/sphere", "sphere.obj", GameEngine::GetDirectXCommon());
 	object_[2] = new Object;
-	object_[2]->Initialize("resources/DebugResources/multiMesh", "multiMesh.obj");
+	object_[2]->Initialize("resources/DebugResources/multiMesh", "multiMesh.obj", GameEngine::GetDirectXCommon());
 	object_[3] = new Object;
-	object_[3]->Initialize("resources/DebugResources/terrain", "terrain.obj");
+	object_[3]->Initialize("resources/DebugResources/terrain", "terrain.obj", GameEngine::GetDirectXCommon());
 	object_[4] = new Object;
-	object_[4]->Initialize("resources/DebugResources/teapot", "teapot.obj");
+	object_[4]->Initialize("resources/DebugResources/teapot", "teapot.obj", GameEngine::GetDirectXCommon());
 	object_[5] = new Object;
-	object_[5]->Initialize("resources/DebugResources/bunny", "bunny.obj");
+	object_[5]->Initialize("resources/DebugResources/bunny", "bunny.obj", GameEngine::GetDirectXCommon());
 	object_[6] = new Object;
-	object_[6]->Initialize("resources/DebugResources/suzanne", "suzanne.obj");
+	object_[6]->Initialize("resources/DebugResources/suzanne", "suzanne.obj", GameEngine::GetDirectXCommon());
 
 	//2Dスプライト
 	//sprite_ = new Sprite_2D;
@@ -62,7 +62,7 @@ void SampleScene::Initialize(WindowsAPI* winApp) {
 
 	//カメラ
 	camera_ = new Camera();
-	camera_->Initialize();
+	camera_->Initialize(GameEngine::GetDirectXCommon());
 	camera_->setDebugCamera(debugCamera_);
 	//for (Object* object : object_) {
 	//	object->SetCamera(camera_);
@@ -81,7 +81,7 @@ void SampleScene::Initialize(WindowsAPI* winApp) {
 
 	//光源
 	directionalLight_ = new DirectionalLight;
-	directionalLight_->Initialize();
+	directionalLight_->Initialize(GameEngine::GetDirectXCommon());
 	directionalLightElement_ = {
 		{1.0f,1.0f,1.0f,1.0f},
 		{0.0f,-1.0f,0.0f},
@@ -90,7 +90,7 @@ void SampleScene::Initialize(WindowsAPI* winApp) {
 	directionalLight_->SetDirectionalLightElement(directionalLightElement_);
 
 	pointLight_ = new PointLight;
-	pointLight_->Initialize();
+	pointLight_->Initialize(GameEngine::GetDirectXCommon());
 	pointLightElement_ = {
 		{1.0f,1.0f,1.0f,1.0f},
 		{0.0f,2.0f,0.0f},

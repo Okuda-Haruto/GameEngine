@@ -5,7 +5,7 @@
 void Skydome::Initialize() {
 	//モデルの生成
 	object_ = std::make_unique<Object>();
-	object_->Initialize("resources/BackGround/Skydome", "Skydome.obj");
+	object_->Initialize("resources/BackGround/Skydome", "Skydome.obj", GameEngine::GetDirectXCommon());
 }
 
 void Skydome::Draw() {

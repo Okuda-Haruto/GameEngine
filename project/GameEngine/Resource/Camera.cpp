@@ -3,20 +3,19 @@
 #include "Matrix4x4_operation.h"
 #include <cassert>
 #include <numbers>
-#include <CreateBufferResource.h>
 
 Camera::Camera() {
 	kWindowWidth_ = GameEngine::GetWindowWidth();
 	kWindowHeight_ = GameEngine::GetWindowHeight();
 }
 
-void Camera::Initialize() {
+void Camera::Initialize(DirectXCommon* dxCommon) {
 	Matrix4x4 worldMatrix = MakeAffineMatrix({ 1.0f,1.0f,1.0f }, { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,-10.0f });
 	viewMatrix_ = Inverse(worldMatrix);
 	projectionMatrix_ = MakePerspectiveFovMatrix(0.45f, float(kWindowWidth_) / float(kWindowHeight_), 0.1f, 100.0f);
 
-	//光源用のリソースを作る
-	cameraResource_ = CreateBufferResource(GameEngine::GetDevice(), sizeof(CameraForGPU));
+	//カメラ座標用のリソースを作る
+	cameraResource_ = dxCommon->CreateBufferResources(sizeof(CameraForGPU));
 	//書き込むためのアドレスを取得
 	cameraResource_->Map(0, nullptr, reinterpret_cast<void**>(&cameraData_));
 

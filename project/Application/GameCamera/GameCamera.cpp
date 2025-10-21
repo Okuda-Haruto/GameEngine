@@ -7,7 +7,7 @@
 
 void GameCamera::Initialize() {
 	camera_ = std::make_unique<Camera>();
-	camera_->Initialize();
+	camera_->Initialize(GameEngine::GetDirectXCommon());
 	transform_ = std::make_unique<SRT>();
 	transform_->scale = { 1.0f,1.0f,1.0f };
 	transform_->rotate = { 0.0f,0.0f,0.0f };

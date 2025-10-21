@@ -1,16 +1,15 @@
 #include "PointLight.h"
 
-#include "CreateBufferResource.h"
 #include "GameEngine.h"
 
 PointLight::~PointLight() {
 	PointLightElementData_ = nullptr;
 }
 
-void PointLight::Initialize() {
+void PointLight::Initialize(DirectXCommon* dxCommon) {
 
 	//光源用のリソースを作る
-	PointLightElementResource_ = CreateBufferResource(GameEngine::GetDevice(), sizeof(PointLightElement));
+	PointLightElementResource_ = dxCommon->CreateBufferResources(sizeof(PointLightElement));
 	//書き込むためのアドレスを取得
 	PointLightElementResource_->Map(0, nullptr, reinterpret_cast<void**>(&PointLightElementData_));
 

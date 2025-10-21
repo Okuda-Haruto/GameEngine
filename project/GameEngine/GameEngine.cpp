@@ -11,16 +11,8 @@
 #pragma comment(lib,"dxguid.lib")
 #pragma comment(lib,"xinput.lib")
 
-#include "CreateBufferResource.h"
-#include "CompileShader.h"
-#include "CreateDescriptorHeap.h"
-#include "CreateDepthStencilTextureResource.h"
-#include "GetDescriptorHandle.h"
 #include "ExportDump.h"
 #include "ConvertString.h"
-#include "LoadTexture.h"
-#include "CreateTextureResource.h"
-#include "UploadTextureData.h"
 
 #include <d3d12.h>
 #include <dxgi1_6.h>
@@ -53,6 +45,9 @@ GameEngine::~GameEngine() {
 	instancingTrianglePipelineState_.Reset();
 	particlePipelineState_.Reset();
 	linePipelineState_.Reset();
+
+	delete winApp_;
+	delete dxCommon_;
 }
 
 GameEngine* GameEngine::getInstance() {
@@ -149,8 +144,8 @@ void GameEngine::Intialize_(const wchar_t* WindowName, int32_t kWindowWidth, int
 
 	//初期化
 	for (int i = 0; i < kMaxIndex; i++) {
-		objectMaterialResource_[i] = CreateBufferResource(device_, sizeof(Material));
-		objectWvpResource_[i] = CreateBufferResource(device_, sizeof(TransformationMatrix));
+		objectMaterialResource_[i] = dxCommon_->CreateBufferResources(sizeof(Material));
+		objectWvpResource_[i] = dxCommon_->CreateBufferResources(sizeof(TransformationMatrix));
 	}
 
 }

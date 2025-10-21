@@ -1,8 +1,9 @@
 #pragma once
 #include <string>
 #include <vector>
-#include "Parts.h"
+#include "DirectXCommon/DirectXCommon.h"
 
+#include "Parts.h"
 #include "Camera.h"
 #include "DirectionalLight.h"
 #include "PointLight.h"
@@ -19,7 +20,7 @@ private:
 public:
 
 	//初期化
-	void Initialize(const std::string& directoryPath, const std::string& filename);
+	void Initialize(const std::string& directoryPath, const std::string& filename, DirectXCommon* dxCommon);
 	//描画
 	void Draw3D(Camera* camera, int reflection, float shininess, DirectionalLight* directionalLight, PointLight* pointLight);
 

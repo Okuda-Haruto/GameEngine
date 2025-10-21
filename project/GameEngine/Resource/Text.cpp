@@ -1,6 +1,6 @@
 #include "Text.h"
 
-#include "GetDescriptorHandle.h"
+/*#include "GetDescriptorHandle.h"
 #include "LoadTexture.h"
 #include "CreateTextureResource.h"
 #include "UploadTextureData.h"
@@ -215,4 +215,4 @@ void Text::SetLogfont(LOGFONTW lf) {
 
     //元のフォントの状態を保存
     oldFont_ = (HFONT)SelectObject(hdc_, hFont_);
-}
+}*/
