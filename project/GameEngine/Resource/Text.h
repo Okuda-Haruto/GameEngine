@@ -1,5 +1,5 @@
 #pragma once
-#include <Windows.h>
+/*#include <Windows.h>
 #include <Wingdi.h>
 #include <wrl.h>
 #include <string>
@@ -88,3 +88,4 @@ public:
 	[[nodiscard]]
 	std::vector<TextData> textData() { return textData_; }
 };
+*/

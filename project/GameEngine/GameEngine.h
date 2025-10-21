@@ -328,4 +328,6 @@ public:
 
 	[[nodiscard]]
 	static WindowsAPI* GetWindowsAPI() { return getInstance()->GetWindowsAPI_(); }
+
+	static DirectXCommon* GetDirectXCommon() { return getInstance()->dxCommon_; }
 };

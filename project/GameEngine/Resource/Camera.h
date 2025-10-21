@@ -7,6 +7,7 @@ class DebugCamera;
 #include <format>
 #include <d3d12.h>
 #include <wrl.h>
+#include "DirectXCommon/DirectXCommon.h"
 
 //カメラ
 class Camera {
@@ -34,7 +35,7 @@ private:
 public:
 	Camera();
 
-	void Initialize();
+	void Initialize(DirectXCommon* dxCommon);
 	
 	void Update(SRT transform);
 	void Update();

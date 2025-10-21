@@ -4,6 +4,7 @@
 
 #include <wrl.h>
 #include "PointLightElement.h"
+#include "DirectXCommon/DirectXCommon.h"
 
 //光源
 class PointLight {
@@ -20,7 +21,7 @@ public:
 	/// 初期化
 	/// </summary>
 	/// <param name="device">デバイス</param>
-	void Initialize();
+	void Initialize(DirectXCommon* dxCommon);
 
 	// Color入力
 	void SetColor(Vector4 color);

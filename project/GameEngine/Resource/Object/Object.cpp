@@ -1,10 +1,9 @@
 #include "Object.h"
 #include <GameEngine.h>
 #include <LoadObjFile.h>
-#include <CreateBufferResource.h>
 #include <Matrix4x4_operation.h>
 
-void Object::Initialize(const std::string& directoryPath, const std::string& filename) {
+void Object::Initialize(const std::string& directoryPath, const std::string& filename, DirectXCommon* dxCommon) {
 	device_ = GameEngine::GetDevice();
 
 	//モデル読み込み
@@ -15,7 +14,7 @@ void Object::Initialize(const std::string& directoryPath, const std::string& fil
 		Parts part;
 
 		//頂点リソースを作る
-		part.model.vertexResource_ = CreateBufferResource(device_, sizeof(VertexData) * modelDatum.vertices.size());
+		part.model.vertexResource_ = dxCommon->CreateBufferResources(sizeof(VertexData) * modelDatum.vertices.size());
 
 		//頂点バッファビューを作成する
 		//リソースの先頭のアドレスから使う
@@ -33,7 +32,7 @@ void Object::Initialize(const std::string& directoryPath, const std::string& fil
 		part.model.vertexResource_->Unmap(0, nullptr);
 
 		//Sprite用のインデックスリソースを作る
-		part.model.indexResource_ = CreateBufferResource(device_, sizeof(uint32_t) * modelDatum.vertices.size());
+		part.model.indexResource_ = dxCommon->CreateBufferResources(sizeof(uint32_t) * modelDatum.vertices.size());
 
 		//インデックスバッファビューを作成する
 		//リソースの先頭のアドレスから使う

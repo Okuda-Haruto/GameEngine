@@ -1,16 +1,15 @@
 #include "DirectionalLight.h"
 
-#include "CreateBufferResource.h"
 #include "GameEngine.h"
 
 DirectionalLight::~DirectionalLight() {
 	directionalLightElementData_ = nullptr;
 }
 
-void DirectionalLight::Initialize() {
+void DirectionalLight::Initialize(DirectXCommon* dxCommon) {
 
 	//光源用のリソースを作る
-	DirectionalLightElementResource_ = CreateBufferResource(GameEngine::GetDevice(), sizeof(DirectionalLightElement));
+	DirectionalLightElementResource_ = dxCommon->CreateBufferResources(sizeof(DirectionalLightElement));
 	//書き込むためのアドレスを取得
 	DirectionalLightElementResource_->Map(0, nullptr, reinterpret_cast<void**>(&directionalLightElementData_));
 
