@@ -48,6 +48,7 @@ GameEngine::~GameEngine() {
 
 	delete winApp_;
 	delete dxCommon_;
+	TextureManager::GetInstance()->Finalize();
 }
 
 GameEngine* GameEngine::getInstance() {
@@ -77,6 +78,8 @@ void GameEngine::Intialize_(const wchar_t* WindowName, int32_t kWindowWidth, int
 
 	dxCommon_ = new DirectXCommon;
 	dxCommon_->Initialize(winApp_);
+
+	TextureManager::GetInstance()->Initialize(dxCommon_);
 
 	device_ = dxCommon_->GetDevice();
 	commandList_ = dxCommon_->GetCommandList();
@@ -126,6 +129,7 @@ void GameEngine::Intialize_(const wchar_t* WindowName, int32_t kWindowWidth, int
 	instancingTrianglePipelineState_ = TrianglePipelineStateInitialvalue(device_, instancingRootSignature_, instancingVertexShaderBlob.Get(), pixelShaderBlob.Get());
 	particlePipelineState_ = NoDepthAddBlendTrianglePipelineStateInitialvalue(device_, instancingRootSignature_, particleVSBlob.Get(), particlePSBlob.Get());
 	linePipelineState_ = LinePipelineStateInitialvalue(device_, rootSignature_, vertexShaderBlob.Get(), pixelShaderBlob.Get());
+	spritePipelineState_ = SpritePipelineStateInitialvalue(device_, rootSignature_, vertexShaderBlob.Get(), pixelShaderBlob.Get());
 
 	//XAudioエンジンのインスタンスを生成
 	hr = XAudio2Create(&xAudio2_, 0, XAUDIO2_DEFAULT_PROCESSOR);
@@ -140,12 +144,16 @@ void GameEngine::Intialize_(const wchar_t* WindowName, int32_t kWindowWidth, int
 	randomEngine_.seed(seedGenerator());
 
 	//テクスチャ初期値としてwhite2x2を読み込む
-	TextureLoad_("resources/DebugResources/white2x2.png");
+	TextureManager::GetInstance()->LoadTexture("resources/DebugResources/white2x2.png");
 
 	//初期化
 	for (int i = 0; i < kMaxIndex; i++) {
 		objectMaterialResource_[i] = dxCommon_->CreateBufferResources(sizeof(Material));
 		objectWvpResource_[i] = dxCommon_->CreateBufferResources(sizeof(TransformationMatrix));
+		spriteMaterialResource_[i] = dxCommon_->CreateBufferResources(sizeof(Material));
+		spriteWvpResource_[i] = dxCommon_->CreateBufferResources(sizeof(TransformationMatrix));
+		instancingSpriteMaterialResource_[i] = dxCommon_->CreateBufferResources(sizeof(Material));
+		instancingSpriteResource_[i] = dxCommon_->CreateBufferResources(sizeof(TransformationMatrix));
 	}
 
 }
@@ -169,72 +177,6 @@ D3D12_GPU_DESCRIPTOR_HANDLE GameEngine::GetInstancingSRV_(Microsoft::WRL::ComPtr
 
 	return textureSrvHandleGPU;
 
-}
-
-UINT GameEngine::TextureLoad_(const std::string& filePath) {
-
-	//ImGuiが0番、インスタンスが1番を使用しているため、2番から使用する
-	UINT index = textureStart;
-	//パスがない場合はwhite2x2のテクスチャ番号を返す
-	if (filePath.size() <= 0) {
-		return 0;
-	}
-	//既知のテクスチャのパスの場合はTextureを読み込まず、テクスチャの番号を返す
-	for (const TextureData& textureDatum : textureData_) {
-		if (textureDatum.tetxureFilePaths == filePath) {
-			return index - textureStart;
-		}
-		index++;
-	}
-
-	TextureData data{};
-	data.tetxureFilePaths = filePath;
-
-	//Textureを読んで転送する
-	DirectX::ScratchImage mipImages = dxCommon_->LoadTexture(data.tetxureFilePaths);
-	const DirectX::TexMetadata& metadata = mipImages.GetMetadata();
-	data.textureResource = dxCommon_->CreateTextureResource(device_, metadata);
-	dxCommon_->UploadTextureData(data.textureResource.Get(), mipImages);
-
-	//metaDataを基にSRVの設定
-	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
-	srvDesc.Format = metadata.format;
-	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;	//2Dテクスチャ
-	srvDesc.Texture2D.MipLevels = UINT(metadata.mipLevels);
-
-	index = textureStart;
-	//値が無効化されているデータ、もしくは最後尾のデータを作成して指定
-	for (const TextureData& textureDatum : textureData_) {
-		if (textureDatum.textureResource == nullptr) {
-			return index;
-		}
-		index++;
-	}
-	if (textureData_.size() >= index - textureStart) {
-		textureData_.push_back(data);
-	}
-
-	//SRVを作成するDescriptorHeapの場所を決める。ImGuiが最初を使うのでその次を使う
-	D3D12_CPU_DESCRIPTOR_HANDLE textureSrvHandleCPU = dxCommon_->GetSRVCPUDescriptorHandle(index);
-	D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU = dxCommon_->GetSRVGPUDescriptorHandle(index);
-	//SRVの生成
-	device_->CreateShaderResourceView(data.textureResource.Get(), &srvDesc, textureSrvHandleCPU);
-
-	//SRVを作成したindexの2つ前を返す
-	return index - textureStart;
-}
-
-D3D12_GPU_DESCRIPTOR_HANDLE GameEngine::TextureGet_(UINT index) {
-	//テクスチャリソースが無い場合止める
-	assert(textureData_[index].textureResource != nullptr);
-	return dxCommon_->GetSRVGPUDescriptorHandle(index + textureStart);
-}
-
-void GameEngine::TextureDelete_(UINT index) {
-	//textureData_の要素をDeleteするとデスクリプタの位置とズレるので値だけ初期化
-	textureData_[index].textureResource = nullptr;
-	textureData_[index].tetxureFilePaths.clear();
 }
 
 /*void GameEngine::LoadText(Text* text, LONG fontSize, LONG fontWeight, std::wstring str, const std::string& filePath, const std::string& fontName) {
@@ -473,6 +415,7 @@ void GameEngine::PreDraw_() {
 
 	//Index初期化
 	objectIndex = 0;
+	spriteIndex = 0;
 
 	dxCommon_->PreDraw();
 
@@ -654,13 +597,13 @@ void GameEngine::DrawObject_3D_(Object* object, Camera* camera, int reflection, 
 		objectMaterialResource_[objectIndex]->Unmap(0, nullptr);
 
 		//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-		commandList_->SetGraphicsRootSignature(GameEngine::RootSignature().Get());
-		commandList_->SetPipelineState(GameEngine::TrianglePSO());	//PSOを設定
+		commandList_->SetGraphicsRootSignature(rootSignature_.Get());
+		commandList_->SetPipelineState(trianglePipelineState_.Get());	//PSOを設定
 
 		commandList_->IASetVertexBuffers(0, 1, &parts[i].model.vertexBufferView_);	//VBVを設定
 		commandList_->IASetIndexBuffer(&parts[i].model.indexBufferView_);	//IBVを設定
 		//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
-		commandList_->SetGraphicsRootDescriptorTable(2, GameEngine::TextureGet(parts[i].textureIndex));
+		commandList_->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSrvHandleGPU(parts[i].textureIndex));
 		if (reflection != 0 && directionalLight != nullptr) {
 			commandList_->SetGraphicsRootConstantBufferView(3, directionalLight->DirectionalLightElementResource()->GetGPUVirtualAddress());	//DirectionalLighting
 		}
@@ -692,21 +635,23 @@ void GameEngine::DrawInstancingObject_3D_(InstancingObject* objects, Camera* cam
 	
 	for (INT i = 0; i < parts.size(); i++) {
 		//WVPデータを更新
-		instancingObjectResource_->Map(0, nullptr, reinterpret_cast<void**>(&instancingObjectData_));
+		instancingObjectResource_[instancingObjectIndex]->Map(0, nullptr, reinterpret_cast<void**>(&instancingObjectData_[instancingObjectIndex]));
 
 		uint32_t numInstance = 0;
 		for (std::list<SRT>::iterator objectIterator = transforms.begin();
 			objectIterator != transforms.end(); ++objectIterator) {
 
+			if (numInstance >= kMaxNumInstance)break;
+
 			Matrix4x4 worldMatrix = MakeAffineMatrix((*objectIterator).scale, (*objectIterator).rotate, (*objectIterator).translate);
-			instancingObjectData_[instancingObjectIndex]->World = worldMatrix;
+			instancingObjectData_[instancingObjectIndex][numInstance]->World = worldMatrix;
 			Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(camera->GetViewMatrix(), camera->GetProjectionMatrix()));
-			instancingObjectData_[instancingObjectIndex]->WVP = worldViewProjectionMatrix;
+			instancingObjectData_[instancingObjectIndex][numInstance]->WVP = worldViewProjectionMatrix;
 
 			++numInstance;
 		}
 
-		instancingObjectResource_->Unmap(0, nullptr);
+		instancingObjectResource_[instancingObjectIndex]->Unmap(0, nullptr);
 
 		parts[i].material.color = { 1.0f,1.0f,1.0f,1.0f };
 		parts[i].material.uvTransform = MakeIdentity4x4();
@@ -724,20 +669,22 @@ void GameEngine::DrawInstancingObject_3D_(InstancingObject* objects, Camera* cam
 		parts[i].material.shininess = 40;
 
 		//マテリアルデータを更新
-		instancingObjectMaterialResource_->Map(0, nullptr, reinterpret_cast<void**>(&instancingObjectMaterialData_[instancingObjectIndex]));
+		instancingObjectMaterialResource_[instancingObjectIndex]->Map(0, nullptr, reinterpret_cast<void**>(&instancingObjectMaterialData_[instancingObjectIndex]));
 
-		instancingObjectMaterialData_[instancingObjectIndex] = &parts[i].material;
+		for (uint32_t i = 0; i < numInstance; i++) {
+			instancingObjectMaterialData_[instancingObjectIndex][i] = &parts[i].material;
+		}
 
-		instancingObjectMaterialResource_->Unmap(0, nullptr);
+		instancingObjectMaterialResource_[instancingObjectIndex]->Unmap(0, nullptr);
 
 		//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-		commandList_->SetGraphicsRootSignature(GameEngine::RootSignature().Get());
-		commandList_->SetPipelineState(GameEngine::TrianglePSO());	//PSOを設定
+		commandList_->SetGraphicsRootSignature(rootSignature_.Get());
+		commandList_->SetPipelineState(trianglePipelineState_.Get());	//PSOを設定
 
 		commandList_->IASetVertexBuffers(0, 1, &parts[i].model.vertexBufferView_);	//VBVを設定
 		commandList_->IASetIndexBuffer(&parts[i].model.indexBufferView_);	//IBVを設定
 		//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
-		commandList_->SetGraphicsRootDescriptorTable(2, GameEngine::TextureGet(parts[i].textureIndex));
+		commandList_->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSrvHandleGPU(parts[i].textureIndex));
 		if (reflection != 0 && directionalLight != nullptr) {
 			commandList_->SetGraphicsRootConstantBufferView(3, directionalLight->DirectionalLightElementResource()->GetGPUVirtualAddress());	//Lighting
 		}
@@ -746,13 +693,119 @@ void GameEngine::DrawInstancingObject_3D_(InstancingObject* objects, Camera* cam
 		commandList_->SetGraphicsRootConstantBufferView(4, camera->CameraResource()->GetGPUVirtualAddress());
 
 		//マテリアルCBufferの場所を設定
-		commandList_->SetGraphicsRootConstantBufferView(0, instancingObjectMaterialResource_->GetGPUVirtualAddress());
+		commandList_->SetGraphicsRootConstantBufferView(0, instancingObjectMaterialResource_[instancingObjectIndex]->GetGPUVirtualAddress());
 		//wvp用のCBufferの場所を設定
 		//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
 		commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		//instancing用のData読むためにStructuredBufferのSRVを設定する
+		D3D12_GPU_DESCRIPTOR_HANDLE handle = GameEngine::GetInstancingSRV(instancingObjectResource_[instancingObjectIndex], numInstance);
+		commandList_->SetGraphicsRootDescriptorTable(1, handle);
 		//描画(DrawCall)
-		commandList_->DrawIndexedInstanced(UINT(parts[i].model.vertexIndex_), UINT(transforms.size()), 0, 0, 0);
+		commandList_->DrawIndexedInstanced(UINT(parts[i].model.vertexIndex_), numInstance, 0, 0, 0);
 
 		instancingObjectIndex++;
 	}
+}
+
+
+
+void GameEngine::DrawSprite_2D_(Sprite* sprite) {
+
+	Matrix4x4 viewMatrix = MakeIdentity4x4();
+	Matrix4x4 projectionMatrix = MakeOrthographicMatrix(0.0f, 0.0f, float(kWindowWidth_), float(kWindowHeight_), 0.0f, 100.0f);
+
+	//WVPデータを更新
+	spriteWvpResource_[spriteIndex]->Map(0, nullptr, reinterpret_cast<void**>(&spriteWvpData_[spriteIndex]));
+
+	Matrix4x4 worldMatrix = MakeAffineMatrix(sprite->GetTransform().scale, sprite->GetTransform().rotate, sprite->GetTransform().translate);
+	spriteWvpData_[spriteIndex]->World = worldMatrix;
+	spriteWvpData_[spriteIndex]->WorldInverseTranspose = Inverse(worldMatrix);
+
+	Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
+	spriteWvpData_[spriteIndex]->WVP = worldViewProjectionMatrix;
+
+	spriteWvpResource_[spriteIndex]->Unmap(0, nullptr);
+
+	//マテリアルデータを更新
+	spriteMaterialResource_[spriteIndex]->Map(0, nullptr, reinterpret_cast<void**>(&spriteMaterialData_[spriteIndex]));
+
+	spriteMaterialData_[spriteIndex]->color = sprite->GetColor();
+	spriteMaterialData_[spriteIndex]->uvTransform = MakeAffineMatrix(sprite->GetUVTransform().scale, sprite->GetUVTransform().rotate, sprite->GetUVTransform().translate);
+	spriteMaterialData_[spriteIndex]->reflection = 0;
+	spriteMaterialData_[spriteIndex]->enableDirectionalLighting = false;
+	spriteMaterialData_[spriteIndex]->enablePointLighting = false;
+	spriteMaterialData_[spriteIndex]->shininess = 0.0f;
+
+	spriteMaterialResource_[spriteIndex]->Unmap(0, nullptr);
+
+	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
+	commandList_->SetGraphicsRootSignature(rootSignature_.Get());
+	commandList_->SetPipelineState(spritePipelineState_.Get());	//PSOを設定
+	commandList_->IASetVertexBuffers(0, 1, &sprite->GetVertexBufferView());	//VBVを設定
+	commandList_->IASetIndexBuffer(&sprite->GetIndexBufferView());	//IBVを設定
+	commandList_->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSrvHandleGPU(sprite->GetTextureIndex()));
+	//マテリアルCBufferの場所を設定
+	commandList_->SetGraphicsRootConstantBufferView(0, spriteMaterialResource_[spriteIndex]->GetGPUVirtualAddress());
+	//TransformationMatrixCBufferの場所を設定
+	commandList_->SetGraphicsRootConstantBufferView(1, spriteWvpResource_[spriteIndex]->GetGPUVirtualAddress());
+	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
+	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	//ドローコール
+	commandList_->DrawIndexedInstanced(6, 1, 0, 0, 0);
+
+	spriteIndex++;
+}
+
+void GameEngine::DrawInstancingSprite_2D_(std::vector<Sprite*> sprits) {
+
+	Matrix4x4 viewMatrix = MakeIdentity4x4();
+	Matrix4x4 projectionMatrix = MakeOrthographicMatrix(0.0f, 0.0f, float(kWindowWidth_), float(kWindowHeight_), 0.0f, 100.0f);
+
+	//WVPデータを更新
+	instancingObjectResource_[instancingSpriteIndex]->Map(0, nullptr, reinterpret_cast<void**>(&instancingObjectData_[instancingSpriteIndex]));
+
+	uint32_t numInstance = 0;
+	for (auto i = 0; i < sprits.size();i++) {
+
+		if (numInstance >= kMaxNumInstance)break;
+
+		Matrix4x4 worldMatrix = MakeAffineMatrix(sprits[i]->GetTransform().translate, sprits[i]->GetTransform().rotate, sprits[i]->GetTransform().translate);
+		instancingSpriteData_[instancingSpriteIndex][numInstance]->World = worldMatrix;
+		instancingSpriteData_[instancingSpriteIndex][numInstance]->WorldInverseTranspose = Inverse(worldMatrix);
+		Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
+		instancingSpriteData_[instancingSpriteIndex][numInstance]->WVP = worldViewProjectionMatrix;
+
+		instancingSpriteResource_[instancingSpriteIndex]->Unmap(0, nullptr);
+
+		//マテリアルデータを更新
+		instancingSpriteMaterialResource_[instancingSpriteIndex]->Map(0, nullptr, reinterpret_cast<void**>(&instancingObjectMaterialData_[instancingSpriteIndex]));
+
+		for (uint32_t j = 0; j < numInstance; j++) {
+			instancingSpriteMaterialData_[instancingSpriteIndex][j] = const_cast<Material*>(&sprits[i]->GetMaterial());
+		}
+
+		instancingSpriteMaterialResource_[instancingSpriteIndex]->Unmap(0, nullptr);
+
+		++numInstance;
+	}
+
+	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
+	commandList_->SetGraphicsRootSignature(rootSignature_.Get());
+	commandList_->SetPipelineState(spritePipelineState_.Get());	//PSOを設定
+	commandList_->IASetVertexBuffers(0, 1, &sprits[0]->GetVertexBufferView());	//VBVを設定
+	commandList_->IASetIndexBuffer(&sprits[0]->GetIndexBufferView());	//IBVを設定
+	commandList_->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSrvHandleGPU(sprits[0]->GetTextureIndex()));
+	//マテリアルCBufferの場所を設定
+	commandList_->SetGraphicsRootConstantBufferView(0, spriteMaterialResource_[spriteIndex]->GetGPUVirtualAddress());
+	//TransformationMatrixCBufferの場所を設定
+	commandList_->SetGraphicsRootConstantBufferView(1, spriteWvpResource_[spriteIndex]->GetGPUVirtualAddress());
+	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
+	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	//instancing用のData読むためにStructuredBufferのSRVを設定する
+	D3D12_GPU_DESCRIPTOR_HANDLE handle = GameEngine::GetInstancingSRV(instancingObjectResource_[instancingObjectIndex], numInstance);
+	commandList_->SetGraphicsRootDescriptorTable(1, handle);
+	//描画(DrawCall)
+	commandList_->DrawIndexedInstanced(6, numInstance, 0, 0, 0);
+
+	instancingObjectIndex++;
 }

@@ -49,9 +49,6 @@
     <Filter Include="GameEngine\Modules\ConvertString">
       <UniqueIdentifier>{54c5bcf1-75a9-427c-b361-3e49c24be12c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="GameEngine\Modules\GetDescriptorHandle">
-      <UniqueIdentifier>{7dd6fd9d-3172-4bcc-ba38-23809a2dfd53}</UniqueIdentifier>
-    </Filter>
     <Filter Include="GameEngine\Modules\Initialvalue">
       <UniqueIdentifier>{148c43c0-7774-4cac-b9ed-65d9379e2efd}</UniqueIdentifier>
     </Filter>
@@ -102,6 +99,12 @@
     </Filter>
     <Filter Include="GameEngine\Resource\Sprite">
       <UniqueIdentifier>{41bda6f2-70b7-4a89-9e50-a260a2d789e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\Modules\SpriteManager">
+      <UniqueIdentifier>{fa349d05-d9c3-4609-aacc-b94c7b61effd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\Modules\TextureManager">
+      <UniqueIdentifier>{251d6b5b-3b85-49a2-8202-430d22ea3a62}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -243,6 +246,15 @@
     </ClCompile>
     <ClCompile Include="GameEngine\Debug\D3DResourceLeakChecker.cpp">
       <Filter>GameEngine\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEngine\Modules\SpriteManager\SpriteManager.cpp">
+      <Filter>GameEngine\Modules\SpriteManager</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEngine\Resource\Sprite\Sprite.cpp">
+      <Filter>GameEngine\Resource\Sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEngine\Modules\TextureManager\TextureManager.cpp">
+      <Filter>GameEngine\Modules\TextureManager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -476,6 +488,15 @@
     </ClInclude>
     <ClInclude Include="GameEngine\Data\SpotLightElement.h">
       <Filter>GameEngine\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Modules\SpriteManager\SpriteManager.h">
+      <Filter>GameEngine\Modules\SpriteManager</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Resource\Sprite\Sprite.h">
+      <Filter>GameEngine\Resource\Sprite</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Modules\TextureManager\TextureManager.h">
+      <Filter>GameEngine\Modules\TextureManager</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

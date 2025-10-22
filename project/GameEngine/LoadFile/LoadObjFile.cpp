@@ -1,8 +1,6 @@
 #include "LoadObjFile.h"
 #include "LoadMaterialTemplateFile.h"
-#include <cassert>
-#include "LoadObjFile.h"
-#include "LoadMaterialTemplateFile.h"
+#include "TextureManager/TextureManager.h"
 #include <cassert>
 #include <fstream>
 #include <sstream>
@@ -107,7 +105,7 @@ std::vector<ModelData> LoadObjFile(const std::string& directoryPath, const std::
 			//マテリアルデータのリストから同じ名称のマテリアルのデータを取得する
 			for (const MaterialData& MaterialData : materialData) {
 				if (MaterialData.materialName == materialFilename) {	//マテリアルの名称は必要ないので、それ以外を移す
-					modelDatum.textureIndex = GameEngine::TextureLoad(MaterialData.textureFilePath);
+					modelDatum.textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(MaterialData.textureFilePath);
 				}
 			}
 		}
