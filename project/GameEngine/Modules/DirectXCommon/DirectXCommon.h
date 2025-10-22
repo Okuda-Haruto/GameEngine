@@ -17,6 +17,9 @@
 
 //DirectX基盤
 class DirectXCommon {
+public:
+	//最大SRV数(最大テクスチャ枚数)
+	static const uint32_t kMaxSRVCount;
 private:
 	//WindowsAPI
 	WindowsAPI* winApp_ = nullptr;
@@ -109,11 +112,9 @@ public:
 	//バッファリソースの生成
 	Microsoft::WRL::ComPtr<ID3D12Resource> CreateBufferResources(size_t sizeInBytes);
 	//テクスチャリソースの生成
-	Microsoft::WRL::ComPtr<ID3D12Resource> CreateTextureResource(ID3D12Device* device, const DirectX::TexMetadata& metadata);
+	Microsoft::WRL::ComPtr<ID3D12Resource> CreateTextureResource(const DirectX::TexMetadata& metadata);
 	//テクスチャデータの転送
 	void UploadTextureData(ID3D12Resource* texture, const DirectX::ScratchImage& mipImages);
-	//テクスチャファイルの読み込み
-	static DirectX::ScratchImage LoadTexture(const std::string& filePath);
 
 	//SRVの指定番号のCPUデスクリプタハンドルを取得
 	D3D12_CPU_DESCRIPTOR_HANDLE GetSRVCPUDescriptorHandle(uint32_t index);

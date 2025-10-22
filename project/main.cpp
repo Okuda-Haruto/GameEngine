@@ -9,7 +9,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	//サンプルシーン
 	SampleScene* sampleScene = new SampleScene();
-	sampleScene->Initialize(GameEngine::GetWindowsAPI());
+	sampleScene->Initialize(GameEngine::GetWindowsAPI(),GameEngine::GetDirectXCommon());
 
 	//ウィンドウの×ボタンが押されるまでループ
 	while (GameEngine::WindowState()) {

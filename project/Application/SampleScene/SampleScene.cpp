@@ -11,7 +11,10 @@ SampleScene::~SampleScene() {
 	for (Object* object : object_) {
 		delete object;
 	}
-	//delete sprite_;
+	delete spriteManager_;
+	for (Sprite* sprite : sprite_) {
+		delete sprite;
+	}
 	//delete effect_;
 	//delete grid_;
 	delete audio_;
@@ -23,7 +26,7 @@ SampleScene::~SampleScene() {
 	delete input;
 }
 
-void SampleScene::Initialize(WindowsAPI* winApp) {
+void SampleScene::Initialize(WindowsAPI* winApp, DirectXCommon* dxCommon) {
 
 	winApp_ = winApp;
 
@@ -37,15 +40,21 @@ void SampleScene::Initialize(WindowsAPI* winApp) {
 	object_[3] = new Object;
 	object_[3]->Initialize("resources/DebugResources/terrain", "terrain.obj", GameEngine::GetDirectXCommon());
 	object_[4] = new Object;
-	object_[4]->Initialize("resources/DebugResources/teapot", "teapot.obj", GameEngine::GetDirectXCommon());
+	object_[4]->Initialize("resources/DebugResources/plane", "plane.obj", GameEngine::GetDirectXCommon());
 	object_[5] = new Object;
-	object_[5]->Initialize("resources/DebugResources/bunny", "bunny.obj", GameEngine::GetDirectXCommon());
+	object_[5]->Initialize("resources/DebugResources/plane", "plane.obj", GameEngine::GetDirectXCommon());
 	object_[6] = new Object;
 	object_[6]->Initialize("resources/DebugResources/suzanne", "suzanne.obj", GameEngine::GetDirectXCommon());
 
+	spriteManager_ = new SpriteManager;
+	spriteManager_->Initialize(dxCommon);
+
 	//2Dスプライト
-	//sprite_ = new Sprite_2D;
-	//sprite_->Initialize();
+	sprite_[0] = new Sprite;
+	sprite_[0]->Initialize("resources/DebugResources/uvChecker.png", spriteManager_);
+	sprite_[1] = new Sprite;
+	sprite_[1]->Initialize("resources/DebugResources/monsterBall.png", spriteManager_);
+	sprite_[1]->SetPosition(Vector2{ 50,50 });
 
 	//エフェクト
 	//effect_ = new Effect();
@@ -286,21 +295,45 @@ void SampleScene::Update() {
 			ImGui::ColorPicker4("color", &EffectColor.x);
 			effect_->SetColor(EffectColor);
 			effect_->SetTransform(EffectTransform);
-		}
-		ImGui::Checkbox("スプライト描画", &isSpriteDraw_);
-		if (isSpriteDraw_) {
-			ImGui::DragFloat3("Sprite Scale", &spriteData_.transform.scale.x, 0.1f);
-			ImGui::SliderAngle("Sprite RotateX", &spriteData_.transform.rotate.x);
-			ImGui::SliderAngle("Sprite RotateY", &spriteData_.transform.rotate.y);
-			ImGui::SliderAngle("Sprite RotateZ", &spriteData_.transform.rotate.z);
-			ImGui::DragFloat3("Sprite Transrate", &spriteData_.transform.translate.x, 0.1f);
-			ImGui::DragFloat3("Sprite uvScale", &spriteData_.material.uvTransform.scale.x, 0.1f);
-			ImGui::SliderAngle("Sprite uvRotateX", &spriteData_.material.uvTransform.rotate.x);
-			ImGui::SliderAngle("Sprite uvRotateY", &spriteData_.material.uvTransform.rotate.y);
-			ImGui::SliderAngle("Sprite uvRotateZ", &spriteData_.material.uvTransform.rotate.z);
-			ImGui::DragFloat3("Sprite uvTransrate", &spriteData_.material.uvTransform.translate.x, 0.1f);
-			ImGui::ColorEdit4("Sprite Color", &spriteData_.material.color.x);
 		}*/
+		ImGui::Checkbox("スプライト描画", &isSpriteDraw_);
+		for (INT i = 0; i < sprite_.size(); i++) {
+			if (isSpriteDraw_) {
+				Vector2 spriteSize = sprite_[i]->GetSize();
+				float spriteRotation = sprite_[i]->GetRotation();
+				Vector2 spritePosition = sprite_[i]->GetPosition();
+				Vector2 spriteAnchorPoint = sprite_[i]->GetAnchorPoint();
+				Vector2 textureLeftTop = sprite_[i]->GetTextureLeftTop();
+				Vector2 textureSize = sprite_[i]->GetTextureSize();
+				Vector4 spriteColor = sprite_[i]->GetColor();
+				std::string str;
+				str = "Sprite[" + std::to_string(i) + "]";
+				if (ImGui::CollapsingHeader(str.c_str())) {
+					str = "Sprite[" + std::to_string(i) + "] Scale";
+					ImGui::DragFloat2(str.c_str(), &spriteSize.x, 1.0f);
+					str = "Sprite[" + std::to_string(i) + "] Rotation";
+					ImGui::SliderAngle(str.c_str(), &spriteRotation);
+					str = "Sprite[" + std::to_string(i) + "] Position";
+					ImGui::DragFloat2(str.c_str(), &spritePosition.x, 1.0f);
+					str = "Sprite[" + std::to_string(i) + "] AnchorPoint";
+					ImGui::DragFloat2(str.c_str(), &spriteAnchorPoint.x, 0.1f);
+					str = "Sprite[" + std::to_string(i) + "] textureLeftTop";
+					ImGui::DragFloat2(str.c_str(), &textureLeftTop.x);
+					str = "Sprite[" + std::to_string(i) + "] textureSize";
+					ImGui::DragFloat2(str.c_str(), &textureSize.x);
+					str = "Sprite[" + std::to_string(i) + "] Color";
+					ImGui::ColorEdit4(str.c_str(), &spriteColor.x);
+				}
+				sprite_[i]->SetSize(spriteSize);
+				sprite_[i]->SetRotation(spriteRotation);
+				sprite_[i]->SetPosition(spritePosition);
+				sprite_[i]->SetAnchorPoint(spriteAnchorPoint);
+				sprite_[i]->SetTextureLeftTop(textureLeftTop);
+				sprite_[i]->SetTextureSize(textureSize);
+				sprite_[i]->SetColor(spriteColor);
+			}
+			sprite_[i]->Update();
+		}
 		for (INT i = 0; i < objectTransform_.size(); i++) {
 			std::string str;
 			str = "Object[" + std::to_string(i) + "]";
@@ -369,8 +402,10 @@ void SampleScene::Draw() {
 	//	effect_->Draw();
 	//}
 
-	//if (isSpriteDraw_ && isDisplayUI) {
-	//	sprite_->Draw(GameEngine::GetCommandList(), spriteData_);
-	//}
+	if (isSpriteDraw_ && isDisplayUI) {
+		for (INT i = 0; i < sprite_.size(); i++) {
+			sprite_[i]->Draw2D();
+		}
+	}
 
 }

@@ -7,6 +7,8 @@
 #pragma comment(lib,"d3d12.lib")
 #pragma comment(lib,"dxgi.lib")
 
+const uint32_t DirectXCommon::kMaxSRVCount = 512;
+
 using namespace Microsoft::WRL;
 
 DirectXCommon::~DirectXCommon() {
@@ -379,7 +381,7 @@ ComPtr<ID3D12Resource> DirectXCommon::CreateBufferResources(size_t sizeInBytes) 
 }
 
 //テクスチャリソースの生成
-ComPtr<ID3D12Resource> DirectXCommon::CreateTextureResource(ID3D12Device* device, const DirectX::TexMetadata& metadata) {
+ComPtr<ID3D12Resource> DirectXCommon::CreateTextureResource(const DirectX::TexMetadata& metadata) {
 	//metadataを基にResourceの設定
 	D3D12_RESOURCE_DESC resourceDesc{};
 	resourceDesc.Width = UINT(metadata.width);	//Textureの幅
@@ -396,7 +398,7 @@ ComPtr<ID3D12Resource> DirectXCommon::CreateTextureResource(ID3D12Device* device
 
 	//Resourceの生成
 	ComPtr<ID3D12Resource> resource = nullptr;
-	HRESULT hr = device->CreateCommittedResource(
+	HRESULT hr = device_->CreateCommittedResource(
 		&heapProperties,	//Heapの設定
 		D3D12_HEAP_FLAG_NONE,	//Heapの特殊な設定
 		&resourceDesc,	//Resourceの設定
@@ -457,23 +459,6 @@ void DirectXCommon::UploadTextureData(ID3D12Resource* texture, const DirectX::Sc
 
 	//intermediateResource->Release();だとReleaseで警告が発生するのでintermediateResource.Reset();
 	intermediateResource.Reset();
-}
-
-//テクスチャファイルの読み込み
-DirectX::ScratchImage DirectXCommon::LoadTexture(const std::string& filePath) {
-	//テクスチャファイルを読んでプログラムで扱えるようにする
-	DirectX::ScratchImage image{};
-	std::wstring filePathW = ConvertString(filePath);
-	HRESULT hr = DirectX::LoadFromWICFile(filePathW.c_str(), DirectX::WIC_FLAGS_FORCE_SRGB, nullptr, image);
-	assert(SUCCEEDED(hr));
-
-	//ミップマップの作成
-	DirectX::ScratchImage mipImages{};
-	hr = DirectX::GenerateMipMaps(image.GetImages(), image.GetImageCount(), image.GetMetadata(), DirectX::TEX_FILTER_SRGB, 0, mipImages);
-	assert(SUCCEEDED(hr));
-
-	//ミップマップ付きのデータを返す
-	return mipImages;
 }
 
 //SRVの指定番号のCPUデスクリプタハンドルを取得
@@ -655,7 +640,7 @@ void DirectXCommon::descriptorHeapInitialize() {
 	rtvDescriptorHeap_ = CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 2, false);
 
 	//SRV用のディスクリプタの数は128。SRVはShader内で触る物なので、ShaderVisibleはtrue
-	srvDescriptorHeap_ = CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 128, true);
+	srvDescriptorHeap_ = CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, kMaxSRVCount, true);
 
 	//DSV用のヒープディスクリプタの数は1。DSVはShader内で触る物ではないので、ShaderVisibleはfalse
 	dsvDescriptorheap_ = CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1, false);

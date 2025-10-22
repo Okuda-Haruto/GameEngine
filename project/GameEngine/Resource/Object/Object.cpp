@@ -4,7 +4,6 @@
 #include <Matrix4x4_operation.h>
 
 void Object::Initialize(const std::string& directoryPath, const std::string& filename, DirectXCommon* dxCommon) {
-	device_ = GameEngine::GetDevice();
 
 	//モデル読み込み
 	std::vector<ModelData> modelData_ = LoadObjFile(directoryPath, filename);

@@ -8,6 +8,7 @@
 #include <WindowsAPI/WindowsAPI.h>
 
 #include <Object/Object.h>
+#include <Sprite/Sprite.h>
 
 class SampleScene
 {
@@ -27,8 +28,9 @@ private:
 	//bool isUseField = false;
 
 	//2Dモデル
-	//bool isSpriteDraw_ = false;
-	//Sprite_2D* sprite_ = nullptr;
+	SpriteManager* spriteManager_ = nullptr;
+	bool isSpriteDraw_ = true;
+	std::array<Sprite*,2> sprite_;
 	// 2Dモデルデータ
 	//Object_Single_Data spriteData_;
 
@@ -67,7 +69,7 @@ public:
 	//デストラクタ
 	~SampleScene();
 	//初期化
-	void Initialize(WindowsAPI* winApp);
+	void Initialize(WindowsAPI* winApp, DirectXCommon* dxCommon);
 	//更新
 	void Update();
 	//描画

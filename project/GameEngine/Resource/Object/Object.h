@@ -14,9 +14,6 @@ private:
 	std::vector<Parts> parts_;
 	// SRT
 	SRT transform_;
-
-	//デバイス
-	Microsoft::WRL::ComPtr<ID3D12Device> device_;
 public:
 
 	//初期化

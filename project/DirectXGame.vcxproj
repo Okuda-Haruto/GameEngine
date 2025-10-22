@@ -51,6 +51,8 @@
     <ClCompile Include="GameEngine\Math\Collision.cpp" />
     <ClCompile Include="GameEngine\Math\Matrix4x4_operation.cpp" />
     <ClCompile Include="GameEngine\Math\Vector3_operation.cpp" />
+    <ClCompile Include="GameEngine\Modules\SpriteManager\SpriteManager.cpp" />
+    <ClCompile Include="GameEngine\Modules\TextureManager\TextureManager.cpp" />
     <ClCompile Include="GameEngine\Modules\WindowsAPI\WindowsAPI.cpp" />
     <ClCompile Include="GameEngine\Resource\Audio.cpp" />
     <ClCompile Include="GameEngine\Resource\Camera.cpp" />
@@ -61,6 +63,7 @@
     <ClCompile Include="GameEngine\Resource\Object\Object.cpp" />
     <ClCompile Include="GameEngine\Resource\PointLight.cpp" />
     <ClCompile Include="GameEngine\Resource\SpotLight.cpp" />
+    <ClCompile Include="GameEngine\Resource\Sprite\Sprite.cpp" />
     <ClCompile Include="GameEngine\Resource\Text.cpp" />
     <ClCompile Include="GameEngine\Resource\DirectionalLight.cpp" />
     <ClCompile Include="GameEngine\Resource\Object_2D.cpp" />
@@ -133,6 +136,8 @@
     <ClInclude Include="GameEngine\Math\Vector3.h" />
     <ClInclude Include="GameEngine\Math\Vector3_operation.h" />
     <ClInclude Include="GameEngine\Math\Vector4.h" />
+    <ClInclude Include="GameEngine\Modules\SpriteManager\SpriteManager.h" />
+    <ClInclude Include="GameEngine\Modules\TextureManager\TextureManager.h" />
     <ClInclude Include="GameEngine\Modules\WindowsAPI\WindowsAPI.h" />
     <ClInclude Include="GameEngine\Resource\Audio.h" />
     <ClInclude Include="GameEngine\Resource\Camera.h" />
@@ -143,6 +148,7 @@
     <ClInclude Include="GameEngine\Resource\Object\Object.h" />
     <ClInclude Include="GameEngine\Resource\PointLight.h" />
     <ClInclude Include="GameEngine\Resource\SpotLight.h" />
+    <ClInclude Include="GameEngine\Resource\Sprite\Sprite.h" />
     <ClInclude Include="GameEngine\Resource\Text.h" />
     <ClInclude Include="GameEngine\Resource\DirectionalLight.h" />
     <ClInclude Include="GameEngine\Resource\Object_2D.h" />
