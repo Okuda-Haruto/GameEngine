@@ -44,11 +44,11 @@ void PointLight::SetDecay(float decay) {
 }
 
 void PointLight::SetPointLightElement(PointLightElement PointLightElement) {
-	SetColor(PointLightElement.color);
-	SetPosition(PointLightElement.position);
-	SetIntensity(PointLightElement.intensity);
-	SetRadius(PointLightElement.radius);
-	SetDecay(PointLightElement.decay);
+	PointLightElementData_->color = PointLightElement.color;
+	PointLightElementData_->position = PointLightElement.position;
+	PointLightElementData_->intensity = PointLightElement.intensity;
+	PointLightElementData_->radius = PointLightElement.radius;
+	PointLightElementData_->decay = PointLightElement.decay;
 }
 
 [[nodiscard]]

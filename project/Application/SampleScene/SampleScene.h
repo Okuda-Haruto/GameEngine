@@ -5,6 +5,7 @@
 #include <Effect.h>
 #include <Input/Input.h>
 #include <PointLight.h>
+#include <SpotLight.h>
 #include <WindowsAPI/WindowsAPI.h>
 
 #include <Object/Object.h>
@@ -29,7 +30,7 @@ private:
 
 	//2Dモデル
 	SpriteManager* spriteManager_ = nullptr;
-	bool isSpriteDraw_ = true;
+	bool isSpriteDraw_ = false;
 	std::array<Sprite*,2> sprite_;
 	// 2Dモデルデータ
 	//Object_Single_Data spriteData_;
@@ -57,6 +58,9 @@ private:
 
 	PointLightElement pointLightElement_;
 	PointLight* pointLight_ = nullptr;
+
+	SpotLightElement spotLightElement_;
+	SpotLight* spotLight_ = nullptr;
 
 
 	//インプット

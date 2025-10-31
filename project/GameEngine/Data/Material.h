@@ -8,7 +8,7 @@ struct Material {
 	int32_t reflection;
 	int32_t enableDirectionalLighting;
 	int32_t enablePointLighting;
-	float padding;
+	int32_t enableSpotLighting;
 	Matrix4x4 uvTransform;
 	float shininess = 0.0f;
 };
