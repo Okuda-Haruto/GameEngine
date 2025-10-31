@@ -68,6 +68,6 @@ void Object::Initialize(const std::string& directoryPath, const std::string& fil
 	transform_.scale = { 1.0f,1.0f,1.0f };
 }
 
-void Object::Draw3D(Camera* camera, int reflection, float shininess, DirectionalLight* directionalLight, PointLight* pointLight) {
-	GameEngine::DrawObject_3D(this, camera, reflection, shininess, directionalLight, pointLight);
+void Object::Draw3D(Camera* camera, int reflection, float shininess, DirectionalLight* directionalLight, PointLight* pointLight, SpotLight* spotLight) {
+	GameEngine::DrawObject_3D(this, camera, reflection, shininess, directionalLight, pointLight, spotLight);
 }

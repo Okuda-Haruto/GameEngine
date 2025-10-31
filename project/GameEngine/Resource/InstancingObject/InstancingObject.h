@@ -7,6 +7,7 @@
 #include "Camera.h"
 #include "DirectionalLight.h"
 #include "PointLight.h"
+#include "SpotLight.h"
 
 class InstancingObject {
 private:
@@ -22,7 +23,7 @@ public:
 	//初期化
 	void Initialize(const std::string& directoryPath, const std::string& filename, DirectXCommon* dxCommon);
 	//描画
-	void Draw3D(Camera* camera, int reflection, DirectionalLight* directionalLight, PointLight* pointLight);
+	void Draw3D(Camera* camera, int reflection, DirectionalLight* directionalLight, PointLight* pointLight, SpotLight* spotLight);
 
 	std::vector<Parts> GetParts() { return parts_; }
 	std::list<SRT> GetTransforms() { return transforms_; }

@@ -7,6 +7,7 @@
 #include "Camera.h"
 #include "DirectionalLight.h"
 #include "PointLight.h"
+#include "SpotLight.h"
 
 class Object {
 private:
@@ -19,7 +20,7 @@ public:
 	//初期化
 	void Initialize(const std::string& directoryPath, const std::string& filename, DirectXCommon* dxCommon);
 	//描画
-	void Draw3D(Camera* camera, int reflection, float shininess, DirectionalLight* directionalLight, PointLight* pointLight);
+	void Draw3D(Camera* camera, int reflection, float shininess, DirectionalLight* directionalLight, PointLight* pointLight, SpotLight* spotLight);
 
 	std::vector<Parts> GetParts() { return parts_; }
 	SRT GetTransform() { return transform_; }

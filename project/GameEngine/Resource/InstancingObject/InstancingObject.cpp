@@ -66,6 +66,6 @@ void InstancingObject::Initialize(const std::string& directoryPath, const std::s
 	}
 }
 
-void InstancingObject::Draw3D(Camera* camera, int reflection, DirectionalLight* directionalLight, PointLight* pointLight) {
-	GameEngine::DrawInstancingObject_3D(this, camera, reflection, directionalLight, pointLight);
+void InstancingObject::Draw3D(Camera* camera, int reflection, DirectionalLight* directionalLight, PointLight* pointLight, SpotLight* spotLight) {
+	GameEngine::DrawInstancingObject_3D(this, camera, reflection, directionalLight, pointLight, spotLight);
 }

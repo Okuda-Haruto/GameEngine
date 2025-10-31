@@ -2,8 +2,8 @@
 #include <Vector3.h>
 #include <Vector4.h>
 
-struct SpotLight {
-	Vector4 Color;	//ライトの色
+struct SpotLightElement {
+	Vector4 color;	//ライトの色
 	Vector3	position;	//ライトに位置
 	float intensity;	//輝度
 	Vector3 direction;	//スポットライトの方向

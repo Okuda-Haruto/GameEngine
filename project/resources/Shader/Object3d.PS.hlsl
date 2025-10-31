@@ -16,6 +16,19 @@ struct PointLight
     float decay;
 };
 
+struct SpotLight
+{
+    float4 color;
+    float3 position;
+    float intensity;
+    float3 direction;
+    float distance;
+    float decay;
+    float cosAngle;
+    float cosFalloutStart;
+};
+
+
 struct Camera
 {
     float3 WorldPosition;
@@ -27,6 +40,7 @@ struct Material
     int reflection;
     int enableDirectionalLighting;
     int enablePointLighting;
+    int enableSpotLighting;
     float4x4 uvTransform;
     float shininess;
 };
@@ -35,6 +49,7 @@ ConstantBuffer<Material> gMaterial : register(b0);
 ConstantBuffer<DirectionalLight> gDirectionalLight : register(b1);
 ConstantBuffer<Camera> gCamera : register(b2);
 ConstantBuffer<PointLight> gPointLight : register(b3);
+ConstantBuffer<SpotLight> gSpotLight : register(b4);
 
 struct PixelShaderOutput
 {
@@ -74,6 +89,26 @@ PixelShaderOutput PhangReflectionModel(VertexShaderOutput input, float4 textureC
         diffusePointLighting = gMaterial.color.rgb * textureColor.rgb * gPointLight.color.rgb * cos * gPointLight.intensity * factor;
     }
     
+    float3 diffuseSpotLighting = { 0.0f, 0.0f, 0.0f };
+    float3 spotLightDirectionOnSurface = { 0.0f, 0.0f, 0.0f };
+    float cosAngle = 0.0f;
+    float falloutFactor = 0.0f;
+    float attenuationFactor = 0.0f;
+    if (gMaterial.enableSpotLighting)
+    {
+        spotLightDirectionOnSurface = normalize(gSpotLight.position - input.worldPosition);
+        cosAngle = dot(spotLightDirectionOnSurface, normalize(gSpotLight.direction));
+        falloutFactor = saturate((cosAngle - cos(gSpotLight.cosAngle)) / (cos(gSpotLight.cosFalloutStart) - cos(gSpotLight.cosAngle)));
+        
+        float distance = length(gSpotLight.position - input.worldPosition);
+        attenuationFactor = pow(saturate(-distance / gSpotLight.distance + 1.0f), gSpotLight.decay);
+        
+        float NdotL = dot(normalize(input.normal), -spotLightDirectionOnSurface);
+        float cos = pow(NdotL * 0.5f + 0.5f, 2.0f);
+        
+        diffuseSpotLighting = gMaterial.color.rgb * textureColor.rgb * gSpotLight.color.rgb * gSpotLight.intensity * falloutFactor;
+    }
+    
     if (gMaterial.shininess > 0)
     {
         float3 toEye = normalize(gCamera.WorldPosition - input.worldPosition);
@@ -85,7 +120,7 @@ PixelShaderOutput PhangReflectionModel(VertexShaderOutput input, float4 textureC
             float RdotE = dot(reflectLight, toEye);
             
             float specularPow = pow(saturate(RdotE), gMaterial.shininess);
-            specularDirectionalLighting = gDirectionalLight.color.rgb * gDirectionalLight.intensity * specularPow * float3(1.0f, 1.0f, 1.0f);
+            specularDirectionalLighting = gMaterial.color.rgb * textureColor.rgb * gDirectionalLight.color.rgb * gDirectionalLight.intensity * specularPow * float3(1.0f, 1.0f, 1.0f);
         }
         
         float3 specularPointLighting = { 0.0f, 0.0f, 0.0f };
@@ -98,11 +133,21 @@ PixelShaderOutput PhangReflectionModel(VertexShaderOutput input, float4 textureC
             specularPointLighting = gPointLight.color.rgb * gPointLight.intensity * factor * specularPow * float3(1.0f, 1.0f, 1.0f);
         }
         
-        output.color.rgb = diffuseDirectionalLighting + specularDirectionalLighting + diffusePointLighting + specularPointLighting;
+        float3 specularSpotLighting = { 0.0f, 0.0f, 0.0f };
+        if (gMaterial.enableSpotLighting)
+        {
+            float3 reflectLight = reflect(gSpotLight.direction, normalize(input.normal));
+            float RdotE = dot(reflectLight, toEye);
+            
+            float specularPow = pow(saturate(RdotE), gMaterial.shininess);
+            specularSpotLighting = gSpotLight.color.rgb * gSpotLight.intensity * falloutFactor * specularPow * float3(1.0f, 1.0f, 1.0f);
+        }
+        
+        output.color.rgb = diffuseDirectionalLighting + specularDirectionalLighting + diffusePointLighting + specularPointLighting + diffuseSpotLighting + specularSpotLighting;
     }
     else
     {
-        output.color.rgb = diffuseDirectionalLighting + diffusePointLighting;
+        output.color.rgb = diffuseDirectionalLighting + diffusePointLighting + diffuseSpotLighting;
     }
     output.color.a = gMaterial.color.a * textureColor.a;
     return output;
@@ -137,6 +182,26 @@ PixelShaderOutput BlinnPhangReflectionModel(VertexShaderOutput input, float4 tex
         diffusePointLighting = gMaterial.color.rgb * textureColor.rgb * gPointLight.color.rgb * cos * gPointLight.intensity * factor;
     }
     
+    float3 diffuseSpotLighting = { 0.0f, 0.0f, 0.0f };
+    float3 spotLightDirectionOnSurface = { 0.0f, 0.0f, 0.0f };
+    float cosAngle = 0.0f;
+    float falloutFactor = 0.0f;
+    float attenuationFactor = 0.0f;
+    if (gMaterial.enableSpotLighting)
+    {
+        spotLightDirectionOnSurface = normalize(input.worldPosition - gSpotLight.position);
+        cosAngle = dot(spotLightDirectionOnSurface, gSpotLight.direction);
+        falloutFactor = saturate((cosAngle - cos(gSpotLight.cosAngle)) / (cos(gSpotLight.cosFalloutStart) - cos(gSpotLight.cosAngle)));
+        
+        float distance = length(gSpotLight.position - input.worldPosition);
+        attenuationFactor = pow(saturate(-distance / gSpotLight.distance + 1.0f), gSpotLight.decay);
+        
+        float NdotL = dot(normalize(input.normal), -spotLightDirectionOnSurface);
+        float cos = pow(NdotL * 0.5f + 0.5f, 2.0f);
+        
+        diffuseSpotLighting = gMaterial.color.rgb * textureColor.rgb * gSpotLight.color.rgb * cos * gSpotLight.intensity * attenuationFactor * falloutFactor;
+    }
+    
     if (gMaterial.shininess > 0)
     {
         float3 toEye = normalize(gCamera.WorldPosition - input.worldPosition);
@@ -162,12 +227,22 @@ PixelShaderOutput BlinnPhangReflectionModel(VertexShaderOutput input, float4 tex
             
             specularPointLighting = gPointLight.color.rgb * gPointLight.intensity * factor * specularPow * float3(1.0f, 1.0f, 1.0f);
         }
+       
+        float3 specularSpotLighting = { 0.0f, 0.0f, 0.0f };
+        if (gMaterial.enableSpotLighting)
+        {
+            float3 halfVector = normalize(-spotLightDirectionOnSurface + toEye);
+            float NdotH = dot(normalize(input.normal), halfVector);
+            
+            float specularPow = pow(saturate(NdotH), gMaterial.shininess);
+            specularSpotLighting = gSpotLight.color.rgb * gSpotLight.intensity * attenuationFactor * falloutFactor * specularPow * float3(1.0f, 1.0f, 1.0f);
+        }
         
-        output.color.rgb = diffuseDirectionalLighting + specularDirectionalLighting + diffusePointLighting + specularPointLighting;
+        output.color.rgb = diffuseDirectionalLighting + specularDirectionalLighting + diffusePointLighting + specularPointLighting + diffuseSpotLighting + specularSpotLighting;
     }
     else
     {
-        output.color.rgb = diffuseDirectionalLighting + diffusePointLighting;
+        output.color.rgb = diffuseDirectionalLighting + diffusePointLighting + diffuseSpotLighting;
     }
     output.color.a = gMaterial.color.a * textureColor.a;
     return output;

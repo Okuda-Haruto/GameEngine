@@ -558,7 +558,7 @@ Pad GameEngine::GetPad_(int usePadNum) {
 	return returnPad;
 }
 
-void GameEngine::DrawObject_3D_(Object* object, Camera* camera, int reflection, float shininess, DirectionalLight* directionalLight, PointLight* pointLight) {
+void GameEngine::DrawObject_3D_(Object* object, Camera* camera, int reflection, float shininess, DirectionalLight* directionalLight, PointLight* pointLight, SpotLight* spotLight) {
 	std::vector<Parts> parts = object->GetParts();
 	SRT transform = object->GetTransform();
 	
@@ -587,6 +587,11 @@ void GameEngine::DrawObject_3D_(Object* object, Camera* camera, int reflection, 
 		} else {
 			parts[i].material.enablePointLighting = false;
 		}
+		if (spotLight != nullptr) {
+			parts[i].material.enableSpotLighting = true;
+		} else {
+			parts[i].material.enableSpotLighting = false;
+		}
 		parts[i].material.shininess = shininess;
 
 		//マテリアルデータを更新
@@ -612,6 +617,10 @@ void GameEngine::DrawObject_3D_(Object* object, Camera* camera, int reflection, 
 			commandList_->SetGraphicsRootConstantBufferView(5, pointLight->PointLightElementResource()->GetGPUVirtualAddress());	//PointLighting
 		}
 
+		if (reflection != 0 && spotLight != nullptr) {
+			commandList_->SetGraphicsRootConstantBufferView(6, spotLight->SpotLightElementResource()->GetGPUVirtualAddress());	//SpotLighting
+		}
+
 		//カメラのワールド座標をCBufferに送る
 		commandList_->SetGraphicsRootConstantBufferView(4, camera->CameraResource()->GetGPUVirtualAddress());
 
@@ -629,7 +638,7 @@ void GameEngine::DrawObject_3D_(Object* object, Camera* camera, int reflection, 
 	}
 }
 
-void GameEngine::DrawInstancingObject_3D_(InstancingObject* objects, Camera* camera, int reflection, DirectionalLight* directionalLight, PointLight* pointLight) {
+void GameEngine::DrawInstancingObject_3D_(InstancingObject* objects, Camera* camera, int reflection, DirectionalLight* directionalLight, PointLight* pointLight, SpotLight* spotLight) {
 	std::vector<Parts> parts = objects->GetParts();
 	std::list<SRT> transforms = objects->GetTransforms();
 	

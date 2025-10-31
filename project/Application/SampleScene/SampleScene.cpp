@@ -1,5 +1,6 @@
 #define NOMINMAX
 #include "SampleScene.h"
+#include "Vector3_operation.h"
 #include "Matrix4x4_operation.h"
 
 #include <algorithm>
@@ -23,6 +24,7 @@ SampleScene::~SampleScene() {
 	delete debugCamera_;
 	delete directionalLight_;
 	delete pointLight_;
+	delete spotLight_;
 	delete input;
 }
 
@@ -103,11 +105,25 @@ void SampleScene::Initialize(WindowsAPI* winApp, DirectXCommon* dxCommon) {
 	pointLightElement_ = {
 		{1.0f,1.0f,1.0f,1.0f},
 		{0.0f,2.0f,0.0f},
-		1.0f,
+		0.0f,
 		20.0f,
 		1.0f
 	};
 	pointLight_->SetPointLightElement(pointLightElement_);
+
+	spotLight_ = new SpotLight;
+	spotLight_->Initialize(GameEngine::GetDirectXCommon());
+	spotLightElement_ = {
+		{ 1.0f,1.0f,1.0f,1.0f },
+		{2.0f,1.25f,0.0f},
+		7.0f,
+		Normalize({ -1.0f,-1.0f,0.0f }),
+		4.0f,
+		2.0f,
+		std::numbers::pi_v<float> / 180 * 60,
+		std::numbers::pi_v<float> / 180 * 30
+	};
+
 	for (INT i = 0; i < objectTransform_.size(); i++) {
 		objectTransform_[i].scale = { 1.0f,1.0f,1.0f };
 		objectTransform_[i].translate.x = i * 3 - 9.0f;
@@ -245,42 +261,58 @@ void SampleScene::Update() {
 			}
 		}
 
-		const char* items[] = { "None", "Lambert", "HalfLambert" };
-		static const char* current_item = "HalfLambert";
+		if (ImGui::CollapsingHeader("DirectionalLight")) {
+			const char* items[] = { "None", "Lambert", "HalfLambert" };
+			static const char* current_item = "HalfLambert";
 
-		current_item = items[isLighting_];
+			current_item = items[isLighting_];
 
-		if (ImGui::BeginCombo("Lighting", current_item))
-		{
-			for (int n = 0; n < IM_ARRAYSIZE(items); n++)
+			if (ImGui::BeginCombo("Lighting", current_item))
 			{
-				bool is_selected = (current_item == items[n]);
-				if (ImGui::Selectable(items[n], is_selected)) {
-					isLighting_ = n;
-					//for (Object* object : object_) {
-					//	object->SetReflection(isLighting_);
-					//}
+				for (int n = 0; n < IM_ARRAYSIZE(items); n++)
+				{
+					bool is_selected = (current_item == items[n]);
+					if (ImGui::Selectable(items[n], is_selected)) {
+						isLighting_ = n;
+						//for (Object* object : object_) {
+						//	object->SetReflection(isLighting_);
+						//}
+					}
 				}
+				ImGui::EndCombo();
 			}
-			ImGui::EndCombo();
+			ImGui::DragFloat("light Shininess", &shininess_);
+			//for (Object* object : object_) {
+			//	object->SetShininess(shininess);
+			//}
+			ImGui::ColorEdit4("directionalLight Color", &directionalLightElement_.color.x);
+			ImGui::DragFloat3("directionalLight Direction", &directionalLightElement_.direction.x, 0.01f, -1.0f, 1.0f);
+			ImGui::DragFloat("directionalLight Intensity", &directionalLightElement_.intensity, 0.01f, 0.0f, 1.0f);
+			float sqrtNumber = sqrtf(sqrtf(powf(directionalLightElement_.direction.x, 2) + powf(directionalLightElement_.direction.y, 2)) + powf(directionalLightElement_.direction.z, 2));
+			directionalLightElement_.direction.x = directionalLightElement_.direction.x / sqrtNumber;
+			directionalLightElement_.direction.y = directionalLightElement_.direction.y / sqrtNumber;
+			directionalLightElement_.direction.z = directionalLightElement_.direction.z / sqrtNumber;
 		}
-		ImGui::DragFloat("light Shininess", &shininess_);
-		//for (Object* object : object_) {
-		//	object->SetShininess(shininess);
-		//}
-		ImGui::ColorEdit4("directionalLight Color", &directionalLightElement_.color.x);
-		ImGui::DragFloat3("directionalLight Direction", &directionalLightElement_.direction.x, 0.01f, -1.0f, 1.0f);
-		ImGui::DragFloat("directionalLight Intensity", &directionalLightElement_.intensity, 0.01f, 0.0f, 1.0f);
-		float sqrtNumber = sqrtf(sqrtf(powf(directionalLightElement_.direction.x, 2) + powf(directionalLightElement_.direction.y, 2)) + powf(directionalLightElement_.direction.z, 2));
-		directionalLightElement_.direction.x = directionalLightElement_.direction.x / sqrtNumber;
-		directionalLightElement_.direction.y = directionalLightElement_.direction.y / sqrtNumber;
-		directionalLightElement_.direction.z = directionalLightElement_.direction.z / sqrtNumber;
 
-		ImGui::ColorEdit4("pointLight Color", &pointLightElement_.color.x);
-		ImGui::DragFloat3("pointLight Position", &pointLightElement_.position.x, 0.1f);
-		ImGui::DragFloat("pointLight Intensity", &pointLightElement_.intensity, 0.01f, 0.0f, 1.0f);
-		ImGui::DragFloat("pointLight Radius", &pointLightElement_.radius, 0.01f, 0.0f,100.0f);
-		ImGui::DragFloat("pointLight Decay", &pointLightElement_.decay, 0.01f, 0.0f,10.0f);
+		if (ImGui::CollapsingHeader("PointLight")) {
+			ImGui::ColorEdit4("pointLight Color", &pointLightElement_.color.x);
+			ImGui::DragFloat3("pointLight Position", &pointLightElement_.position.x, 0.1f);
+			ImGui::DragFloat("pointLight Intensity", &pointLightElement_.intensity, 0.01f, 0.0f, 1.0f);
+			ImGui::DragFloat("pointLight Radius", &pointLightElement_.radius, 0.01f, 0.0f, 100.0f);
+			ImGui::DragFloat("pointLight Decay", &pointLightElement_.decay, 0.01f, 0.0f, 10.0f);
+		}
+
+		if (ImGui::CollapsingHeader("SpotLight")) {
+			ImGui::ColorEdit4("spotLight Color", &spotLightElement_.color.x);
+			ImGui::DragFloat3("spotLight Position", &spotLightElement_.position.x, 0.1f);
+			ImGui::DragFloat("spotLight Intensity", &spotLightElement_.intensity, 0.01f, 0.0f, 10.0f);
+			ImGui::DragFloat3("spotLight Direction", &spotLightElement_.direction.x, 0.01f, -1.0f, 1.0f);
+			spotLightElement_.direction = Normalize(spotLightElement_.direction);
+			ImGui::DragFloat("spotLight Distance", &spotLightElement_.distance, 0.1f,0.0f,20.0f);
+			ImGui::DragFloat("spotLight Decay", &spotLightElement_.decay, 0.01f, 0.0f, 10.0f);
+			ImGui::SliderAngle("spotLight CosAngle", &spotLightElement_.cosAngle);
+			ImGui::SliderAngle("spotLight CosFalloutStart", &spotLightElement_.cosFalloutStart);
+		}
 
 		/*ImGui::Checkbox("パーティクルを発生させるか", &isSpawnEffect_);
 		if (isSpawnEffect_) {
@@ -382,6 +414,7 @@ void SampleScene::Update() {
 
 	directionalLight_->SetDirectionalLightElement(directionalLightElement_);
 	pointLight_->SetPointLightElement(pointLightElement_);
+	spotLight_->SetSpotLightElement(spotLightElement_);
 }
 
 void SampleScene::Draw() {
@@ -394,7 +427,7 @@ void SampleScene::Draw() {
 
 	for (INT i = 0; i < object_.size(); i++) {
 		if (isObjectDraw_[i]) {
-			object_[i]->Draw3D(camera_, isLighting_, shininess_,directionalLight_,pointLight_);
+			object_[i]->Draw3D(camera_, isLighting_, shininess_,directionalLight_,pointLight_,spotLight_);
 		}
 	}
 
