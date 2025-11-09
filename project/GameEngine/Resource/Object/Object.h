@@ -3,6 +3,8 @@
 #include <vector>
 #include "DirectXCommon/DirectXCommon.h"
 
+#include "Model/Model.h"
+#include "Material.h"
 #include "Parts.h"
 #include "Camera.h"
 #include "DirectionalLight.h"
@@ -11,18 +13,29 @@
 
 class Object {
 private:
-	// パーツ
+	// モデル
+	Model* model_ = nullptr;
+	// パーツ(offset)
 	std::vector<Parts> parts_;
 	// SRT
 	SRT transform_;
 public:
 
 	//初期化
-	void Initialize(const std::string& directoryPath, const std::string& filename, DirectXCommon* dxCommon);
+	void Initialize(Model* model);
 	//描画
-	void Draw3D(Camera* camera, int reflection, float shininess, DirectionalLight* directionalLight, PointLight* pointLight, SpotLight* spotLight);
+	void Draw3D(Camera* camera, DirectionalLight* directionalLight, PointLight* pointLight, SpotLight* spotLight);
 
 	std::vector<Parts> GetParts() { return parts_; }
 	SRT GetTransform() { return transform_; }
 	void SetTransform(SRT transform) { transform_ = transform; }
+	
+	//頂点バッファビュー
+	D3D12_VERTEX_BUFFER_VIEW& GetVBV() { return model_->GetVBV(); }
+	//インデックスバッファビュー
+	D3D12_INDEX_BUFFER_VIEW& GetIBV() { return model_->GetIBV(); }
+	//頂点の数
+	UINT GetVertexIndex() { return model_->GetVertexIndex(); }
+	//オフセット
+	std::vector<Offset> GetOffsets() { return model_->GetOffsets(); }
 };

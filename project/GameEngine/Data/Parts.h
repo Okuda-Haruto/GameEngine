@@ -4,8 +4,8 @@
 #include "Model/Model.h"
 
 struct Parts {
-	Material material;
-	Model model;
-	UINT textureIndex = 0;
+	UINT textureIndex;
+	Material* material = nullptr;
 	SRT transform;
+	SRT UVtransform;
 };

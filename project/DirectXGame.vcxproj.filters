@@ -91,9 +91,6 @@
     <Filter Include="GameEngine\Resource\Object">
       <UniqueIdentifier>{0e54ffcf-10c8-4185-a512-b6424a9bfdc7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="GameEngine\Resource\InstancingObject">
-      <UniqueIdentifier>{59d342ec-6cdc-4ddd-9221-c999eb0878ec}</UniqueIdentifier>
-    </Filter>
     <Filter Include="GameEngine\Resource\Model">
       <UniqueIdentifier>{a69cadce-1c28-42c2-b62a-c179ad4e9f24}</UniqueIdentifier>
     </Filter>
@@ -153,10 +150,7 @@
     <ClCompile Include="GameEngine\LoadFile\LoadObjFile.cpp">
       <Filter>GameEngine\LoadFile</Filter>
     </ClCompile>
-    <ClCompile Include="GameEngine\Math\Matrix4x4_operation.cpp">
-      <Filter>GameEngine\Math\Operation</Filter>
-    </ClCompile>
-    <ClCompile Include="GameEngine\Math\Vector3_operation.cpp">
+    <ClCompile Include="GameEngine\Math\Matrix4x4.cpp">
       <Filter>GameEngine\Math\Operation</Filter>
     </ClCompile>
     <ClCompile Include="GameEngine\Resource\Audio.cpp">
@@ -238,9 +232,6 @@
     <ClCompile Include="GameEngine\Resource\Object\Object.cpp">
       <Filter>GameEngine\Resource\Object</Filter>
     </ClCompile>
-    <ClCompile Include="GameEngine\Resource\InstancingObject\InstancingObject.cpp">
-      <Filter>GameEngine\Resource\InstancingObject</Filter>
-    </ClCompile>
     <ClCompile Include="GameEngine\Resource\SpotLight.cpp">
       <Filter>GameEngine\Resource</Filter>
     </ClCompile>
@@ -256,6 +247,10 @@
     <ClCompile Include="GameEngine\Modules\TextureManager\TextureManager.cpp">
       <Filter>GameEngine\Modules\TextureManager</Filter>
     </ClCompile>
+    <ClCompile Include="GameEngine\Math\Vector3.cpp">
+      <Filter>GameEngine\Math\Operation</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEngine\Modules\ModelManager\ModelManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="externals\imgui\imconfig.h">
@@ -335,9 +330,6 @@
     </ClInclude>
     <ClInclude Include="GameEngine\LoadFile\LoadObjFile.h">
       <Filter>GameEngine\LoadFile</Filter>
-    </ClInclude>
-    <ClInclude Include="GameEngine\Math\Matrix4x4_operation.h">
-      <Filter>GameEngine\Math\Operation</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\Math\Vector3_operation.h">
       <Filter>GameEngine\Math\Operation</Filter>
@@ -480,9 +472,6 @@
     <ClInclude Include="GameEngine\Resource\Object\Object.h">
       <Filter>GameEngine\Resource\Object</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\Resource\InstancingObject\InstancingObject.h">
-      <Filter>GameEngine\Resource\InstancingObject</Filter>
-    </ClInclude>
     <ClInclude Include="GameEngine\Resource\SpotLight.h">
       <Filter>GameEngine\Resource</Filter>
     </ClInclude>
@@ -498,6 +487,10 @@
     <ClInclude Include="GameEngine\Modules\TextureManager\TextureManager.h">
       <Filter>GameEngine\Modules\TextureManager</Filter>
     </ClInclude>
+    <ClInclude Include="GameEngine\Data\Offset.h">
+      <Filter>GameEngine\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Modules\ModelManager\ModelManager.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt">

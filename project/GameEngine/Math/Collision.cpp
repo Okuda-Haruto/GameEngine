@@ -1,7 +1,7 @@
 #define NOMINMAX
 #include "Collision.h"
-#include "Vector3_operation.h"
-#include "Matrix4x4_operation.h"
+#include "Vector3.h"
+#include "Matrix4x4.h"
 #include <cmath>
 #include <algorithm>
 
@@ -9,36 +9,36 @@
 Vector3 Project(const Vector3& v1, const Vector3& v2) {
 	float t;
 	Vector3 vector;
-	t = Dot(v1,v2) / powf(Length(v2),2);
-	vector = Multiply(t, v2);
+	t = Vector3::Dot(v1,v2) / powf(Vector3::Length(v2),2);
+	vector = t * v2;
 	return vector;
 }
 
 //最終接点
 Vector3 ClosestPoint(const Vector3& point, const Segment& segment) {
 	Vector3 cp;
-	Vector3 a = Subtract(point, segment.origin);
-	cp = Add(segment.origin, Project(a, segment.diff));
+	Vector3 a = point - segment.origin;
+	cp = segment.origin - Project(a, segment.diff);
 	return cp;
 }
 
 //球と球の衝突
 bool IsCollision(const Sphere& s1, const Sphere& s2) {
-	float distance = Length(Subtract(s2.center,s1.center));
+	float distance = Vector3::Length(s2.center - s1.center);
 
 	return distance <= s1.radius + s2.radius;
 }
 
 //球と平面の衝突
 bool IsCollision(const Sphere& sphere, const Plane& plane) {
-	float k = Dot(plane.normal, sphere.center) - plane.distance;
+	float k = Vector3::Dot(plane.normal, sphere.center) - plane.distance;
 
 	return fabsf(k) <= sphere.radius;
 }
 
 //直線と平面の衝突
 bool IsCollision(const Line& line, const Plane& plane) {
-	if ((plane.distance - Dot(line.origin, plane.normal)) == 0.0f) {
+	if ((plane.distance - Vector3::Dot(line.origin, plane.normal)) == 0.0f) {
 		return false;
 	}
 
@@ -47,11 +47,11 @@ bool IsCollision(const Line& line, const Plane& plane) {
 
 //半直線と平面の衝突
 bool IsCollision(const Ray& ray, const Plane& plane) {
-	if ((plane.distance - Dot(ray.origin, plane.normal)) == 0.0f) {
+	if ((plane.distance - Vector3::Dot(ray.origin, plane.normal)) == 0.0f) {
 		return false;
 	}
 
-	float t = (plane.distance - Dot(ray.origin, plane.normal)) / Dot(ray.diff, plane.normal);
+	float t = (plane.distance - Vector3::Dot(ray.origin, plane.normal)) / Vector3::Dot(ray.diff, plane.normal);
 
 	if (t > 0.0f) {
 		return true;
@@ -62,11 +62,11 @@ bool IsCollision(const Ray& ray, const Plane& plane) {
 
 //線分と平面の衝突
 bool IsCollision(const Segment& segment, const Plane& plane) {
-	if ((plane.distance - Dot(segment.origin, plane.normal)) == 0.0f) {
+	if ((plane.distance - Vector3::Dot(segment.origin, plane.normal)) == 0.0f) {
 		return false;
 	}
 
-	float t = (plane.distance - Dot(segment.origin, plane.normal)) / Dot(segment.diff, plane.normal);
+	float t = (plane.distance - Vector3::Dot(segment.origin, plane.normal)) / Vector3::Dot(segment.diff, plane.normal);
 
 	if (t > 0.0f && t <= 1.0f) {
 		return true;
@@ -77,27 +77,27 @@ bool IsCollision(const Segment& segment, const Plane& plane) {
 
 //三角形と線分の衝突
 bool IsCollision(const Triangle& triangle, const Segment& segment) {
-	Vector3 v01 = Subtract(triangle.vertices[0], triangle.vertices[1]);
-	Vector3 v12 = Subtract(triangle.vertices[1], triangle.vertices[2]);
-	Vector3 v20 = Subtract(triangle.vertices[2], triangle.vertices[0]);
+	Vector3 v01 = triangle.vertices[0] - triangle.vertices[1];
+	Vector3 v12 = triangle.vertices[1] - triangle.vertices[2];
+	Vector3 v20 = triangle.vertices[2] - triangle.vertices[0];
 	Plane plane;
-	plane.normal = Normalize(Cross(v01, v12));
-	plane.distance = Dot(triangle.vertices[0], plane.normal);
+	plane.normal = Vector3::Normalize(Vector3::Cross(v01, v12));
+	plane.distance = Vector3::Dot(triangle.vertices[0], plane.normal);
 
 	if (IsCollision(segment, plane)) {
-		float t = (plane.distance - Dot(segment.origin, plane.normal)) / Dot(segment.diff, plane.normal);
-		Vector3 p = Add(segment.origin, Multiply(t, segment.diff));
-		Vector3 v0p = Subtract(triangle.vertices[0], p);
-		Vector3 v1p = Subtract(triangle.vertices[1], p);
-		Vector3 v2p = Subtract(triangle.vertices[2], p);
+		float t = (plane.distance - Vector3::Dot(segment.origin, plane.normal)) / Vector3::Dot(segment.diff, plane.normal);
+		Vector3 p = segment.origin + t * segment.diff;
+		Vector3 v0p = triangle.vertices[0] - p;
+		Vector3 v1p = triangle.vertices[1] - p;
+		Vector3 v2p = triangle.vertices[2] - p;
 
-		Vector3 cross01 = Cross(v01, v1p);
-		Vector3 cross12 = Cross(v12, v2p);
-		Vector3 cross20 = Cross(v20, v0p);
+		Vector3 cross01 = Vector3::Cross(v01, v1p);
+		Vector3 cross12 = Vector3::Cross(v12, v2p);
+		Vector3 cross20 = Vector3::Cross(v20, v0p);
 
-		if (Dot(cross01, plane.normal) >= 0.0f &&
-			Dot(cross12, plane.normal) >= 0.0f &&
-			Dot(cross20, plane.normal) >= 0.0f) {
+		if (Vector3::Dot(cross01, plane.normal) >= 0.0f &&
+			Vector3::Dot(cross12, plane.normal) >= 0.0f &&
+			Vector3::Dot(cross20, plane.normal) >= 0.0f) {
 			return true;
 		}
 	}
@@ -134,7 +134,7 @@ bool IsCollision(const AABB& aabb, const Sphere& sphere) {
 	};
 
 	//最近接点と球の中心との距離を求める
-	float distance = Length(Subtract(clossPoint, sphere.center));
+	float distance = Vector3::Length(clossPoint - sphere.center);
 
 	//距離が半径よりも小さければ衝突
 	if (distance <= sphere.radius) {
@@ -266,9 +266,9 @@ bool IsCollision(const OBB& obb, const Sphere& sphere) {
 		}
 	};
 
-	Matrix4x4 obbWorldMatrixInverse = Inverse(obbWorldMatrix);
+	Matrix4x4 obbWorldMatrixInverse = Matrix4x4::Inverse(obbWorldMatrix);
 
-	Vector3 centerInOBBLocalSpace = Transform(sphere.center, obbWorldMatrixInverse);
+	Vector3 centerInOBBLocalSpace = sphere.center * obbWorldMatrixInverse;
 
 	AABB aabbOBBLocal{
 		.min{-obb.size.x,-obb.size.y,-obb.size.z},
@@ -295,10 +295,10 @@ bool IsCollision(const OBB& obb, const Line& line) {
 		}
 	};
 
-	Matrix4x4 obbWorldMatrixInverse = Inverse(obbWorldMatrix);
+	Matrix4x4 obbWorldMatrixInverse = Matrix4x4::Inverse(obbWorldMatrix);
 
-	Vector3 localOrigin = Transform(line.origin, obbWorldMatrixInverse);
-	Vector3 localEnd = Transform(Add(line.origin, line.diff), obbWorldMatrixInverse);
+	Vector3 localOrigin = line.origin * obbWorldMatrixInverse;
+	Vector3 localEnd = (line.origin + line.diff) * obbWorldMatrixInverse;
 
 	AABB localAABB{
 		{-obb.size.x,-obb.size.y,-obb.size.z},
@@ -307,7 +307,7 @@ bool IsCollision(const OBB& obb, const Line& line) {
 
 	Line localLine;
 	localLine.origin = localOrigin;
-	localLine.diff = Subtract(localEnd, localOrigin);
+	localLine.diff = localEnd - localOrigin;
 
 	return IsCollision(localAABB, localLine);
 }
@@ -324,10 +324,10 @@ bool IsCollision(const OBB& obb, const Ray& ray) {
 		}
 	};
 
-	Matrix4x4 obbWorldMatrixInverse = Inverse(obbWorldMatrix);
+	Matrix4x4 obbWorldMatrixInverse = Matrix4x4::Inverse(obbWorldMatrix);
 
-	Vector3 localOrigin = Transform(ray.origin, obbWorldMatrixInverse);
-	Vector3 localEnd = Transform(Add(ray.origin, ray.diff), obbWorldMatrixInverse);
+	Vector3 localOrigin = ray.origin * obbWorldMatrixInverse;
+	Vector3 localEnd = (ray.origin + ray.diff) * obbWorldMatrixInverse;
 
 	AABB localAABB{
 		{-obb.size.x,-obb.size.y,-obb.size.z},
@@ -336,7 +336,7 @@ bool IsCollision(const OBB& obb, const Ray& ray) {
 
 	Ray localRay;
 	localRay.origin = localOrigin;
-	localRay.diff = Subtract(localEnd, localOrigin);
+	localRay.diff = localEnd - localOrigin;
 
 	return IsCollision(localAABB, localRay);
 }
@@ -353,10 +353,10 @@ bool IsCollision(const OBB& obb, const Segment& segment) {
 		}
 	};
 
-	Matrix4x4 obbWorldMatrixInverse = Inverse(obbWorldMatrix);
+	Matrix4x4 obbWorldMatrixInverse = Matrix4x4::Inverse(obbWorldMatrix);
 
-	Vector3 localOrigin = Transform(segment.origin, obbWorldMatrixInverse);
-	Vector3 localEnd = Transform(Add(segment.origin, segment.diff), obbWorldMatrixInverse);
+	Vector3 localOrigin = segment.origin * obbWorldMatrixInverse;
+	Vector3 localEnd = (segment.origin + segment.diff) * obbWorldMatrixInverse;
 
 	AABB localAABB{
 		{-obb.size.x,-obb.size.y,-obb.size.z},
@@ -365,7 +365,7 @@ bool IsCollision(const OBB& obb, const Segment& segment) {
 
 	Segment localSegment;
 	localSegment.origin = localOrigin;
-	localSegment.diff = Subtract(localEnd, localOrigin);
+	localSegment.diff = localEnd + localOrigin;
 
 	return IsCollision(localAABB, localSegment);
 }
@@ -381,7 +381,7 @@ bool IsCollision(const OBB& obb1, const OBB& obb2) {
 			{obb1.center.x			,obb1.center.y			,obb1.center.z			,1.0f},
 		}
 	};
-	Matrix4x4 obb1WorldMatrixInverse = Inverse(obb1WorldMatrix);
+	Matrix4x4 obb1WorldMatrixInverse = Matrix4x4::Inverse(obb1WorldMatrix);
 
 	Matrix4x4 obb2WorldMatrix{
 		.m{
@@ -391,7 +391,7 @@ bool IsCollision(const OBB& obb1, const OBB& obb2) {
 			{obb2.center.x			,obb2.center.y			,obb2.center.z			,1.0f},
 		}
 	};
-	Matrix4x4 obb2WorldMatrixInverse = Inverse(obb2WorldMatrix);
+	Matrix4x4 obb2WorldMatrixInverse = Matrix4x4::Inverse(obb2WorldMatrix);
 
 	AABB localAABB{
 		{-obb1.size.x,-obb1.size.y,-obb1.size.z},

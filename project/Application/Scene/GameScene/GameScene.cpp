@@ -3,6 +3,10 @@
 
 void GameScene::Initialize() {
 
+	ModelManager::GetInstance()->LoadModel("resources/BackGround/Skydome", "Skydome.obj");
+	ModelManager::GetInstance()->LoadModel("resources/BackGround/Ground", "Ground.obj");
+	ModelManager::GetInstance()->LoadModel("resources/Caracter/Player", "Player.obj");
+
 	//プレイヤー
 	player_ = std::make_unique<Player>();
 	player_->Initialize();

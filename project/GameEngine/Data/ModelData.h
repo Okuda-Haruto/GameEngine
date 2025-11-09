@@ -1,9 +1,11 @@
 #pragma once
 #include <vector>
+#include <string>
 #include "VertexData.h"
-#include <windows.h>
+#include "Offset.h"
 
 struct ModelData {
 	std::vector<VertexData> vertices;
-	int16_t textureIndex = -1;
+	std::vector<Offset> offset;
+	std::vector<UINT> textureIndex;
 };

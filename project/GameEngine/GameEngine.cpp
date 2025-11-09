@@ -24,7 +24,6 @@
 
 #include "Log.h"
 #include "Initialvalue.h"
-#include "Matrix4x4_operation.h"
 
 int32_t GameEngine::kWindowWidth_;
 int32_t GameEngine::kWindowHeight_;
@@ -49,6 +48,7 @@ GameEngine::~GameEngine() {
 	delete winApp_;
 	delete dxCommon_;
 	TextureManager::GetInstance()->Finalize();
+	ModelManager::GetInstance()->Finalize();
 }
 
 GameEngine* GameEngine::getInstance() {
@@ -80,6 +80,7 @@ void GameEngine::Intialize_(const wchar_t* WindowName, int32_t kWindowWidth, int
 	dxCommon_->Initialize(winApp_);
 
 	TextureManager::GetInstance()->Initialize(dxCommon_);
+	ModelManager::GetInstance()->Initialize(dxCommon_);
 
 	device_ = dxCommon_->GetDevice();
 	commandList_ = dxCommon_->GetCommandList();
@@ -558,46 +559,52 @@ Pad GameEngine::GetPad_(int usePadNum) {
 	return returnPad;
 }
 
-void GameEngine::DrawObject_3D_(Object* object, Camera* camera, int reflection, float shininess, DirectionalLight* directionalLight, PointLight* pointLight, SpotLight* spotLight) {
+void GameEngine::DrawObject_3D_(Object* object, Camera* camera, DirectionalLight* directionalLight, PointLight* pointLight, SpotLight* spotLight) {
 	std::vector<Parts> parts = object->GetParts();
-	SRT transform = object->GetTransform();
+	std::vector<Offset> offsets = object->GetOffsets();
 	
-	for (INT i = 0; i < parts.size(); i++) {
+	//オブジェクトのワールド座標
+	Matrix4x4 worldMatrix = Matrix4x4::MakeAffineMatrix(object->GetTransform().scale, object->GetTransform().rotate, object->GetTransform().translate);
+
+	//変更が必要な部分だけ変える
+	for (int i = 0; i < parts.size();i++) {
+
 		//WVPデータを更新
 		objectWvpResource_[objectIndex]->Map(0, nullptr, reinterpret_cast<void**>(&objectWvpData_[objectIndex]));
 
-		Matrix4x4 worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
-		objectWvpData_[objectIndex]->World = worldMatrix;
-		objectWvpData_[objectIndex]->WorldInverseTranspose = Inverse(worldMatrix);
-		Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(camera->GetViewMatrix(), camera->GetProjectionMatrix()));
+		//ワールド座標を親に持つPartsのローカル座標
+		Matrix4x4 partsMatrix = Matrix4x4::MakeAffineMatrix(parts[i].transform.scale, parts[i].transform.rotate, parts[i].transform.translate);
+
+		worldMatrix = worldMatrix * partsMatrix;
+
+		objectWvpData_[objectIndex]->World = worldMatrix * partsMatrix;
+		objectWvpData_[objectIndex]->WorldInverseTranspose = Matrix4x4::Inverse(worldMatrix * partsMatrix);
+		Matrix4x4 worldViewProjectionMatrix =  worldMatrix * partsMatrix * camera->GetViewMatrix() * camera->GetProjectionMatrix();
 		objectWvpData_[objectIndex]->WVP = worldViewProjectionMatrix;
 
 		objectWvpResource_[objectIndex]->Unmap(0, nullptr);
 
-		parts[i].material.color = {1.0f,1.0f,1.0f,1.0f};
-		parts[i].material.uvTransform = MakeIdentity4x4();
-		parts[i].material.reflection = reflection;
+		parts[i].material->uvTransform = Matrix4x4::MakeAffineMatrix(parts[i].UVtransform.scale, parts[i].UVtransform.rotate, parts[i].UVtransform.translate);
 		if (directionalLight != nullptr) {
-			parts[i].material.enableDirectionalLighting = true;
+			parts[i].material->enableDirectionalLighting = true;
 		} else {
-			parts[i].material.enableDirectionalLighting = false;
+			parts[i].material->enableDirectionalLighting = false;
 		}
 		if (pointLight != nullptr) {
-			parts[i].material.enablePointLighting = true;
+			parts[i].material->enablePointLighting = true;
 		} else {
-			parts[i].material.enablePointLighting = false;
+			parts[i].material->enablePointLighting = false;
 		}
 		if (spotLight != nullptr) {
-			parts[i].material.enableSpotLighting = true;
+			parts[i].material->enableSpotLighting = true;
 		} else {
-			parts[i].material.enableSpotLighting = false;
+			parts[i].material->enableSpotLighting = false;
 		}
-		parts[i].material.shininess = shininess;
 
 		//マテリアルデータを更新
 		objectMaterialResource_[objectIndex]->Map(0, nullptr, reinterpret_cast<void**>(&objectMaterialData_[objectIndex]));
 
-		*(objectMaterialData_[objectIndex]) = parts[i].material;
+		*objectMaterialData_[objectIndex] = *parts[i].material;
 
 		objectMaterialResource_[objectIndex]->Unmap(0, nullptr);
 
@@ -605,19 +612,25 @@ void GameEngine::DrawObject_3D_(Object* object, Camera* camera, int reflection, 
 		commandList_->SetGraphicsRootSignature(rootSignature_.Get());
 		commandList_->SetPipelineState(trianglePipelineState_.Get());	//PSOを設定
 
-		commandList_->IASetVertexBuffers(0, 1, &parts[i].model.vertexBufferView_);	//VBVを設定
-		commandList_->IASetIndexBuffer(&parts[i].model.indexBufferView_);	//IBVを設定
+		commandList_->IASetVertexBuffers(0, 1, &object->GetVBV());	//VBVを設定
+		commandList_->IASetIndexBuffer(&object->GetIBV());	//IBVを設定
 		//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
 		commandList_->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSrvHandleGPU(parts[i].textureIndex));
-		if (reflection != 0 && directionalLight != nullptr) {
+
+		//カメラのワールド座標をCBufferに送る
+		commandList_->SetGraphicsRootConstantBufferView(4, camera->CameraResource()->GetGPUVirtualAddress());
+
+		//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
+		commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+		//ライティングが必要な場合CBufferに送る
+		if (parts[i].material->reflection != 0 && directionalLight != nullptr) {
 			commandList_->SetGraphicsRootConstantBufferView(3, directionalLight->DirectionalLightElementResource()->GetGPUVirtualAddress());	//DirectionalLighting
 		}
-
-		if (reflection != 0 && pointLight != nullptr) {
+		if (parts[i].material->reflection != 0 && pointLight != nullptr) {
 			commandList_->SetGraphicsRootConstantBufferView(5, pointLight->PointLightElementResource()->GetGPUVirtualAddress());	//PointLighting
 		}
-
-		if (reflection != 0 && spotLight != nullptr) {
+		if (parts[i].material->reflection != 0 && spotLight != nullptr) {
 			commandList_->SetGraphicsRootConstantBufferView(6, spotLight->SpotLightElementResource()->GetGPUVirtualAddress());	//SpotLighting
 		}
 
@@ -628,33 +641,70 @@ void GameEngine::DrawObject_3D_(Object* object, Camera* camera, int reflection, 
 		commandList_->SetGraphicsRootConstantBufferView(0, objectMaterialResource_[objectIndex]->GetGPUVirtualAddress());
 		//wvp用のCBufferの場所を設定
 		commandList_->SetGraphicsRootConstantBufferView(1, objectWvpResource_[objectIndex]->GetGPUVirtualAddress());
+
 		//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
 		commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		//描画(DrawCall)
-		commandList_->DrawIndexedInstanced(UINT(parts[i].model.vertexIndex_), 1, 0, 0, 0);
+		commandList_->DrawIndexedInstanced(offsets[i].indexCount, 1, 0, offsets[i].vertexStart, 0);
 
 		objectIndex++;
-
 	}
 }
 
-void GameEngine::DrawInstancingObject_3D_(InstancingObject* objects, Camera* camera, int reflection, DirectionalLight* directionalLight, PointLight* pointLight, SpotLight* spotLight) {
-	std::vector<Parts> parts = objects->GetParts();
-	std::list<SRT> transforms = objects->GetTransforms();
+void GameEngine::DrawInstancingObject_3D_(std::list<Object*> objects, Camera* camera, DirectionalLight* directionalLight, PointLight* pointLight, SpotLight* spotLight) {
 	
-	for (INT i = 0; i < parts.size(); i++) {
+	std::list<Object*>::iterator objectIterator = objects.begin();
+
+	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
+	commandList_->SetGraphicsRootSignature(rootSignature_.Get());
+	commandList_->SetPipelineState(trianglePipelineState_.Get());	//PSOを設定
+
+	//カメラのワールド座標をCBufferに送る
+	commandList_->SetGraphicsRootConstantBufferView(4, camera->CameraResource()->GetGPUVirtualAddress());
+
+	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
+	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	size_t numParts = (*objectIterator)->GetParts().size();
+
+	uint32_t numInstance = 0;
+	std::vector<Matrix4x4> worldMatries;
+	std::vector<std::vector<Parts>> parts;
+	std::vector<Offset> offsets = (*objectIterator)->GetOffsets();
+
+	for (objectIterator = objects.begin();
+		objectIterator != objects.end(); ++objectIterator) {
+
+		if (numInstance >= kMaxNumInstance)break;
+
+		parts.push_back((*objectIterator)->GetParts());
+
+		//オブジェクトのワールド座標
+		Matrix4x4 worldMatrix = Matrix4x4::MakeAffineMatrix((*objectIterator)->GetTransform().scale, (*objectIterator)->GetTransform().rotate, (*objectIterator)->GetTransform().translate);
+
+		worldMatries.push_back(worldMatrix);
+
+		++numInstance;
+	}
+	
+	for (uint32_t i = 0; i < numParts; i++) {
 		//WVPデータを更新
 		instancingObjectResource_[instancingObjectIndex]->Map(0, nullptr, reinterpret_cast<void**>(&instancingObjectData_[instancingObjectIndex]));
 
-		uint32_t numInstance = 0;
-		for (std::list<SRT>::iterator objectIterator = transforms.begin();
-			objectIterator != transforms.end(); ++objectIterator) {
+		numInstance = 0;
+		for (objectIterator = objects.begin();
+			objectIterator != objects.end(); ++objectIterator) {
 
 			if (numInstance >= kMaxNumInstance)break;
 
-			Matrix4x4 worldMatrix = MakeAffineMatrix((*objectIterator).scale, (*objectIterator).rotate, (*objectIterator).translate);
-			instancingObjectData_[instancingObjectIndex][numInstance]->World = worldMatrix;
-			Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(camera->GetViewMatrix(), camera->GetProjectionMatrix()));
+			//ワールド座標を親に持つPartsのローカル座標
+			Matrix4x4 partsMatrix = Matrix4x4::MakeAffineMatrix(parts[numInstance][i].transform.scale, parts[numInstance][i].transform.rotate, parts[numInstance][i].transform.translate);
+
+			Matrix4x4 worldMatrix = worldMatries[i] * partsMatrix;
+
+			instancingObjectData_[instancingObjectIndex][numInstance]->World = worldMatrix * partsMatrix;
+			//instancingObjectData_[instancingObjectIndex][numInstance]->WorldInverseTranspose = Matrix4x4::Inverse(worldMatrix * partsMatrix);
+			Matrix4x4 worldViewProjectionMatrix = worldMatrix * partsMatrix * camera->GetViewMatrix() * camera->GetProjectionMatrix();
 			instancingObjectData_[instancingObjectIndex][numInstance]->WVP = worldViewProjectionMatrix;
 
 			++numInstance;
@@ -662,55 +712,51 @@ void GameEngine::DrawInstancingObject_3D_(InstancingObject* objects, Camera* cam
 
 		instancingObjectResource_[instancingObjectIndex]->Unmap(0, nullptr);
 
-		parts[i].material.color = { 1.0f,1.0f,1.0f,1.0f };
-		parts[i].material.uvTransform = MakeIdentity4x4();
-		parts[i].material.reflection = reflection;
+		parts[0][i].material->uvTransform = Matrix4x4::MakeAffineMatrix(parts[numInstance][i].UVtransform.scale, parts[numInstance][i].UVtransform.rotate, parts[numInstance][i].UVtransform.translate);
 		if (directionalLight != nullptr) {
-			parts[i].material.enableDirectionalLighting = true;
+			parts[0][i].material->enableDirectionalLighting = true;
 		} else {
-			parts[i].material.enableDirectionalLighting = false;
+			parts[0][i].material->enableDirectionalLighting = false;
 		}
 		if (pointLight != nullptr) {
-			parts[i].material.enablePointLighting = true;
+			parts[0][i].material->enablePointLighting = true;
 		} else {
-			parts[i].material.enablePointLighting = false;
+			parts[0][i].material->enablePointLighting = false;
 		}
-		parts[i].material.shininess = 40;
+		if (spotLight != nullptr) {
+			parts[0][i].material->enableSpotLighting = true;
+		} else {
+			parts[0][i].material->enableSpotLighting = false;
+		}
 
 		//マテリアルデータを更新
-		instancingObjectMaterialResource_[instancingObjectIndex]->Map(0, nullptr, reinterpret_cast<void**>(&instancingObjectMaterialData_[instancingObjectIndex]));
+		objectMaterialResource_[instancingObjectIndex]->Map(0, nullptr, reinterpret_cast<void**>(&objectMaterialData_[instancingObjectIndex]));
 
-		for (uint32_t i = 0; i < numInstance; i++) {
-			instancingObjectMaterialData_[instancingObjectIndex][i] = &parts[i].material;
+		*objectMaterialData_[instancingObjectIndex] = *parts[numInstance][i].material;
+
+		objectMaterialResource_[instancingObjectIndex]->Unmap(0, nullptr);
+
+		//ライティングが必要な場合CBufferに送る
+		if (parts[0][i].material->reflection != 0 && directionalLight != nullptr) {
+			commandList_->SetGraphicsRootConstantBufferView(3, directionalLight->DirectionalLightElementResource()->GetGPUVirtualAddress());	//DirectionalLighting
+		}
+		if (parts[0][i].material->reflection != 0 && pointLight != nullptr) {
+			commandList_->SetGraphicsRootConstantBufferView(5, pointLight->PointLightElementResource()->GetGPUVirtualAddress());	//PointLighting
+		}
+		if (parts[0][i].material->reflection != 0 && spotLight != nullptr) {
+			commandList_->SetGraphicsRootConstantBufferView(6, spotLight->SpotLightElementResource()->GetGPUVirtualAddress());	//SpotLighting
 		}
 
-		instancingObjectMaterialResource_[instancingObjectIndex]->Unmap(0, nullptr);
-
-		//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-		commandList_->SetGraphicsRootSignature(rootSignature_.Get());
-		commandList_->SetPipelineState(trianglePipelineState_.Get());	//PSOを設定
-
-		commandList_->IASetVertexBuffers(0, 1, &parts[i].model.vertexBufferView_);	//VBVを設定
-		commandList_->IASetIndexBuffer(&parts[i].model.indexBufferView_);	//IBVを設定
 		//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
-		commandList_->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSrvHandleGPU(parts[i].textureIndex));
-		if (reflection != 0 && directionalLight != nullptr) {
-			commandList_->SetGraphicsRootConstantBufferView(3, directionalLight->DirectionalLightElementResource()->GetGPUVirtualAddress());	//Lighting
-		}
-
-		//カメラのワールド座標をCBufferに送る
-		commandList_->SetGraphicsRootConstantBufferView(4, camera->CameraResource()->GetGPUVirtualAddress());
+		commandList_->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSrvHandleGPU(parts[0][i].textureIndex));
 
 		//マテリアルCBufferの場所を設定
-		commandList_->SetGraphicsRootConstantBufferView(0, instancingObjectMaterialResource_[instancingObjectIndex]->GetGPUVirtualAddress());
+		commandList_->SetGraphicsRootConstantBufferView(0, objectMaterialResource_[instancingObjectIndex]->GetGPUVirtualAddress());
 		//wvp用のCBufferの場所を設定
-		//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
-		commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		//instancing用のData読むためにStructuredBufferのSRVを設定する
-		D3D12_GPU_DESCRIPTOR_HANDLE handle = GameEngine::GetInstancingSRV(instancingObjectResource_[instancingObjectIndex], numInstance);
-		commandList_->SetGraphicsRootDescriptorTable(1, handle);
+		commandList_->SetGraphicsRootConstantBufferView(1, objectWvpResource_[instancingObjectIndex]->GetGPUVirtualAddress());
+
 		//描画(DrawCall)
-		commandList_->DrawIndexedInstanced(UINT(parts[i].model.vertexIndex_), numInstance, 0, 0, 0);
+		commandList_->DrawIndexedInstanced(offsets[i].indexCount, numInstance, 0, offsets[i].vertexStart, 0);
 
 		instancingObjectIndex++;
 	}
@@ -720,17 +766,17 @@ void GameEngine::DrawInstancingObject_3D_(InstancingObject* objects, Camera* cam
 
 void GameEngine::DrawSprite_2D_(Sprite* sprite) {
 
-	Matrix4x4 viewMatrix = MakeIdentity4x4();
-	Matrix4x4 projectionMatrix = MakeOrthographicMatrix(0.0f, 0.0f, float(kWindowWidth_), float(kWindowHeight_), 0.0f, 100.0f);
+	Matrix4x4 viewMatrix = Matrix4x4::MakeIdentity4x4();
+	Matrix4x4 projectionMatrix = Matrix4x4::MakeOrthographicMatrix(0.0f, 0.0f, float(kWindowWidth_), float(kWindowHeight_), 0.0f, 100.0f);
 
 	//WVPデータを更新
 	spriteWvpResource_[spriteIndex]->Map(0, nullptr, reinterpret_cast<void**>(&spriteWvpData_[spriteIndex]));
 
-	Matrix4x4 worldMatrix = MakeAffineMatrix(sprite->GetTransform().scale, sprite->GetTransform().rotate, sprite->GetTransform().translate);
+	Matrix4x4 worldMatrix = Matrix4x4::MakeAffineMatrix(sprite->GetTransform().scale, sprite->GetTransform().rotate, sprite->GetTransform().translate);
 	spriteWvpData_[spriteIndex]->World = worldMatrix;
-	spriteWvpData_[spriteIndex]->WorldInverseTranspose = Inverse(worldMatrix);
+	spriteWvpData_[spriteIndex]->WorldInverseTranspose = Matrix4x4::Inverse(worldMatrix);
 
-	Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
+	Matrix4x4 worldViewProjectionMatrix = worldMatrix * viewMatrix * projectionMatrix;
 	spriteWvpData_[spriteIndex]->WVP = worldViewProjectionMatrix;
 
 	spriteWvpResource_[spriteIndex]->Unmap(0, nullptr);
@@ -739,10 +785,11 @@ void GameEngine::DrawSprite_2D_(Sprite* sprite) {
 	spriteMaterialResource_[spriteIndex]->Map(0, nullptr, reinterpret_cast<void**>(&spriteMaterialData_[spriteIndex]));
 
 	spriteMaterialData_[spriteIndex]->color = sprite->GetColor();
-	spriteMaterialData_[spriteIndex]->uvTransform = MakeAffineMatrix(sprite->GetUVTransform().scale, sprite->GetUVTransform().rotate, sprite->GetUVTransform().translate);
+	spriteMaterialData_[spriteIndex]->uvTransform = Matrix4x4::MakeAffineMatrix(sprite->GetUVTransform().scale, sprite->GetUVTransform().rotate, sprite->GetUVTransform().translate);
 	spriteMaterialData_[spriteIndex]->reflection = 0;
 	spriteMaterialData_[spriteIndex]->enableDirectionalLighting = false;
 	spriteMaterialData_[spriteIndex]->enablePointLighting = false;
+	spriteMaterialData_[spriteIndex]->enableSpotLighting = false;
 	spriteMaterialData_[spriteIndex]->shininess = 0.0f;
 
 	spriteMaterialResource_[spriteIndex]->Unmap(0, nullptr);
@@ -767,8 +814,8 @@ void GameEngine::DrawSprite_2D_(Sprite* sprite) {
 
 void GameEngine::DrawInstancingSprite_2D_(std::vector<Sprite*> sprits) {
 
-	Matrix4x4 viewMatrix = MakeIdentity4x4();
-	Matrix4x4 projectionMatrix = MakeOrthographicMatrix(0.0f, 0.0f, float(kWindowWidth_), float(kWindowHeight_), 0.0f, 100.0f);
+	Matrix4x4 viewMatrix = Matrix4x4::MakeIdentity4x4();
+	Matrix4x4 projectionMatrix = Matrix4x4::MakeOrthographicMatrix(0.0f, 0.0f, float(kWindowWidth_), float(kWindowHeight_), 0.0f, 100.0f);
 
 	//WVPデータを更新
 	instancingObjectResource_[instancingSpriteIndex]->Map(0, nullptr, reinterpret_cast<void**>(&instancingObjectData_[instancingSpriteIndex]));
@@ -778,10 +825,10 @@ void GameEngine::DrawInstancingSprite_2D_(std::vector<Sprite*> sprits) {
 
 		if (numInstance >= kMaxNumInstance)break;
 
-		Matrix4x4 worldMatrix = MakeAffineMatrix(sprits[i]->GetTransform().translate, sprits[i]->GetTransform().rotate, sprits[i]->GetTransform().translate);
+		Matrix4x4 worldMatrix = Matrix4x4::MakeAffineMatrix(sprits[i]->GetTransform().translate, sprits[i]->GetTransform().rotate, sprits[i]->GetTransform().translate);
 		instancingSpriteData_[instancingSpriteIndex][numInstance]->World = worldMatrix;
-		instancingSpriteData_[instancingSpriteIndex][numInstance]->WorldInverseTranspose = Inverse(worldMatrix);
-		Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
+		instancingSpriteData_[instancingSpriteIndex][numInstance]->WorldInverseTranspose = Matrix4x4::Inverse(worldMatrix);
+		Matrix4x4 worldViewProjectionMatrix = worldMatrix * viewMatrix * projectionMatrix;
 		instancingSpriteData_[instancingSpriteIndex][numInstance]->WVP = worldViewProjectionMatrix;
 
 		instancingSpriteResource_[instancingSpriteIndex]->Unmap(0, nullptr);

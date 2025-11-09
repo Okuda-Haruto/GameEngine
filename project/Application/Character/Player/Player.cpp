@@ -1,14 +1,14 @@
 #include "Player.h"
 #include "GameEngine.h"
-#include "Math/Vector3_operation.h"
-#include "Math/Matrix4x4_operation.h"
+#include <Vector3.h>
+#include <Matrix4x4.h>
 #include <numbers>
 #include "Math/Lerp.h"
 
 void Player::Initialize() {
 	//モデルの生成
 	object_ = std::make_unique<Object>();
-	object_->Initialize("resources/Caracter/Player", "Player.obj", GameEngine::GetDirectXCommon());
+	object_->Initialize(ModelManager::GetInstance()->GetModel(2));
 	objectTransform.translate.y += 1.0f;
 	object_->SetTransform(objectTransform);
 
@@ -35,7 +35,7 @@ void Player::Update() {
 			pad.LeftStick.vector.x * pad.LeftStick.magnitude,0.0f,pad.LeftStick.vector.y * pad.LeftStick.magnitude
 		};
 	}
-	if (Length(move) > deadZone) {
+	if (Vector3::Length(move) > deadZone) {
 		isMove = true;
 	}
 
@@ -52,16 +52,16 @@ void Player::Update() {
 		if (keys.hold[DIK_A]) {
 			move.x = -1.0f;
 		}
-		if (Length(move) > deadZone) {
+		if (Vector3::Length(move) > deadZone) {
 			isMove = true;
 		}
 	}
 
 	if (isMove) {
 		//移動量に速さを反映
-		move = Normalize(move) * speed;
+		move = Vector3::Normalize(move) * speed;
 
-		Matrix4x4 rotateMatrix = Multiply(MakeRotateXMatrix(0.0f), Multiply(MakeRotateYMatrix(cameraTransform_->rotate.y), MakeRotateZMatrix(0.0f)));
+		Matrix4x4 rotateMatrix = Matrix4x4::MakeRotateYMatrix(cameraTransform_->rotate.y);
 		move = rotateMatrix * move;
 
 		//移動
@@ -105,5 +105,5 @@ void Player::Update() {
 }
 
 void Player::Draw() {
-	object_->Draw3D(camera_, 0, 40, nullptr, nullptr,nullptr);
+	object_->Draw3D(camera_, nullptr, nullptr,nullptr);
 }

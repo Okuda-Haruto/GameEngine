@@ -1,7 +1,7 @@
 #define NOMINMAX
 #include "SampleScene.h"
-#include "Vector3_operation.h"
-#include "Matrix4x4_operation.h"
+#include "Vector3.h"
+#include "Matrix4x4.h"
 
 #include <algorithm>
 #include <numbers>
@@ -32,21 +32,29 @@ void SampleScene::Initialize(WindowsAPI* winApp, DirectXCommon* dxCommon) {
 
 	winApp_ = winApp;
 
+	ModelManager::GetInstance()->LoadModel("resources/DebugResources/plane", "plane.obj");
+	ModelManager::GetInstance()->LoadModel("resources/DebugResources/sphere", "sphere.obj");
+	ModelManager::GetInstance()->LoadModel("resources/DebugResources/multiMesh", "multiMesh.obj");
+	ModelManager::GetInstance()->LoadModel("resources/DebugResources/multiMaterial", "multiMaterial.obj");
+	ModelManager::GetInstance()->LoadModel("resources/DebugResources/terrain", "terrain.obj");
+	ModelManager::GetInstance()->LoadModel("resources/DebugResources/suzanne", "suzanne.obj");
+	ModelManager::GetInstance()->LoadModel("resources/DebugResources/teapot", "teapot.obj");
+
 	//3Dオブジェクト
 	object_[0] = new Object;
-	object_[0]->Initialize("resources/DebugResources/plane", "plane.obj", GameEngine::GetDirectXCommon());
+	object_[0]->Initialize(ModelManager::GetInstance()->GetModel(0));
 	object_[1] = new Object;
-	object_[1]->Initialize("resources/DebugResources/sphere", "sphere.obj", GameEngine::GetDirectXCommon());
+	object_[1]->Initialize(ModelManager::GetInstance()->GetModel(1));
 	object_[2] = new Object;
-	object_[2]->Initialize("resources/DebugResources/multiMesh", "multiMesh.obj", GameEngine::GetDirectXCommon());
+	object_[2]->Initialize(ModelManager::GetInstance()->GetModel(2));
 	object_[3] = new Object;
-	object_[3]->Initialize("resources/DebugResources/terrain", "terrain.obj", GameEngine::GetDirectXCommon());
+	object_[3]->Initialize(ModelManager::GetInstance()->GetModel(3));
 	object_[4] = new Object;
-	object_[4]->Initialize("resources/DebugResources/plane", "plane.obj", GameEngine::GetDirectXCommon());
+	object_[4]->Initialize(ModelManager::GetInstance()->GetModel(4));
 	object_[5] = new Object;
-	object_[5]->Initialize("resources/DebugResources/plane", "plane.obj", GameEngine::GetDirectXCommon());
+	object_[5]->Initialize(ModelManager::GetInstance()->GetModel(5));
 	object_[6] = new Object;
-	object_[6]->Initialize("resources/DebugResources/suzanne", "suzanne.obj", GameEngine::GetDirectXCommon());
+	object_[6]->Initialize(ModelManager::GetInstance()->GetModel(6));
 
 	spriteManager_ = new SpriteManager;
 	spriteManager_->Initialize(dxCommon);
@@ -117,7 +125,7 @@ void SampleScene::Initialize(WindowsAPI* winApp, DirectXCommon* dxCommon) {
 		{ 1.0f,1.0f,1.0f,1.0f },
 		{2.0f,1.25f,0.0f},
 		7.0f,
-		Normalize({ -1.0f,-1.0f,0.0f }),
+		Vector3::Normalize({ -1.0f,-1.0f,0.0f }),
 		4.0f,
 		2.0f,
 		std::numbers::pi_v<float> / 180 * 60,
@@ -307,7 +315,7 @@ void SampleScene::Update() {
 			ImGui::DragFloat3("spotLight Position", &spotLightElement_.position.x, 0.1f);
 			ImGui::DragFloat("spotLight Intensity", &spotLightElement_.intensity, 0.01f, 0.0f, 10.0f);
 			ImGui::DragFloat3("spotLight Direction", &spotLightElement_.direction.x, 0.01f, -1.0f, 1.0f);
-			spotLightElement_.direction = Normalize(spotLightElement_.direction);
+			spotLightElement_.direction = Vector3::Normalize(spotLightElement_.direction);
 			ImGui::DragFloat("spotLight Distance", &spotLightElement_.distance, 0.1f,0.0f,20.0f);
 			ImGui::DragFloat("spotLight Decay", &spotLightElement_.decay, 0.01f, 0.0f, 10.0f);
 			ImGui::SliderAngle("spotLight CosAngle", &spotLightElement_.cosAngle);
@@ -394,7 +402,7 @@ void SampleScene::Update() {
 					str = "Object[" + std::to_string(i) + "]" + "Material " + std::to_string(j) + " Transrate";
 					ImGui::DragFloat3(str.c_str(), &object_[i]->GetParts()[j].transform.translate.x, 0.1f);
 					str = "Object[" + std::to_string(i) + "]" + "Material " + std::to_string(j) + " Color";
-					ImGui::ColorEdit4(str.c_str(), &object_[i]->GetParts()[j].material.color.x);
+					ImGui::ColorEdit4(str.c_str(), &object_[i]->GetParts()[j].material->color.x);
 				}
 			}
 			object_[i]->SetTransform(objectTransform_[i]);
@@ -427,7 +435,7 @@ void SampleScene::Draw() {
 
 	for (INT i = 0; i < object_.size(); i++) {
 		if (isObjectDraw_[i]) {
-			object_[i]->Draw3D(camera_, isLighting_, shininess_,directionalLight_,pointLight_,spotLight_);
+			object_[i]->Draw3D(camera_,directionalLight_,pointLight_,spotLight_);
 		}
 	}
 
