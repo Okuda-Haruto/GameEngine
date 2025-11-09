@@ -1,7 +1,7 @@
 #include "GameCamera.h"
-#include "Math/Vector3_operation.h"
+#include <Vector3.h>
 #include "GameEngine.h"
-#include "Math/Matrix4x4_operation.h"
+#include <Matrix4x4.h>
 #include <numbers>
 
 
@@ -22,7 +22,7 @@ void GameCamera::Update() {
 
 		const float rotateSpeed = 0.2f;
 
-		Vector3 rotate = Normalize(Vector3(pad.RightStick.vector.x, pad.RightStick.vector.y, 0.0f));
+		Vector3 rotate = Vector3::Normalize(Vector3(pad.RightStick.vector.x, pad.RightStick.vector.y, 0.0f));
 
 		transform_->rotate.y += rotate.x * std::numbers::pi_v<float> * 0.01f * pad.RightStick.magnitude;
 		transform_->rotate.x += -rotate.y * std::numbers::pi_v<float> * 0.01f * pad.RightStick.magnitude;
@@ -33,9 +33,9 @@ void GameCamera::Update() {
 		//追従対象からカメラまでのオフセット
 		Vector3 offset = { 0.0f,2.0f,-20.0f };
 
-		Matrix4x4 rotateMatrix = Multiply(MakeRotateXMatrix(transform_->rotate.x), Multiply(MakeRotateYMatrix(transform_->rotate.y), MakeRotateZMatrix(transform_->rotate.z)));
+		Matrix4x4 rotateMatrix = Matrix4x4::MakeRotateMatrix(transform_->rotate);
 
-		offset = TransformNormal(offset, rotateMatrix);
+		offset = Vector3::TransformNormal(offset, rotateMatrix);
 
 		transform_->translate = target_->translate + offset;
 

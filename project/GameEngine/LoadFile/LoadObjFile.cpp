@@ -12,8 +12,7 @@
 //#include <assimp/postprocess.h>
 
 //.objファイルからModelDataを構築する
-std::vector<ModelData> LoadObjFile(const std::string& directoryPath, const std::string& filename) {
-
+ModelData LoadObjFile(const std::string& directoryPath, const std::string& filename) {
 
 	/*ModelData modelData;	//構築するModelData
 
@@ -63,8 +62,7 @@ std::vector<ModelData> LoadObjFile(const std::string& directoryPath, const std::
 
 
 
-	std::vector<ModelData> modelData;	//構築するModelData
-	ModelData modelDatum;				//単体のModelData
+	ModelData modelData;	//構築するModelData
 
 	std::list<MaterialData> materialData;	//全てのMaterialDataを格納したリスト
 
@@ -92,10 +90,25 @@ std::vector<ModelData> LoadObjFile(const std::string& directoryPath, const std::
 		} else if (identifier == "o") {	//モデル名。次のモデルが始まる合図なので、モデルデータを格納しておく
 
 			//そのままでは最初のモデル名に反応してしまうので、中身のないモデルデータは無視する
-			if (modelDatum.vertices.size() > 0 && modelDatum.textureIndex != -1) {
-				modelData.push_back(modelDatum);
-				//初期化
-				modelDatum = {};
+			if (modelData.vertices.size() > 0 && !modelData.textureIndex.empty()) {
+				Offset offset{};	//オフセット
+
+				//開始地点
+				if (modelData.offset.size() > 0) {
+					size_t offsetIndex = modelData.offset.size() - 1;
+					offset.vertexStart = modelData.offset[offsetIndex].vertexStart + modelData.offset[offsetIndex].vertexCount;
+				} else {
+					offset.vertexStart = 0;
+				}
+
+				//頂点数
+				offset.vertexCount = UINT(modelData.vertices.size()) - offset.vertexStart;
+
+				//インデックスと頂点の要素は同一
+				offset.indexStart = offset.vertexStart;
+				offset.indexCount = offset.vertexCount;
+
+				modelData.offset.push_back(offset);
 			}
 		} else if (identifier == "v") {	//頂点位置
 			Vector4 position;
@@ -148,9 +161,9 @@ std::vector<ModelData> LoadObjFile(const std::string& directoryPath, const std::
 				triangle[faceVertex] = { position,texcoord,normal };
 			}
 			//頂点を逆順に登録することで、周り順を逆にする
-			modelDatum.vertices.push_back(triangle[2]);
-			modelDatum.vertices.push_back(triangle[1]);
-			modelDatum.vertices.push_back(triangle[0]);
+			modelData.vertices.push_back(triangle[2]);
+			modelData.vertices.push_back(triangle[1]);
+			modelData.vertices.push_back(triangle[0]);
 		} else if (identifier == "usemtl") {
 			//使用するMaterialの名前を取得する
 			std::string materialFilename;
@@ -158,13 +171,30 @@ std::vector<ModelData> LoadObjFile(const std::string& directoryPath, const std::
 			//マテリアルデータのリストから同じ名称のマテリアルのデータを取得する
 			for (const MaterialData& MaterialData : materialData) {
 				if (MaterialData.materialName == materialFilename) {	//マテリアルの名称は必要ないので、それ以外を移す
-					modelDatum.textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(MaterialData.textureFilePath);
+					modelData.textureIndex.push_back(TextureManager::GetInstance()->GetTextureIndexByFilePath(MaterialData.textureFilePath));
 				}
 			}
 		}
 	}
-	//ファイルの終わりでモデルデータを格納する
-	modelData.push_back(modelDatum);
+
+	Offset offset{};	//オフセット
+
+	//開始地点
+	if (modelData.offset.size() > 0) {
+		size_t offsetIndex = modelData.offset.size() - 1;
+		offset.vertexStart = modelData.offset[offsetIndex].vertexStart + modelData.offset[offsetIndex].vertexCount;
+	} else {
+		offset.vertexStart = 0;
+	}
+
+	//頂点数
+	offset.vertexCount = UINT(modelData.vertices.size()) - offset.vertexStart;
+
+	//インデックスと頂点の要素は同一
+	offset.indexStart = offset.vertexStart;
+	offset.indexCount = offset.vertexCount;
+
+	modelData.offset.push_back(offset);
 
 	return modelData;
 }

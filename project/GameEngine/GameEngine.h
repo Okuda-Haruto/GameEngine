@@ -23,7 +23,6 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 
 #include "Object/Object.h"
 #include "Sprite/Sprite.h"
-#include "InstancingObject/InstancingObject.h"
 #include "TransformationMatrix.h"
 
 #include "Text.h"
@@ -36,6 +35,7 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 
 #include "WindowsAPI/WindowsAPI.h"
 #include "DirectXCommon/DirectXCommon.h"
+#include "ModelManager/ModelManager.h"
 
 #include <vector>
 #include <array>
@@ -187,8 +187,8 @@ private:
 	ID3D12PipelineState* ParticlePSO_() { return particlePipelineState_.Get(); }
 	ID3D12PipelineState* LinePSO_() { return linePipelineState_.Get(); }
 
-	void DrawObject_3D_(Object* object, Camera* camera, int reflection, float shininess, DirectionalLight* directionalLight, PointLight* pointLight, SpotLight* spotLight);
-	void DrawInstancingObject_3D_(InstancingObject* objects, Camera* camera, int reflection, DirectionalLight* directionalLight, PointLight* pointLight, SpotLight* spotLight);
+	void DrawObject_3D_(Object* object, Camera* camera, DirectionalLight* directionalLight, PointLight* pointLight, SpotLight* spotLight);
+	void DrawInstancingObject_3D_(std::list<Object*> objects, Camera* camera, DirectionalLight* directionalLight, PointLight* pointLight, SpotLight* spotLight);
 	/*void DrawSprite_3D_();
 	void DrawInstancingSprite_3D_();
 	void DrawBillbord_3D_();
@@ -287,8 +287,8 @@ public:
 	static Microsoft::WRL::ComPtr<ID3D12Device> GetDevice() { return getInstance()->GetDevice_(); }
 
 
-	static void DrawObject_3D(Object* object, Camera* camera, int reflection, float shininess, DirectionalLight* directionalLight, PointLight* pointLight, SpotLight* spotLight) { return getInstance()->DrawObject_3D_(object, camera, reflection, shininess, directionalLight, pointLight, spotLight); }
-	static void DrawInstancingObject_3D(InstancingObject* objects, Camera* camera, int reflection, DirectionalLight* directionalLight, PointLight* pointLight, SpotLight* spotLight) { return getInstance()->DrawInstancingObject_3D_(objects, camera, reflection, directionalLight, pointLight, spotLight); }
+	static void DrawObject_3D(Object* object, Camera* camera, DirectionalLight* directionalLight, PointLight* pointLight, SpotLight* spotLight) { return getInstance()->DrawObject_3D_(object, camera, directionalLight, pointLight, spotLight); }
+	static void DrawInstancingObject_3D(std::list<Object*> objects, Camera* camera, DirectionalLight* directionalLight, PointLight* pointLight, SpotLight* spotLight) { return getInstance()->DrawInstancingObject_3D_(objects, camera, directionalLight, pointLight, spotLight); }
 	static void DrawSprite_2D(Sprite* sprite) { return getInstance()->DrawSprite_2D_(sprite); }
 	static void DrawInstancingSprite_2D(std::vector<Sprite*> sprits) { return getInstance()->DrawInstancingSprite_2D_(sprits); }
 	

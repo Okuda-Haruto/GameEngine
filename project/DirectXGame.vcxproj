@@ -49,8 +49,9 @@
     <ClCompile Include="GameEngine\LoadFile\LoadMaterialTemplateFile.cpp" />
     <ClCompile Include="GameEngine\LoadFile\LoadObjFile.cpp" />
     <ClCompile Include="GameEngine\Math\Collision.cpp" />
-    <ClCompile Include="GameEngine\Math\Matrix4x4_operation.cpp" />
-    <ClCompile Include="GameEngine\Math\Vector3_operation.cpp" />
+    <ClCompile Include="GameEngine\Math\Matrix4x4.cpp" />
+    <ClCompile Include="GameEngine\Math\Vector3.cpp" />
+    <ClCompile Include="GameEngine\Modules\ModelManager\ModelManager.cpp" />
     <ClCompile Include="GameEngine\Modules\SpriteManager\SpriteManager.cpp" />
     <ClCompile Include="GameEngine\Modules\TextureManager\TextureManager.cpp" />
     <ClCompile Include="GameEngine\Modules\WindowsAPI\WindowsAPI.cpp" />
@@ -58,7 +59,6 @@
     <ClCompile Include="GameEngine\Resource\Camera.cpp" />
     <ClCompile Include="GameEngine\Resource\Effect.cpp" />
     <ClCompile Include="GameEngine\Resource\Field.cpp" />
-    <ClCompile Include="GameEngine\Resource\InstancingObject\InstancingObject.cpp" />
     <ClCompile Include="GameEngine\Resource\Model\Model.cpp" />
     <ClCompile Include="GameEngine\Resource\Object\Object.cpp" />
     <ClCompile Include="GameEngine\Resource\PointLight.cpp" />
@@ -93,6 +93,7 @@
     <ClInclude Include="GameEngine\Data\CameraForGPU.h" />
     <ClInclude Include="GameEngine\Data\Emitter.h" />
     <ClInclude Include="GameEngine\Data\MaterialData.h" />
+    <ClInclude Include="GameEngine\Data\Offset.h" />
     <ClInclude Include="GameEngine\Data\Particle.h" />
     <ClInclude Include="GameEngine\Data\ParticleForGPU.h" />
     <ClInclude Include="GameEngine\Data\Parts.h" />
@@ -131,11 +132,11 @@
     <ClInclude Include="GameEngine\Math\Collision.h" />
     <ClInclude Include="GameEngine\Math\Matrix3x3.h" />
     <ClInclude Include="GameEngine\Math\Matrix4x4.h" />
-    <ClInclude Include="GameEngine\Math\Matrix4x4_operation.h" />
     <ClInclude Include="GameEngine\Math\Vector2.h" />
     <ClInclude Include="GameEngine\Math\Vector3.h" />
     <ClInclude Include="GameEngine\Math\Vector3_operation.h" />
     <ClInclude Include="GameEngine\Math\Vector4.h" />
+    <ClInclude Include="GameEngine\Modules\ModelManager\ModelManager.h" />
     <ClInclude Include="GameEngine\Modules\SpriteManager\SpriteManager.h" />
     <ClInclude Include="GameEngine\Modules\TextureManager\TextureManager.h" />
     <ClInclude Include="GameEngine\Modules\WindowsAPI\WindowsAPI.h" />
@@ -143,7 +144,6 @@
     <ClInclude Include="GameEngine\Resource\Camera.h" />
     <ClInclude Include="GameEngine\Resource\Effect.h" />
     <ClInclude Include="GameEngine\Resource\Field.h" />
-    <ClInclude Include="GameEngine\Resource\InstancingObject\InstancingObject.h" />
     <ClInclude Include="GameEngine\Resource\Model\Model.h" />
     <ClInclude Include="GameEngine\Resource\Object\Object.h" />
     <ClInclude Include="GameEngine\Resource\PointLight.h" />

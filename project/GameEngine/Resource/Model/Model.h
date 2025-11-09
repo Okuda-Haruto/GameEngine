@@ -5,9 +5,12 @@
 #include <d3d12.h>
 #include <string>
 #include <VertexData.h>
+#include <Offset.h>
+#include <DirectXCommon/DirectXCommon.h>
 
-struct Model {
-public:
+//モデル
+class Model {
+private:
 	//頂点の数
 	UINT vertexIndex_;
 
@@ -24,4 +27,22 @@ public:
 	D3D12_INDEX_BUFFER_VIEW indexBufferView_{};
 	//インデックスデータ
 	uint32_t* indexData_ = nullptr;
+
+	//オフセット
+	std::vector<Offset> offsets_;
+	//テクスチャ
+	std::vector<UINT> textureIndex_;
+public:
+	//初期値
+	void Initialize(const std::string& directoryPath, const std::string& filename, DirectXCommon* dxCommon);
+	//頂点バッファビュー
+	D3D12_VERTEX_BUFFER_VIEW& GetVBV() { return vertexBufferView_; }
+	//インデックスバッファビュー
+	D3D12_INDEX_BUFFER_VIEW& GetIBV() { return indexBufferView_; }
+	//頂点の数
+	UINT GetVertexIndex() { return vertexIndex_; }
+	//オフセット
+	std::vector<Offset> GetOffsets() { return offsets_; }
+	//テクスチャ番号
+	UINT GetTextureIndex(UINT offsetNum) { if(textureIndex_.empty())return 0; return textureIndex_[offsetNum]; }
 };
