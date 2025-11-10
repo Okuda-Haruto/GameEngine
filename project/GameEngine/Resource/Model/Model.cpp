@@ -2,6 +2,10 @@
 #include "GameEngine.h"
 #include "LoadObjFile.h"
 
+Model::~Model() {
+
+}
+
 void Model::Initialize(const std::string& directoryPath, const std::string& filename, DirectXCommon* dxCommon) {
 
 	//モデル読み込み

@@ -12,6 +12,10 @@ ModelManager* ModelManager::GetInstance() {
 }
 
 void ModelManager::Finalize() {
+	for (Model* model : modelDatas) {
+		delete model;
+	}
+
 	delete instance;
 	instance = nullptr;
 }

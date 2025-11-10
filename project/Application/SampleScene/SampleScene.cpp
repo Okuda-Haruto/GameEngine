@@ -104,7 +104,7 @@ void SampleScene::Initialize(WindowsAPI* winApp, DirectXCommon* dxCommon) {
 	directionalLightElement_ = {
 		{1.0f,1.0f,1.0f,1.0f},
 		{0.0f,-1.0f,0.0f},
-		0.0f
+		1.0f
 	};
 	directionalLight_->SetDirectionalLightElement(directionalLightElement_);
 
@@ -124,7 +124,7 @@ void SampleScene::Initialize(WindowsAPI* winApp, DirectXCommon* dxCommon) {
 	spotLightElement_ = {
 		{ 1.0f,1.0f,1.0f,1.0f },
 		{2.0f,1.25f,0.0f},
-		7.0f,
+		0.0f,
 		Vector3::Normalize({ -1.0f,-1.0f,0.0f }),
 		4.0f,
 		2.0f,
@@ -185,16 +185,16 @@ void SampleScene::Update() {
 		audio_->SoundPlayWave();
 	}
 	if (input->PushKey(DIK_L) || input->TriggerPadButton(PAD_BUTTON_LT)) {
-		switch (isLighting_)
+		switch (reflection)
 		{
 		case 0:
-			isLighting_ = 1;
+			reflection = REFLECTION_None;
 			break;
 		case 1:
-			isLighting_ = 2;
+			reflection = REFLECTION_Lambert;
 			break;
 		case 2:
-			isLighting_ = 0;
+			reflection = REFLECTION_HalfLambert;
 			break;
 		default:
 			break;
@@ -269,11 +269,10 @@ void SampleScene::Update() {
 			}
 		}
 
-		if (ImGui::CollapsingHeader("DirectionalLight")) {
 			const char* items[] = { "None", "Lambert", "HalfLambert" };
 			static const char* current_item = "HalfLambert";
 
-			current_item = items[isLighting_];
+			current_item = items[reflection];
 
 			if (ImGui::BeginCombo("Lighting", current_item))
 			{
@@ -281,18 +280,19 @@ void SampleScene::Update() {
 				{
 					bool is_selected = (current_item == items[n]);
 					if (ImGui::Selectable(items[n], is_selected)) {
-						isLighting_ = n;
-						//for (Object* object : object_) {
-						//	object->SetReflection(isLighting_);
-						//}
+						reflection = n;
+						for (Object* object : object_) {
+							object->SetReflection(reflection);
+						}
 					}
 				}
 				ImGui::EndCombo();
 			}
 			ImGui::DragFloat("light Shininess", &shininess_);
-			//for (Object* object : object_) {
-			//	object->SetShininess(shininess);
-			//}
+			for (Object* object : object_) {
+				object->SetShininess(shininess_);
+			}
+		if (ImGui::CollapsingHeader("DirectionalLight")) {
 			ImGui::ColorEdit4("directionalLight Color", &directionalLightElement_.color.x);
 			ImGui::DragFloat3("directionalLight Direction", &directionalLightElement_.direction.x, 0.01f, -1.0f, 1.0f);
 			ImGui::DragFloat("directionalLight Intensity", &directionalLightElement_.intensity, 0.01f, 0.0f, 1.0f);
@@ -391,18 +391,30 @@ void SampleScene::Update() {
 				str = "Object[" + std::to_string(i) + "] Translate";
 				ImGui::DragFloat3(str.c_str(), &objectTransform_[i].translate.x, 0.1f);
 				for (INT j = 0; j < object_[i]->GetParts().size(); j++) {
+					Parts parts = object_[i]->GetParts()[j];
 					str = "Object[" + std::to_string(i) + "]" + "Material " + std::to_string(j) + " Scale";
-					ImGui::DragFloat3(str.c_str(), &object_[i]->GetParts()[j].transform.scale.x, 0.1f);
+					ImGui::DragFloat3(str.c_str(), &parts.transform.scale.x, 0.1f);
 					str = "Object[" + std::to_string(i) + "]" + "Material " + std::to_string(j) + " RotateX";
-					ImGui::SliderAngle(str.c_str(), &object_[i]->GetParts()[j].transform.rotate.x);
+					ImGui::SliderAngle(str.c_str(), &parts.transform.rotate.x);
 					str = "Object[" + std::to_string(i) + "]" + "Material " + std::to_string(j) + " RotateY";
-					ImGui::SliderAngle(str.c_str(), &object_[i]->GetParts()[j].transform.rotate.y);
+					ImGui::SliderAngle(str.c_str(), &parts.transform.rotate.y);
 					str = "Object[" + std::to_string(i) + "]" + "Material " + std::to_string(j) + " RotateZ";
-					ImGui::SliderAngle(str.c_str(), &object_[i]->GetParts()[j].transform.rotate.z);
+					ImGui::SliderAngle(str.c_str(), &parts.transform.rotate.z);
 					str = "Object[" + std::to_string(i) + "]" + "Material " + std::to_string(j) + " Transrate";
-					ImGui::DragFloat3(str.c_str(), &object_[i]->GetParts()[j].transform.translate.x, 0.1f);
+					ImGui::DragFloat3(str.c_str(), &parts.transform.translate.x, 0.1f);
+					str = "Object[" + std::to_string(i) + "]" + "Material " + std::to_string(j) + " UVScale";
+					ImGui::DragFloat3(str.c_str(), &parts.UVtransform.scale.x, 0.1f);
+					str = "Object[" + std::to_string(i) + "]" + "Material " + std::to_string(j) + " UVRotateX";
+					ImGui::SliderAngle(str.c_str(), &parts.UVtransform.rotate.x);
+					str = "Object[" + std::to_string(i) + "]" + "Material " + std::to_string(j) + " UVRotateY";
+					ImGui::SliderAngle(str.c_str(), &parts.UVtransform.rotate.y);
+					str = "Object[" + std::to_string(i) + "]" + "Material " + std::to_string(j) + " UVRotateZ";
+					ImGui::SliderAngle(str.c_str(), &parts.UVtransform.rotate.z);
+					str = "Object[" + std::to_string(i) + "]" + "Material " + std::to_string(j) + " UVTransrate";
+					ImGui::DragFloat3(str.c_str(), &parts.UVtransform.translate.x, 0.1f);
 					str = "Object[" + std::to_string(i) + "]" + "Material " + std::to_string(j) + " Color";
-					ImGui::ColorEdit4(str.c_str(), &object_[i]->GetParts()[j].material->color.x);
+					ImGui::ColorEdit4(str.c_str(), &parts.material->color.x);
+					object_[i]->SetParts(parts, j);
 				}
 			}
 			object_[i]->SetTransform(objectTransform_[i]);
@@ -423,6 +435,8 @@ void SampleScene::Update() {
 	directionalLight_->SetDirectionalLightElement(directionalLightElement_);
 	pointLight_->SetPointLightElement(pointLightElement_);
 	spotLight_->SetSpotLightElement(spotLightElement_);
+
+
 }
 
 void SampleScene::Draw() {
