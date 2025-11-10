@@ -109,6 +109,12 @@
     <Filter Include="GameEngine\Modules\SRVManager">
       <UniqueIdentifier>{622a70c2-9e3d-42a5-9772-9214f076344d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GameEngine\Modules\ParticleManager">
+      <UniqueIdentifier>{83d5bf4c-724b-4dae-8c27-62f650e58576}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\Resource\ParticleEmitter">
+      <UniqueIdentifier>{83d9804b-e563-4c1c-b527-42de0c036d62}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -196,9 +202,6 @@
     <ClCompile Include="GameEngine\Resource\Effect.cpp">
       <Filter>GameEngine\Resource</Filter>
     </ClCompile>
-    <ClCompile Include="GameEngine\Resource\Field.cpp">
-      <Filter>GameEngine\Resource</Filter>
-    </ClCompile>
     <ClCompile Include="GameEngine\Modules\Input\Input.cpp">
       <Filter>GameEngine\Modules\Input</Filter>
     </ClCompile>
@@ -261,6 +264,12 @@
     </ClCompile>
     <ClCompile Include="GameEngine\Modules\SRVManager\SRVManager.cpp">
       <Filter>GameEngine\Modules\SRVManager</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEngine\Modules\ParticleManager\ParticleManager.cpp">
+      <Filter>GameEngine\Modules\ParticleManager</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEngine\Resource\ParticleEmitter\ParticleEmitter.cpp">
+      <Filter>GameEngine\Resource\ParticleEmitter</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -429,9 +438,6 @@
     <ClInclude Include="GameEngine\Data\Emitter.h">
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\Resource\Field.h">
-      <Filter>GameEngine\Resource</Filter>
-    </ClInclude>
     <ClInclude Include="GameEngine\Data\CameraForGPU.h">
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
@@ -506,6 +512,15 @@
     </ClInclude>
     <ClInclude Include="GameEngine\Modules\SRVManager\SRVManager.h">
       <Filter>GameEngine\Modules\SRVManager</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Modules\ParticleManager\ParticleManager.h">
+      <Filter>GameEngine\Modules\ParticleManager</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Resource\ParticleEmitter\ParticleEmitter.h">
+      <Filter>GameEngine\Resource\ParticleEmitter</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Data\Field.h">
+      <Filter>GameEngine\Data</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

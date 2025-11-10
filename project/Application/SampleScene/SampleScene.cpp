@@ -66,9 +66,23 @@ void SampleScene::Initialize(WindowsAPI* winApp, DirectXCommon* dxCommon) {
 	sprite_[1]->SetPosition(Vector2{ 50,50 });
 
 	//エフェクト
-	//effect_ = new Effect();
-	//effect_->Initialize();
-	//EffectTransform.scale.x = 1.0f;
+	ParticleManager::GetInstance()->CreateParticleGroup("particle", "resources/DebugResources/circle.png");
+	particleEmitter_ = new ParticleEmitter("particle");
+	emitter_.transform.scale = { 1.0f,1.0f,1.0f };
+	emitter_.transform.translate = {0.0f,0.0f,0.0f};
+	emitter_.velocity = {0.0f,0.0f,0.0f};
+	emitter_.count = 2;
+	emitter_.beforeColor = { 1.0f,1.0f,1.0f,1.0f };
+	emitter_.afterColor = { 1.0f,1.0f,1.0f,0.0f };
+	emitter_.lifeTime = 1.0f;
+	emitter_.frequency = 0.5f;
+	emitter_.frequencyTime = 0.0f;
+	ParticleManager::GetInstance()->SetEmitter("particle", emitter_);
+	accelerationField_.area.min = { -0.5f,-0.5f,-0.5f };
+	accelerationField_.area.max = { 0.5f,0.5f,0.5f };
+	accelerationField_.acceleration = { 0.0f,0.0f,0.0f };
+	ParticleManager::GetInstance()->SetField("particle", accelerationField_);
+
 
 	//音源
 	audio_ = new Audio;
@@ -229,7 +243,7 @@ void SampleScene::Update() {
 		debugCamera_->SetSphericalCoordinates(sphericalCoordinates);
 	}
 
-	//effect_->Update();
+	particleEmitter_->Update();
 
 	//カメラアップデート
 	if (isUseDebugCamera_) {
@@ -337,20 +351,26 @@ void SampleScene::Update() {
 			ImGui::SliderAngle("spotLight CosFalloutStart", &spotLightElement_.cosFalloutStart);
 		}
 
-		/*ImGui::Checkbox("パーティクルを発生させるか", &isSpawnEffect_);
-		if (isSpawnEffect_) {
-			ImGui::Checkbox("fieldを使用するか", &isUseField);
-			effect_->IsUseField(isUseField);
-			ImGui::DragFloat("パーティクル Scale", &EffectTransform.scale.x, 0.1f);
-			EffectTransform.scale = { EffectTransform.scale.x ,EffectTransform.scale.x ,EffectTransform.scale.x };
-			ImGui::SliderAngle("パーティクル RotateX", &EffectTransform.rotate.x);
-			ImGui::SliderAngle("パーティクル RotateY", &EffectTransform.rotate.y);
-			ImGui::SliderAngle("パーティクル Rotatez", &EffectTransform.rotate.z);
-			ImGui::DragFloat3("パーティクル Translate", &EffectTransform.translate.x, 0.1f);
-			ImGui::ColorPicker4("color", &EffectColor.x);
-			effect_->SetColor(EffectColor);
-			effect_->SetTransform(EffectTransform);
-		}*/
+		ImGui::DragFloat("パーティクル Scale", &emitter_.transform.scale.x, 0.1f);
+		emitter_.transform.scale = { emitter_.transform.scale.x ,emitter_.transform.scale.x ,emitter_.transform.scale.x };
+		ImGui::SliderAngle("パーティクル RotateX", &emitter_.transform.rotate.x);
+		ImGui::SliderAngle("パーティクル RotateY", &emitter_.transform.rotate.y);
+		ImGui::SliderAngle("パーティクル Rotatez", &emitter_.transform.rotate.z);
+		ImGui::DragFloat3("パーティクル Translate", &emitter_.transform.translate.x, 0.1f);
+		ImGui::ColorPicker4("beforecolor", &emitter_.beforeColor.x);
+		ImGui::ColorPicker4("aftercolor", &emitter_.afterColor.x);
+		int count = int(emitter_.count);
+		ImGui::DragInt("パーティクル count",&count);
+		emitter_.count = count;
+		ImGui::DragFloat("パーティクル LifeTime",&emitter_.lifeTime, 0.01f);
+		ImGui::DragFloat("パーティクル frequency", &emitter_.frequency, 0.01f);
+		particleEmitter_->SetEmitter(emitter_);
+
+		ImGui::DragFloat3("エリアmin", &accelerationField_.area.min.x, 0.1f);
+		ImGui::DragFloat3("エリアmax", &accelerationField_.area.max.x, 0.1f);
+		ImGui::DragFloat3("エリアAcceleration", &accelerationField_.acceleration.x,0.01f);
+		particleEmitter_->SetField(accelerationField_);
+
 		ImGui::Checkbox("スプライト描画", &isSpriteDraw_);
 		for (INT i = 0; i < sprite_.size(); i++) {
 			if (isSpriteDraw_) {
@@ -468,9 +488,7 @@ void SampleScene::Draw() {
 		}
 	}
 
-	//if (isSpawnEffect_) {
-	//	effect_->Draw();
-	//}
+	particleEmitter_->Draw();
 
 	if (isSpriteDraw_ && isDisplayUI) {
 		for (INT i = 0; i < sprite_.size(); i++) {

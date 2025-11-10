@@ -10,8 +10,12 @@ struct DirectionalLight
 struct Material
 {
     float4 color;
-    int enableLighting;
+    int reflection;
+    int enableDirectionalLighting;
+    int enablePointLighting;
+    int enableSpotLighting;
     float4x4 uvTransform;
+    float shininess;
 };
 
 ConstantBuffer<Material> gMaterial : register(b0);

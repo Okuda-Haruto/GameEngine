@@ -59,9 +59,9 @@
     <ClCompile Include="GameEngine\Resource\Audio.cpp" />
     <ClCompile Include="GameEngine\Resource\Camera.cpp" />
     <ClCompile Include="GameEngine\Resource\Effect.cpp" />
-    <ClCompile Include="GameEngine\Resource\Field.cpp" />
     <ClCompile Include="GameEngine\Resource\Model\Model.cpp" />
     <ClCompile Include="GameEngine\Resource\Object\Object.cpp" />
+    <ClCompile Include="GameEngine\Resource\ParticleEmitter\ParticleEmitter.cpp" />
     <ClCompile Include="GameEngine\Resource\PointLight.cpp" />
     <ClCompile Include="GameEngine\Resource\SpotLight.cpp" />
     <ClCompile Include="GameEngine\Resource\Sprite\Sprite.cpp" />
@@ -78,6 +78,7 @@
     </ClCompile>
     <ClCompile Include="Application\SampleScene\SampleScene.cpp" />
     <ClCompile Include="Application\BackGround\Skydome\Skydome.cpp" />
+    <ClCompile Include="GameEngine\Modules\ParticleManager\ParticleManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\Character\BaseCharacter.h" />
@@ -93,6 +94,7 @@
     <ClInclude Include="Application\GameCamera\GameCamera.h" />
     <ClInclude Include="GameEngine\Data\CameraForGPU.h" />
     <ClInclude Include="GameEngine\Data\Emitter.h" />
+    <ClInclude Include="GameEngine\Data\Field.h" />
     <ClInclude Include="GameEngine\Data\MaterialData.h" />
     <ClInclude Include="GameEngine\Data\Offset.h" />
     <ClInclude Include="GameEngine\Data\Particle.h" />
@@ -145,9 +147,9 @@
     <ClInclude Include="GameEngine\Resource\Audio.h" />
     <ClInclude Include="GameEngine\Resource\Camera.h" />
     <ClInclude Include="GameEngine\Resource\Effect.h" />
-    <ClInclude Include="GameEngine\Resource\Field.h" />
     <ClInclude Include="GameEngine\Resource\Model\Model.h" />
     <ClInclude Include="GameEngine\Resource\Object\Object.h" />
+    <ClInclude Include="GameEngine\Resource\ParticleEmitter\ParticleEmitter.h" />
     <ClInclude Include="GameEngine\Resource\PointLight.h" />
     <ClInclude Include="GameEngine\Resource\SpotLight.h" />
     <ClInclude Include="GameEngine\Resource\Sprite\Sprite.h" />
@@ -161,6 +163,7 @@
     <ClInclude Include="Application\Scene\GameScene\GameScene.h" />
     <ClInclude Include="Application\BackGround\Ground\Ground.h" />
     <ClInclude Include="GameEngine\Math\Lerp.h" />
+    <ClInclude Include="GameEngine\Modules\ParticleManager\ParticleManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">
