@@ -51,6 +51,7 @@ GameEngine::~GameEngine() {
 	TextureManager::GetInstance()->Finalize();
 	ModelManager::GetInstance()->Finalize();
 	Object::FinalizeDefaultCamera();
+	ParticleManager::GetInstance()->Finalize();
 }
 
 GameEngine* GameEngine::getInstance() {
@@ -85,6 +86,12 @@ void GameEngine::Intialize_(const wchar_t* WindowName, int32_t kWindowWidth, int
 	srvManager_->Initialize(dxCommon_);
 	TextureManager::GetInstance()->Initialize(dxCommon_, srvManager_);
 	ModelManager::GetInstance()->Initialize(dxCommon_);
+
+	//カメラ初期値
+	Camera* DefaultCamera = new Camera;
+	DefaultCamera->Initialize(dxCommon_);
+	Object::SetDefaultCamera(DefaultCamera);
+	ParticleManager::GetInstance()->Initialize(dxCommon_, srvManager_);
 
 	device_ = dxCommon_->GetDevice();
 	commandList_ = dxCommon_->GetCommandList();
@@ -148,21 +155,18 @@ void GameEngine::Intialize_(const wchar_t* WindowName, int32_t kWindowWidth, int
 	std::random_device seedGenerator;
 	randomEngine_.seed(seedGenerator());
 
-	//カメラ初期値
-	Camera* DefaultCamera = new Camera;
-	DefaultCamera->Initialize(dxCommon_);
-	Object::SetDefaultCamera(DefaultCamera);
-
 	StructuredBufferIndex_ = srvManager_->Allocate();
 
 	//初期化
 	for (int i = 0; i < kMaxIndex; i++) {
 		objectMaterialResource_[i] = dxCommon_->CreateBufferResources(sizeof(Material));
 		objectWvpResource_[i] = dxCommon_->CreateBufferResources(sizeof(TransformationMatrix));
+		instancingObjectMaterialResource_[i] = dxCommon_->CreateBufferResources(sizeof(Material));
+		instancingObjectResource_[i] = dxCommon_->CreateBufferResources(sizeof(ParticleForGPU) * kMaxNumInstance);
 		spriteMaterialResource_[i] = dxCommon_->CreateBufferResources(sizeof(Material));
 		spriteWvpResource_[i] = dxCommon_->CreateBufferResources(sizeof(TransformationMatrix));
 		instancingSpriteMaterialResource_[i] = dxCommon_->CreateBufferResources(sizeof(Material));
-		instancingSpriteResource_[i] = dxCommon_->CreateBufferResources(sizeof(TransformationMatrix));
+		instancingSpriteResource_[i] = dxCommon_->CreateBufferResources(sizeof(TransformationMatrix) * kMaxNumInstance);
 	}
 
 }
@@ -403,6 +407,7 @@ void GameEngine::PreDraw_() {
 
 	//Index初期化
 	objectIndex = 0;
+	instancingObjectIndex = 0;
 	spriteIndex = 0;
 
 	srvManager_->PreDraw();
@@ -728,7 +733,7 @@ void GameEngine::DrawInstancingObject_3D_(std::list<Object*> objects, Directiona
 		commandList_->SetGraphicsRootConstantBufferView(0, objectMaterialResource_[instancingObjectIndex]->GetGPUVirtualAddress());
 		//wvp用のCBufferの場所を設定
 		commandList_->SetGraphicsRootConstantBufferView(1, objectWvpResource_[instancingObjectIndex]->GetGPUVirtualAddress());
-
+		
 		//描画(DrawCall)
 		commandList_->DrawIndexedInstanced(offsets[i].indexCount, numInstance, 0, offsets[i].vertexStart, 0);
 
@@ -736,6 +741,105 @@ void GameEngine::DrawInstancingObject_3D_(std::list<Object*> objects, Directiona
 	}
 }
 
+void GameEngine::DrawParticle_(ParticleGroup particleGroup) {
+
+	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
+	commandList_->SetGraphicsRootSignature(instancingRootSignature_.Get());
+	commandList_->SetPipelineState(particlePipelineState_.Get());	//PSOを設定
+
+	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
+	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	commandList_->IASetVertexBuffers(0, 1, &ParticleManager::GetInstance()->GetVertexBufferView());	//VBVを設定
+	commandList_->IASetIndexBuffer(&ParticleManager::GetInstance()->GetIndexBufferView());	//IBVを設定
+
+	/*for (std::unordered_map<std::string, ParticleGroup>::iterator groupIterator = particleGroups.begin();
+		groupIterator != particleGroups.end(); ++groupIterator) {
+		//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
+		commandList_->SetGraphicsRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle((*groupIterator).second.textureIndex));
+
+		commandList_->SetGraphicsRootDescriptorTable(1, srvManager_->GetGPUDescriptorHandle((*groupIterator).second.instancingIndex));
+		//描画(DrawCall)
+		commandList_->DrawIndexedInstanced(6, (*groupIterator).second.numInstance, 0, 0, 0);
+	}*/
+
+	Camera* camera = Object::GetDefaultCamera();
+
+	//WVPデータを更新
+	ParticleForGPU* mappedBase = nullptr;
+	instancingObjectResource_[instancingObjectIndex]->Map(0, nullptr, reinterpret_cast<void**>(&mappedBase));
+	// mappedBase が nullptr でないか簡易チェック（デバッグ目的）
+	if (mappedBase == nullptr) {
+		// Map 失敗時は Unmap せずスキップ（本番ではログ出力などを）
+		assert(0);
+	}
+	// 各要素ポインタを mappedBase に初期化
+	for (uint32_t j = 0; j < kMaxNumInstance; ++j) {
+		instancingObjectData_[instancingObjectIndex][j] = mappedBase + j;
+	}
+
+	uint32_t numInstance = 0;
+	for (std::list<Particle>::iterator particleIterator = particleGroup.particles.begin();
+		particleIterator != particleGroup.particles.end(); ++particleIterator) {
+
+		if (numInstance >= kMaxNumInstance)break;
+
+		Matrix4x4 cameraMatrix = Matrix4x4::Inverse(camera->GetViewMatrix());
+
+		Matrix4x4 worldMatrix = cameraMatrix;
+		worldMatrix.m[3][0] = (*particleIterator).transform.translate.x;
+		worldMatrix.m[3][1] = (*particleIterator).transform.translate.y;
+		worldMatrix.m[3][2] = (*particleIterator).transform.translate.z;
+		for (int i = 0; i < 3; i++) {
+			worldMatrix.m[0][i] *= (*particleIterator).transform.scale.x;
+		}
+		for (int i = 0; i < 3; i++) {
+			worldMatrix.m[1][i] *= (*particleIterator).transform.scale.y;
+		}
+		for (int i = 0; i < 3; i++) {
+			worldMatrix.m[2][i] *= (*particleIterator).transform.scale.z;
+		}
+
+		instancingObjectData_[instancingObjectIndex][numInstance]->World = worldMatrix;
+		//instancingObjectData_[instancingObjectIndex][numInstance]->WorldInverseTranspose = Matrix4x4::Inverse(worldMatrix * partsMatrix);
+		Matrix4x4 worldViewProjectionMatrix = worldMatrix * camera->GetViewMatrix() * camera->GetProjectionMatrix();
+		instancingObjectData_[instancingObjectIndex][numInstance]->WVP = worldViewProjectionMatrix;
+		instancingObjectData_[instancingObjectIndex][numInstance]->color = (*particleIterator).color;
+
+		++numInstance;
+	}
+
+	instancingObjectResource_[instancingObjectIndex]->Unmap(0, nullptr);
+
+	//マテリアルデータを更新
+	instancingObjectMaterialResource_[instancingObjectIndex]->Map(0, nullptr, reinterpret_cast<void**>(&instancingObjectMaterialData_[instancingObjectIndex]));
+
+	instancingObjectMaterialData_[instancingObjectIndex]->uvTransform = Matrix4x4::MakeIdentity4x4();
+	instancingObjectMaterialData_[instancingObjectIndex]->enableDirectionalLighting = false;
+	instancingObjectMaterialData_[instancingObjectIndex]->enablePointLighting = false;
+	instancingObjectMaterialData_[instancingObjectIndex]->enableSpotLighting = false;
+	instancingObjectMaterialData_[instancingObjectIndex]->reflection = 0;
+	instancingObjectMaterialData_[instancingObjectIndex]->shininess = 0;
+	instancingObjectMaterialData_[instancingObjectIndex]->color = {1.0f,1.0f,1.0f,1.0f};
+
+	instancingObjectMaterialResource_[instancingObjectIndex]->Unmap(0, nullptr);
+
+	//マテリアルCBufferの場所を設定
+	commandList_->SetGraphicsRootConstantBufferView(0, instancingObjectMaterialResource_[instancingObjectIndex]->GetGPUVirtualAddress());
+	//wvp用のCBufferの場所を設定
+
+	//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
+	commandList_->SetGraphicsRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(particleGroup.textureIndex));
+
+	commandList_->SetGraphicsRootDescriptorTable(1, srvManager_->GetGPUDescriptorHandle(particleGroup.instancingIndex));
+
+	// SRV を作成（NumElements と stride は一致させる）
+	srvManager_->CreateSRVforStructuredBuffer(particleGroup.instancingIndex, instancingObjectResource_[instancingObjectIndex].Get(), kMaxNumInstance, sizeof(ParticleForGPU));
+	//描画(DrawCall)
+	commandList_->DrawIndexedInstanced(6, numInstance, 0, 0, 0);
+
+	instancingObjectIndex++;
+}
 
 
 void GameEngine::DrawSprite_2D_(Sprite* sprite) {
@@ -831,9 +935,6 @@ void GameEngine::DrawInstancingSprite_2D_(std::vector<Sprite*> sprits) {
 	commandList_->SetGraphicsRootConstantBufferView(1, spriteWvpResource_[spriteIndex]->GetGPUVirtualAddress());
 	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
 	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	//instancing用のData読むためにStructuredBufferのSRVを設定する
-	D3D12_GPU_DESCRIPTOR_HANDLE handle = srvManager_->CreateSRVforStructuredBuffer(StructuredBufferIndex_, instancingObjectResource_[instancingSpriteIndex].Get(), numInstance, sizeof(ParticleForGPU));
-	commandList_->SetGraphicsRootDescriptorTable(1, handle);
 	//描画(DrawCall)
 	commandList_->DrawIndexedInstanced(6, numInstance, 0, 0, 0);
 

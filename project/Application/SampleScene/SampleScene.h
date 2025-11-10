@@ -10,6 +10,7 @@
 
 #include <Object/Object.h>
 #include <Sprite/Sprite.h>
+#include <ParticleEmitter/ParticleEmitter.h>
 
 class SampleScene
 {
@@ -22,11 +23,9 @@ private:
 	// 3Dモデルデータ
 	std::array<SRT, 7> objectTransform_;
 
-	//SRT EffectTransform;
-	//Vector4 EffectColor = { 1,1,1,1 };
-	//Effect* effect_ = nullptr;
-	//bool isSpawnEffect_ = false;
-	//bool isUseField = false;
+	Emitter emitter_;
+	AccelerationField accelerationField_;
+	ParticleEmitter* particleEmitter_ = nullptr;
 
 	//2Dモデル
 	SpriteManager* spriteManager_ = nullptr;

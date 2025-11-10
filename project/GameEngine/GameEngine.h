@@ -37,6 +37,7 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #include "DirectXCommon/DirectXCommon.h"
 #include "ModelManager/ModelManager.h"
 #include "SRVManager/SRVManager.h"
+#include "ParticleManager/ParticleManager.h"
 
 #include <vector>
 #include <array>
@@ -99,7 +100,7 @@ private:
 	//マテリアルリソース
 	std::array <Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxIndex > instancingObjectMaterialResource_;
 	//マテリアルデータ
-	std::array < std::array <Material*, kMaxNumInstance>, kMaxIndex> instancingObjectMaterialData_;
+	std::array <Material*, kMaxIndex> instancingObjectMaterialData_;
 	//インスタンス用リソース
 	std::array <Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxIndex > instancingObjectResource_;
 	//インスタンスデータ
@@ -192,6 +193,7 @@ private:
 
 	void DrawObject_3D_(Object* object, DirectionalLight* directionalLight, PointLight* pointLight, SpotLight* spotLight);
 	void DrawInstancingObject_3D_(std::list<Object*> objects, DirectionalLight* directionalLight, PointLight* pointLight, SpotLight* spotLight);
+	void DrawParticle_(ParticleGroup particleGroup);
 	/*void DrawSprite_3D_();
 	void DrawInstancingSprite_3D_();
 	void DrawBillbord_3D_();
@@ -285,6 +287,8 @@ public:
 
 	static void DrawObject_3D(Object* object, DirectionalLight* directionalLight, PointLight* pointLight, SpotLight* spotLight) { return getInstance()->DrawObject_3D_(object, directionalLight, pointLight, spotLight); }
 	static void DrawInstancingObject_3D(std::list<Object*> objects, DirectionalLight* directionalLight, PointLight* pointLight, SpotLight* spotLight) { return getInstance()->DrawInstancingObject_3D_(objects, directionalLight, pointLight, spotLight); }
+	static void DrawParticle(ParticleGroup particleGroup) { return getInstance()->DrawParticle_(particleGroup); }
+	
 	static void DrawSprite_2D(Sprite* sprite) { return getInstance()->DrawSprite_2D_(sprite); }
 	static void DrawInstancingSprite_2D(std::vector<Sprite*> sprits) { return getInstance()->DrawInstancingSprite_2D_(sprits); }
 	
