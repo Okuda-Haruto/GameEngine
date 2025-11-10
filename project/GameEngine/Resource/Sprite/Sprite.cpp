@@ -62,7 +62,9 @@ void Sprite::Initialize(const std::string& textureFilePath, SpriteManager* sprit
 
 	indexResource_->Unmap(0, nullptr);
 
-	textureIndex_ = TextureManager::GetInstance()->GetTextureIndexByFilePath(textureFilePath);
+	textureIndex_ = TextureManager::GetInstance()->GetSrvIndex(textureFilePath);
+
+	metadata_ = TextureManager::GetInstance()->GetMetaData(textureFilePath);
 
 	size_ = { 1.0f,1.0f };
 	position_ = {};
@@ -105,11 +107,10 @@ void Sprite::Update() {
 		bottom = -bottom;
 	}
 
-	const DirectX::TexMetadata& metadata = TextureManager::GetInstance()->GetMetaData(textureIndex_);
-	float tex_left = textuerLeftTop_.x / metadata.width;
-	float tex_right = (textuerLeftTop_.x + textureSize_.x) / metadata.width;
-	float tex_top = textuerLeftTop_.y / metadata.height;
-	float tex_bottom = (textuerLeftTop_.y + textureSize_.y) / metadata.height;
+	float tex_left = textuerLeftTop_.x / metadata_.width;
+	float tex_right = (textuerLeftTop_.x + textureSize_.x) / metadata_.width;
+	float tex_top = textuerLeftTop_.y / metadata_.height;
+	float tex_bottom = (textuerLeftTop_.y + textureSize_.y) / metadata_.height;
 
 	//頂点のローカル座標系を設定
 	vertexResource_->Map(0, nullptr, reinterpret_cast<void**>(&vertexData_));
@@ -134,15 +135,13 @@ void Sprite::Draw2D() {
 }
 
 void Sprite::SetTextue(const std::string& textureFilePath) {
-	textureIndex_ = TextureManager::GetInstance()->GetTextureIndexByFilePath(textureFilePath);
+	textureIndex_ = TextureManager::GetInstance()->GetSrvIndex(textureFilePath);
 }
 
 void Sprite::AdjustTextureSize() {
-	//テクスチャメタデータを入手
-	const DirectX::TexMetadata& metadata = TextureManager::GetInstance()->GetMetaData(textureIndex_);
 
-	textureSize_.x = static_cast<float>(metadata.width);
-	textureSize_.y = static_cast<float>(metadata.height);
+	textureSize_.x = static_cast<float>(metadata_.width);
+	textureSize_.y = static_cast<float>(metadata_.height);
 	//画像サイズをテクスチャサイズに合わせる
 	size_ = textureSize_;
 }

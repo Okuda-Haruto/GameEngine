@@ -2,6 +2,8 @@
 #include <GameEngine.h>
 #include <LoadObjFile.h>
 
+Camera* Object::DefaultCamera = nullptr;
+
 Object::~Object() {
 }
 
@@ -30,10 +32,14 @@ void Object::Initialize(Model* model) {
 
 	transform_ = {};
 	transform_.scale = { 1.0f,1.0f,1.0f };
+
+	if (DefaultCamera != nullptr) {
+		camera_ = DefaultCamera;
+	}
 }
 
-void Object::Draw3D(Camera* camera, DirectionalLight* directionalLight, PointLight* pointLight, SpotLight* spotLight) {
-	GameEngine::DrawObject_3D(this, camera, directionalLight, pointLight, spotLight);
+void Object::Draw3D(DirectionalLight* directionalLight, PointLight* pointLight, SpotLight* spotLight) {
+	GameEngine::DrawObject_3D(this, directionalLight, pointLight, spotLight);
 }
 
 void Object::SetReflection(UINT reflection) {

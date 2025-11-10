@@ -69,6 +69,9 @@ private:
 
 	// テクスチャ番号
 	uint32_t textureIndex_ = 0;
+
+	//メタデータ
+	DirectX::TexMetadata metadata_;
 public:
 
 	//初期化

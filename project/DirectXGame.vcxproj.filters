@@ -103,6 +103,12 @@
     <Filter Include="GameEngine\Modules\TextureManager">
       <UniqueIdentifier>{251d6b5b-3b85-49a2-8202-430d22ea3a62}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GameEngine\Modules\ModelManager">
+      <UniqueIdentifier>{1b694218-c1ca-4d23-8886-0357464c8d71}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\Modules\SRVManager">
+      <UniqueIdentifier>{622a70c2-9e3d-42a5-9772-9214f076344d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -250,7 +256,12 @@
     <ClCompile Include="GameEngine\Math\Vector3.cpp">
       <Filter>GameEngine\Math\Operation</Filter>
     </ClCompile>
-    <ClCompile Include="GameEngine\Modules\ModelManager\ModelManager.cpp" />
+    <ClCompile Include="GameEngine\Modules\ModelManager\ModelManager.cpp">
+      <Filter>GameEngine\Modules\ModelManager</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEngine\Modules\SRVManager\SRVManager.cpp">
+      <Filter>GameEngine\Modules\SRVManager</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="externals\imgui\imconfig.h">
@@ -490,7 +501,12 @@
     <ClInclude Include="GameEngine\Data\Offset.h">
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\Modules\ModelManager\ModelManager.h" />
+    <ClInclude Include="GameEngine\Modules\ModelManager\ModelManager.h">
+      <Filter>GameEngine\Modules\ModelManager</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Modules\SRVManager\SRVManager.h">
+      <Filter>GameEngine\Modules\SRVManager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt">

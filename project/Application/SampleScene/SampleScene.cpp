@@ -19,7 +19,6 @@ SampleScene::~SampleScene() {
 	//delete effect_;
 	//delete grid_;
 	delete audio_;
-	delete camera_;
 	//delete axis_;
 	delete debugCamera_;
 	delete directionalLight_;
@@ -80,9 +79,15 @@ void SampleScene::Initialize(WindowsAPI* winApp, DirectXCommon* dxCommon) {
 	debugCamera_->Initialize();
 
 	//カメラ
-	camera_ = new Camera();
-	camera_->Initialize(GameEngine::GetDirectXCommon());
-	camera_->setDebugCamera(debugCamera_);
+	defaultCamera_ = Object::GetDefaultCamera();
+	defaultCamera_->setDebugCamera(debugCamera_);
+
+	cameraTransform_ = {
+		{ 0.0f, 0.0f, 0.0f },
+		{ 0.0f, 0.0f, 0.0f },
+		{ 2.0f, 2.0f, -18.0f }
+	};
+
 	//for (Object* object : object_) {
 	//	object->SetCamera(camera_);
 	//}
@@ -228,7 +233,7 @@ void SampleScene::Update() {
 
 	//カメラアップデート
 	if (isUseDebugCamera_) {
-		camera_->Update();
+		defaultCamera_->Update();
 	}
 	if (isDisplayUI) {
 
@@ -267,31 +272,41 @@ void SampleScene::Update() {
 				}
 				ImGui::EndCombo();
 			}
+		} else {
+			if (ImGui::CollapsingHeader("カメラ")) {
+				ImGui::DragFloat3("CameraScale", &cameraTransform_.scale.x, 0.1f);
+				ImGui::SliderAngle("CameraRotateX", &cameraTransform_.rotate.x);
+				ImGui::SliderAngle("CameraRotateY", &cameraTransform_.rotate.y);
+				ImGui::SliderAngle("CameraRotateZ", &cameraTransform_.rotate.z);
+				ImGui::DragFloat3("CameraTranslate", &cameraTransform_.translate.x, 0.1f);
+			}
+			defaultCamera_->Update(cameraTransform_);
 		}
 
-			const char* items[] = { "None", "Lambert", "HalfLambert" };
-			static const char* current_item = "HalfLambert";
+		const char* items[] = { "None", "Lambert", "HalfLambert" };
+		static const char* current_item = "HalfLambert";
 
-			current_item = items[reflection];
+		current_item = items[reflection];
 
-			if (ImGui::BeginCombo("Lighting", current_item))
+		if (ImGui::BeginCombo("Lighting", current_item))
+		{
+			for (int n = 0; n < IM_ARRAYSIZE(items); n++)
 			{
-				for (int n = 0; n < IM_ARRAYSIZE(items); n++)
-				{
-					bool is_selected = (current_item == items[n]);
-					if (ImGui::Selectable(items[n], is_selected)) {
-						reflection = n;
-						for (Object* object : object_) {
-							object->SetReflection(reflection);
-						}
+				bool is_selected = (current_item == items[n]);
+				if (ImGui::Selectable(items[n], is_selected)) {
+					reflection = n;
+					for (Object* object : object_) {
+						object->SetReflection(reflection);
 					}
 				}
-				ImGui::EndCombo();
 			}
-			ImGui::DragFloat("light Shininess", &shininess_);
-			for (Object* object : object_) {
-				object->SetShininess(shininess_);
-			}
+			ImGui::EndCombo();
+		}
+		ImGui::DragFloat("light Shininess", &shininess_);
+		for (Object* object : object_) {
+			object->SetShininess(shininess_);
+		}
+
 		if (ImGui::CollapsingHeader("DirectionalLight")) {
 			ImGui::ColorEdit4("directionalLight Color", &directionalLightElement_.color.x);
 			ImGui::DragFloat3("directionalLight Direction", &directionalLightElement_.direction.x, 0.01f, -1.0f, 1.0f);
@@ -449,7 +464,7 @@ void SampleScene::Draw() {
 
 	for (INT i = 0; i < object_.size(); i++) {
 		if (isObjectDraw_[i]) {
-			object_[i]->Draw3D(camera_,directionalLight_,pointLight_,spotLight_);
+			object_[i]->Draw3D(directionalLight_, pointLight_, spotLight_);
 		}
 	}
 

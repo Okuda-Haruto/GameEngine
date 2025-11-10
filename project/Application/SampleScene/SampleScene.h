@@ -32,18 +32,16 @@ private:
 	SpriteManager* spriteManager_ = nullptr;
 	bool isSpriteDraw_ = false;
 	std::array<Sprite*,2> sprite_;
-	// 2Dモデルデータ
-	//Object_Single_Data spriteData_;
 
 	//Grid* grid_ = nullptr;
 
 	Audio* audio_ = nullptr;
 
+	//AxisIndicator* axis_ = nullptr;
+	
 	// カメラ
 	SRT cameraTransform_{};
-	Camera* camera_;
-
-	//AxisIndicator* axis_ = nullptr;
+	Camera* defaultCamera_ = nullptr;
 
 	//デバッグカメラ
 	DebugCamera* debugCamera_ = nullptr;

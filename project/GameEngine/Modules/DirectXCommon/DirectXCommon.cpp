@@ -7,8 +7,6 @@
 #pragma comment(lib,"d3d12.lib")
 #pragma comment(lib,"dxgi.lib")
 
-const uint32_t DirectXCommon::kMaxSRVCount = 512;
-
 using namespace Microsoft::WRL;
 
 DirectXCommon::~DirectXCommon() {
@@ -73,17 +71,10 @@ void DirectXCommon::Initialize(WindowsAPI* winApp) {
 
 	//DXCコンパイラ
 	dxcCompilerInitialize();
-
-	//ImGui
-	ImGuiInitialize();
 }
 
 //描画前処理
 void DirectXCommon::PreDraw() {
-
-	//描画用のDescriptorHeapの設定
-	ID3D12DescriptorHeap* descriptorHeaps[] = { srvDescriptorHeap_.Get() };
-	commandList_->SetDescriptorHeaps(1, descriptorHeaps);
 
 	//ImGuiの内部コマンドを生成する
 	ImGui::Render();
@@ -467,18 +458,6 @@ void DirectXCommon::UploadTextureData(ID3D12Resource* texture, const DirectX::Sc
 	intermediateResource.Reset();
 }
 
-//SRVの指定番号のCPUデスクリプタハンドルを取得
-D3D12_CPU_DESCRIPTOR_HANDLE  DirectXCommon::GetSRVCPUDescriptorHandle(uint32_t index) {
-	return GetCPUDescriptorHandle(srvDescriptorHeap_, descriptorSizeSRV_, index);
-}
-
-//SRVの指定番号のGPUデスクリプタハンドルを取得
-D3D12_GPU_DESCRIPTOR_HANDLE  DirectXCommon::GetSRVGPUDescriptorHandle(uint32_t index) {
-	return GetGPUDescriptorHandle(srvDescriptorHeap_, descriptorSizeSRV_, index);
-}
-
-
-
 //ログファイルの生成
 void DirectXCommon::LogInitilaize() {
 	//ログファイルの生成
@@ -638,15 +617,11 @@ ComPtr <ID3D12DescriptorHeap> DirectXCommon::CreateDescriptorHeap(D3D12_DESCRIPT
 //各種デスクリプタヒープの生成
 void DirectXCommon::descriptorHeapInitialize() {
 	//DescriptorSizeを取得しておく
-	descriptorSizeSRV_ = device_->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	descriptorSizeRTV_ = device_->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 	descriptorSizeDSV_ = device_->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
 	//RTV用のヒープでディスクリプタ数は2。RTVはShader内で触る物ではないので、ShaderVisibleはfalse
 	rtvDescriptorHeap_ = CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 2, false);
-
-	//SRV用のディスクリプタの数は128。SRVはShader内で触る物なので、ShaderVisibleはtrue
-	srvDescriptorHeap_ = CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, kMaxSRVCount, true);
 
 	//DSV用のヒープディスクリプタの数は1。DSVはShader内で触る物ではないので、ShaderVisibleはfalse
 	dsvDescriptorheap_ = CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1, false);
@@ -747,7 +722,7 @@ void DirectXCommon::dxcCompilerInitialize() {
 }
 
 //ImGuiの初期化
-void DirectXCommon::ImGuiInitialize() {
+void DirectXCommon::ImGuiInitialize(ID3D12DescriptorHeap* descriptorHeap) {
 	//ImGui初期化
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -755,9 +730,9 @@ void DirectXCommon::ImGuiInitialize() {
 	ImGui_ImplWin32_Init(winApp_->GetHwnd());
 	ImGui_ImplDX12_Init(device_.Get(), swapChainDesc_.BufferCount,
 		rtvDesc_.Format,
-		srvDescriptorHeap_.Get(),
-		srvDescriptorHeap_->GetCPUDescriptorHandleForHeapStart(),
-		srvDescriptorHeap_->GetGPUDescriptorHandleForHeapStart());
+		descriptorHeap,
+		descriptorHeap->GetCPUDescriptorHandleForHeapStart(),
+		descriptorHeap->GetGPUDescriptorHandleForHeapStart());
 
 	ImGuiIO& io = ImGui::GetIO();
 	io.Fonts->AddFontFromFileTTF("resources/DebugResources/x12y16pxMaruMonica .ttf", 16.0f, nullptr, io.Fonts->GetGlyphRangesJapanese());

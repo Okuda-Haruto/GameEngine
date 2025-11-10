@@ -7,6 +7,7 @@
 #include <VertexData.h>
 #include <Offset.h>
 #include <DirectXCommon/DirectXCommon.h>
+#include <TextureManager/TextureManager.h>
 
 //モデル
 class Model {
@@ -46,5 +47,5 @@ public:
 	//オフセット
 	std::vector<Offset> GetOffsets() { return offsets_; }
 	//テクスチャ番号
-	UINT GetTextureIndex(UINT offsetNum) { if(textureIndex_.empty())return 0; return textureIndex_[offsetNum]; }
+	UINT GetTextureIndex(UINT offsetNum) { if (textureIndex_.empty()) return TextureManager::GetInstance()->GetWhite2x2(); return textureIndex_[offsetNum]; }
 };
