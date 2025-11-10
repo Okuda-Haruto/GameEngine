@@ -33,6 +33,8 @@ private:
 	//テクスチャ
 	std::vector<UINT> textureIndex_;
 public:
+	~Model();
+
 	//初期値
 	void Initialize(const std::string& directoryPath, const std::string& filename, DirectXCommon* dxCommon);
 	//頂点バッファビュー

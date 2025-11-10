@@ -585,21 +585,9 @@ void GameEngine::DrawObject_3D_(Object* object, Camera* camera, DirectionalLight
 		objectWvpResource_[objectIndex]->Unmap(0, nullptr);
 
 		parts[i].material->uvTransform = Matrix4x4::MakeAffineMatrix(parts[i].UVtransform.scale, parts[i].UVtransform.rotate, parts[i].UVtransform.translate);
-		if (directionalLight != nullptr) {
-			parts[i].material->enableDirectionalLighting = true;
-		} else {
-			parts[i].material->enableDirectionalLighting = false;
-		}
-		if (pointLight != nullptr) {
-			parts[i].material->enablePointLighting = true;
-		} else {
-			parts[i].material->enablePointLighting = false;
-		}
-		if (spotLight != nullptr) {
-			parts[i].material->enableSpotLighting = true;
-		} else {
-			parts[i].material->enableSpotLighting = false;
-		}
+		parts[i].material->enableDirectionalLighting = directionalLight != nullptr;
+		parts[i].material->enablePointLighting = pointLight != nullptr;
+		parts[i].material->enableSpotLighting = spotLight != nullptr;
 
 		//マテリアルデータを更新
 		objectMaterialResource_[objectIndex]->Map(0, nullptr, reinterpret_cast<void**>(&objectMaterialData_[objectIndex]));

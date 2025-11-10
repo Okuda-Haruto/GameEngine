@@ -68,8 +68,16 @@ PixelShaderOutput PhangReflectionModel(VertexShaderOutput input, float4 textureC
     float3 diffuseDirectionalLighting = { 0.0f, 0.0f, 0.0f };
     if (gMaterial.enableDirectionalLighting)
     {
-        float NdotL = dot(normalize(input.normal), -gDirectionalLight.direction);
-        float cos = pow(NdotL * 0.5f + 0.5f, 2.0f);
+        float cos = 1.0f;
+        if (gMaterial.reflection == 2)
+        {
+            float NdotL = dot(normalize(input.normal), -gDirectionalLight.direction);
+            cos = pow(NdotL * 0.5f + 0.5f, 2.0f);
+        }
+        else if (gMaterial.reflection == 1)
+        {
+            cos = saturate(dot(normalize(input.normal), -gDirectionalLight.direction));
+        }
         
         diffuseDirectionalLighting = gMaterial.color.rgb * textureColor.rgb * gDirectionalLight.color.rgb * cos * gDirectionalLight.intensity;
     }
@@ -83,8 +91,16 @@ PixelShaderOutput PhangReflectionModel(VertexShaderOutput input, float4 textureC
         float distance = length(gPointLight.position - input.worldPosition);
         factor = pow(saturate(-distance / gPointLight.radius + 1.0f), gPointLight.decay);
         
-        float NdotL = dot(normalize(input.normal), -pointLightDirection);
-        float cos = pow(NdotL * 0.5f + 0.5f, 2.0f);
+        float cos = 1.0f;
+        if (gMaterial.reflection == 2)
+        {
+            float NdotL = dot(normalize(input.normal), -pointLightDirection);
+            cos = pow(NdotL * 0.5f + 0.5f, 2.0f);
+        }
+        else if (gMaterial.reflection == 1)
+        {
+            cos = saturate(dot(normalize(input.normal), -gDirectionalLight.direction));
+        }
         
         diffusePointLighting = gMaterial.color.rgb * textureColor.rgb * gPointLight.color.rgb * cos * gPointLight.intensity * factor;
     }
@@ -103,8 +119,16 @@ PixelShaderOutput PhangReflectionModel(VertexShaderOutput input, float4 textureC
         float distance = length(gSpotLight.position - input.worldPosition);
         attenuationFactor = pow(saturate(-distance / gSpotLight.distance + 1.0f), gSpotLight.decay);
         
-        float NdotL = dot(normalize(input.normal), -spotLightDirectionOnSurface);
-        float cos = pow(NdotL * 0.5f + 0.5f, 2.0f);
+        float cos = 1.0f;
+        if (gMaterial.reflection == 2)
+        {
+            float NdotL = dot(normalize(input.normal), -spotLightDirectionOnSurface);
+            cos = pow(NdotL * 0.5f + 0.5f, 2.0f);
+        }
+        else if (gMaterial.reflection == 1)
+        {
+            cos = saturate(dot(normalize(input.normal), -gDirectionalLight.direction));
+        }
         
         diffuseSpotLighting = gMaterial.color.rgb * textureColor.rgb * gSpotLight.color.rgb * gSpotLight.intensity * falloutFactor;
     }
@@ -161,8 +185,16 @@ PixelShaderOutput BlinnPhangReflectionModel(VertexShaderOutput input, float4 tex
     float3 diffuseDirectionalLighting = { 0.0f, 0.0f, 0.0f };
     if (gMaterial.enableDirectionalLighting)
     {
-        float NdotL = dot(normalize(input.normal), -gDirectionalLight.direction);
-        float cos = pow(NdotL * 0.5f + 0.5f, 2.0f);
+        float cos = 1.0f;
+        if (gMaterial.reflection == 2)
+        {
+            float NdotL = dot(normalize(input.normal), -gDirectionalLight.direction);
+            cos = pow(NdotL * 0.5f + 0.5f, 2.0f);
+        }
+        else if (gMaterial.reflection == 1)
+        {
+            cos = saturate(dot(normalize(input.normal), -gDirectionalLight.direction));
+        }
         
         diffuseDirectionalLighting = gMaterial.color.rgb * textureColor.rgb * gDirectionalLight.color.rgb * cos * gDirectionalLight.intensity;
     }
@@ -176,8 +208,16 @@ PixelShaderOutput BlinnPhangReflectionModel(VertexShaderOutput input, float4 tex
         float distance = length(gPointLight.position - input.worldPosition);
         factor = pow(saturate(-distance / gPointLight.radius + 1.0f), gPointLight.decay);
         
-        float NdotL = dot(normalize(input.normal), -pointLightDirection);
-        float cos = pow(NdotL * 0.5f + 0.5f, 2.0f);
+        float cos = 1.0f;
+        if (gMaterial.reflection == 2)
+        {
+            float NdotL = dot(normalize(input.normal), -pointLightDirection);
+            cos = pow(NdotL * 0.5f + 0.5f, 2.0f);
+        }
+        else if (gMaterial.reflection == 1)
+        {
+            cos = saturate(dot(normalize(input.normal), -gDirectionalLight.direction));
+        }
         
         diffusePointLighting = gMaterial.color.rgb * textureColor.rgb * gPointLight.color.rgb * cos * gPointLight.intensity * factor;
     }
@@ -196,8 +236,16 @@ PixelShaderOutput BlinnPhangReflectionModel(VertexShaderOutput input, float4 tex
         float distance = length(gSpotLight.position - input.worldPosition);
         attenuationFactor = pow(saturate(-distance / gSpotLight.distance + 1.0f), gSpotLight.decay);
         
-        float NdotL = dot(normalize(input.normal), -spotLightDirectionOnSurface);
-        float cos = pow(NdotL * 0.5f + 0.5f, 2.0f);
+        float cos = 1.0f;
+        if (gMaterial.reflection == 2)
+        {
+            float NdotL = dot(normalize(input.normal), -spotLightDirectionOnSurface);
+            cos = pow(NdotL * 0.5f + 0.5f, 2.0f);
+        }
+        else if (gMaterial.reflection == 1)
+        {
+            cos = saturate(dot(normalize(input.normal), -gDirectionalLight.direction));
+        }
         
         diffuseSpotLighting = gMaterial.color.rgb * textureColor.rgb * gSpotLight.color.rgb * cos * gSpotLight.intensity * attenuationFactor * falloutFactor;
     }
@@ -261,22 +309,10 @@ PixelShaderOutput main(VertexShaderOutput input)
     {
         discard;
     }
+    
+    if (gMaterial.reflection <= 0 || gMaterial.reflection > 2) return output;
         
-    if (gMaterial.reflection == 2)          //HalfLambert
-    {
-        
-        output = BlinnPhangReflectionModel(input,textureColor);
-
-    }
-    else if (gMaterial.reflection == 1)     //Lambert
-    {
-        float cos = saturate(dot(normalize(input.normal), -gDirectionalLight.direction));
-        
-        output = BlinnPhangReflectionModel(input,textureColor);
-    }
-    else    //none
-    {
-        output.color = gMaterial.color * textureColor;
-    }
+    output = BlinnPhangReflectionModel(input,textureColor);
+    
     return output;
 }

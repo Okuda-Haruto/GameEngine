@@ -2,6 +2,9 @@
 #include <GameEngine.h>
 #include <LoadObjFile.h>
 
+Object::~Object() {
+}
+
 void Object::Initialize(Model* model) {
 
 	model_ = model;
@@ -15,8 +18,8 @@ void Object::Initialize(Model* model) {
 
 		parts_[i].material = new Material;
 		parts_[i].material->color = { 1.0f,1.0f,1.0f,1.0f };
-		parts_[i].material->reflection = 40;
-		parts_[i].material->shininess = 1.0f;
+		parts_[i].material->reflection = REFLECTION_HalfLambert;
+		parts_[i].material->shininess = 40.0f;
 
 		parts_[i].transform = {};
 		parts_[i].transform.scale = { 1.0f,1.0f,1.0f };
@@ -31,4 +34,16 @@ void Object::Initialize(Model* model) {
 
 void Object::Draw3D(Camera* camera, DirectionalLight* directionalLight, PointLight* pointLight, SpotLight* spotLight) {
 	GameEngine::DrawObject_3D(this, camera, directionalLight, pointLight, spotLight);
+}
+
+void Object::SetReflection(UINT reflection) {
+	for (int i = 0; i < parts_.size(); i++) {
+		parts_[i].material->reflection = reflection;
+	}
+}
+
+void Object::SetShininess(float shininess) {
+	for (int i = 0; i < parts_.size(); i++) {
+		parts_[i].material->shininess = shininess;
+	}
 }

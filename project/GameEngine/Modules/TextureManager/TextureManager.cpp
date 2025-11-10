@@ -63,7 +63,7 @@ void TextureManager::LoadTexture(const std::string& filePath) {
 	dxCommon_->UploadTextureData(textureData.resource.Get(), mipImages);
 
 	//テクスチャデータの要素数番号をSRVのindexとする
-	uint32_t srvIndex = static_cast<uint32_t>(textureDatas.size() - 1);
+	uint32_t srvIndex = static_cast<uint32_t>(textureDatas.size());
 
 	textureData.srvHandleCPU = dxCommon_->GetSRVCPUDescriptorHandle(srvIndex);
 	textureData.srvHandleGPU = dxCommon_->GetSRVGPUDescriptorHandle(srvIndex);

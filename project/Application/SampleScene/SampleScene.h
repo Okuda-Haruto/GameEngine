@@ -53,7 +53,7 @@ private:
 	//光源
 	DirectionalLightElement directionalLightElement_;
 	DirectionalLight* directionalLight_ = nullptr;
-	UINT isLighting_ = 2;
+	UINT reflection = REFLECTION_HalfLambert;
 	float shininess_ = 40.0f;
 
 	PointLightElement pointLightElement_;
