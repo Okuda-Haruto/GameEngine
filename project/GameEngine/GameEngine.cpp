@@ -46,9 +46,11 @@ GameEngine::~GameEngine() {
 	linePipelineState_.Reset();
 
 	delete winApp_;
+	delete srvManager_;
 	delete dxCommon_;
 	TextureManager::GetInstance()->Finalize();
 	ModelManager::GetInstance()->Finalize();
+	Object::FinalizeDefaultCamera();
 }
 
 GameEngine* GameEngine::getInstance() {
@@ -79,7 +81,9 @@ void GameEngine::Intialize_(const wchar_t* WindowName, int32_t kWindowWidth, int
 	dxCommon_ = new DirectXCommon;
 	dxCommon_->Initialize(winApp_);
 
-	TextureManager::GetInstance()->Initialize(dxCommon_);
+	srvManager_ = new SRVManager;
+	srvManager_->Initialize(dxCommon_);
+	TextureManager::GetInstance()->Initialize(dxCommon_, srvManager_);
 	ModelManager::GetInstance()->Initialize(dxCommon_);
 
 	device_ = dxCommon_->GetDevice();
@@ -144,8 +148,12 @@ void GameEngine::Intialize_(const wchar_t* WindowName, int32_t kWindowWidth, int
 	std::random_device seedGenerator;
 	randomEngine_.seed(seedGenerator());
 
-	//テクスチャ初期値としてwhite2x2を読み込む
-	TextureManager::GetInstance()->LoadTexture("resources/DebugResources/white2x2.png");
+	//カメラ初期値
+	Camera* DefaultCamera = new Camera;
+	DefaultCamera->Initialize(dxCommon_);
+	Object::SetDefaultCamera(DefaultCamera);
+
+	StructuredBufferIndex_ = srvManager_->Allocate();
 
 	//初期化
 	for (int i = 0; i < kMaxIndex; i++) {
@@ -156,27 +164,6 @@ void GameEngine::Intialize_(const wchar_t* WindowName, int32_t kWindowWidth, int
 		instancingSpriteMaterialResource_[i] = dxCommon_->CreateBufferResources(sizeof(Material));
 		instancingSpriteResource_[i] = dxCommon_->CreateBufferResources(sizeof(TransformationMatrix));
 	}
-
-}
-
-D3D12_GPU_DESCRIPTOR_HANDLE GameEngine::GetInstancingSRV_(Microsoft::WRL::ComPtr<ID3D12Resource> instancingResource, int32_t numInstance) {
-	//metaDataを基にSRVの設定
-	D3D12_SHADER_RESOURCE_VIEW_DESC instancingSrvDesc{};
-	instancingSrvDesc.Format = DXGI_FORMAT_UNKNOWN;
-	instancingSrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	instancingSrvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;	//バッファ
-	instancingSrvDesc.Buffer.FirstElement = 0;
-	instancingSrvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
-	instancingSrvDesc.Buffer.NumElements = numInstance;
-	instancingSrvDesc.Buffer.StructureByteStride = sizeof(ParticleForGPU);
-
-	//SRVを作成するDescriptorHeapの場所を決める。ImGuiが最初を使うのでその次を使う
-	D3D12_CPU_DESCRIPTOR_HANDLE textureSrvHandleCPU = dxCommon_->GetSRVCPUDescriptorHandle(1);
-	D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU = dxCommon_->GetSRVGPUDescriptorHandle(1);
-	//SRVの生成
-	device_->CreateShaderResourceView(instancingResource.Get(), &instancingSrvDesc, textureSrvHandleCPU);
-
-	return textureSrvHandleGPU;
 
 }
 
@@ -418,7 +405,7 @@ void GameEngine::PreDraw_() {
 	objectIndex = 0;
 	spriteIndex = 0;
 
-	dxCommon_->PreDraw();
+	srvManager_->PreDraw();
 
 }
 
@@ -559,7 +546,7 @@ Pad GameEngine::GetPad_(int usePadNum) {
 	return returnPad;
 }
 
-void GameEngine::DrawObject_3D_(Object* object, Camera* camera, DirectionalLight* directionalLight, PointLight* pointLight, SpotLight* spotLight) {
+void GameEngine::DrawObject_3D_(Object* object, DirectionalLight* directionalLight, PointLight* pointLight, SpotLight* spotLight) {
 	std::vector<Parts> parts = object->GetParts();
 	std::vector<Offset> offsets = object->GetOffsets();
 	
@@ -575,11 +562,11 @@ void GameEngine::DrawObject_3D_(Object* object, Camera* camera, DirectionalLight
 		//ワールド座標を親に持つPartsのローカル座標
 		Matrix4x4 partsMatrix = Matrix4x4::MakeAffineMatrix(parts[i].transform.scale, parts[i].transform.rotate, parts[i].transform.translate);
 
-		worldMatrix = worldMatrix * partsMatrix;
+		worldMatrix = partsMatrix * worldMatrix;
 
-		objectWvpData_[objectIndex]->World = worldMatrix * partsMatrix;
-		objectWvpData_[objectIndex]->WorldInverseTranspose = Matrix4x4::Inverse(worldMatrix * partsMatrix);
-		Matrix4x4 worldViewProjectionMatrix =  worldMatrix * partsMatrix * camera->GetViewMatrix() * camera->GetProjectionMatrix();
+		objectWvpData_[objectIndex]->World = worldMatrix;
+		objectWvpData_[objectIndex]->WorldInverseTranspose = Matrix4x4::Inverse(worldMatrix);
+		Matrix4x4 worldViewProjectionMatrix =  worldMatrix * object->GetCamera()->GetViewMatrix() * object->GetCamera()->GetProjectionMatrix();
 		objectWvpData_[objectIndex]->WVP = worldViewProjectionMatrix;
 
 		objectWvpResource_[objectIndex]->Unmap(0, nullptr);
@@ -603,10 +590,8 @@ void GameEngine::DrawObject_3D_(Object* object, Camera* camera, DirectionalLight
 		commandList_->IASetVertexBuffers(0, 1, &object->GetVBV());	//VBVを設定
 		commandList_->IASetIndexBuffer(&object->GetIBV());	//IBVを設定
 		//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
-		commandList_->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSrvHandleGPU(parts[i].textureIndex));
+		commandList_->SetGraphicsRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(parts[i].textureIndex));
 
-		//カメラのワールド座標をCBufferに送る
-		commandList_->SetGraphicsRootConstantBufferView(4, camera->CameraResource()->GetGPUVirtualAddress());
 
 		//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
 		commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -623,7 +608,7 @@ void GameEngine::DrawObject_3D_(Object* object, Camera* camera, DirectionalLight
 		}
 
 		//カメラのワールド座標をCBufferに送る
-		commandList_->SetGraphicsRootConstantBufferView(4, camera->CameraResource()->GetGPUVirtualAddress());
+		commandList_->SetGraphicsRootConstantBufferView(4, object->GetCamera()->CameraResource()->GetGPUVirtualAddress());
 
 		//マテリアルCBufferの場所を設定
 		commandList_->SetGraphicsRootConstantBufferView(0, objectMaterialResource_[objectIndex]->GetGPUVirtualAddress());
@@ -639,9 +624,10 @@ void GameEngine::DrawObject_3D_(Object* object, Camera* camera, DirectionalLight
 	}
 }
 
-void GameEngine::DrawInstancingObject_3D_(std::list<Object*> objects, Camera* camera, DirectionalLight* directionalLight, PointLight* pointLight, SpotLight* spotLight) {
+void GameEngine::DrawInstancingObject_3D_(std::list<Object*> objects, DirectionalLight* directionalLight, PointLight* pointLight, SpotLight* spotLight) {
 	
 	std::list<Object*>::iterator objectIterator = objects.begin();
+	Camera* camera = (*objectIterator)->GetCamera();
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList_->SetGraphicsRootSignature(rootSignature_.Get());
@@ -690,9 +676,9 @@ void GameEngine::DrawInstancingObject_3D_(std::list<Object*> objects, Camera* ca
 
 			Matrix4x4 worldMatrix = worldMatries[i] * partsMatrix;
 
-			instancingObjectData_[instancingObjectIndex][numInstance]->World = worldMatrix * partsMatrix;
+			instancingObjectData_[instancingObjectIndex][numInstance]->World = worldMatrix;
 			//instancingObjectData_[instancingObjectIndex][numInstance]->WorldInverseTranspose = Matrix4x4::Inverse(worldMatrix * partsMatrix);
-			Matrix4x4 worldViewProjectionMatrix = worldMatrix * partsMatrix * camera->GetViewMatrix() * camera->GetProjectionMatrix();
+			Matrix4x4 worldViewProjectionMatrix = worldMatrix * camera->GetViewMatrix() * camera->GetProjectionMatrix();
 			instancingObjectData_[instancingObjectIndex][numInstance]->WVP = worldViewProjectionMatrix;
 
 			++numInstance;
@@ -736,7 +722,7 @@ void GameEngine::DrawInstancingObject_3D_(std::list<Object*> objects, Camera* ca
 		}
 
 		//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
-		commandList_->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSrvHandleGPU(parts[0][i].textureIndex));
+		commandList_->SetGraphicsRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(parts[0][i].textureIndex));
 
 		//マテリアルCBufferの場所を設定
 		commandList_->SetGraphicsRootConstantBufferView(0, objectMaterialResource_[instancingObjectIndex]->GetGPUVirtualAddress());
@@ -787,7 +773,7 @@ void GameEngine::DrawSprite_2D_(Sprite* sprite) {
 	commandList_->SetPipelineState(spritePipelineState_.Get());	//PSOを設定
 	commandList_->IASetVertexBuffers(0, 1, &sprite->GetVertexBufferView());	//VBVを設定
 	commandList_->IASetIndexBuffer(&sprite->GetIndexBufferView());	//IBVを設定
-	commandList_->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSrvHandleGPU(sprite->GetTextureIndex()));
+	commandList_->SetGraphicsRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(sprite->GetTextureIndex()));
 	//マテリアルCBufferの場所を設定
 	commandList_->SetGraphicsRootConstantBufferView(0, spriteMaterialResource_[spriteIndex]->GetGPUVirtualAddress());
 	//TransformationMatrixCBufferの場所を設定
@@ -838,7 +824,7 @@ void GameEngine::DrawInstancingSprite_2D_(std::vector<Sprite*> sprits) {
 	commandList_->SetPipelineState(spritePipelineState_.Get());	//PSOを設定
 	commandList_->IASetVertexBuffers(0, 1, &sprits[0]->GetVertexBufferView());	//VBVを設定
 	commandList_->IASetIndexBuffer(&sprits[0]->GetIndexBufferView());	//IBVを設定
-	commandList_->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSrvHandleGPU(sprits[0]->GetTextureIndex()));
+	commandList_->SetGraphicsRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(sprits[0]->GetTextureIndex()));
 	//マテリアルCBufferの場所を設定
 	commandList_->SetGraphicsRootConstantBufferView(0, spriteMaterialResource_[spriteIndex]->GetGPUVirtualAddress());
 	//TransformationMatrixCBufferの場所を設定
@@ -846,7 +832,7 @@ void GameEngine::DrawInstancingSprite_2D_(std::vector<Sprite*> sprits) {
 	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
 	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	//instancing用のData読むためにStructuredBufferのSRVを設定する
-	D3D12_GPU_DESCRIPTOR_HANDLE handle = GameEngine::GetInstancingSRV(instancingObjectResource_[instancingObjectIndex], numInstance);
+	D3D12_GPU_DESCRIPTOR_HANDLE handle = srvManager_->CreateSRVforStructuredBuffer(StructuredBufferIndex_, instancingObjectResource_[instancingSpriteIndex].Get(), numInstance, sizeof(ParticleForGPU));
 	commandList_->SetGraphicsRootDescriptorTable(1, handle);
 	//描画(DrawCall)
 	commandList_->DrawIndexedInstanced(6, numInstance, 0, 0, 0);

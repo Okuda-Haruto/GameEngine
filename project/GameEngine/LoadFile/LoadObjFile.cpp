@@ -171,7 +171,7 @@ ModelData LoadObjFile(const std::string& directoryPath, const std::string& filen
 			//マテリアルデータのリストから同じ名称のマテリアルのデータを取得する
 			for (const MaterialData& MaterialData : materialData) {
 				if (MaterialData.materialName == materialFilename) {	//マテリアルの名称は必要ないので、それ以外を移す
-					modelData.textureIndex.push_back(TextureManager::GetInstance()->GetTextureIndexByFilePath(MaterialData.textureFilePath));
+					modelData.textureIndex.push_back(TextureManager::GetInstance()->GetSrvIndex(MaterialData.textureFilePath));
 				}
 			}
 		}

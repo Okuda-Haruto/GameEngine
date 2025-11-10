@@ -9,5 +9,5 @@ void Skydome::Initialize() {
 }
 
 void Skydome::Draw() {
-	object_->Draw3D(camera_,nullptr,nullptr,nullptr);
+	object_->Draw3D(nullptr,nullptr,nullptr);
 }

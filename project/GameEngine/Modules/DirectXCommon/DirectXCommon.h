@@ -17,9 +17,6 @@
 
 //DirectX基盤
 class DirectXCommon {
-public:
-	//最大SRV数(最大テクスチャ枚数)
-	static const uint32_t kMaxSRVCount;
 private:
 	//WindowsAPI
 	WindowsAPI* winApp_ = nullptr;
@@ -51,12 +48,8 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> depthStencilResource_;
 
 	//デスクリプタサイズ
-	uint32_t descriptorSizeSRV_;
 	uint32_t descriptorSizeRTV_;
 	uint32_t descriptorSizeDSV_;
-
-	//SRV用のヒープディスクリプタ
-	Microsoft::WRL::ComPtr <ID3D12DescriptorHeap> srvDescriptorHeap_;
 
 	//RTV用のヒープディスクリプタ
 	Microsoft::WRL::ComPtr <ID3D12DescriptorHeap> rtvDescriptorHeap_;
@@ -116,10 +109,11 @@ public:
 	//テクスチャデータの転送
 	void UploadTextureData(ID3D12Resource* texture, const DirectX::ScratchImage& mipImages);
 
-	//SRVの指定番号のCPUデスクリプタハンドルを取得
-	D3D12_CPU_DESCRIPTOR_HANDLE GetSRVCPUDescriptorHandle(uint32_t index);
-	//SRVの指定番号のGPUデスクリプタハンドルを取得
-	D3D12_GPU_DESCRIPTOR_HANDLE GetSRVGPUDescriptorHandle(uint32_t index);
+	//デスクリプタヒープの生成
+	Microsoft::WRL::ComPtr <ID3D12DescriptorHeap> CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptors, bool shaderVisible);
+
+	//ImGuiの初期化
+	void ImGuiInitialize(ID3D12DescriptorHeap* descriptorHeap);
 
 	ID3D12Device* GetDevice()const { return device_.Get(); };
 	ID3D12GraphicsCommandList* GetCommandList() const { return commandList_.Get(); }
@@ -140,8 +134,6 @@ private:
 	void swapChainInitialize();
 	//深度バッファの生成
 	void CreateDepthStencilTextureResource();
-	//デスクリプタヒープの生成
-	Microsoft::WRL::ComPtr <ID3D12DescriptorHeap> CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptors, bool shaderVisible);
 	//各種デスクリプタヒープの生成
 	void descriptorHeapInitialize();
 	//レンダーターゲットビューの初期値
@@ -160,8 +152,6 @@ private:
 	void scissorRectInitialize();
 	//DXCコンパイラの生成
 	void dxcCompilerInitialize();
-	//ImGuiの初期化
-	void ImGuiInitialize();
 
 	//FPS固定初期化
 	void InitializeFixFPS();

@@ -53,6 +53,7 @@
     <ClCompile Include="GameEngine\Math\Vector3.cpp" />
     <ClCompile Include="GameEngine\Modules\ModelManager\ModelManager.cpp" />
     <ClCompile Include="GameEngine\Modules\SpriteManager\SpriteManager.cpp" />
+    <ClCompile Include="GameEngine\Modules\SRVManager\SRVManager.cpp" />
     <ClCompile Include="GameEngine\Modules\TextureManager\TextureManager.cpp" />
     <ClCompile Include="GameEngine\Modules\WindowsAPI\WindowsAPI.cpp" />
     <ClCompile Include="GameEngine\Resource\Audio.cpp" />
@@ -138,6 +139,7 @@
     <ClInclude Include="GameEngine\Math\Vector4.h" />
     <ClInclude Include="GameEngine\Modules\ModelManager\ModelManager.h" />
     <ClInclude Include="GameEngine\Modules\SpriteManager\SpriteManager.h" />
+    <ClInclude Include="GameEngine\Modules\SRVManager\SRVManager.h" />
     <ClInclude Include="GameEngine\Modules\TextureManager\TextureManager.h" />
     <ClInclude Include="GameEngine\Modules\WindowsAPI\WindowsAPI.h" />
     <ClInclude Include="GameEngine\Resource\Audio.h" />

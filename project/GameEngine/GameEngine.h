@@ -36,6 +36,7 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #include "WindowsAPI/WindowsAPI.h"
 #include "DirectXCommon/DirectXCommon.h"
 #include "ModelManager/ModelManager.h"
+#include "SRVManager/SRVManager.h"
 
 #include <vector>
 #include <array>
@@ -55,6 +56,10 @@ private:
 	WindowsAPI* winApp_ = nullptr;
 
 	DirectXCommon* dxCommon_ = nullptr;
+
+	SRVManager* srvManager_ = nullptr;
+
+	uint32_t StructuredBufferIndex_;
 
 	ID3D12Device* device_ = nullptr;
 	ID3D12GraphicsCommandList* commandList_ = nullptr;
@@ -165,8 +170,6 @@ private:
 
 	void Intialize_(const wchar_t* WindowName, int32_t kWindowWidth = 1280, int32_t kWindowHeight = 720);
 
-	D3D12_GPU_DESCRIPTOR_HANDLE GetInstancingSRV_(Microsoft::WRL::ComPtr<ID3D12Resource> instancingResource, int32_t numInstance);
-
 	Microsoft::WRL::ComPtr<IXAudio2> GetXAudio2_() { return xAudio2_; }
 
 	float randomFloat_(float minFloat, float maxFloat);
@@ -187,8 +190,8 @@ private:
 	ID3D12PipelineState* ParticlePSO_() { return particlePipelineState_.Get(); }
 	ID3D12PipelineState* LinePSO_() { return linePipelineState_.Get(); }
 
-	void DrawObject_3D_(Object* object, Camera* camera, DirectionalLight* directionalLight, PointLight* pointLight, SpotLight* spotLight);
-	void DrawInstancingObject_3D_(std::list<Object*> objects, Camera* camera, DirectionalLight* directionalLight, PointLight* pointLight, SpotLight* spotLight);
+	void DrawObject_3D_(Object* object, DirectionalLight* directionalLight, PointLight* pointLight, SpotLight* spotLight);
+	void DrawInstancingObject_3D_(std::list<Object*> objects, DirectionalLight* directionalLight, PointLight* pointLight, SpotLight* spotLight);
 	/*void DrawSprite_3D_();
 	void DrawInstancingSprite_3D_();
 	void DrawBillbord_3D_();
@@ -228,13 +231,6 @@ public:
 	/// <param name="kWindowWidth">ウィンドウの幅 (例:1280)</param>
 	/// <param name="kWindowHeight">ウィンドウの高さ (例:720)</param>
 	static void Intialize(const wchar_t* WindowName, int32_t kWindowWidth = 1280, int32_t kWindowHeight = 720) { getInstance()->Intialize_(WindowName, kWindowWidth, kWindowHeight); }
-
-	/// <summary>
-	/// インスタンスSRV
-	/// </summary>
-	/// <param name="instancingResource">インスタンスのリソース</param>
-	/// <param name="instanceNum">インスタンスの大きさ</param>
-	static D3D12_GPU_DESCRIPTOR_HANDLE GetInstancingSRV(Microsoft::WRL::ComPtr<ID3D12Resource> instancingResource, int32_t numInstance) { return getInstance()->GetInstancingSRV_(instancingResource, numInstance); }
 
 	[[nodiscard]]
 	static Microsoft::WRL::ComPtr<IXAudio2> GetXAudio2() { return getInstance()->GetXAudio2_(); }
@@ -287,8 +283,8 @@ public:
 	static Microsoft::WRL::ComPtr<ID3D12Device> GetDevice() { return getInstance()->GetDevice_(); }
 
 
-	static void DrawObject_3D(Object* object, Camera* camera, DirectionalLight* directionalLight, PointLight* pointLight, SpotLight* spotLight) { return getInstance()->DrawObject_3D_(object, camera, directionalLight, pointLight, spotLight); }
-	static void DrawInstancingObject_3D(std::list<Object*> objects, Camera* camera, DirectionalLight* directionalLight, PointLight* pointLight, SpotLight* spotLight) { return getInstance()->DrawInstancingObject_3D_(objects, camera, directionalLight, pointLight, spotLight); }
+	static void DrawObject_3D(Object* object, DirectionalLight* directionalLight, PointLight* pointLight, SpotLight* spotLight) { return getInstance()->DrawObject_3D_(object, directionalLight, pointLight, spotLight); }
+	static void DrawInstancingObject_3D(std::list<Object*> objects, DirectionalLight* directionalLight, PointLight* pointLight, SpotLight* spotLight) { return getInstance()->DrawInstancingObject_3D_(objects, directionalLight, pointLight, spotLight); }
 	static void DrawSprite_2D(Sprite* sprite) { return getInstance()->DrawSprite_2D_(sprite); }
 	static void DrawInstancingSprite_2D(std::vector<Sprite*> sprits) { return getInstance()->DrawInstancingSprite_2D_(sprits); }
 	
