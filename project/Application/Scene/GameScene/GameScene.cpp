@@ -3,13 +3,13 @@
 
 void GameScene::Initialize() {
 
-	ModelManager::GetInstance()->LoadModel("resources/BackGround/Skydome", "Skydome.obj");
-	ModelManager::GetInstance()->LoadModel("resources/BackGround/Ground", "Ground.obj");
-	ModelManager::GetInstance()->LoadModel("resources/Caracter/Player", "Player.obj");
+	//モデル
+	modelHolder_ = std::make_unique<ModelHolder>();
+	modelHolder_->Initialize();
 
 	//プレイヤー
 	player_ = std::make_unique<Player>();
-	player_->Initialize();
+	player_->Initialize(modelHolder_.get());
 
 	//メインカメラ
 	gameCamera_ = std::make_unique<GameCamera>();
@@ -20,11 +20,18 @@ void GameScene::Initialize() {
 
 	//背景
 	skydome_ = std::make_unique<Skydome>();
-	skydome_->Initialize();
+	skydome_->Initialize(modelHolder_.get());
 	skydome_->SetCamera(gameCamera_->GetCamera());
 	ground_ = std::make_unique<Ground>();
-	ground_->Initialize();
+	ground_->Initialize(modelHolder_.get());
 	ground_->SetCamera(gameCamera_->GetCamera());
+
+	directionalLight_ = std::make_unique<DirectionalLight>();
+	directionalLightElement_.color = Vector4{ 1.0f,1.0f,1.0f,1.0f };
+	directionalLightElement_.direction = Vector3::Normalize(Vector3{ 0.0f,-1.0f,-1.0f });
+	directionalLightElement_.intensity = 1.0f;
+	directionalLight_->SetDirectionalLightElement(directionalLightElement_);
+	player_->SetDirectionalLight(directionalLight_.get());
 }
 
 void GameScene::Update() {

@@ -29,6 +29,10 @@ private:
 	//カメラ
 	Camera* camera_ = nullptr;
 
+	DirectionalLight* directionalLight_;
+	PointLight* pointLight_;
+	SpotLight* spotLight_;
+
 	//デフォルトカメラ
 	static Camera* DefaultCamera;
 public:
@@ -38,7 +42,7 @@ public:
 	//初期化
 	void Initialize(Model* model);
 	//描画
-	void Draw3D(DirectionalLight* directionalLight, PointLight* pointLight, SpotLight* spotLight);
+	void Draw3D();
 
 	static Camera* GetDefaultCamera() { return DefaultCamera; }
 	static void SetDefaultCamera(Camera* defaultCamera) { DefaultCamera = defaultCamera; }
@@ -57,6 +61,10 @@ public:
 	void SetReflection(UINT reflection);
 	//鏡面反射(大きいほどつるつるになる。例:40.0f)
 	void SetShininess(float shininess);
+
+	void SetDirectionalLight(DirectionalLight* directionalLight) { directionalLight_ = directionalLight; }
+	void SetPointLight(PointLight* pointLight) { pointLight_ = pointLight; }
+	void SetSpotLight(SpotLight* spotLight) { spotLight_ = spotLight; }
 	
 	//頂点バッファビュー
 	D3D12_VERTEX_BUFFER_VIEW& GetVBV() { return model_->GetVBV(); }

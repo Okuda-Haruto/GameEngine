@@ -38,8 +38,8 @@ void Object::Initialize(Model* model) {
 	}
 }
 
-void Object::Draw3D(DirectionalLight* directionalLight, PointLight* pointLight, SpotLight* spotLight) {
-	GameEngine::DrawObject_3D(this, directionalLight, pointLight, spotLight);
+void Object::Draw3D() {
+	GameEngine::DrawObject_3D(this, directionalLight_, pointLight_, spotLight_);
 }
 
 void Object::SetReflection(UINT reflection) {

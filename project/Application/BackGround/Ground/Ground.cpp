@@ -2,12 +2,12 @@
 #include "GameEngine.h"
 #include "Math/Vector3_operation.h"
 
-void Ground::Initialize() {
+void Ground::Initialize(ModelHolder* modelHolder) {
 	//モデルの生成
 	object_ = std::make_unique<Object>();
-	object_->Initialize(ModelManager::GetInstance()->GetModel(1));
+	object_->Initialize(modelHolder->GetModel(ModelIndex::Ground));
 }
 
 void Ground::Draw() {
-	object_->Draw3D(nullptr, nullptr,nullptr);
+	object_->Draw3D();
 }

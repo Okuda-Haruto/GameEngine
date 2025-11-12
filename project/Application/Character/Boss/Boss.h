@@ -2,14 +2,23 @@
 #include <memory>
 #include "../BaseCharacter.h"
 
-class Player : public BaseCharacter
+class BossAction {
+protected:
+	SRT startTransform;
+
+public:
+	virtual void Initialize();
+	virtual void Update();
+	virtual void Finalize();
+};
+
+class Boss : public BaseCharacter
 {
 private:
+
 	float angle;
 
 	std::unique_ptr<SRT> targetTransform_;
-
-	const SRT* cameraTransform_{};
 
 public:
 	//初期化
@@ -20,8 +29,6 @@ public:
 	void Draw();
 
 	SRT* GetTransform() { return targetTransform_.get(); }
-
-	void SetCameraTransform(const SRT* transform) { cameraTransform_ = transform; }
 
 	void SetCamera(Camera* camera) { object_->SetCamera(camera); }
 

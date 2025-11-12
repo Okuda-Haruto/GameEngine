@@ -5,12 +5,14 @@
 #include <numbers>
 #include "Math/Lerp.h"
 
-void Player::Initialize() {
+void Player::Initialize(ModelHolder* modelHolder) {
+	modelHolder_ = modelHolder;
+
 	//モデルの生成
 	object_ = std::make_unique<Object>();
-	object_->Initialize(ModelManager::GetInstance()->GetModel(2));
-	objectTransform.translate.y += 1.0f;
-	object_->SetTransform(objectTransform);
+	object_->Initialize(modelHolder_->GetModel(ModelIndex::Player));
+	transform_.translate.y += 1.0f;
+	object_->SetTransform(transform_);
 
 	targetTransform_ = std::make_unique<SRT>();
 	targetTransform_->scale = { 1.0f,1.0f,1.0f };
@@ -65,17 +67,17 @@ void Player::Update() {
 		move = rotateMatrix * move;
 
 		//移動
-		objectTransform.translate += move;
+		transform_.translate += move;
 
 		angle = std::atan2(move.x, move.z);
 
 	}
 
 	//最短角度補完
-	float diff = angle - objectTransform.rotate.y ;
+	float diff = angle - transform_.rotate.y ;
 
 	if (diff >= std::numbers::pi_v<float>*2 ) {
-		diff = angle - objectTransform.rotate.y;
+		diff = angle - transform_.rotate.y;
 	}
 
 	diff = std::fmodf(diff, std::numbers::pi_v<float> * 2);
@@ -93,17 +95,17 @@ void Player::Update() {
 	}
 
 	//正直あまりやりたくはない方法だが2πを超えると遠回りで回転してしまうので致し方無い
-	objectTransform.rotate.y = (objectTransform.rotate.y + diff * 0.1f) ;
-	objectTransform.rotate.y = std::fmodf(objectTransform.rotate.y, std::numbers::pi_v<float> * 2);
+	transform_.rotate.y = (transform_.rotate.y + diff * 0.1f) ;
+	transform_.rotate.y = std::fmodf(transform_.rotate.y, std::numbers::pi_v<float> * 2);
 
 	ImGui::Begin("プレイヤー");
-	ImGui::Text("%f", objectTransform.rotate.y / std::numbers::pi_v<float> * 180.0f);
-	ImGui::DragFloat3("translate", &objectTransform.translate.x, 0.1f);
+	ImGui::Text("%f", transform_.rotate.y / std::numbers::pi_v<float> * 180.0f);
+	ImGui::DragFloat3("translate", &transform_.translate.x, 0.1f);
 	ImGui::End();
 
-	*targetTransform_ = objectTransform;
+	*targetTransform_ = transform_;
 }
 
 void Player::Draw() {
-	object_->Draw3D(nullptr, nullptr,nullptr);
+	object_->Draw3D();
 }

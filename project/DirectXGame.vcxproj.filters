@@ -115,6 +115,21 @@
     <Filter Include="GameEngine\Resource\ParticleEmitter">
       <UniqueIdentifier>{83d9804b-e563-4c1c-b527-42de0c036d62}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Application\Character\Boss">
+      <UniqueIdentifier>{abcfe45f-eb53-4d2e-b39e-9bc3920ee635}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Bullet">
+      <UniqueIdentifier>{80bface1-569c-4699-ad41-bf1fea5dcaf1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\ModelHolder">
+      <UniqueIdentifier>{d19aaf6d-a58e-44e9-8cde-b2db9571de57}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Bullet\PlayerBullet">
+      <UniqueIdentifier>{7445e5ae-f65d-439d-9633-1320e27f533c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Bullet\PlayerBullet\NormalBullet">
+      <UniqueIdentifier>{9532f89d-b12e-4590-8423-232f3e2680de}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -270,6 +285,18 @@
     </ClCompile>
     <ClCompile Include="GameEngine\Resource\ParticleEmitter\ParticleEmitter.cpp">
       <Filter>GameEngine\Resource\ParticleEmitter</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Character\Boss\Boss.cpp">
+      <Filter>Application\Character\Boss</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Bullet\BaseBullet.cpp">
+      <Filter>Application\Bullet</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\ModelHolder\ModelHolder.cpp">
+      <Filter>Application\ModelHolder</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Bullet\PlayerBullet\PlayerBullet.cpp">
+      <Filter>Application\Bullet\PlayerBullet</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -521,6 +548,18 @@
     </ClInclude>
     <ClInclude Include="GameEngine\Data\Field.h">
       <Filter>GameEngine\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Character\Boss\Boss.h">
+      <Filter>Application\Character\Boss</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Bullet\BaseBullet.h">
+      <Filter>Application\Bullet</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\ModelHolder\ModelHolder.h">
+      <Filter>Application\ModelHolder</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Bullet\PlayerBullet\PlayerBullet.h">
+      <Filter>Application\Bullet\PlayerBullet</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

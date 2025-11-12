@@ -1,30 +1,24 @@
 #pragma once
 #include <memory>
 #include <Object/Object.h>
-#include <ModelHolder/ModelHolder.h>
 #include <Sphere.h>
+#include <Camera.h>
+#include <ModelHolder/ModelHolder.h>
 
-class BaseCharacter
-{
+class BaseBullet {
 protected:
-	//自キャラモデル
 	std::unique_ptr<Object> object_;
 	SRT transform_;
-
+	SRT velocity_;
 	Sphere collision_;
 
 	//モデル
 	ModelHolder* modelHolder_;
-
 public:
-	//初期化
 	void Initialize();
-	//更新
 	void Update();
-	//描画
 	void Draw();
 
 	Sphere GetCollision() { return collision_; }
 	void IsCollision() {}
 };
-

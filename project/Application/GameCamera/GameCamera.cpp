@@ -30,14 +30,12 @@ void GameCamera::Update() {
 	}
 	//追従対象がいれば
 	if (target_) {
-		//追従対象からカメラまでのオフセット
-		Vector3 offset = { 0.0f,2.0f,-20.0f };
 
 		Matrix4x4 rotateMatrix = Matrix4x4::MakeRotateMatrix(transform_->rotate);
 
-		offset = Vector3::TransformNormal(offset, rotateMatrix);
+		Vector3 position = Vector3::TransformNormal(offset_, rotateMatrix);
 
-		transform_->translate = target_->translate + offset;
+		transform_->translate = target_->translate + position;
 
 		//座標をコピーしてオフセット分ずらす
 		camera_->Update(*transform_);
