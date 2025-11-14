@@ -1,11 +1,6 @@
 #pragma once
 #include <Windows.h>
 
-#include "imgui/imgui.h"
-#include "imgui/imgui_impl_dx12.h"
-#include "imgui/imgui_impl_win32.h"
-extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-
 #include <dxcapi.h>
 
 #define DIRECTINPUT_VERSION 0x0800	//DirectInputのバージョン指定
@@ -35,6 +30,7 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 
 #include "WindowsAPI/WindowsAPI.h"
 #include "DirectXCommon/DirectXCommon.h"
+#include "ImGuiManager/ImGuiManager.h"
 #include "ModelManager/ModelManager.h"
 #include "SRVManager/SRVManager.h"
 #include "ParticleManager/ParticleManager.h"
@@ -59,6 +55,8 @@ private:
 	DirectXCommon* dxCommon_ = nullptr;
 
 	SRVManager* srvManager_ = nullptr;
+
+	ImGuiManager* imguiManager_ = nullptr;
 
 	uint32_t StructuredBufferIndex_;
 

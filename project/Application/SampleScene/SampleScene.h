@@ -29,7 +29,7 @@ private:
 
 	//2Dモデル
 	SpriteManager* spriteManager_ = nullptr;
-	bool isSpriteDraw_ = false;
+	std::array<bool, 2> isSpriteDraw_ = { true,false };
 	std::array<Sprite*,2> sprite_;
 
 	//Grid* grid_ = nullptr;

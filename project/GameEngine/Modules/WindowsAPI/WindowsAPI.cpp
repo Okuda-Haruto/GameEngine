@@ -1,8 +1,10 @@
 #include "WindowsAPI.h"
 #include <wrl.h>
 
-#include "imgui/imgui.h"
+#ifdef USE_IMGUI
+#include <imgui/imgui_impl_win32.h>
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+#endif
 
 int32_t WindowsAPI::kClientWidth_ = 1280;
 int32_t WindowsAPI::kClientHeight_ = 720;
@@ -33,9 +35,11 @@ void WindowsAPI::Finalize() {
 /// ウィンドウプロシージャ
 LRESULT CALLBACK WindowsAPI::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
 
+#ifdef USE_IMGUI
 	if (ImGui_ImplWin32_WndProcHandler(hwnd, msg, wparam, lparam)) {
 		return true;
 	}
+#endif
 	//メッセージに応じてゲーム固有の処理を行う
 	switch (msg) {
 		//ウィンドウが破棄された

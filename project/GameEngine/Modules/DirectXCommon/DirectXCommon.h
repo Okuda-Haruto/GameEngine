@@ -6,9 +6,6 @@
 #include <array>
 #include <chrono>
 
-#include "imgui/imgui.h"
-#include "imgui/imgui_impl_dx12.h"
-#include "imgui/imgui_impl_win32.h"
 #include "DirectXTex/DirectXTex.h"
 
 #include <Log.h>
@@ -112,11 +109,12 @@ public:
 	//デスクリプタヒープの生成
 	Microsoft::WRL::ComPtr <ID3D12DescriptorHeap> CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptors, bool shaderVisible);
 
-	//ImGuiの初期化
-	void ImGuiInitialize(ID3D12DescriptorHeap* descriptorHeap);
-
 	ID3D12Device* GetDevice()const { return device_.Get(); };
 	ID3D12GraphicsCommandList* GetCommandList() const { return commandList_.Get(); }
+
+	UINT SwapChainBufferCount() { return swapChainDesc_.BufferCount; }
+	DXGI_FORMAT GetRTVFormat() { return rtvDesc_.Format; }
+
 private:
 	//ログファイルの生成
 	void LogInitilaize();

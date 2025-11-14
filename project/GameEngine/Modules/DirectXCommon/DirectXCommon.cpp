@@ -10,11 +10,6 @@
 using namespace Microsoft::WRL;
 
 DirectXCommon::~DirectXCommon() {
-	//ImGuiの終了処理
-	ImGui_ImplDX12_Shutdown();
-	ImGui_ImplWin32_Shutdown();
-	ImGui::DestroyContext();
-
 	CloseHandle(fenceEvent_);
 }
 
@@ -76,9 +71,6 @@ void DirectXCommon::Initialize(WindowsAPI* winApp) {
 //描画前処理
 void DirectXCommon::PreDraw() {
 
-	//ImGuiの内部コマンドを生成する
-	ImGui::Render();
-
 	//これから書き込むバックバッファのインデックスを取得
 	UINT backBafferIndex = swapChain_->GetCurrentBackBufferIndex();
 
@@ -112,8 +104,6 @@ void DirectXCommon::PreDraw() {
 
 //描画後処理
 void DirectXCommon::PostDraw() {
-	//実際のcommandListのImGuiの描画コマンドを詰む
-	ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), commandList_.Get());
 
 	//これから書き込むバックバッファのインデックスを取得
 	UINT backBafferIndex = swapChain_->GetCurrentBackBufferIndex();
@@ -719,23 +709,6 @@ void DirectXCommon::dxcCompilerInitialize() {
 	//現時点でincludeはしないが、includeに対応するための設定を行っておく
 	hr = dxcUtils->CreateDefaultIncludeHandler(&includeHandler_);
 	assert(SUCCEEDED(hr));
-}
-
-//ImGuiの初期化
-void DirectXCommon::ImGuiInitialize(ID3D12DescriptorHeap* descriptorHeap) {
-	//ImGui初期化
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGui::StyleColorsDark();
-	ImGui_ImplWin32_Init(winApp_->GetHwnd());
-	ImGui_ImplDX12_Init(device_.Get(), swapChainDesc_.BufferCount,
-		rtvDesc_.Format,
-		descriptorHeap,
-		descriptorHeap->GetCPUDescriptorHandleForHeapStart(),
-		descriptorHeap->GetGPUDescriptorHandleForHeapStart());
-
-	ImGuiIO& io = ImGui::GetIO();
-	io.Fonts->AddFontFromFileTTF("resources/DebugResources/x12y16pxMaruMonica .ttf", 16.0f, nullptr, io.Fonts->GetGlyphRangesJapanese());
 }
 
 void DirectXCommon::InitializeFixFPS() {

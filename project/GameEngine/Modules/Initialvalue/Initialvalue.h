@@ -1,11 +1,8 @@
 #pragma once
 #include <Windows.h>
 
-#pragma comment(lib,"dxgi.lib")
 #include <dxgi1_6.h>
-#pragma comment(lib,"dxcompiler.lib")
 #include <dxcapi.h>
-#pragma comment(lib,"d3d12.lib")
 #include <d3d12.h>
 
 #include <fstream>
