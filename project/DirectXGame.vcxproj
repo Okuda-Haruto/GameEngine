@@ -30,13 +30,6 @@
   <ItemGroup>
     <ClCompile Include="Application\Character\BaseCharacter.cpp" />
     <ClCompile Include="Application\Character\Player\Player.cpp" />
-    <ClCompile Include="externals\imgui\imgui.cpp" />
-    <ClCompile Include="externals\imgui\imgui_demo.cpp" />
-    <ClCompile Include="externals\imgui\imgui_draw.cpp" />
-    <ClCompile Include="externals\imgui\imgui_impl_dx12.cpp" />
-    <ClCompile Include="externals\imgui\imgui_impl_win32.cpp" />
-    <ClCompile Include="externals\imgui\imgui_tables.cpp" />
-    <ClCompile Include="externals\imgui\imgui_widgets.cpp" />
     <ClCompile Include="Application\GameCamera\GameCamera.cpp" />
     <ClCompile Include="GameEngine\Debug\D3DResourceLeakChecker.cpp" />
     <ClCompile Include="GameEngine\Debug\DebugCamera.cpp" />
@@ -44,6 +37,7 @@
     <ClCompile Include="GameEngine\Debug\Log.cpp" />
     <ClCompile Include="GameEngine\Modules\ConvertString\ConvertString.cpp" />
     <ClCompile Include="GameEngine\Modules\DirectXCommon\DirectXCommon.cpp" />
+    <ClCompile Include="GameEngine\Modules\ImGuiManager\ImGuiManager.cpp" />
     <ClCompile Include="GameEngine\Modules\Initialvalue\Initialvalue.cpp" />
     <ClCompile Include="GameEngine\GameEngine.cpp" />
     <ClCompile Include="GameEngine\LoadFile\LoadMaterialTemplateFile.cpp" />
@@ -83,14 +77,6 @@
   <ItemGroup>
     <ClInclude Include="Application\Character\BaseCharacter.h" />
     <ClInclude Include="Application\Character\Player\Player.h" />
-    <ClInclude Include="externals\imgui\imconfig.h" />
-    <ClInclude Include="externals\imgui\imgui.h" />
-    <ClInclude Include="externals\imgui\imgui_impl_dx12.h" />
-    <ClInclude Include="externals\imgui\imgui_impl_win32.h" />
-    <ClInclude Include="externals\imgui\imgui_internal.h" />
-    <ClInclude Include="externals\imgui\imstb_rectpack.h" />
-    <ClInclude Include="externals\imgui\imstb_textedit.h" />
-    <ClInclude Include="externals\imgui\imstb_truetype.h" />
     <ClInclude Include="Application\GameCamera\GameCamera.h" />
     <ClInclude Include="GameEngine\Data\CameraForGPU.h" />
     <ClInclude Include="GameEngine\Data\Emitter.h" />
@@ -128,6 +114,7 @@
     <ClInclude Include="GameEngine\Debug\Log.h" />
     <ClInclude Include="GameEngine\Modules\ConvertString\ConvertString.h" />
     <ClInclude Include="GameEngine\Modules\DirectXCommon\DirectXCommon.h" />
+    <ClInclude Include="GameEngine\Modules\ImGuiManager\ImGuiManager.h" />
     <ClInclude Include="GameEngine\Modules\Initialvalue\Initialvalue.h" />
     <ClInclude Include="GameEngine\GameEngine.h" />
     <ClInclude Include="GameEngine\LoadFile\LoadMaterialTemplateFile.h" />
@@ -170,8 +157,10 @@
       <Project>{371b9fa9-4c90-4ac6-a123-aced756d6c77}</Project>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Text Include="externals\imgui\LICENSE.txt" />
+  <ItemGroup Condition="'$(Configuration)|$(Platform)'!='Release|x64'">
+    <ProjectReference Include="externals\imgui\imgui.vcxproj">
+      <Project>{59c8d6cc-f707-4d83-8786-9ac07e89cfe9}</Project>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\Shader\InstanceObject3d.VS.hlsl">
@@ -244,20 +233,17 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>
-    </IncludePath>
+    <IncludePath>$(SolutionDir)externals\DirectXTex;$(SolutionDir)externals\imgui;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)..\generated\outputs\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)..\generated\obj\$(ProjectName)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>
-    </IncludePath>
+    <IncludePath>$(SolutionDir)externals\DirectXTex;$(SolutionDir)externals\imgui;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)..\generated\outputs\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)..\generated\obj\$(ProjectName)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Development|x64'">
-    <IncludePath>
-    </IncludePath>
+    <IncludePath>$(SolutionDir)externals\DirectXTex;$(SolutionDir)externals\imgui;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)..\generated\outputs\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)..\generated\obj\$(ProjectName)\$(Configuration)\</IntDir>
   </PropertyGroup>
@@ -265,21 +251,21 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;USE_IMGUI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <TreatWarningAsError>true</TreatWarningAsError>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(ProjectDir)GameEngine\Resource;$(ProjectDir)GameEngine\Math;$(ProjectDir)GameEngine\Math/Shape;$(ProjectDir)GameEngine\LoadFile;$(ProjectDir)GameEngine\Debug;$(ProjectDir)GameEngine\Data;$(ProjectDir)GameEngine\Modules;$(ProjectDir)GameEngine\Modules\CompileShader;$(ProjectDir)GameEngine\Modules\ConvertString;$(ProjectDir)GameEngine\Modules\CreateBufferResource;$(ProjectDir)GameEngine\Modules\CreateDepthStencilTextureResource;$(ProjectDir)GameEngine\Modules\CreateDescriptorHeap;$(ProjectDir)GameEngine\Modules\CreateTextureResource;$(ProjectDir)GameEngine\Modules\GetDescriptorHandle;$(ProjectDir)GameEngine\Modules\Initialvalue;$(ProjectDir)GameEngine\Modules\UploadTextreData;$(ProjectDir)GameEngine\Modules\Window;$(ProjectDir)GameEngine;$(ProjectDir)externals;$(ProjectDir)externals\assimp\include;$(ProjectDir)Scene;$(ProjectDir)Application;$(ProjectDir)Application\SampleScene;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)GameEngine\Resource;$(ProjectDir)GameEngine\Math;$(ProjectDir)GameEngine\Math\Shape;$(ProjectDir)GameEngine\LoadFile;$(ProjectDir)GameEngine\Debug;$(ProjectDir)GameEngine\Data;$(ProjectDir)GameEngine\Modules;$(ProjectDir)GameEngine\Modules\CompileShader;$(ProjectDir)GameEngine\Modules\ConvertString;$(ProjectDir)GameEngine\Modules\CreateBufferResource;$(ProjectDir)GameEngine\Modules\CreateDepthStencilTextureResource;$(ProjectDir)GameEngine\Modules\CreateDescriptorHeap;$(ProjectDir)GameEngine\Modules\CreateTextureResource;$(ProjectDir)GameEngine\Modules\GetDescriptorHandle;$(ProjectDir)GameEngine\Modules\Initialvalue;$(ProjectDir)GameEngine\Modules\UploadTextreData;$(ProjectDir)GameEngine\Modules\Window;$(ProjectDir)GameEngine;$(ProjectDir)externals;$(ProjectDir)externals\assimp\include;$(ProjectDir)Application;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
       <AdditionalOptions>/ignore:4049 /ignore:4098 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalLibraryDirectories>$(ProjectDir)externals\assimp\lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)externals\assimp\lib\Debug;$(ProjectDir)..\generated\outputs\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>assimp-vc143-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
@@ -301,7 +287,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <Optimization>MinSpace</Optimization>
-      <AdditionalIncludeDirectories>$(ProjectDir)GameEngine\Resource;$(ProjectDir)GameEngine\Math;$(ProjectDir)GameEngine\Math/Shape;$(ProjectDir)GameEngine\LoadFile;$(ProjectDir)GameEngine\Debug;$(ProjectDir)GameEngine\Data;$(ProjectDir)GameEngine\Modules;$(ProjectDir)GameEngine\Modules\CompileShader;$(ProjectDir)GameEngine\Modules\ConvertString;$(ProjectDir)GameEngine\Modules\CreateBufferResource;$(ProjectDir)GameEngine\Modules\CreateDepthStencilTextureResource;$(ProjectDir)GameEngine\Modules\CreateDescriptorHeap;$(ProjectDir)GameEngine\Modules\CreateTextureResource;$(ProjectDir)GameEngine\Modules\GetDescriptorHandle;$(ProjectDir)GameEngine\Modules\Initialvalue;$(ProjectDir)GameEngine\Modules\UploadTextreData;$(ProjectDir)GameEngine\Modules\Window;$(ProjectDir)GameEngine;$(ProjectDir)externals;$(ProjectDir)externals\assimp\include;$(ProjectDir)Scene;$(ProjectDir)Application;$(ProjectDir)Application\SampleScene;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)GameEngine\Resource;$(ProjectDir)GameEngine\Math;$(ProjectDir)GameEngine\Math\Shape;$(ProjectDir)GameEngine\LoadFile;$(ProjectDir)GameEngine\Debug;$(ProjectDir)GameEngine\Data;$(ProjectDir)GameEngine\Modules;$(ProjectDir)GameEngine\Modules\CompileShader;$(ProjectDir)GameEngine\Modules\ConvertString;$(ProjectDir)GameEngine\Modules\CreateBufferResource;$(ProjectDir)GameEngine\Modules\CreateDepthStencilTextureResource;$(ProjectDir)GameEngine\Modules\CreateDescriptorHeap;$(ProjectDir)GameEngine\Modules\CreateTextureResource;$(ProjectDir)GameEngine\Modules\GetDescriptorHandle;$(ProjectDir)GameEngine\Modules\Initialvalue;$(ProjectDir)GameEngine\Modules\UploadTextreData;$(ProjectDir)GameEngine\Modules\Window;$(ProjectDir)GameEngine;$(ProjectDir)externals;$(ProjectDir)externals\assimp\include;$(ProjectDir)Application;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -310,7 +296,12 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(ProjectDir)externals\assimp\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>assimp-vc143-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
     </Link>
+    <PostBuildEvent>
+      <Command>copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxcompiler.dll" "$(TargetDir)dxcompiler.dll"
+copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dxil.dll"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Development|x64'">
     <ClCompile>
@@ -318,7 +309,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;USE_IMGUI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
@@ -326,7 +317,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(ProjectDir)GameEngine\Resource;$(ProjectDir)GameEngine\Math;$(ProjectDir)GameEngine\Math/Shape;$(ProjectDir)GameEngine\LoadFile;$(ProjectDir)GameEngine\Debug;$(ProjectDir)GameEngine\Data;$(ProjectDir)GameEngine\Modules;$(ProjectDir)GameEngine\Modules\CompileShader;$(ProjectDir)GameEngine\Modules\ConvertString;$(ProjectDir)GameEngine\Modules\CreateBufferResource;$(ProjectDir)GameEngine\Modules\CreateDepthStencilTextureResource;$(ProjectDir)GameEngine\Modules\CreateDescriptorHeap;$(ProjectDir)GameEngine\Modules\CreateTextureResource;$(ProjectDir)GameEngine\Modules\GetDescriptorHandle;$(ProjectDir)GameEngine\Modules\Initialvalue;$(ProjectDir)GameEngine\Modules\UploadTextreData;$(ProjectDir)GameEngine\Modules\Window;$(ProjectDir)GameEngine;$(ProjectDir)externals;$(ProjectDir)externals\assimp\include;$(ProjectDir)Scene;$(ProjectDir)Application;$(ProjectDir)Application\SampleScene;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)GameEngine\Resource;$(ProjectDir)GameEngine\Math;$(ProjectDir)GameEngine\Math\Shape;$(ProjectDir)GameEngine\LoadFile;$(ProjectDir)GameEngine\Debug;$(ProjectDir)GameEngine\Data;$(ProjectDir)GameEngine\Modules;$(ProjectDir)GameEngine\Modules\CompileShader;$(ProjectDir)GameEngine\Modules\ConvertString;$(ProjectDir)GameEngine\Modules\CreateBufferResource;$(ProjectDir)GameEngine\Modules\CreateDepthStencilTextureResource;$(ProjectDir)GameEngine\Modules\CreateDescriptorHeap;$(ProjectDir)GameEngine\Modules\CreateTextureResource;$(ProjectDir)GameEngine\Modules\GetDescriptorHandle;$(ProjectDir)GameEngine\Modules\Initialvalue;$(ProjectDir)GameEngine\Modules\UploadTextreData;$(ProjectDir)GameEngine\Modules\Window;$(ProjectDir)GameEngine;$(ProjectDir)externals;$(ProjectDir)externals\assimp\include;$(ProjectDir)Application;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -334,9 +325,13 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <LinkTimeCodeGeneration />
-      <AdditionalLibraryDirectories>$(ProjectDir)externals\assimp\lib\Release</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)externals\assimp\lib\Release;$(ProjectDir)..\generated\outputs\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>assimp-vc143-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxcompiler.dll" "$(TargetDir)dxcompiler.dll"
+copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dxil.dll"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

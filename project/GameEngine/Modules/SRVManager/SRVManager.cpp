@@ -18,8 +18,6 @@ void SRVManager::Initialize(DirectXCommon* dxCommon) {
 	//デスクリプタ1個分のサイズを取得して記録
 	descriptorSize_ = dxCommon_->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
-	dxCommon_->ImGuiInitialize(descriptorHeap_.Get());
-
 	useIndex = 0;
 }
 
@@ -71,7 +69,6 @@ D3D12_GPU_DESCRIPTOR_HANDLE SRVManager::CreateSRVforStructuredBuffer(uint32_t sr
 	instancingSrvDesc.Buffer.NumElements = numElement;
 	instancingSrvDesc.Buffer.StructureByteStride = structureByteStride;
 
-	//SRVを作成するDescriptorHeapの場所を決める。ImGuiが最初を使うのでその次を使う
 	D3D12_CPU_DESCRIPTOR_HANDLE textureSrvHandleCPU = GetCPUDescriptorHandle(srvIndex);
 	D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU = GetGPUDescriptorHandle(srvIndex);
 

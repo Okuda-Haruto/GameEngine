@@ -96,10 +96,12 @@ void Player::Update() {
 	objectTransform.rotate.y = (objectTransform.rotate.y + diff * 0.1f) ;
 	objectTransform.rotate.y = std::fmodf(objectTransform.rotate.y, std::numbers::pi_v<float> * 2);
 
+#ifdef USE_IMGUI
 	ImGui::Begin("プレイヤー");
 	ImGui::Text("%f", objectTransform.rotate.y / std::numbers::pi_v<float> * 180.0f);
 	ImGui::DragFloat3("translate", &objectTransform.translate.x, 0.1f);
 	ImGui::End();
+#endif
 
 	*targetTransform_ = objectTransform;
 }
