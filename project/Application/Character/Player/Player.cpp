@@ -145,12 +145,14 @@ void Player::Update() {
 
 #pragma endregion
 
+#ifdef USE_IMGUI
 	ImGui::Begin("プレイヤー");
 	ImGui::Text("%f", transform_.rotate.y / std::numbers::pi_v<float> * 180.0f);
 	ImGui::DragFloat3("translate", &transform_.translate.x, 0.1f);
 	ImGui::DragFloat3("rotate", &transform_.rotate.x, 0.1f);
 	ImGui::DragFloat3("velocity", &velocity_.x);
 	ImGui::End();
+#endif
 
 	*targetTransform_ = transform_;
 

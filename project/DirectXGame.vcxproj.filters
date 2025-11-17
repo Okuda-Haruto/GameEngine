@@ -31,14 +31,8 @@
     <Filter Include="externals">
       <UniqueIdentifier>{efd8410f-142e-4d9a-a546-8819947c2f55}</UniqueIdentifier>
     </Filter>
-    <Filter Include="externals\imgui">
-      <UniqueIdentifier>{338148ca-9d44-40c9-9106-a7f27feaf903}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Application">
       <UniqueIdentifier>{509aab06-33fd-402d-be68-f66470297d0d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\Sample">
-      <UniqueIdentifier>{ef64ba62-2663-42df-9cff-1d7ac32f22e3}</UniqueIdentifier>
     </Filter>
     <Filter Include="Application\ソースファイル">
       <UniqueIdentifier>{8a836276-aa58-460c-bb9a-0e55c629ced2}</UniqueIdentifier>
@@ -129,6 +123,11 @@
     </Filter>
     <Filter Include="Application\Bullet\PlayerBullet\NormalBullet">
       <UniqueIdentifier>{9532f89d-b12e-4590-8423-232f3e2680de}</UniqueIdentifier>
+    <Filter Include="GameEngine\Modules\ImGuiManager">
+      <UniqueIdentifier>{95d5d0c2-fe53-463f-87c3-3378990223bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\SampleScene">
+      <UniqueIdentifier>{ef64ba62-2663-42df-9cff-1d7ac32f22e3}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -141,27 +140,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="externals\imgui\imgui.cpp">
-      <Filter>externals\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="externals\imgui\imgui_demo.cpp">
-      <Filter>externals\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="externals\imgui\imgui_draw.cpp">
-      <Filter>externals\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="externals\imgui\imgui_impl_dx12.cpp">
-      <Filter>externals\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="externals\imgui\imgui_impl_win32.cpp">
-      <Filter>externals\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="externals\imgui\imgui_tables.cpp">
-      <Filter>externals\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="externals\imgui\imgui_widgets.cpp">
-      <Filter>externals\imgui</Filter>
-    </ClCompile>
     <ClCompile Include="GameEngine\Debug\DebugCamera.cpp">
       <Filter>GameEngine\Debug</Filter>
     </ClCompile>
@@ -196,7 +174,7 @@
       <Filter>GameEngine\Resource</Filter>
     </ClCompile>
     <ClCompile Include="Application\SampleScene\SampleScene.cpp">
-      <Filter>Application\Sample</Filter>
+      <Filter>Application\SampleScene</Filter>
     </ClCompile>
     <ClCompile Include="GameEngine\GameEngine.cpp">
       <Filter>GameEngine</Filter>
@@ -297,33 +275,11 @@
     </ClCompile>
     <ClCompile Include="Application\Bullet\PlayerBullet\PlayerBullet.cpp">
       <Filter>Application\Bullet\PlayerBullet</Filter>
+    <ClCompile Include="GameEngine\Modules\ImGuiManager\ImGuiManager.cpp">
+      <Filter>GameEngine\Modules\ImGuiManager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="externals\imgui\imconfig.h">
-      <Filter>externals\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="externals\imgui\imgui.h">
-      <Filter>externals\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="externals\imgui\imgui_impl_dx12.h">
-      <Filter>externals\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="externals\imgui\imgui_impl_win32.h">
-      <Filter>externals\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="externals\imgui\imgui_internal.h">
-      <Filter>externals\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="externals\imgui\imstb_rectpack.h">
-      <Filter>externals\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="externals\imgui\imstb_textedit.h">
-      <Filter>externals\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="externals\imgui\imstb_truetype.h">
-      <Filter>externals\imgui</Filter>
-    </ClInclude>
     <ClInclude Include="GameEngine\Data\ChunkHeader.h">
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
@@ -421,7 +377,7 @@
       <Filter>GameEngine\Resource</Filter>
     </ClInclude>
     <ClInclude Include="Application\SampleScene\SampleScene.h">
-      <Filter>Application\Sample</Filter>
+      <Filter>Application\SampleScene</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\Math\Collision.h">
       <Filter>GameEngine\Math</Filter>
@@ -562,10 +518,9 @@
       <Filter>Application\Bullet\PlayerBullet</Filter>
     </ClInclude>
   </ItemGroup>
-  <ItemGroup>
-    <Text Include="externals\imgui\LICENSE.txt">
-      <Filter>externals\imgui</Filter>
-    </Text>
+    <ClInclude Include="GameEngine\Modules\ImGuiManager\ImGuiManager.h">
+      <Filter>GameEngine\Modules\ImGuiManager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\Shader\Object3d.PS.hlsl">

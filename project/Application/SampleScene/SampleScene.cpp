@@ -61,6 +61,7 @@ void SampleScene::Initialize(WindowsAPI* winApp, DirectXCommon* dxCommon) {
 	//2Dスプライト
 	sprite_[0] = new Sprite;
 	sprite_[0]->Initialize("resources/DebugResources/uvChecker.png", spriteManager_);
+	sprite_[0]->SetPosition(Vector2{100.0f,100.0f});
 	sprite_[1] = new Sprite;
 	sprite_[1]->Initialize("resources/DebugResources/monsterBall.png", spriteManager_);
 	sprite_[1]->SetPosition(Vector2{ 50,50 });
@@ -255,7 +256,14 @@ void SampleScene::Update() {
 	if (isUseDebugCamera_) {
 		defaultCamera_->Update();
 	}
+#ifdef USE_IMGUI
 	if (isDisplayUI) {
+		ImGui::Begin("sprite");
+		ImGui::SetWindowSize("sprite", ImVec2{ 500,100 });
+		Vector2 spritePosition = sprite_[0]->GetPosition();
+		ImGui::DragFloat2("Position", &spritePosition.x,1.0f,0.0f,0.0f,"%6.1f");	//4桁 + . + 1桁
+		sprite_[0]->SetPosition(spritePosition);
+		ImGui::End();
 
 		ImGui::Begin("デバッグ");
 		ImGui::Checkbox("デバッグカメラ", &isUseDebugCamera_);
@@ -377,19 +385,20 @@ void SampleScene::Update() {
 		ImGui::DragFloat3("エリアAcceleration", &accelerationField_.acceleration.x,0.01f);
 		particleEmitter_->SetField(accelerationField_);
 
-		ImGui::Checkbox("スプライト描画", &isSpriteDraw_);
 		for (INT i = 0; i < sprite_.size(); i++) {
-			if (isSpriteDraw_) {
-				Vector2 spriteSize = sprite_[i]->GetSize();
-				float spriteRotation = sprite_[i]->GetRotation();
-				Vector2 spritePosition = sprite_[i]->GetPosition();
-				Vector2 spriteAnchorPoint = sprite_[i]->GetAnchorPoint();
-				Vector2 textureLeftTop = sprite_[i]->GetTextureLeftTop();
-				Vector2 textureSize = sprite_[i]->GetTextureSize();
-				Vector4 spriteColor = sprite_[i]->GetColor();
-				std::string str;
-				str = "Sprite[" + std::to_string(i) + "]";
-				if (ImGui::CollapsingHeader(str.c_str())) {
+			std::string str;
+			str = "Sprite[" + std::to_string(i) + "]";
+			if (ImGui::CollapsingHeader(str.c_str())) {
+				str = "描画[" + std::to_string(i) + "]";
+				ImGui::Checkbox(str.c_str(), &isSpriteDraw_[i]);
+				if (isSpriteDraw_[i]) {
+					Vector2 spriteSize = sprite_[i]->GetSize();
+					float spriteRotation = sprite_[i]->GetRotation();
+					Vector2 spritePosition = sprite_[i]->GetPosition();
+					Vector2 spriteAnchorPoint = sprite_[i]->GetAnchorPoint();
+					Vector2 textureLeftTop = sprite_[i]->GetTextureLeftTop();
+					Vector2 textureSize = sprite_[i]->GetTextureSize();
+					Vector4 spriteColor = sprite_[i]->GetColor();
 					str = "Sprite[" + std::to_string(i) + "] Scale";
 					ImGui::DragFloat2(str.c_str(), &spriteSize.x, 1.0f);
 					str = "Sprite[" + std::to_string(i) + "] Rotation";
@@ -404,17 +413,18 @@ void SampleScene::Update() {
 					ImGui::DragFloat2(str.c_str(), &textureSize.x);
 					str = "Sprite[" + std::to_string(i) + "] Color";
 					ImGui::ColorEdit4(str.c_str(), &spriteColor.x);
+					sprite_[i]->SetSize(spriteSize);
+					sprite_[i]->SetRotation(spriteRotation);
+					sprite_[i]->SetPosition(spritePosition);
+					sprite_[i]->SetAnchorPoint(spriteAnchorPoint);
+					sprite_[i]->SetTextureLeftTop(textureLeftTop);
+					sprite_[i]->SetTextureSize(textureSize);
+					sprite_[i]->SetColor(spriteColor);
 				}
-				sprite_[i]->SetSize(spriteSize);
-				sprite_[i]->SetRotation(spriteRotation);
-				sprite_[i]->SetPosition(spritePosition);
-				sprite_[i]->SetAnchorPoint(spriteAnchorPoint);
-				sprite_[i]->SetTextureLeftTop(textureLeftTop);
-				sprite_[i]->SetTextureSize(textureSize);
-				sprite_[i]->SetColor(spriteColor);
 			}
 			sprite_[i]->Update();
 		}
+
 		for (INT i = 0; i < objectTransform_.size(); i++) {
 			std::string str;
 			str = "Object[" + std::to_string(i) + "]";
@@ -476,6 +486,7 @@ void SampleScene::Update() {
 	directionalLight_->SetDirectionalLightElement(directionalLightElement_);
 	pointLight_->SetPointLightElement(pointLightElement_);
 	spotLight_->SetSpotLightElement(spotLightElement_);
+#endif
 
 
 }
@@ -496,9 +507,11 @@ void SampleScene::Draw() {
 
 	particleEmitter_->Draw();
 
-	if (isSpriteDraw_ && isDisplayUI) {
+	if (isDisplayUI) {
 		for (INT i = 0; i < sprite_.size(); i++) {
-			sprite_[i]->Draw2D();
+			if (isSpriteDraw_[i]) {
+				sprite_[i]->Draw2D();
+			}
 		}
 	}
 

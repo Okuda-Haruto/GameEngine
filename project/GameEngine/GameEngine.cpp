@@ -4,7 +4,6 @@
 #include <cmath>
 
 #pragma comment(lib,"d3d12.lib")
-#pragma comment(lib,"dxcompiler.lib")
 #pragma comment(lib,"Dbghelp.lib")
 #pragma comment(lib,"dxcompiler.lib")
 #pragma comment(lib,"dinput8.lib")
@@ -45,9 +44,10 @@ GameEngine::~GameEngine() {
 	particlePipelineState_.Reset();
 	linePipelineState_.Reset();
 
-	delete winApp_;
+	delete imguiManager_;
 	delete srvManager_;
 	delete dxCommon_;
+	delete winApp_;
 	TextureManager::GetInstance()->Finalize();
 	ModelManager::GetInstance()->Finalize();
 	Object::FinalizeDefaultCamera();
@@ -84,6 +84,10 @@ void GameEngine::Intialize_(const wchar_t* WindowName, int32_t kWindowWidth, int
 
 	srvManager_ = new SRVManager;
 	srvManager_->Initialize(dxCommon_);
+
+	imguiManager_ = new ImGuiManager();
+	imguiManager_->Initialize(dxCommon_, winApp_, srvManager_);
+	
 	TextureManager::GetInstance()->Initialize(dxCommon_, srvManager_);
 	ModelManager::GetInstance()->Initialize(dxCommon_);
 
@@ -388,9 +392,7 @@ bool GameEngine::StartFlame_() {
 		dwResult_[i] = XInputGetState(i, &pad_[i]);
 	}
 
-	ImGui_ImplDX12_NewFrame();
-	ImGui_ImplWin32_NewFrame();
-	ImGui::NewFrame();
+	imguiManager_->Begin();
 
 	return true;
 }
@@ -398,6 +400,7 @@ bool GameEngine::StartFlame_() {
 [[nodiscard]]
 bool GameEngine::WindowState_() {
 	if (msg_.message != WM_QUIT) {
+
 		return true;
 	}
 	return false;
@@ -410,11 +413,15 @@ void GameEngine::PreDraw_() {
 	instancingObjectIndex = 0;
 	spriteIndex = 0;
 
+	imguiManager_->End();
+
 	srvManager_->PreDraw();
 
 }
 
 void GameEngine::PostDraw_() {
+
+	imguiManager_->Draw();
 
 	dxCommon_->PostDraw();
 }

@@ -1,6 +1,5 @@
 #include "ConvertString.h"
 
-#pragma comment(lib,"d3d12.lib")
 #include <d3d12.h>
 
 //stringからwstringに変換
