@@ -27,9 +27,9 @@ SampleScene::~SampleScene() {
 	delete input;
 }
 
-void SampleScene::Initialize(WindowsAPI* winApp, DirectXCommon* dxCommon) {
+void SampleScene::Initialize() {
 
-	winApp_ = winApp;
+	winApp_ = GameEngine::GetWindowsAPI();
 
 	ModelManager::GetInstance()->LoadModel("resources/DebugResources/plane", "plane.obj");
 	ModelManager::GetInstance()->LoadModel("resources/DebugResources/sphere", "sphere.obj");
@@ -56,7 +56,7 @@ void SampleScene::Initialize(WindowsAPI* winApp, DirectXCommon* dxCommon) {
 	object_[6]->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/teapot", "teapot.obj"));
 
 	spriteManager_ = new SpriteManager;
-	spriteManager_->Initialize(dxCommon);
+	spriteManager_->Initialize(GameEngine::GetDirectXCommon());
 
 	//2Dスプライト
 	sprite_[0] = new Sprite;

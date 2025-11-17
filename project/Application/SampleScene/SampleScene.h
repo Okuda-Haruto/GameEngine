@@ -70,7 +70,7 @@ public:
 	//デストラクタ
 	~SampleScene();
 	//初期化
-	void Initialize(WindowsAPI* winApp, DirectXCommon* dxCommon);
+	void Initialize();
 	//更新
 	void Update();
 	//描画
