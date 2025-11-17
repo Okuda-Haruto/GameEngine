@@ -8,8 +8,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	GameEngine::Intialize(L"CG2", 1280, 720);
 
 	//サンプルシーン
-	SampleScene* sampleScene = new SampleScene();
-	sampleScene->Initialize(GameEngine::GetWindowsAPI(),GameEngine::GetDirectXCommon());
+	GameScene* sampleScene = new GameScene();
+	sampleScene->Initialize();
 
 	//ウィンドウの×ボタンが押されるまでループ
 	while (GameEngine::WindowState()) {

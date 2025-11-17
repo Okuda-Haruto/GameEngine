@@ -28,8 +28,12 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Application\Bullet\BaseBullet.cpp" />
+    <ClCompile Include="Application\Bullet\PlayerBullet\PlayerBullet.cpp" />
     <ClCompile Include="Application\Character\BaseCharacter.cpp" />
+    <ClCompile Include="Application\Character\Boss\Boss.cpp" />
     <ClCompile Include="Application\Character\Player\Player.cpp" />
+    <ClCompile Include="Application\ModelHolder\ModelHolder.cpp" />
     <ClCompile Include="Application\GameCamera\GameCamera.cpp" />
     <ClCompile Include="GameEngine\Debug\D3DResourceLeakChecker.cpp" />
     <ClCompile Include="GameEngine\Debug\DebugCamera.cpp" />
@@ -75,8 +79,12 @@
     <ClCompile Include="GameEngine\Modules\ParticleManager\ParticleManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Application\Bullet\BaseBullet.h" />
+    <ClInclude Include="Application\Bullet\PlayerBullet\PlayerBullet.h" />
     <ClInclude Include="Application\Character\BaseCharacter.h" />
+    <ClInclude Include="Application\Character\Boss\Boss.h" />
     <ClInclude Include="Application\Character\Player\Player.h" />
+    <ClInclude Include="Application\ModelHolder\ModelHolder.h" />
     <ClInclude Include="Application\GameCamera\GameCamera.h" />
     <ClInclude Include="GameEngine\Data\CameraForGPU.h" />
     <ClInclude Include="GameEngine\Data\Emitter.h" />

@@ -2,12 +2,13 @@
 #include "GameEngine.h"
 #include "Math/Vector3_operation.h"
 
-void Skydome::Initialize() {
+void Skydome::Initialize(ModelHolder* modelHolder) {
 	//モデルの生成
 	object_ = std::make_unique<Object>();
-	object_->Initialize(ModelManager::GetInstance()->GetModel(0));
+	object_->Initialize(modelHolder->GetModel(ModelIndex::Skydome));
+	object_->SetReflection(REFLECTION_None);
 }
 
 void Skydome::Draw() {
-	object_->Draw3D(nullptr,nullptr,nullptr);
+	object_->Draw3D();
 }

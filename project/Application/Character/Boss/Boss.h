@@ -2,19 +2,23 @@
 #include <memory>
 #include "../BaseCharacter.h"
 
-class Player : public BaseCharacter
+class BossAction {
+protected:
+	SRT startTransform;
+
+public:
+	virtual void Initialize();
+	virtual void Update();
+	virtual void Finalize();
+};
+
+class Boss : public BaseCharacter
 {
 private:
+
 	float angle;
 
 	std::unique_ptr<SRT> targetTransform_;
-
-	const SRT* cameraTransform_{};
-
-	const float kMaxDodgeCoolTime = 0.2f;
-	float dodgeCoolTime = 0.0f;
-	const float kMaxDodgeActiveTime = 0.4f;
-	float dodgeActiveTime = 0.0f;
 
 public:
 	//初期化
@@ -25,8 +29,6 @@ public:
 	void Draw();
 
 	SRT* GetTransform() { return targetTransform_.get(); }
-
-	void SetCameraTransform(const SRT* transform) { cameraTransform_ = transform; }
 
 	void SetCamera(Camera* camera) { object_->SetCamera(camera); }
 

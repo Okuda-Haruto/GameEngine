@@ -16,7 +16,7 @@ private:
 	DirectXCommon* dxCommon_ = nullptr;
 
 	//テクスチャデータ
-	std::vector<Model*> modelDatas;
+	std::unordered_map <std::string,Model*> modelDatas;
 public:
 	//シングルトンインスタンスの取得
 	static ModelManager* GetInstance();
@@ -31,5 +31,5 @@ public:
 	void LoadModel(const std::string& directoryPath, const std::string& filename);
 
 	//モデルの入手
-	Model* GetModel(UINT modelIndex) { assert(modelIndex <= modelDatas.size()); return modelDatas[modelIndex]; }
+	Model* GetModel(const std::string& directoryPath, const std::string& filename);
 };

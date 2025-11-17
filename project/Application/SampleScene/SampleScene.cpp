@@ -41,19 +41,19 @@ void SampleScene::Initialize(WindowsAPI* winApp, DirectXCommon* dxCommon) {
 
 	//3Dオブジェクト
 	object_[0] = new Object;
-	object_[0]->Initialize(ModelManager::GetInstance()->GetModel(0));
+	object_[0]->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/plane", "plane.obj"));
 	object_[1] = new Object;
-	object_[1]->Initialize(ModelManager::GetInstance()->GetModel(1));
+	object_[1]->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/sphere", "sphere.obj"));
 	object_[2] = new Object;
-	object_[2]->Initialize(ModelManager::GetInstance()->GetModel(2));
+	object_[2]->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/multiMesh", "multiMesh.obj"));
 	object_[3] = new Object;
-	object_[3]->Initialize(ModelManager::GetInstance()->GetModel(3));
+	object_[3]->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/multiMaterial", "multiMaterial.obj"));
 	object_[4] = new Object;
-	object_[4]->Initialize(ModelManager::GetInstance()->GetModel(4));
+	object_[4]->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/terrain", "terrain.obj"));
 	object_[5] = new Object;
-	object_[5]->Initialize(ModelManager::GetInstance()->GetModel(5));
+	object_[5]->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/suzanne", "suzanne.obj"));
 	object_[6] = new Object;
-	object_[6]->Initialize(ModelManager::GetInstance()->GetModel(6));
+	object_[6]->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/teapot", "teapot.obj"));
 
 	spriteManager_ = new SpriteManager;
 	spriteManager_->Initialize(dxCommon);
@@ -151,13 +151,19 @@ void SampleScene::Initialize(WindowsAPI* winApp, DirectXCommon* dxCommon) {
 		std::numbers::pi_v<float> / 180 * 60,
 		std::numbers::pi_v<float> / 180 * 30
 	};
+	spotLight_->SetSpotLightElement(spotLightElement_);
+
+	for (Object* object : object_) {
+		object->SetDirectionalLight(directionalLight_);
+		object->SetPointLight(pointLight_);
+		object->SetSpotLight(spotLight_);
+	}
 
 	for (INT i = 0; i < objectTransform_.size(); i++) {
 		objectTransform_[i].scale = { 1.0f,1.0f,1.0f };
 		objectTransform_[i].translate.x = i * 3 - 9.0f;
 		object_[i]->SetTransform(objectTransform_[i]);
 	}
-
 
 	input = new Input;
 	input->Initialize(winApp_);	//元々GameEngineでまとめて管理していたので一時的に呼び出せるようにした
@@ -495,7 +501,7 @@ void SampleScene::Draw() {
 
 	for (INT i = 0; i < object_.size(); i++) {
 		if (isObjectDraw_[i]) {
-			object_[i]->Draw3D(directionalLight_, pointLight_, spotLight_);
+			object_[i]->Draw3D();
 		}
 	}
 

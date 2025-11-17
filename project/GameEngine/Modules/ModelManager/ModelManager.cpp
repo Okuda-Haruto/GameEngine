@@ -12,9 +12,10 @@ ModelManager* ModelManager::GetInstance() {
 }
 
 void ModelManager::Finalize() {
-	for (Model* model : modelDatas) {
-		delete model;
-	}
+	//イテレーターで最初から最後までに入っている要素を削除
+	std::unordered_map<std::string, Model*>::iterator first = modelDatas.begin();
+	std::unordered_map<std::string, Model*>::iterator last = modelDatas.end();
+	modelDatas.erase(first, last);
 
 	delete instance;
 	instance = nullptr;
@@ -27,7 +28,25 @@ void ModelManager::Initialize(DirectXCommon* dxCommon) {
 //テクスチャファイルの読み込み
 void ModelManager::LoadModel(const std::string& directoryPath, const std::string& filename) {
 
-	Model* model = new Model;
+	if (modelDatas.contains(directoryPath + "/" + filename)) {
+		return;
+	}
+
+	Model*& model = modelDatas[directoryPath + "/" + filename];
+
+	model = new Model;
 	model->Initialize(directoryPath, filename, dxCommon_);
-	modelDatas.push_back(model);
+}
+
+//モデルの入手
+Model* ModelManager::GetModel(const std::string& directoryPath, const std::string& filename) {
+	
+	if (modelDatas.contains(directoryPath + "/" + filename)) {
+		return modelDatas[directoryPath + "/" + filename];
+	}
+
+	//モデルがないならもう一度
+	LoadModel(directoryPath, filename);
+
+	return modelDatas[directoryPath + "/" + filename];
 }
