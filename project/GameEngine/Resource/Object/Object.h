@@ -57,6 +57,8 @@ public:
 	SRT GetTransform() { return transform_; }
 	void SetTransform(SRT transform) { transform_ = transform; }
 
+	void SetColor(Vector4 color) { for (Parts part : parts_) { part.material->color = color; }; }
+
 	//反射方法(例:REFLECTION_Lambert)
 	void SetReflection(UINT reflection);
 	//鏡面反射(大きいほどつるつるになる。例:40.0f)
