@@ -11,6 +11,7 @@ void Player::Initialize(ModelHolder* modelHolder) {
 	//モデルの生成
 	object_ = std::make_unique<Object>();
 	object_->Initialize(modelHolder_->GetModel(ModelIndex::Player));
+	transform_.scale = { 1.0f,1.0f,1.0f };
 	transform_.translate.y += 1.0f;
 	object_->SetTransform(transform_);
 
@@ -18,6 +19,9 @@ void Player::Initialize(ModelHolder* modelHolder) {
 	targetTransform_->scale = { 1.0f,1.0f,1.0f };
 	targetTransform_->rotate = { 0.0f,0.0f,0.0f };
 	targetTransform_->translate = { 0.0f,1.0f,0.0f };
+
+	dodgeCoolTime = 0.0f;
+	dodgeActiveTime = kMaxDodgeActiveTime;
 }
 
 void Player::Update() {
@@ -42,16 +46,16 @@ void Player::Update() {
 	}
 
 	if (!isMove) {
-		if (keys.hold[DIK_W]) {
+		if (keys.hold[DIK_W] || keys.hold[DIK_UP]) {
 			move.z = 1.0f;
 		}
-		if (keys.hold[DIK_S]) {
+		if (keys.hold[DIK_S] || keys.hold[DIK_DOWN]) {
 			move.z = -1.0f;
 		}
-		if (keys.hold[DIK_D]) {
+		if (keys.hold[DIK_D] || keys.hold[DIK_RIGHT]) {
 			move.x = 1.0f;
 		}
-		if (keys.hold[DIK_A]) {
+		if (keys.hold[DIK_A] || keys.hold[DIK_LEFT]) {
 			move.x = -1.0f;
 		}
 		if (Vector3::Length(move) > deadZone) {
@@ -59,17 +63,20 @@ void Player::Update() {
 		}
 	}
 
-	if (isMove) {
+#pragma region 移動処理
+
+	//回避中は移動させないこと
+	if (isMove && dodgeActiveTime >= kMaxDodgeActiveTime) {
 		//移動量に速さを反映
-		move = Vector3::Normalize(move) * speed;
+		velocity_ = Vector3::Normalize(move) * speed;
 
 		Matrix4x4 rotateMatrix = Matrix4x4::MakeRotateYMatrix(cameraTransform_->rotate.y);
-		move = rotateMatrix * move;
+		velocity_ = rotateMatrix * velocity_;
 
 		//移動
-		transform_.translate += move;
+		transform_.translate += velocity_;
 
-		angle = std::atan2(move.x, move.z);
+		angle = std::atan2(velocity_.x, velocity_.z);
 
 	}
 
@@ -98,12 +105,56 @@ void Player::Update() {
 	transform_.rotate.y = (transform_.rotate.y + diff * 0.1f) ;
 	transform_.rotate.y = std::fmodf(transform_.rotate.y, std::numbers::pi_v<float> * 2);
 
+#pragma endregion
+
+#pragma region 回避行動
+
+	const float dodgeSpeed = 2.0f;
+
+	//回避中
+	if(dodgeActiveTime < kMaxDodgeActiveTime) {
+		dodgeActiveTime += 1.0f / 60.0f;
+		//kMaxDodgeActiveTimeを超えると角度がおかしくなる気がするので戻す
+		if (dodgeActiveTime >= kMaxDodgeActiveTime) {
+			//dodgeActiveTime = kMaxDodgeActiveTime;
+		}
+		velocity_ = Vector3{ 0.0f,0.0f,1.0f } * Lerp(0.2f,dodgeSpeed,powf(1.0f - dodgeActiveTime / kMaxDodgeActiveTime, 3));
+		//前転
+		transform_.rotate.x = Lerp(0.0f, std::numbers::pi_v<float> * 2, 1.0f - powf(1.0f - dodgeActiveTime / kMaxDodgeActiveTime,3));
+
+		Matrix4x4 rotateMatrix = Matrix4x4::MakeRotateYMatrix(transform_.rotate.y);
+		velocity_ = rotateMatrix * velocity_;
+
+		//移動
+		transform_.translate += velocity_;
+	//回避中じゃない
+	} else {
+		//回避インターバル
+		if (dodgeCoolTime < kMaxDodgeCoolTime) {
+			dodgeCoolTime += 1.0f / 60.0f;
+		}
+	}
+
+	//回避インターバル
+	if (dodgeCoolTime >= kMaxDodgeCoolTime) {
+		if (keys.trigger[DIK_C] && isMove) {
+			dodgeActiveTime = 0.0f;
+			dodgeCoolTime = 0.0f;
+		}
+	}
+
+#pragma endregion
+
 	ImGui::Begin("プレイヤー");
 	ImGui::Text("%f", transform_.rotate.y / std::numbers::pi_v<float> * 180.0f);
 	ImGui::DragFloat3("translate", &transform_.translate.x, 0.1f);
+	ImGui::DragFloat3("rotate", &transform_.rotate.x, 0.1f);
+	ImGui::DragFloat3("velocity", &velocity_.x);
 	ImGui::End();
 
 	*targetTransform_ = transform_;
+
+	object_->SetTransform(transform_);
 }
 
 void Player::Draw() {

@@ -23,8 +23,9 @@ public:
 	//Transformのゲッター
 	SRT* GetTransform() { return transform_.get(); }
 
-	//
+	//オフセット
 	void SetOffset(Vector3 offset) { offset_ = offset; }
+	void SetRotate(Vector3 rotate) { transform_->rotate = rotate; }
 
 	//追従対象を指定
 	void SetTarget(const SRT* target) { target_ = target; }

@@ -8,7 +8,7 @@ ModelHolder::~ModelHolder() {
 void ModelHolder::Initialize() {
 	FilePath filePath;
 	filePath.directoryPath_ = "resources/BackGround/Skydome";
-	filePath.fileName_ = "BackGround.obj";
+	filePath.fileName_ = "Skydome.obj";
 	filePathes_.push_back(filePath);
 	filePath.directoryPath_ = "resources/BackGround/Ground";
 	filePath.fileName_ = "Ground.obj";

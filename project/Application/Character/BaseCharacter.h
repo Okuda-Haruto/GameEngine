@@ -10,6 +10,7 @@ protected:
 	//自キャラモデル
 	std::unique_ptr<Object> object_;
 	SRT transform_;
+	Vector3 velocity_;
 
 	Sphere collision_;
 

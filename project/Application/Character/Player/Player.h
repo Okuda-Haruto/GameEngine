@@ -11,6 +11,11 @@ private:
 
 	const SRT* cameraTransform_{};
 
+	const float kMaxDodgeCoolTime = 0.2f;
+	float dodgeCoolTime = 0.0f;
+	const float kMaxDodgeActiveTime = 0.4f;
+	float dodgeActiveTime = 0.0f;
+
 public:
 	//初期化
 	void Initialize(ModelHolder* modelHolder);

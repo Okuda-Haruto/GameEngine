@@ -40,4 +40,8 @@ void GameCamera::Update() {
 		//座標をコピーしてオフセット分ずらす
 		camera_->Update(*transform_);
 	}
+
+	ImGui::Begin("カメラ");
+	ImGui::DragFloat3("offset", &offset_.x, 0.1f);
+	ImGui::End();
 }
