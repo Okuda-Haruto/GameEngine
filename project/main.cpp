@@ -8,8 +8,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	GameEngine::Intialize(L"CG2", 1280, 720);
 
 	//サンプルシーン
-	GameScene* sampleScene = new GameScene();
-	sampleScene->Initialize();
+	//GameScene* sampleScene = new GameScene();
+	//sampleScene->Initialize();
 
 	//ウィンドウの×ボタンが押されるまでループ
 	while (GameEngine::WindowState()) {
@@ -19,7 +19,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			//	更新処理
 			//
 			
-			sampleScene->Update();
+			//sampleScene->Update();
 
 			//
 			//	描画処理
@@ -27,14 +27,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 			GameEngine::PreDraw();
 
-			sampleScene->Draw();
+			//sampleScene->Draw();
 
 			GameEngine::PostDraw();
 
 		}
 	}
 
-	delete sampleScene;
+	ModelManager::GetInstance()->LoadModel("resources/DebugResources/plane", "plane.obj");
+
+	//delete sampleScene;
 
 	GameEngine::Delete();
 

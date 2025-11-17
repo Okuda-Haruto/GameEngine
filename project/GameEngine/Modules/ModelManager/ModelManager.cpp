@@ -12,10 +12,11 @@ ModelManager* ModelManager::GetInstance() {
 }
 
 void ModelManager::Finalize() {
-	//イテレーターで最初から最後までに入っている要素を削除
-	std::unordered_map<std::string, Model*>::iterator first = modelDatas.begin();
-	std::unordered_map<std::string, Model*>::iterator last = modelDatas.end();
-	modelDatas.erase(first, last);
+	for (auto& data : modelDatas) {
+		delete data.second;
+		data.second = nullptr;
+	}
+	modelDatas.clear();
 
 	delete instance;
 	instance = nullptr;

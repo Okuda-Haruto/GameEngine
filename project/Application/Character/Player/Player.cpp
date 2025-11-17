@@ -5,6 +5,10 @@
 #include <numbers>
 #include "Math/Lerp.h"
 
+Player::~Player() {
+
+}
+
 void Player::Initialize(ModelHolder* modelHolder) {
 	modelHolder_ = modelHolder;
 
@@ -12,14 +16,12 @@ void Player::Initialize(ModelHolder* modelHolder) {
 	object_ = std::make_unique<Object>();
 	object_->Initialize(modelHolder_->GetModel(ModelIndex::Player));
 	transform_.scale = { 1.0f,1.0f,1.0f };
-	transform_.translate.y += 1.0f;
+	transform_.rotate = { 0.0f,0.0f,0.0f };
+	transform_.translate = { 0.0f,1.0f,-20.0f };
 	object_->SetTransform(transform_);
 
 	targetTransform_ = std::make_unique<SRT>();
-	targetTransform_->scale = { 1.0f,1.0f,1.0f };
-	targetTransform_->rotate = { 0.0f,0.0f,0.0f };
-	targetTransform_->translate = { 0.0f,1.0f,0.0f };
-
+	*targetTransform_ = transform_;
 	dodgeCoolTime = 0.0f;
 	dodgeActiveTime = kMaxDodgeActiveTime;
 }

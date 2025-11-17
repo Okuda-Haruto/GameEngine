@@ -17,6 +17,9 @@ private:
 	float dodgeActiveTime = 0.0f;
 
 public:
+
+	~Player();
+
 	//初期化
 	void Initialize(ModelHolder* modelHolder);
 	//更新

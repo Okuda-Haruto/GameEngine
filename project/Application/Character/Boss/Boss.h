@@ -21,6 +21,9 @@ private:
 	std::unique_ptr<SRT> targetTransform_;
 
 public:
+
+	~Boss();
+
 	//初期化
 	void Initialize(ModelHolder* modelHolder);
 	//更新
