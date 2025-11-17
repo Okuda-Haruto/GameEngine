@@ -56,17 +56,33 @@
     <ClCompile Include="GameEngine\Modules\WindowsAPI\WindowsAPI.cpp" />
     <ClCompile Include="GameEngine\Resource\Audio.cpp" />
     <ClCompile Include="GameEngine\Resource\Camera.cpp" />
-    <ClCompile Include="GameEngine\Resource\Effect.cpp" />
+    <ClCompile Include="GameEngine\Resource\Effect.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="GameEngine\Resource\Model\Model.cpp" />
     <ClCompile Include="GameEngine\Resource\Object\Object.cpp" />
     <ClCompile Include="GameEngine\Resource\ParticleEmitter\ParticleEmitter.cpp" />
     <ClCompile Include="GameEngine\Resource\PointLight.cpp" />
     <ClCompile Include="GameEngine\Resource\SpotLight.cpp" />
     <ClCompile Include="GameEngine\Resource\Sprite\Sprite.cpp" />
-    <ClCompile Include="GameEngine\Resource\Text.cpp" />
+    <ClCompile Include="GameEngine\Resource\Text.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="GameEngine\Resource\DirectionalLight.cpp" />
-    <ClCompile Include="GameEngine\Resource\Object_2D.cpp" />
-    <ClCompile Include="GameEngine\Resource\Object_3D.cpp" />
+    <ClCompile Include="GameEngine\Resource\Object_2D.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="GameEngine\Resource\Object_3D.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="GameEngine\Modules\Input\Input.cpp" />
     <ClCompile Include="Application\Scene\GameScene\GameScene.cpp" />
     <ClCompile Include="Application\BackGround\Ground\Ground.cpp" />
@@ -105,8 +121,6 @@
     <ClInclude Include="GameEngine\Data\Material.h" />
     <ClInclude Include="GameEngine\Data\ModelData.h" />
     <ClInclude Include="GameEngine\Math\Shape\OBB.h" />
-    <ClInclude Include="GameEngine\Data\Object_Single_Data.h" />
-    <ClInclude Include="GameEngine\Data\Object_Multi_Data.h" />
     <ClInclude Include="GameEngine\Math\Shape\Plane.h" />
     <ClInclude Include="GameEngine\Data\RiffHeader.h" />
     <ClInclude Include="GameEngine\Data\SoundData.h" />
@@ -141,17 +155,33 @@
     <ClInclude Include="GameEngine\Modules\WindowsAPI\WindowsAPI.h" />
     <ClInclude Include="GameEngine\Resource\Audio.h" />
     <ClInclude Include="GameEngine\Resource\Camera.h" />
-    <ClInclude Include="GameEngine\Resource\Effect.h" />
+    <ClInclude Include="GameEngine\Resource\Effect.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="GameEngine\Resource\Model\Model.h" />
     <ClInclude Include="GameEngine\Resource\Object\Object.h" />
     <ClInclude Include="GameEngine\Resource\ParticleEmitter\ParticleEmitter.h" />
     <ClInclude Include="GameEngine\Resource\PointLight.h" />
     <ClInclude Include="GameEngine\Resource\SpotLight.h" />
     <ClInclude Include="GameEngine\Resource\Sprite\Sprite.h" />
-    <ClInclude Include="GameEngine\Resource\Text.h" />
+    <ClInclude Include="GameEngine\Resource\Text.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="GameEngine\Resource\DirectionalLight.h" />
-    <ClInclude Include="GameEngine\Resource\Object_2D.h" />
-    <ClInclude Include="GameEngine\Resource\Object_3D.h" />
+    <ClInclude Include="GameEngine\Resource\Object_2D.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Resource\Object_3D.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="GameEngine\Modules\Input\Input.h" />
     <ClInclude Include="Application\SampleScene\SampleScene.h" />
     <ClInclude Include="Application\BackGround\Skydome\Skydome.h" />
