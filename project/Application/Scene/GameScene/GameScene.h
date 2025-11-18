@@ -3,6 +3,7 @@
 #include "BackGround/Skydome/Skydome.h"
 #include "BackGround/Ground/Ground.h"
 #include "Character/Player/Player.h"
+#include "Character/Boss/Boss.h"
 #include "ModelHolder/ModelHolder.h"
 
 #include <memory>
@@ -21,6 +22,7 @@ private:
 	std::unique_ptr<Ground> ground_;
 	//キャラクター
 	std::unique_ptr<Player> player_;
+	std::unique_ptr<Boss> boss_;
 
 	//光源
 	std::unique_ptr<DirectionalLight> directionalLight_;

@@ -12,6 +12,10 @@ void GameScene::Initialize() {
 	player_ = std::make_unique<Player>();
 	player_->Initialize(modelHolder_.get());
 
+	//ボス
+	boss_ = std::make_unique<Boss>();
+	boss_->Initialize(modelHolder_.get());
+
 	//メインカメラ
 	gameCamera_ = std::make_unique<GameCamera>();
 	gameCamera_->Initialize();
@@ -20,6 +24,7 @@ void GameScene::Initialize() {
 	gameCamera_->SetRotate(Vector3{ std::numbers::pi_v<float> / 180 * 10,0.0f,0.0f });
 	player_->SetCameraTransform(gameCamera_->GetTransform());
 	player_->SetCamera(gameCamera_->GetCamera());
+	boss_->SetCamera(gameCamera_->GetCamera());
 
 	//背景
 	skydome_ = std::make_unique<Skydome>();
@@ -36,6 +41,7 @@ void GameScene::Initialize() {
 	directionalLightElement_.intensity = 1.0f;
 	directionalLight_->SetDirectionalLightElement(directionalLightElement_);
 	player_->SetDirectionalLight(directionalLight_.get());
+	boss_->SetDirectionalLight(directionalLight_.get());
 	ground_->SetDirectionalLight(directionalLight_.get());
 }
 
@@ -54,4 +60,5 @@ void GameScene::Draw() {
 
 	//プレイヤー
 	player_->Draw();
+	boss_->Draw();
 }
