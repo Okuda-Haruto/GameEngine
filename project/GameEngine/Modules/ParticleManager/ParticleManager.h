@@ -9,7 +9,7 @@
 #include <Particle.h>
 #include <Emitter.h>
 #include <Field.h>
-#include <ParticleForGPU.h>
+#include <InstancingTransformationMatrix.h>
 #include <Camera.h>
 
 struct ParticleGroup {
@@ -21,7 +21,7 @@ struct ParticleGroup {
 	uint32_t instancingIndex = 0;
 	Microsoft::WRL::ComPtr<ID3D12Resource> instancingResource;
 	uint32_t numInstance = 0;
-	std::vector <ParticleForGPU> instancingData;
+	std::vector <InstancingTransformationMatrix> instancingData;
 };
 
 class ParticleManager {
@@ -72,7 +72,7 @@ public:
 
 	void CreateParticleGroup(const std::string name, const std::string textureFilePath);
 
-	void Emit(const std::string name, const Vector3& position, uint32_t count);
+	void Emit(const std::string name, uint32_t count);
 
 	void SetEmitter(const std::string name, Emitter emitter);
 	void SetField(const std::string name, AccelerationField accelerationField);
@@ -83,4 +83,6 @@ public:
 
 	D3D12_VERTEX_BUFFER_VIEW& GetVertexBufferView() { return vertexBufferView_; }
 	D3D12_INDEX_BUFFER_VIEW& GetIndexBufferView() { return indexBufferView_; }
+
+	void Reset();
 };

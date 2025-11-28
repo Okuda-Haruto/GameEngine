@@ -19,6 +19,7 @@
 #include <fstream>
 #include <wrl.h>
 #include <vector>
+#include <list>
 
 //音声
 class Audio {
@@ -48,21 +49,20 @@ private:
 	//音声データのループ再生するか
 	bool isLoop_ = false;
 
+	std::list<IXAudio2SourceVoice*> sourceList_;
+
 	std::wstring path_;
+
+	void SetNewSourceVoice();
 public:
 	~Audio();
+
 	/// <summary>
 	/// 初期化
 	/// </summary>
 	/// <param name="filename">.wavファイル名 (例:resources/Audio.wav)</param>
 	/// <param name="isLoop">ループ再生するか</param>
 	void Initialize(std::string path,bool isLoop);
-
-	/// <summary>
-	/// .wavファイルの読み込み
-	/// </summary>
-	/// <param name="filename">.wavファイル名 (例:resources/Audio.wav)</param>
-	void SoundLoadWave(bool isLoop);
 
 	// 音声データの解放
 	void SoundUnload();

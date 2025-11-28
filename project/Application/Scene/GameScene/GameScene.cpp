@@ -1,20 +1,140 @@
 #include "GameScene.h"
 #include "GameEngine.h"
 #include <numbers>
+#include "../TitleScene/TitleScene.h"
 
-void GameScene::Initialize() {
+GameScene::~GameScene() {
+	for (PlayerBullet* bullet : playerBullet_) {
+		delete bullet;
+		bullet = nullptr;
+	}
+	playerBullet_.clear();
+	ParticleManager::GetInstance()->Reset();
+}
 
-	//モデル
-	modelHolder_ = std::make_unique<ModelHolder>();
-	modelHolder_->Initialize();
+void GameScene::Initialize(ModelHolder* modelHolder, SpriteManager* spriteManager) {
+	modelHolder_ = modelHolder;
+
+	//パーティクル
+	ParticleManager::GetInstance()->CreateParticleGroup("particle_1", "resources/Particle/Sand.png");
+	particle_ = std::make_unique<ParticleEmitter>("particle_1");
+	editor_ = std::make_unique<ParticleEditor>();
+	editor_->Initialize(particle_.get());
+
+	Emitter emitter_;
+	emitter_.count = 2;
+	emitter_.lifeTime = 3.0f;
+	emitter_.frequency = 0.1f;
+	emitter_.frequencyTime = 0.0f;
+	emitter_.transform.scale = { 10.0f,10.0f,10.0f };
+	emitter_.transform.translate = { 50.0f,0.0f,0.0f };
+	emitter_.spawnRange.min = { -5.0f,-0.5f,-50.0f };
+	emitter_.spawnRange.max = { 5.0f,10.0f,50.0f };
+	emitter_.angleBase = { -1.0f,0.0f,0.0f };
+	emitter_.angleRange = { 0.0f,0.1f,0.1f };	//方向範囲
+	emitter_.speedBase = 0.7f;	//基礎速度
+	emitter_.speedRange = 0.4f;	//速度範囲
+	emitter_.beforeColor = { 1.0f,1.0f,1.0f,68.0f / 256.0f };
+	emitter_.afterColor = { 1.0f,1.0f,1.0f,0.0f };
+	editor_->SetEmitter(emitter_);
+	AccelerationField field_;
+	field_.area.min = { -50.0f,-10.0f,-75.0f };
+	field_.area.max = { 10.0f,10.0f,75.0f };
+	field_.acceleration = {};
+	field_.acceleration.translate = { 0.005f,0.0f,0.00f };
+	editor_->SetField(field_);
+
+	//パーティクル
+	ParticleManager::GetInstance()->CreateParticleGroup("particle_2", "resources/Particle/particle.png");
+	particle_2 = std::make_unique<ParticleEmitter>("particle_2");
+	editor_2 = std::make_unique<ParticleEditor>();
+	editor_2->Initialize(particle_2.get());
+
+	Emitter emitter_2;
+	emitter_2.count = 16;
+	emitter_2.lifeTime = 0.5f;
+	emitter_2.frequency = 0.0f;
+	emitter_2.frequencyTime = 0.0f;
+	emitter_2.transform.scale = { 1.0f,1.0f,1.0f };
+	emitter_2.transform.translate = { 0.0f,0.0f,0.0f };
+	emitter_2.spawnRange.min = { 0.0f,0.0f,0.0f };
+	emitter_2.spawnRange.max = { 0.0f,0.0f,0.0f };
+	emitter_2.angleBase = { 0.0f,0.0f,1.0f };
+	emitter_2.angleRange = { 0.1f,0.1f,0.1f };	//方向範囲
+	emitter_2.speedBase = 0.1f;	//基礎速度
+	emitter_2.speedRange = 0.05f;	//速度範囲
+	emitter_2.beforeColor = { 0.1f,0.1f,0.1f,1.0f };
+	emitter_2.afterColor = { 0.0f,0.0f,0.0f,0.0f };
+	editor_2->SetEmitter(emitter_2);
+	AccelerationField field_2;
+	field_2.area.min = { 0.0f,0.0f,0.0f };
+	field_2.area.max = { 1.0f,1.0f,1.0f };
+	field_2.acceleration = {};
+	editor_2->SetField(field_2);
+
+	//パーティクル
+	ParticleManager::GetInstance()->CreateParticleGroup("particle_3", "resources/Particle/particle.png");
+	particle_3 = std::make_unique<ParticleEmitter>("particle_3");
+	editor_3 = std::make_unique<ParticleEditor>();
+	editor_3->Initialize(particle_3.get());
+
+	Emitter emitter_3;
+	emitter_3.count = 32;
+	emitter_3.lifeTime = 0.5f;
+	emitter_3.frequency = 0.0f;
+	emitter_3.frequencyTime = 0.0f;
+	emitter_3.transform.scale = { 2.0f,2.0f,2.0f };
+	emitter_3.transform.translate = { 0.0f,0.0f,0.0f };
+	emitter_3.spawnRange.min = { 0.0f,0.0f,0.0f };
+	emitter_3.spawnRange.max = { 0.0f,0.0f,0.0f };
+	emitter_3.angleBase = { 0.0f,0.0f,1.0f };
+	emitter_3.angleRange = { 1.0f,1.0f,1.0f };	//方向範囲
+	emitter_3.speedBase = 0.3f;	//基礎速度
+	emitter_3.speedRange = 0.1f;	//速度範囲
+	emitter_3.beforeColor = { 1.0f,0.8f,0.6f,1.0f };
+	emitter_3.afterColor = { 1.0f,0.0f,0.0f,0.0f };
+	editor_3->SetEmitter(emitter_3);
+	AccelerationField field_3;
+	field_3.area.min = { 0.0f,0.0f,0.0f };
+	field_3.area.max = { 1.0f,1.0f,1.0f };
+	field_3.acceleration = {};
+	editor_3->SetField(field_3);
+
+	//パーティクル
+	ParticleManager::GetInstance()->CreateParticleGroup("particle_4", "resources/Particle/Sand.png");
+	particle_4 = std::make_unique<ParticleEmitter>("particle_4");
+	editor_4 = std::make_unique<ParticleEditor>();
+	editor_4->Initialize(particle_4.get());
+
+	Emitter emitter_4;
+	emitter_4.count = 1;
+	emitter_4.lifeTime = 0.2f;
+	emitter_4.frequency = 0.0f;
+	emitter_4.frequencyTime = 0.0f;
+	emitter_4.transform.scale = { 2.0f,2.0f,2.0f };
+	emitter_4.transform.translate = { 0.0f,0.0f,0.0f };
+	emitter_4.spawnRange.min = { 0.0f,0.0f,0.0f };
+	emitter_4.spawnRange.max = { 0.0f,0.0f,0.0f };
+	emitter_4.angleBase = { 0.0f,0.0f,1.0f };
+	emitter_4.angleRange = { 0.2f,0.2f,0.2f };	//方向範囲
+	emitter_4.speedBase = 0.2f;	//基礎速度
+	emitter_4.speedRange = 0.1f;	//速度範囲
+	emitter_4.beforeColor = { 0.4f,0.4f,0.4f,0.4f };
+	emitter_4.afterColor = { 0.0f,0.0f,0.0f,0.0f };
+	editor_4->SetEmitter(emitter_4);
+	AccelerationField field_4;
+	field_4.area.min = { 0.0f,0.0f,0.0f };
+	field_4.area.max = { 1.0f,1.0f,1.0f };
+	field_4.acceleration = {};
+	editor_4->SetField(field_4);
 
 	//プレイヤー
 	player_ = std::make_unique<Player>();
-	player_->Initialize(modelHolder_.get());
+	player_->Initialize(modelHolder_,this, particle_4.get());
 
 	//ボス
 	boss_ = std::make_unique<Boss>();
-	boss_->Initialize(modelHolder_.get());
+	boss_->Initialize(modelHolder_,3.0f);
 
 	//メインカメラ
 	gameCamera_ = std::make_unique<GameCamera>();
@@ -25,31 +145,136 @@ void GameScene::Initialize() {
 	player_->SetCameraTransform(gameCamera_->GetTransform());
 	player_->SetCamera(gameCamera_->GetCamera());
 	boss_->SetCamera(gameCamera_->GetCamera());
+	PlayerBullet::SetCamera(gameCamera_->GetCamera());
 
 	//背景
 	skydome_ = std::make_unique<Skydome>();
-	skydome_->Initialize(modelHolder_.get());
+	skydome_->Initialize(modelHolder_);
 	skydome_->SetCamera(gameCamera_->GetCamera());
 	ground_ = std::make_unique<Ground>();
-	ground_->Initialize(modelHolder_.get());
+	ground_->Initialize(modelHolder_);
 	ground_->SetCamera(gameCamera_->GetCamera());
 
 	directionalLight_ = std::make_unique<DirectionalLight>();
 	directionalLight_->Initialize(GameEngine::GetDirectXCommon());
 	directionalLightElement_.color = Vector4{ 1.0f,1.0f,1.0f,1.0f };
-	directionalLightElement_.direction = Vector3::Normalize(Vector3{ 0.0f,-1.0f,1.0f });
+	directionalLightElement_.direction = Normalize(Vector3{ 0.0f,-1.0f,1.0f });
 	directionalLightElement_.intensity = 1.0f;
 	directionalLight_->SetDirectionalLightElement(directionalLightElement_);
 	player_->SetDirectionalLight(directionalLight_.get());
 	boss_->SetDirectionalLight(directionalLight_.get());
+	PlayerBullet::SetDirectionalLight(directionalLight_.get());
 	ground_->SetDirectionalLight(directionalLight_.get());
+
+	pointLight_ = std::make_unique<PointLight>();
+	pointLight_->Initialize(GameEngine::GetDirectXCommon());
+	pointLightElement_.color = Vector4{ 1.0f,0.8f,0.6f,1.0f };
+	pointLightElement_.intensity = 0.0f;
+	pointLightElement_.radius = 4.0f;
+	pointLightElement_.position = {};
+	pointLightElement_.decay = 1.0f;
+	pointLight_->SetPointLightElement(pointLightElement_);
+	player_->SetPointLight(pointLight_.get());
+	boss_->SetPointLight(pointLight_.get());
+	PlayerBullet::SetPointLight(pointLight_.get());
+	ground_->SetPointLight(pointLight_.get());
+
+	fadeSprite_ = std::make_unique<Sprite>();
+	fadeSprite_->Initialize("resources/DebugResources/white2x2.png", spriteManager);
+	fadeSprite_->SetSize({ 1280,720 });
+	fadeSprite_->SetColor({ 0.0f,0.0f,0.0f,1.0f });
+
+	fade_ = Fade::FadeIn;
+	fadeTime_ = 0.0f;
+	isfinished_ = false;
 }
 
 void GameScene::Update() {
+	Keybord key = GameEngine::GetKeybord();
 
-	player_->Update();
+	if (fadeTime_ < kMaxFadeTime) {
+		fadeTime_ += 1.0f / 60.0f;
+	}
+
+	if (fade_ == Fade::FadeIn && fadeTime_ >= kMaxFadeTime) {
+		fade_ = Fade::None;
+	}
+	if (fade_ == Fade::FadeOut && fadeTime_ >= kMaxFadeTime) {
+		isfinished_ = true;
+	}
+
+	if (fade_ == Fade::None) {
+		player_->Update();
+	}
 
 	gameCamera_->Update();
+
+	if ((player_->IsDead() || boss_->IsDead()) && fade_ == Fade::None) {
+		fade_ = Fade::FadeOut;
+		fadeTime_ = 0.0f;
+		nextScene_ = new TitleScene;
+	}
+
+	if (pointLightElement_.intensity > 0.0f) {
+		pointLightElement_.intensity -= 0.05f;
+		if (pointLightElement_.intensity < 0.0f)pointLightElement_.intensity = 0.0f;
+		Matrix4x4 rotateMatrix = MakeRotateYMatrix(player_->GetTransform()->rotate.y);
+		pointLightElement_.position = player_->GetTransform()->translate + rotateMatrix * Vector3(0.0f, 0.0f, 1.0f);
+		pointLight_->SetPointLightElement(pointLightElement_);
+	}
+
+	for (PlayerBullet* bullet : playerBullet_) {
+		bullet->Update();
+	}
+
+	boss_->Update();
+
+	Collision();
+
+	// デスフラグの立った弾の削除
+	playerBullet_.remove_if([](PlayerBullet* bullet) {
+		if (bullet->IsDead()) {
+			delete bullet;
+			bullet = nullptr;
+			return true;
+		}
+		return false;
+	});
+
+
+
+	float a = 0.0f;
+	if (fade_ == Fade::FadeIn) {
+		a = 1.0f - fadeTime_ / kMaxFadeTime;
+	} else if (fade_ == Fade::FadeOut) {
+		a = fadeTime_ / kMaxFadeTime;
+	}
+	fadeSprite_->SetColor({ 0.0f,0.0f,0.0f,a });
+	fadeSprite_->Update();
+
+	editor_->Update();
+	editor_2->Update();
+	editor_3->Update();
+	editor_4->Update();
+
+	Matrix4x4 rotateMatrix = MakeRotateYMatrix(player_->GetTransform()->rotate.y);
+	pointLightElement_.position = player_->GetTransform()->translate + rotateMatrix * Vector3(0.0f, 0.0f, 1.0f);
+	pointLight_->SetPointLightElement(pointLightElement_);
+
+	Emitter emitter = editor_2->GetEmitter();
+	emitter.transform.translate = pointLightElement_.position;
+	emitter.angleBase = Normalize(rotateMatrix * Vector3(0.0f, 0.0f, 0.8f) + Vector3(0.0f, 1.0f, 0.0f));
+	editor_2->SetEmitter(emitter);
+
+	emitter = editor_3->GetEmitter();
+	emitter.transform.translate = boss_->GetTransform()->translate;
+	editor_3->SetEmitter(emitter);
+
+	emitter = editor_4->GetEmitter();
+	emitter.transform.translate = player_->GetTransform()->translate;
+	emitter.transform.translate.y = 0.0f;
+	editor_4->SetEmitter(emitter);
+
 
 }
 
@@ -59,6 +284,115 @@ void GameScene::Draw() {
 	ground_->Draw();
 
 	//プレイヤー
-	player_->Draw();
 	boss_->Draw();
+
+	editor_->Draw();
+	editor_2->Draw();
+	editor_3->Draw();
+	editor_4->Draw();
+
+	player_->Draw();
+
+	for (PlayerBullet* bullet : playerBullet_) {
+		bullet->Draw();
+	}
+
+	if (fade_ != Fade::None) {
+		fadeSprite_->Draw2D();
+	}
+}
+
+void GameScene::Collision() {
+	std::list<BaseBullet*> bulletList;
+	for (std::list<PlayerBullet*>::iterator iterator = playerBullet_.begin();
+		iterator != playerBullet_.end(); iterator++) {
+		bulletList.push_back(*iterator);
+	}
+
+	std::list<BaseCharacter*> characterList;
+	characterList.push_back(player_.get());
+	characterList.push_back(boss_.get());
+
+	std::list<Collider*> collider;
+	collider.push_back(player_.get());
+	collider.push_back(boss_.get());
+	for (BaseBullet* bullet : playerBullet_) {
+		collider.push_back(bullet);
+	}
+
+	for (std::list<Collider*>::iterator iteratorA = collider.begin();
+		iteratorA != collider.end(); iteratorA++) {
+		for (std::list<Collider*>::iterator iteratorB = iteratorA;
+			iteratorB != collider.end(); iteratorB++) {
+
+			if (iteratorA == iteratorB)continue;
+
+			//プレイヤー側と敵側の場合
+			if (((*iteratorA)->GetID() & 0b01 && (*iteratorB)->GetID() & 0b10) ||
+				((*iteratorA)->GetID() & 0b10 && (*iteratorB)->GetID() & 0b01)) {
+				
+				if ((*iteratorA)->GetInvincible() || (*iteratorB)->GetInvincible())continue;
+
+				if (Length((*iteratorA)->GetSphare().center - (*iteratorB)->GetSphare().center) <=
+					((*iteratorA)->GetSphare().radius + (*iteratorB)->GetSphare().radius)) {
+					(*iteratorA)->IsCollision();
+					(*iteratorB)->IsCollision();
+					particle_3->Emit();
+				}
+			//プレイヤー側とアイテムの場合
+			} else if ((*iteratorA)->GetID() & 0b01 && (*iteratorB)->GetID() & 0b00) {
+				//プレイヤーがアイテムを取得
+				if ((*iteratorA)->GetID() == CollisionID_Player_Character && (*iteratorB)->GetID() == CollisionID_Item_Bullet) {
+					if (Length((*iteratorA)->GetSphare().center - (*iteratorB)->GetSphare().center) <=
+						((*iteratorA)->GetSphare().radius + (*iteratorB)->GetSphare().radius)) {
+						(*iteratorB)->IsCollision();
+					}
+				}
+				//プレイヤー弾がボックスを破壊
+				if ((*iteratorA)->GetID() == CollisionID_Player_Bullet && (*iteratorB)->GetID() == CollisionID_Item_Character) {
+					if (Length((*iteratorA)->GetSphare().center - (*iteratorB)->GetSphare().center) <=
+						((*iteratorA)->GetSphare().radius + (*iteratorB)->GetSphare().radius)) {
+						(*iteratorA)->IsCollision();
+						(*iteratorB)->IsCollision();
+					}
+				}
+			} else if ((*iteratorA)->GetID() & 0b00 && (*iteratorB)->GetID() & 0b01) {
+				//プレイヤーがアイテムを取得
+				if ((*iteratorA)->GetID() == CollisionID_Item_Bullet && (*iteratorB)->GetID() == CollisionID_Player_Character) {
+					if (Length((*iteratorA)->GetSphare().center - (*iteratorB)->GetSphare().center) <=
+						((*iteratorA)->GetSphare().radius + (*iteratorB)->GetSphare().radius)) {
+						(*iteratorA)->IsCollision();
+					}
+				}
+				//プレイヤー弾がボックスを破壊
+				if ((*iteratorA)->GetID() == CollisionID_Item_Character && (*iteratorB)->GetID() == CollisionID_Player_Bullet) {
+					if (Length((*iteratorA)->GetSphare().center - (*iteratorB)->GetSphare().center) <=
+						((*iteratorA)->GetSphare().radius + (*iteratorB)->GetSphare().radius)) {
+						(*iteratorA)->IsCollision();
+						(*iteratorB)->IsCollision();
+					}
+				}
+			}
+
+			//キャラクター同士の場合
+			if ((*iteratorA)->GetID() & 0b100 && (*iteratorB)->GetID() & 0b100) {
+
+				if (Length((*iteratorA)->GetSphare().center - (*iteratorB)->GetSphare().center) <=
+					((*iteratorA)->GetSphare().radius + (*iteratorB)->GetSphare().radius)) {
+					
+				}
+			}
+		}
+	}
+
+}
+
+void GameScene::AddPlayerBullet(Vector3 translate, Vector3 rotate) {
+	PlayerBullet* newBullet = new PlayerBullet;
+	newBullet->Initialize(modelHolder_, translate, rotate);
+	playerBullet_.push_back(newBullet);
+
+	pointLightElement_.intensity = 1.0f;
+
+	particle_2->Emit();
 }

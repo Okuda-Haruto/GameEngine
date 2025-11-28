@@ -1,6 +1,5 @@
 #include "Ground.h"
 #include "GameEngine.h"
-#include "Math/Vector3_operation.h"
 
 void Ground::Initialize(ModelHolder* modelHolder) {
 	//モデルの生成

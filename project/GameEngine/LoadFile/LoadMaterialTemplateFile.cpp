@@ -28,7 +28,7 @@ std::list<MaterialData> LoadMaterialTemplateFile(const std::string& directoryPat
 			std::string textureFilename;
 			s >> textureFilename;
 			//連結してファイルパスにする
-			MaterialData.textureFilePath = directoryPath + "/" + textureFilename;
+			MaterialData.textureFilepath = directoryPath + "/" + textureFilename;
 
 			//materialDataの最後尾に格納する
 			materialData.push_back(MaterialData);

@@ -71,7 +71,6 @@ void SampleScene::Initialize() {
 	particleEmitter_ = new ParticleEmitter("particle");
 	emitter_.transform.scale = { 1.0f,1.0f,1.0f };
 	emitter_.transform.translate = {0.0f,0.0f,0.0f};
-	emitter_.velocity = {0.0f,0.0f,0.0f};
 	emitter_.count = 2;
 	emitter_.beforeColor = { 1.0f,1.0f,1.0f,1.0f };
 	emitter_.afterColor = { 1.0f,1.0f,1.0f,0.0f };
@@ -145,7 +144,7 @@ void SampleScene::Initialize() {
 		{ 1.0f,1.0f,1.0f,1.0f },
 		{2.0f,1.25f,0.0f},
 		0.0f,
-		Vector3::Normalize({ -1.0f,-1.0f,0.0f }),
+		Normalize(Vector3{ -1.0f,-1.0f,0.0f }),
 		4.0f,
 		2.0f,
 		std::numbers::pi_v<float> / 180 * 60,
@@ -358,7 +357,7 @@ void SampleScene::Update() {
 			ImGui::DragFloat3("spotLight Position", &spotLightElement_.position.x, 0.1f);
 			ImGui::DragFloat("spotLight Intensity", &spotLightElement_.intensity, 0.01f, 0.0f, 10.0f);
 			ImGui::DragFloat3("spotLight Direction", &spotLightElement_.direction.x, 0.01f, -1.0f, 1.0f);
-			spotLightElement_.direction = Vector3::Normalize(spotLightElement_.direction);
+			spotLightElement_.direction = Normalize(spotLightElement_.direction);
 			ImGui::DragFloat("spotLight Distance", &spotLightElement_.distance, 0.1f,0.0f,20.0f);
 			ImGui::DragFloat("spotLight Decay", &spotLightElement_.decay, 0.01f, 0.0f, 10.0f);
 			ImGui::SliderAngle("spotLight CosAngle", &spotLightElement_.cosAngle);
@@ -382,7 +381,7 @@ void SampleScene::Update() {
 
 		ImGui::DragFloat3("エリアmin", &accelerationField_.area.min.x, 0.1f);
 		ImGui::DragFloat3("エリアmax", &accelerationField_.area.max.x, 0.1f);
-		ImGui::DragFloat3("エリアAcceleration", &accelerationField_.acceleration.x,0.01f);
+		ImGui::DragFloat3("エリアAcceleration", &accelerationField_.acceleration.translate.x,0.01f);
 		particleEmitter_->SetField(accelerationField_);
 
 		for (INT i = 0; i < sprite_.size(); i++) {
@@ -480,6 +479,20 @@ void SampleScene::Update() {
 		if (ImGui::Button("オーディオ終了")) {
 			audio_->SoundEndWave();
 		}
+		static Line line = { .origin{0.0f,2.0f,0.0f},.diff{0.0f,0.0f,1.0f} };
+		ImGui::DragFloat3("Line origin", &line.origin.x, 0.01f);
+		ImGui::DragFloat3("Line diff", &line.diff.x, 0.01f);
+		PrimitiveManager::GetInstance()->AddLine(line);
+
+		static Vector3 point = {0.5f,0.5f,0.5f};
+		ImGui::DragFloat3("Point pos", &point.x, 0.01f);
+		PrimitiveManager::GetInstance()->AddPoint(point);
+
+		static AABB aabb = { .min{0.0f,0.0f,0.0f},.max{1.0f,1.0f,1.0f} };
+		ImGui::DragFloat3("AABB min", &aabb.min.x, 0.01f);
+		ImGui::DragFloat3("AABB max", &aabb.max.x, 0.01f);
+		PrimitiveManager::GetInstance()->AddAABB(aabb);
+
 		ImGui::End();
 	}
 

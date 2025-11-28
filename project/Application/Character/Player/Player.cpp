@@ -4,13 +4,35 @@
 #include <Matrix4x4.h>
 #include <numbers>
 #include "Math/Lerp.h"
+#include "Scene/GameScene/GameScene.h"
 
 Player::~Player() {
 
 }
 
-void Player::Initialize(ModelHolder* modelHolder) {
+void Player::Initialize(ModelHolder* modelHolder, GameScene* gameScene, ParticleEmitter* particle1) {
 	modelHolder_ = modelHolder;
+	gameScene_ = gameScene;
+	particle_1 = particle1;
+	//パーティクル
+	ParticleManager::GetInstance()->CreateParticleGroup("particle_5", "resources/Particle/Sand.png");
+	particle_2 = std::make_unique<ParticleEmitter>("particle_5");
+
+	emitter_.count = 8;
+	emitter_.lifeTime = 0.2f;
+	emitter_.frequency = 0.0f;
+	emitter_.frequencyTime = 0.0f;
+	emitter_.transform.scale = { 2.0f,2.0f,2.0f };
+	emitter_.transform.translate = { 0.0f,0.0f,0.0f };
+	emitter_.spawnRange.min = { -0.5f,0.0f,-0.5f };
+	emitter_.spawnRange.max = { 0.5f,0.0f,0.5f };
+	emitter_.angleBase = { 0.0f,0.0f,0.0f };
+	emitter_.angleRange = { 1.0f,0.0f,1.0f };	//方向範囲
+	emitter_.speedBase = 0.2f;	//基礎速度
+	emitter_.speedRange = 0.1f;	//速度範囲
+	emitter_.beforeColor = { 0.2f,0.2f,0.2f,0.2f };
+	emitter_.afterColor = { 0.0f,0.0f,0.0f,0.0f };
+	particle_2->SetEmitter(emitter_);
 
 	//モデルの生成
 	object_ = std::make_unique<Object>();
@@ -24,6 +46,12 @@ void Player::Initialize(ModelHolder* modelHolder) {
 	*targetTransform_ = transform_;
 	dodgeCoolTime = 0.0f;
 	dodgeActiveTime = kMaxDodgeActiveTime;
+	shotCooltime = 0.0f;
+
+	HP_ = kMaxHP;
+
+	InitializeCollider(1.0f, CollisionID_Player_Character);
+	UpdateCollider();
 }
 
 void Player::Update() {
@@ -43,7 +71,7 @@ void Player::Update() {
 			pad.LeftStick.vector.x * pad.LeftStick.magnitude,0.0f,pad.LeftStick.vector.y * pad.LeftStick.magnitude
 		};
 	}
-	if (Vector3::Length(move) > deadZone) {
+	if (Length(move) > deadZone) {
 		isMove = true;
 	}
 
@@ -60,7 +88,7 @@ void Player::Update() {
 		if (keys.hold[DIK_A] || keys.hold[DIK_LEFT]) {
 			move.x = -1.0f;
 		}
-		if (Vector3::Length(move) > deadZone) {
+		if (Length(move) > deadZone) {
 			isMove = true;
 		}
 	}
@@ -70,9 +98,9 @@ void Player::Update() {
 	//回避中は移動させないこと
 	if (isMove && dodgeActiveTime >= kMaxDodgeActiveTime) {
 		//移動量に速さを反映
-		velocity_ = Vector3::Normalize(move) * speed;
+		velocity_ = Normalize(move) * speed;
 
-		Matrix4x4 rotateMatrix = Matrix4x4::MakeRotateYMatrix(cameraTransform_->rotate.y);
+		Matrix4x4 rotateMatrix = MakeRotateYMatrix(cameraTransform_->rotate.y);
 		velocity_ = rotateMatrix * velocity_;
 
 		//移動
@@ -80,21 +108,22 @@ void Player::Update() {
 
 		angle = std::atan2(velocity_.x, velocity_.z);
 
+		particle_1->Emit();
 	}
 
 	//最短角度補完
-	float diff = angle - transform_.rotate.y ;
+	float diff = angle - transform_.rotate.y;
 
-	if (diff >= std::numbers::pi_v<float>*2 ) {
+	if (diff >= std::numbers::pi_v<float>*2) {
 		diff = angle - transform_.rotate.y;
 	}
 
-	diff = std::fmodf(diff, std::numbers::pi_v<float> * 2);
+	diff = std::fmodf(diff, std::numbers::pi_v<float> *2);
 
 	if (diff > std::numbers::pi_v<float>) {
-		diff -= std::numbers::pi_v<float> * 2;
+		diff -= std::numbers::pi_v<float> *2;
 	} else if (diff < -std::numbers::pi_v<float>) {
-		diff += std::numbers::pi_v<float> * 2;
+		diff += std::numbers::pi_v<float> *2;
 	}
 
 	if (diff > std::numbers::pi_v<float>) {
@@ -104,8 +133,8 @@ void Player::Update() {
 	}
 
 	//正直あまりやりたくはない方法だが2πを超えると遠回りで回転してしまうので致し方無い
-	transform_.rotate.y = (transform_.rotate.y + diff * 0.1f) ;
-	transform_.rotate.y = std::fmodf(transform_.rotate.y, std::numbers::pi_v<float> * 2);
+	transform_.rotate.y = (transform_.rotate.y + diff * 0.1f);
+	transform_.rotate.y = std::fmodf(transform_.rotate.y, std::numbers::pi_v<float> *2);
 
 #pragma endregion
 
@@ -114,22 +143,28 @@ void Player::Update() {
 	const float dodgeSpeed = 2.0f;
 
 	//回避中
-	if(dodgeActiveTime < kMaxDodgeActiveTime) {
+	if (dodgeActiveTime < kMaxDodgeActiveTime) {
 		dodgeActiveTime += 1.0f / 60.0f;
 		//kMaxDodgeActiveTimeを超えると角度がおかしくなる気がするので戻す
 		if (dodgeActiveTime >= kMaxDodgeActiveTime) {
 			//dodgeActiveTime = kMaxDodgeActiveTime;
 		}
-		velocity_ = Vector3{ 0.0f,0.0f,1.0f } * Lerp(0.2f,dodgeSpeed,powf(1.0f - dodgeActiveTime / kMaxDodgeActiveTime, 3));
+		velocity_ = Vector3{ 0.0f,0.0f,1.0f } *Lerp(0.2f, dodgeSpeed, powf(1.0f - dodgeActiveTime / kMaxDodgeActiveTime, 3));
 		//前転
-		transform_.rotate.x = Lerp(0.0f, std::numbers::pi_v<float> * 2, 1.0f - powf(1.0f - dodgeActiveTime / kMaxDodgeActiveTime,3));
+		transform_.rotate.x = Lerp(0.0f, std::numbers::pi_v<float> *2, 1.0f - powf(1.0f - dodgeActiveTime / kMaxDodgeActiveTime, 3));
 
-		Matrix4x4 rotateMatrix = Matrix4x4::MakeRotateYMatrix(transform_.rotate.y);
+		Matrix4x4 rotateMatrix = MakeRotateYMatrix(transform_.rotate.y);
 		velocity_ = rotateMatrix * velocity_;
 
 		//移動
 		transform_.translate += velocity_;
-	//回避中じゃない
+
+		emitter_.transform.translate = transform_.translate;
+		emitter_.transform.translate.y = 0.0f;
+		particle_2->SetEmitter(emitter_);
+		particle_2->Emit();
+
+		//回避中じゃない
 	} else {
 		//回避インターバル
 		if (dodgeCoolTime < kMaxDodgeCoolTime) {
@@ -139,10 +174,23 @@ void Player::Update() {
 
 	//回避インターバル
 	if (dodgeCoolTime >= kMaxDodgeCoolTime) {
-		if (keys.trigger[DIK_C] && isMove) {
+		if ((keys.trigger[DIK_C] || keys.trigger[DIK_LSHIFT] || keys.trigger[DIK_RSHIFT] || keys.trigger[DIK_SPACE] || pad.Button[PAD_BUTTON_Y].trigger) && isMove) {
 			dodgeActiveTime = 0.0f;
 			dodgeCoolTime = 0.0f;
 		}
+	}
+
+#pragma endregion
+
+#pragma region 攻撃行動
+
+	if (shotCooltime >= kMaxShotCooltime){
+		if (keys.hold[DIK_Z] || keys.hold[DIK_X]) {
+			gameScene_->AddPlayerBullet(transform_.translate, transform_.rotate);
+			shotCooltime = 0.0f;
+		}
+	} else {
+		shotCooltime += 1.0f / 60.0f;
 	}
 
 #pragma endregion
@@ -159,8 +207,17 @@ void Player::Update() {
 	*targetTransform_ = transform_;
 
 	object_->SetTransform(transform_);
+	UpdateCollider();
+	particle_2->Update();
 }
 
 void Player::Draw() {
-	object_->Draw3D();
+	particle_2->Draw();
+	if (HP_ > 0.0f) {
+		object_->Draw3D();
+	}
+}
+
+void Player::IsCollision() {
+	HP_--;
 }

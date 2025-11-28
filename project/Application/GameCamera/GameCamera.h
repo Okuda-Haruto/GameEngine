@@ -6,7 +6,7 @@ class GameCamera
 {
 private:
 	//カメラ
-	std::unique_ptr<Camera> camera_;
+	Camera* camera_;
 
 	std::unique_ptr<SRT> transform_;
 
@@ -30,6 +30,6 @@ public:
 	//追従対象を指定
 	void SetTarget(const SRT* target) { target_ = target; }
 
-	Camera* GetCamera() { return camera_.get(); }
+	Camera* GetCamera() { return camera_; }
 
 };

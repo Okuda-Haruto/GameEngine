@@ -5,6 +5,7 @@ enum class ModelIndex {
 	Skydome,
 	Ground,
 	Player,
+	Bullet
 };
 
 //使用するモデルを保持

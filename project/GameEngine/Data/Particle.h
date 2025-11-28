@@ -7,7 +7,7 @@
 
 struct Particle {
 	SRT transform;
-	Vector3 velocity;
+	SRT velocity;
 	Vector4 beforeColor;
 	Vector4 afterColor;
 	Vector4 color;

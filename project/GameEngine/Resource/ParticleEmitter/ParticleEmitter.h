@@ -13,6 +13,8 @@ public:
 	void SetEmitter(Emitter emitter);
 	void SetField(AccelerationField accelerationField);
 
+	std::string GetName() { return name_; }
+
 private:
 	std::string name_;
 };

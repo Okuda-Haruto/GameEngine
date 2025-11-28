@@ -1,6 +1,5 @@
 #include "Skydome.h"
 #include "GameEngine.h"
-#include "Math/Vector3_operation.h"
 
 void Skydome::Initialize(ModelHolder* modelHolder) {
 	//モデルの生成

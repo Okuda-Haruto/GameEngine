@@ -1,11 +1,14 @@
 #include "GameEngine.h"
 #include "SampleScene/SampleScene.h"
-#include "Scene/GameScene/GameScene.h"
+#include "GameManager.h"
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	//ゲームエンジン
-	GameEngine::Intialize(L"CG2", 1280, 720);
+	GameEngine::Intialize(L"LE2A_03_オクダ_ハルト", 1280, 720);
+
+	GameManager* gameManager = new GameManager;
+	gameManager->Initialize();
 
 	//サンプルシーン
 	SampleScene* sampleScene = new SampleScene();
@@ -19,7 +22,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			//	更新処理
 			//
 			
-			sampleScene->Update();
+			//sampleScene->Update();
+			gameManager->Update();
 
 			//
 			//	描画処理
@@ -27,7 +31,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 			GameEngine::PreDraw();
 
-			sampleScene->Draw();
+			//sampleScene->Draw();
+			gameManager->Draw();
 
 			GameEngine::PostDraw();
 
@@ -35,6 +40,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	}
 
 	delete sampleScene;
+	delete gameManager;
 
 	GameEngine::Delete();
 

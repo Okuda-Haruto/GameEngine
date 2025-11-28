@@ -3,5 +3,5 @@
 
 struct MaterialData {
 	std::string materialName;
-	std::string textureFilePath;
+	std::string textureFilepath;
 };

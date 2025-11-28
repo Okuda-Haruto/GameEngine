@@ -12,9 +12,7 @@
 #include <algorithm>
 
 #include "D3DResourceLeakChecker.h"
-#include "DirectionalLight.h"
-#include "Object_3D.h"
-#include "Object_2D.h"
+#include <Operation/Operation.h>
 
 #include "Object/Object.h"
 #include "Sprite/Sprite.h"
@@ -26,7 +24,6 @@
 #include "DebugCamera.h"
 
 #include "TextureData.h"
-#include "ParticleForGPU.h"
 
 #include "WindowsAPI/WindowsAPI.h"
 #include "DirectXCommon/DirectXCommon.h"
@@ -34,9 +31,11 @@
 #include "ModelManager/ModelManager.h"
 #include "SRVManager/SRVManager.h"
 #include "ParticleManager/ParticleManager.h"
+#include "PrimitiveManager/PrimitiveManager.h"
 
 #include <vector>
 #include <array>
+#include <list>
 
 class GameEngine {
 private:
@@ -74,13 +73,18 @@ private:
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> trianglePipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> instancingTrianglePipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> particlePipelineState_ = nullptr;
-	Microsoft::WRL::ComPtr <ID3D12PipelineState> linePipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> spritePipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> linePipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> noDepthLinePipelineState_ = nullptr;
 
-	//描画可能なモデルの数
+public:
+	//描画可能なモデルの数(通常)
 	static const int16_t kMaxIndex = 1024;
+	//描画可能なモデルの数(インスタシング)
+	static const int16_t kMaxInstanceIndex = 64;
 	//インスタンス数
-	static const uint32_t kMaxNumInstance = 32;
+	static const uint32_t kMaxNumInstance = 256;
+private:
 #pragma region object
 	int16_t objectIndex;
 	//マテリアルリソース
@@ -96,13 +100,13 @@ private:
 #pragma region instancingObject
 	int16_t instancingObjectIndex;
 	//マテリアルリソース
-	std::array <Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxIndex > instancingObjectMaterialResource_;
+	std::array <Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxInstanceIndex > instancingObjectMaterialResource_;
 	//マテリアルデータ
-	std::array <Material*, kMaxIndex> instancingObjectMaterialData_;
+	std::array <Material*, kMaxInstanceIndex> instancingObjectMaterialData_;
 	//インスタンス用リソース
-	std::array <Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxIndex > instancingObjectResource_;
+	std::array <Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxInstanceIndex > instancingObjectResource_;
 	//インスタンスデータ
-	std::array < std::array <ParticleForGPU*, kMaxNumInstance>, kMaxIndex> instancingObjectData_;
+	std::array < std::array <InstancingTransformationMatrix*, kMaxNumInstance>, kMaxInstanceIndex> instancingObjectData_;
 #pragma endregion
 
 #pragma region sprite
@@ -120,13 +124,24 @@ private:
 #pragma region instancingSprite
 	int16_t instancingSpriteIndex;
 	//マテリアルリソース
-	std::array <Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxIndex > instancingSpriteMaterialResource_;
+	std::array <Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxInstanceIndex > instancingSpriteMaterialResource_;
 	//マテリアルデータ
-	std::array <std::array <Material*, kMaxNumInstance>, kMaxIndex > instancingSpriteMaterialData_;
+	std::array <std::array <Material*, kMaxNumInstance>, kMaxInstanceIndex > instancingSpriteMaterialData_;
 	//インスタンス用リソース
-	std::array <Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxIndex > instancingSpriteResource_;
+	std::array <Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxInstanceIndex > instancingSpriteResource_;
 	//インスタンスデータ
-	std::array <std::array <TransformationMatrix*, kMaxNumInstance>, kMaxIndex > instancingSpriteData_;
+	std::array <std::array <InstancingTransformationMatrix*, kMaxNumInstance>, kMaxInstanceIndex > instancingSpriteData_;
+#pragma endregion
+
+#pragma region primitive
+	//マテリアルリソース
+	std::array<Microsoft::WRL::ComPtr<ID3D12Resource>, PrimitiveManager::SHAPE_count> primitiveMaterialResource_;
+	//マテリアルデータ
+	std::array<Material*, PrimitiveManager::SHAPE_count> primitiveMaterialData_;
+	//インスタンス用リソース
+	std::array<Microsoft::WRL::ComPtr<ID3D12Resource>, PrimitiveManager::SHAPE_count> primitiveResource_;
+	//インスタンスデータ
+	std::array<std::array<InstancingTransformationMatrix*, PrimitiveManager::kMaxNumPrimitive>, PrimitiveManager::SHAPE_count> primitiveData_;
 #pragma endregion
 
 	//XAudio2インスタンス
@@ -204,8 +219,10 @@ private:
 	void DrawInstancingObject_2D_();*/
 	void DrawSprite_2D_(Sprite* sprite);
 	void DrawInstancingSprite_2D_(std::vector<Sprite*> sprits);
-	/*void DrawLine_2D_();
-	void DrawInstancingLine_2D_();*/
+
+	void DrawLine_(std::list<Line> lines, PrimitiveManager::PrimitiveResource primitiveResource);
+	void DrawPoint_(std::list<Vector3> points, PrimitiveManager::PrimitiveResource primitiveResource);
+	void DrawAABB_(std::list<AABB> aabbs, PrimitiveManager::PrimitiveResource primitiveResource);
 
 	Keybord GetKeybord_();
 	Mouse GetMouse_();
@@ -289,6 +306,10 @@ public:
 	
 	static void DrawSprite_2D(Sprite* sprite) { return getInstance()->DrawSprite_2D_(sprite); }
 	static void DrawInstancingSprite_2D(std::vector<Sprite*> sprits) { return getInstance()->DrawInstancingSprite_2D_(sprits); }
+
+	static void DrawLine(std::list<Line> lines, PrimitiveManager::PrimitiveResource primitiveResource) { return getInstance()->DrawLine_(lines, primitiveResource); }
+	static void DrawPoint(std::list<Vector3> points, PrimitiveManager::PrimitiveResource primitiveResource) { return getInstance()->DrawPoint_(points, primitiveResource); }
+	static void DrawAABB(std::list<AABB> aabbs, PrimitiveManager::PrimitiveResource primitiveResource) { return getInstance()->DrawAABB_(aabbs, primitiveResource); }
 	
 	//キーボード入力
 	[[nodiscard]]
