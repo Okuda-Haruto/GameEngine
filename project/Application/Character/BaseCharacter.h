@@ -2,17 +2,15 @@
 #include <memory>
 #include <Object/Object.h>
 #include <ModelHolder/ModelHolder.h>
-#include <Sphere.h>
+#include "../Collider/Collider.h"
 
-class BaseCharacter
+class BaseCharacter : public Collider
 {
 protected:
 	//自キャラモデル
 	std::unique_ptr<Object> object_;
 	SRT transform_;
 	Vector3 velocity_;
-
-	Sphere collision_;
 
 	//モデル
 	ModelHolder* modelHolder_;
@@ -25,7 +23,10 @@ public:
 	//描画
 	void Draw();
 
-	Sphere GetCollision() { return collision_; }
-	void IsCollision() {}
+	virtual void IsCollision() {}
+
+	void InitializeCollider(float radius, uint8_t id) { radius_ = radius; id_ = id; }
+	void UpdateCollider() { sphere_.center = transform_.translate; sphere_.radius = radius_ * transform_.scale.x; }
+	void SetInvincible(bool invincible) { invincible_ = invincible; }
 };
 

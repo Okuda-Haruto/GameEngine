@@ -49,9 +49,6 @@
     <ClCompile Include="Application\SampleScene\SampleScene.cpp">
       <Filter>Application\SampleScene</Filter>
     </ClCompile>
-    <ClCompile Include="Application\Scene\GameScene\GameScene.cpp">
-      <Filter>Application\Scene</Filter>
-    </ClCompile>
     <ClCompile Include="GameEngine\GameEngine.cpp">
       <Filter>GameEngine</Filter>
     </ClCompile>
@@ -60,12 +57,6 @@
     </ClCompile>
     <ClCompile Include="GameEngine\Math\Lerp.cpp">
       <Filter>GameEngine\Math\Lerp</Filter>
-    </ClCompile>
-    <ClCompile Include="GameEngine\Math\Matrix4x4.cpp">
-      <Filter>GameEngine\Math</Filter>
-    </ClCompile>
-    <ClCompile Include="GameEngine\Math\Vector3.cpp">
-      <Filter>GameEngine\Math</Filter>
     </ClCompile>
     <ClCompile Include="GameEngine\Debug\D3DResourceLeakChecker.cpp">
       <Filter>GameEngine\Debug\ResourceLeakChecker</Filter>
@@ -90,9 +81,6 @@
     </ClCompile>
     <ClCompile Include="GameEngine\Modules\DirectXCommon\DirectXCommon.cpp">
       <Filter>GameEngine\Modules\DirectXCommon</Filter>
-    </ClCompile>
-    <ClCompile Include="GameEngine\Modules\ImGuiManager\ImGuiManager.cpp">
-      <Filter>GameEngine\Modules\ImGuiManager</Filter>
     </ClCompile>
     <ClCompile Include="GameEngine\Modules\Initialvalue\Initialvalue.cpp">
       <Filter>GameEngine\Modules\Initialvalue</Filter>
@@ -157,6 +145,39 @@
     <ClCompile Include="GameEngine\Resource\Object_3D.cpp">
       <Filter>GameEngine\Resource</Filter>
     </ClCompile>
+    <ClCompile Include="Application\Scene\GameScene\GameScene.cpp">
+      <Filter>Application\Scene\GameScene</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Scene\TitleScene\TitleScene.cpp">
+      <Filter>Application\Scene\TitleScene</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\GameManager.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Scene\BaseScene.cpp">
+      <Filter>Application\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Character\Item\Item.cpp">
+      <Filter>Application\Character\Item</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEngine\Modules\AudioManager\AudioManager.cpp">
+      <Filter>GameEngine\Modules\AudioManager</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEngine\LoadFile\LoadGLTFFile.cpp">
+      <Filter>GameEngine\LoadFile\GLTF</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEngine\Debug\ImGuiManager\ImGuiManager.cpp">
+      <Filter>GameEngine\Debug\ImGuiManager</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEngine\Editor\ParticleEditor\ParticleEditor.cpp">
+      <Filter>GameEngine\Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEngine\Math\Operation\Operation.cpp">
+      <Filter>GameEngine\Math\Operation</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEngine\Modules\PrimitiveManager\PrimitiveManager.cpp">
+      <Filter>GameEngine\Modules\PrimitiveManager</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\BackGround\Ground\Ground.h">
@@ -188,9 +209,6 @@
     </ClInclude>
     <ClInclude Include="Application\SampleScene\SampleScene.h">
       <Filter>Application\SampleScene</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Scene\GameScene\GameScene.h">
-      <Filter>Application\Scene</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\GameEngine.h">
       <Filter>GameEngine</Filter>
@@ -231,9 +249,6 @@
     <ClInclude Include="GameEngine\Math\Vector3.h">
       <Filter>GameEngine\Math</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\Math\Vector3_operation.h">
-      <Filter>GameEngine\Math</Filter>
-    </ClInclude>
     <ClInclude Include="GameEngine\Math\Vector4.h">
       <Filter>GameEngine\Math</Filter>
     </ClInclude>
@@ -260,9 +275,6 @@
     </ClInclude>
     <ClInclude Include="GameEngine\Modules\DirectXCommon\DirectXCommon.h">
       <Filter>GameEngine\Modules\DirectXCommon</Filter>
-    </ClInclude>
-    <ClInclude Include="GameEngine\Modules\ImGuiManager\ImGuiManager.h">
-      <Filter>GameEngine\Modules\ImGuiManager</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\Modules\Initialvalue\Initialvalue.h">
       <Filter>GameEngine\Modules\Initialvalue</Filter>
@@ -328,70 +340,109 @@
       <Filter>GameEngine\Resource</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\Data\CameraForGPU.h">
-      <Filter>GameEngine\Resource\Data</Filter>
+      <Filter>GameEngine\Data</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\Data\ChunkHeader.h">
-      <Filter>GameEngine\Resource\Data</Filter>
+      <Filter>GameEngine\Data</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\Data\DirectionalLightElement.h">
-      <Filter>GameEngine\Resource\Data</Filter>
+      <Filter>GameEngine\Data</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\Data\Emitter.h">
-      <Filter>GameEngine\Resource\Data</Filter>
+      <Filter>GameEngine\Data</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\Data\Field.h">
-      <Filter>GameEngine\Resource\Data</Filter>
+      <Filter>GameEngine\Data</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\Data\FormatChunk.h">
-      <Filter>GameEngine\Resource\Data</Filter>
+      <Filter>GameEngine\Data</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\Data\Input.h">
-      <Filter>GameEngine\Resource\Data</Filter>
+      <Filter>GameEngine\Data</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\Data\Material.h">
-      <Filter>GameEngine\Resource\Data</Filter>
+      <Filter>GameEngine\Data</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\Data\MaterialData.h">
-      <Filter>GameEngine\Resource\Data</Filter>
+      <Filter>GameEngine\Data</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\Data\ModelData.h">
-      <Filter>GameEngine\Resource\Data</Filter>
+      <Filter>GameEngine\Data</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\Data\Offset.h">
-      <Filter>GameEngine\Resource\Data</Filter>
+      <Filter>GameEngine\Data</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\Data\Particle.h">
-      <Filter>GameEngine\Resource\Data</Filter>
+      <Filter>GameEngine\Data</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\Data\ParticleForGPU.h">
-      <Filter>GameEngine\Resource\Data</Filter>
+    <ClInclude Include="GameEngine\Data\InstancingTransformationMatrix.h">
+      <Filter>GameEngine\Data</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\Data\Parts.h">
-      <Filter>GameEngine\Resource\Data</Filter>
+      <Filter>GameEngine\Data</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\Data\PointLightElement.h">
-      <Filter>GameEngine\Resource\Data</Filter>
+      <Filter>GameEngine\Data</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\Data\RiffHeader.h">
-      <Filter>GameEngine\Resource\Data</Filter>
+      <Filter>GameEngine\Data</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\Data\SoundData.h">
-      <Filter>GameEngine\Resource\Data</Filter>
+      <Filter>GameEngine\Data</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\Data\SpotLightElement.h">
-      <Filter>GameEngine\Resource\Data</Filter>
+      <Filter>GameEngine\Data</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\Data\SRT.h">
-      <Filter>GameEngine\Resource\Data</Filter>
+      <Filter>GameEngine\Data</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\Data\TextureData.h">
-      <Filter>GameEngine\Resource\Data</Filter>
+      <Filter>GameEngine\Data</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\Data\TransformationMatrix.h">
-      <Filter>GameEngine\Resource\Data</Filter>
+      <Filter>GameEngine\Data</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\Data\VertexData.h">
-      <Filter>GameEngine\Resource\Data</Filter>
+      <Filter>GameEngine\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Scene\BaseScene.h">
+      <Filter>Application\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Scene\TitleScene\TitleScene.h">
+      <Filter>Application\Scene\TitleScene</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\GameManager.h">
+      <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Scene\GameScene\GameScene.h">
+      <Filter>Application\Scene\GameScene</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Collider\Collider.h">
+      <Filter>Application\Collider</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Character\Item\Item.h">
+      <Filter>Application\Character\Item</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Modules\AudioManager\AudioManager.h">
+      <Filter>GameEngine\Modules\AudioManager</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\LoadFile\LoadGLTFFile.h">
+      <Filter>GameEngine\LoadFile\GLTF</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Data\Node.h">
+      <Filter>GameEngine\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Debug\ImGuiManager\ImGuiManager.h">
+      <Filter>GameEngine\Debug\ImGuiManager</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Editor\ParticleEditor\ParticleEditor.h">
+      <Filter>GameEngine\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Math\Operation\Operation.h">
+      <Filter>GameEngine\Math\Operation</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Modules\PrimitiveManager\PrimitiveManager.h">
+      <Filter>GameEngine\Modules\PrimitiveManager</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -421,15 +472,6 @@
     </Filter>
     <Filter Include="Application\Bullet\PlayerBullet">
       <UniqueIdentifier>{be182511-9de2-4847-84ef-cc20be4131ea}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\Character">
-      <UniqueIdentifier>{f7e7b00b-95d3-419b-ae9f-9f2fcc68a66c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\Character\Boss">
-      <UniqueIdentifier>{2530ba28-a9db-4654-acff-c27e512d4cbe}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\Character\Player">
-      <UniqueIdentifier>{d12b4d77-761f-4894-bbe9-30f98d7dbaf8}</UniqueIdentifier>
     </Filter>
     <Filter Include="Application\GameCamera">
       <UniqueIdentifier>{8af3a526-46a8-4b26-b723-299e8ef772f1}</UniqueIdentifier>
@@ -494,9 +536,6 @@
     <Filter Include="GameEngine\Modules\DirectXCommon">
       <UniqueIdentifier>{d71f8fb4-13ad-4d34-98c1-b19f9e83804e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="GameEngine\Modules\ImGuiManager">
-      <UniqueIdentifier>{07d70550-e26b-4612-aef3-967a338f70c4}</UniqueIdentifier>
-    </Filter>
     <Filter Include="GameEngine\Modules\Initialvalue">
       <UniqueIdentifier>{9a1b62b1-4ae4-447f-a496-a387accdc031}</UniqueIdentifier>
     </Filter>
@@ -551,8 +590,47 @@
     <Filter Include="GameEngine\Resource\PointLight">
       <UniqueIdentifier>{745e2b4a-9550-4d20-b010-15d973bc4372}</UniqueIdentifier>
     </Filter>
-    <Filter Include="GameEngine\Resource\Data">
+    <Filter Include="Application\Scene\GameScene">
+      <UniqueIdentifier>{92169cd4-666c-4e20-b384-9621b65379ca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Scene\TitleScene">
+      <UniqueIdentifier>{b6e9533b-9849-442a-a0d2-3d3dd2edb521}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Collider">
+      <UniqueIdentifier>{f99949b4-9574-4f36-ab7a-53efbffa63e0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Character">
+      <UniqueIdentifier>{f7e7b00b-95d3-419b-ae9f-9f2fcc68a66c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Character\Boss">
+      <UniqueIdentifier>{2530ba28-a9db-4654-acff-c27e512d4cbe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Character\Player">
+      <UniqueIdentifier>{d12b4d77-761f-4894-bbe9-30f98d7dbaf8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Character\Item">
+      <UniqueIdentifier>{069b990c-aa2e-47d1-bc02-5aa29ac2ebc3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\Modules\AudioManager">
+      <UniqueIdentifier>{e8df6498-259c-487e-a53f-0d6e757ff025}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\Data">
       <UniqueIdentifier>{44f4709c-3d2f-40d7-8a46-f4bf210d55c9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\LoadFile\GLTF">
+      <UniqueIdentifier>{247048d6-d430-4237-9e90-0b89364d0db5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\Debug\ImGuiManager">
+      <UniqueIdentifier>{07d70550-e26b-4612-aef3-967a338f70c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\Editor">
+      <UniqueIdentifier>{c35b57a5-245b-4abc-bf2f-b0d4cd4e04ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\Math\Operation">
+      <UniqueIdentifier>{4b389da2-57a0-43b5-bc5d-3eebca42f631}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\Modules\PrimitiveManager">
+      <UniqueIdentifier>{f6336c19-5f0e-4227-84d0-ef1f2364fa48}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

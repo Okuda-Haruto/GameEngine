@@ -1,10 +1,310 @@
-#include "Matrix4x4.h"
-#include "Vector3.h"
-#include <assert.h>
+#include "Operation.h"
 #include <cmath>
+#include <iostream>
+#include <algorithm>
+#include <cassert>
+
+#pragma region Vector2
+
+//加算
+Vector2 Add(const Vector2& v1, const Vector2& v2) {
+	Vector2 AnswerVector;
+	AnswerVector.x = v1.x + v2.x;
+	AnswerVector.y = v1.y + v2.y;
+	return AnswerVector;
+}
+//減算
+Vector2 Subtract(const Vector2& v1, const Vector2& v2) {
+	Vector2 AnswerVector;
+	AnswerVector.x = v1.x - v2.x;
+	AnswerVector.y = v1.y - v2.y;
+	return AnswerVector;
+}
+//スカラー倍
+Vector2 Multiply(float scalar, const Vector2& v) {
+	Vector2 AnswerVector;
+	AnswerVector.x = scalar - v.x;
+	AnswerVector.y = scalar - v.y;
+	return AnswerVector;
+}
+//内積
+float Dot(const Vector2& v1, const Vector2& v2) {
+	float AnswerFloat;
+	AnswerFloat = v1.x * v2.x + v1.y * v2.y;
+	return AnswerFloat;
+}
+//長さ(ノルム)
+float Length(const Vector2& v) {
+	float AnswerFloat;
+	AnswerFloat = sqrtf(Dot(v, v));
+	return AnswerFloat;
+}
+//正規化
+Vector2 Normalize(const Vector2& v) {
+	Vector2 AnswerVector;
+	AnswerVector = Multiply(1.0f / Length(v), v);
+	return AnswerVector;
+}
+
+Vector2 Lerp(Vector2 a, Vector2 b, float t) {
+	Vector2 AnswerVector;
+	AnswerVector.x = a.x * (1 - t) + b.x * t;
+	AnswerVector.y = a.y * (1 - t) + b.y * t;
+	return AnswerVector;
+}
+
+Vector2 operator+(const Vector2& v1, const Vector2& v2) { return Add(v1, v2); }
+Vector2 operator-(const Vector2& v1, const Vector2& v2) { return Subtract(v1, v2); }
+Vector2 operator*(float s, const Vector2& v) { return Multiply(s, v); }
+Vector2 operator*(const Vector2& v, float s) { return s * v; }
+Vector2 operator/(const Vector2& v, float s) { return Multiply(1.0f /s, v); }
+Vector2 operator-(const Vector2& v) { return { -v.x,-v.y }; }
+Vector2 operator+(const Vector2& v) { return v; }
+
+#pragma endregion
+
+#pragma region Vector3
+
+//加算
+Vector3 Add(const Vector3& v1, const Vector3& v2) {
+	Vector3 AnswerVector;
+	AnswerVector.x = v1.x + v2.x;
+	AnswerVector.y = v1.y + v2.y;
+	AnswerVector.z = v1.z + v2.z;
+	return AnswerVector;
+}
+//減算
+Vector3 Subtract(const Vector3& v1, const Vector3& v2) {
+	Vector3 AnswerVector;
+	AnswerVector.x = v1.x - v2.x;
+	AnswerVector.y = v1.y - v2.y;
+	AnswerVector.z = v1.z - v2.z;
+	return AnswerVector;
+}
+//スカラー倍
+Vector3 Multiply(float scalar, const Vector3& v) {
+	Vector3 AnswerVector;
+	AnswerVector.x = scalar * v.x;
+	AnswerVector.y = scalar * v.y;
+	AnswerVector.z = scalar * v.z;
+	return AnswerVector;
+}
+//内積
+float Dot(const Vector3& v1, const Vector3& v2) {
+	float AnswerFloat;
+	AnswerFloat = v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+	return AnswerFloat;
+}
+//長さ(ノルム)
+float Length(const Vector3& v) {
+	float AnswerFloat;
+	AnswerFloat = sqrtf(Dot(v, v));
+	return AnswerFloat;
+}
+//正規化
+Vector3 Normalize(const Vector3& v) {
+	Vector3 AnswerVector;
+	AnswerVector = Multiply(1.0f / Length(v), v);
+	return AnswerVector;
+}
+
+//クロス積
+Vector3 Cross(const Vector3& v1, const Vector3& v2) {
+	Vector3 AnswerVector;
+	AnswerVector.x = v1.y * v2.z - v1.z * v2.y;
+	AnswerVector.y = v1.z * v2.x - v1.x * v2.z;
+	AnswerVector.z = v1.x * v2.y - v1.y * v2.x;
+	return AnswerVector;
+}
+
+Vector3 TransformNormal(const Vector3& v, const Matrix4x4& m) {
+	Vector3 result{
+		v.x * m.m[0][0] + v.y * m.m[1][0] + v.z * m.m[2][0],
+		v.x * m.m[0][1] + v.y * m.m[1][1] + v.z * m.m[2][1],
+		v.x * m.m[0][2] + v.y * m.m[1][2] + v.z * m.m[2][2] };
+
+	return result;
+}
+
+
+// 線形補間
+Vector3 Lerp(const Vector3& v1, const Vector3& v2, float t) {
+	Vector3 AnswerVector;
+	AnswerVector.x = v1.x * (1 - t) + v2.x * t;
+	AnswerVector.y = v1.y * (1 - t) + v2.y * t;
+	AnswerVector.z = v1.z * (1 - t) + v2.z * t;
+	return AnswerVector;
+}
+
+Vector3 Slerp(const Vector3& v1, const Vector3& v2, float t) {
+
+	Vector3 v1normal = Normalize(v1);
+	Vector3 v2normal = Normalize(v2);
+
+	//内積を求める
+	float dot = Dot(v1normal, v2normal);
+
+	//誤差により1.0fを超えるのを防ぐ
+	dot = std::min(dot, 1.0f);
+	//アークコサインでθの角度を求める
+	float theta = std::acos(dot);
+	//θの角度からsinθを求める
+	float sinTheta = std::sin(theta);
+	//サイン(θ(1-t))を求める
+	float sinThetaFrom = std::sin((1 - t) * theta);
+	//サインθtを求める
+	float sinThetaTo = std::sin(t * theta);
+
+	//球面線形補間したベクトル(単位ベクトル)
+	Vector3 lerpNormal;
+	if (sinTheta < 1.0e-5) {
+		lerpNormal = v1normal;
+	} else {
+		lerpNormal = Multiply(1 / sinTheta, Add(Multiply(sinThetaFrom, v1normal), Multiply(sinThetaTo, v2normal)));
+	}
+
+	//ベクトルの長さはv1とv2の長さを線形補間
+	float length1 = Length(v1);
+	float length2 = Length(v2);
+	//Lerpで補完ベクトルの長さを求める
+	float length = std::lerp(length1, length2, t);
+
+	//長さを反映
+	return Multiply(length, lerpNormal);
+}
+
+Vector3 Bezier(const Vector3& v0, const Vector3& v1, const Vector3& v2, float t) {
+	Vector3 p0p1 = Lerp(v0, v1, t);
+	Vector3 p1p2 = Lerp(v1, v2, t);
+	Vector3 p = Lerp(p0p1, p1p2, t);
+	return p;
+}
+
+Vector3 Spline(const Vector3& v0, const Vector3& v1, const Vector3& v2, const Vector3& v3, float t) {
+	Vector3 p;
+
+	// 補間範囲を0から1に限定
+	t = std::clamp(t, 0.0f, 1.0f);
+
+	//原点以外から始めるとズレるので原点に移動
+	Vector3 p0{};
+	Vector3 p1 = v1 - v0;
+	Vector3 p2 = v2 - v0;
+	Vector3 p3 = v3 - v0;
+
+	p = (
+		(-p0 + (3 * p1) - (3 * p2) + p3) * powf(t, 3) +
+		((2 * p0) - (5 * p1) + (4 * p2) - p3) * powf(t, 2) +
+		(p0 + p2) * t +
+		2 * p1
+		) / 2;
+
+	//原点から元の位置に戻す
+	return p + v0;
+}
+
+Vector3 Spline(const std::vector<Vector3>& controlPoint, float t) {
+
+	float divisionPoint = 1.0f / controlPoint.size();
+	int drawPoint = int(t / divisionPoint);
+
+	Vector3 p;
+	if (drawPoint > controlPoint.size() - 2) { // 存在しない通過点を通らないようにする
+		return p;
+	}
+
+	if (drawPoint <= 0) {
+		p = Spline(controlPoint[0], controlPoint[0], controlPoint[1], controlPoint[2], t / divisionPoint - float(drawPoint));
+	} else if (drawPoint == controlPoint.size() - 2) {	//存在しない通過点を通らないようにする
+		p = Spline(controlPoint[controlPoint.size() - 3], controlPoint[controlPoint.size() - 2], controlPoint[controlPoint.size() - 1], controlPoint[controlPoint.size() - 1], t / divisionPoint - float(drawPoint));
+	} else {
+		p = Spline(controlPoint[drawPoint - 1], controlPoint[drawPoint], controlPoint[drawPoint + 1], controlPoint[drawPoint + 2], t / divisionPoint - float(drawPoint));
+	}
+
+	return p;
+}
+
+Vector3 operator+(const Vector3& v1, const Vector3& v2) { return Add(v1, v2); }
+Vector3 operator-(const Vector3& v1, const Vector3& v2) { return Subtract(v1, v2); }
+Vector3 operator*(float s, const Vector3& v) { return Multiply(s, v); }
+Vector3 operator*(const Vector3& v, float s) { return s * v; }
+Vector3 operator/(const Vector3& v, float s) { return Multiply(1.0f / s, v); }
+Vector3 operator-(const Vector3& v) { return{ -v.x,-v.y,-v.z }; }
+Vector3 operator+(const Vector3& v) { return v; }
+
+#pragma endregion
+
+#pragma region Vector4
+
+//加算
+Vector4 Add(const Vector4& v1, const Vector4& v2) {
+	Vector4 AnswerVector;
+	AnswerVector.x = v1.x + v2.x;
+	AnswerVector.y = v1.y + v2.y;
+	AnswerVector.z = v1.z + v2.z;
+	AnswerVector.w = v1.w + v2.w;
+	return AnswerVector;
+}
+//減算
+Vector4 Subtract(const Vector4& v1, const Vector4& v2) {
+	Vector4 AnswerVector;
+	AnswerVector.x = v1.x - v2.x;
+	AnswerVector.y = v1.y - v2.y;
+	AnswerVector.z = v1.z - v2.z;
+	AnswerVector.w = v1.w - v2.w;
+	return AnswerVector;
+}
+//スカラー倍
+Vector4 Multiply(float scalar, const Vector4& v) {
+	Vector4 AnswerVector;
+	AnswerVector.x = scalar - v.x;
+	AnswerVector.y = scalar - v.y;
+	AnswerVector.z = scalar - v.z;
+	AnswerVector.w = scalar - v.w;
+	return AnswerVector;
+}
+//内積
+float Dot(const Vector4& v1, const Vector4& v2) {
+	float AnswerFloat;
+	AnswerFloat = v1.x * v2.x + v1.y * v2.y + v1.z * v2.z + v1.w * v2.w;
+	return AnswerFloat;
+}
+//長さ(ノルム)
+float Length(const Vector4& v) {
+	float AnswerFloat;
+	AnswerFloat = sqrtf(Dot(v, v));
+	return AnswerFloat;
+}
+//正規化
+Vector4 Normalize(const Vector4& v) {
+	Vector4 AnswerVector;
+	AnswerVector = Multiply(1.0f / Length(v), v);
+	return AnswerVector;
+}
+
+Vector4 Lerp(Vector4 a, Vector4 b, float t) {
+	Vector4 AnswerVector;
+	AnswerVector.x = a.x * (1 - t) + b.x * t;
+	AnswerVector.y = a.y * (1 - t) + b.y * t;
+	AnswerVector.z = a.z * (1 - t) + b.z * t;
+	AnswerVector.w = a.w * (1 - t) + b.w * t;
+	return AnswerVector;
+}
+
+Vector4 operator+(const Vector4& v1, const Vector4& v2) { return Add(v1, v2); }
+Vector4 operator-(const Vector4& v1, const Vector4& v2) { return Subtract(v1, v2); }
+Vector4 operator*(float s, const Vector4& v) { return Multiply(s, v); }
+Vector4 operator*(const Vector4& v, float s) { return s * v; }
+Vector4 operator/(const Vector4& v, float s) { return Multiply(1.0f / s, v); }
+Vector4 operator-(const Vector4& v) { return { -v.x,-v.y }; }
+Vector4 operator+(const Vector4& v) { return v; }
+
+#pragma endregion
+
+#pragma region Matrix4x4
 
 //行列の加法
-Matrix4x4 Matrix4x4::Add(const Matrix4x4& m1, const Matrix4x4& m2) {
+Matrix4x4 Add(const Matrix4x4& m1, const Matrix4x4& m2) {
 	Matrix4x4 returnMatrix;
 	for (int row = 0; row < 4; row++) {
 		for (int column = 0; column < 4; column++) {
@@ -14,7 +314,7 @@ Matrix4x4 Matrix4x4::Add(const Matrix4x4& m1, const Matrix4x4& m2) {
 	return returnMatrix;
 }
 //行列の減法
-Matrix4x4 Matrix4x4::Subtract(const Matrix4x4& m1, const Matrix4x4& m2) {
+Matrix4x4 Subtract(const Matrix4x4& m1, const Matrix4x4& m2) {
 	Matrix4x4 returnMatrix;
 	for (int row = 0; row < 4; row++) {
 		for (int column = 0; column < 4; column++) {
@@ -24,7 +324,7 @@ Matrix4x4 Matrix4x4::Subtract(const Matrix4x4& m1, const Matrix4x4& m2) {
 	return returnMatrix;
 }
 //行列の積
-Matrix4x4 Matrix4x4::Multiply(const Matrix4x4& m1, const Matrix4x4& m2) {
+Matrix4x4 Multiply(const Matrix4x4& m1, const Matrix4x4& m2) {
 	Matrix4x4 returnMatrix;
 	for (int row = 0; row < 4; row++) {
 		for (int column = 0; column < 4; column++) {
@@ -34,7 +334,7 @@ Matrix4x4 Matrix4x4::Multiply(const Matrix4x4& m1, const Matrix4x4& m2) {
 	return returnMatrix;
 }
 //逆行列
-Matrix4x4 Matrix4x4::Inverse(const Matrix4x4& m) {
+Matrix4x4 Inverse(const Matrix4x4& m) {
 	float determinant = m.m[0][0] * m.m[1][1] * m.m[2][2] * m.m[3][3] + m.m[0][0] * m.m[1][2] * m.m[2][3] * m.m[3][1] + m.m[0][0] * m.m[1][3] * m.m[2][1] * m.m[3][2]
 		- m.m[0][0] * m.m[1][3] * m.m[2][2] * m.m[3][1] - m.m[0][0] * m.m[1][2] * m.m[2][1] * m.m[3][3] - m.m[0][0] * m.m[1][1] * m.m[2][3] * m.m[3][2]
 		- m.m[0][1] * m.m[1][0] * m.m[2][2] * m.m[3][3] - m.m[0][2] * m.m[1][0] * m.m[2][3] * m.m[3][1] - m.m[0][3] * m.m[1][0] * m.m[2][1] * m.m[3][2]
@@ -67,7 +367,7 @@ Matrix4x4 Matrix4x4::Inverse(const Matrix4x4& m) {
 	return returnMatrix;
 }
 //転置行列
-Matrix4x4 Matrix4x4::Transpose(const Matrix4x4& m) {
+Matrix4x4 Transpose(const Matrix4x4& m) {
 	Matrix4x4 returnMatrix;
 	for (int row = 0; row < 4; row++) {
 		for (int column = 0; column < 4; column++) {
@@ -77,7 +377,7 @@ Matrix4x4 Matrix4x4::Transpose(const Matrix4x4& m) {
 	return returnMatrix;
 }
 //単位表列の作成
-Matrix4x4 Matrix4x4::MakeIdentity4x4() {
+Matrix4x4 MakeIdentity4x4() {
 	Matrix4x4 returnMatrix;
 	returnMatrix.m[0][0] = 1.0f; returnMatrix.m[0][1] = 0.0f; returnMatrix.m[0][2] = 0.0f; returnMatrix.m[0][3] = 0.0f;
 	returnMatrix.m[1][0] = 0.0f; returnMatrix.m[1][1] = 1.0f; returnMatrix.m[1][2] = 0.0f; returnMatrix.m[1][3] = 0.0f;
@@ -87,7 +387,7 @@ Matrix4x4 Matrix4x4::MakeIdentity4x4() {
 }
 
 //平行移動行列
-Matrix4x4 Matrix4x4::MakeTranslateMatrix(const Vector3& translate) {
+Matrix4x4 MakeTranslateMatrix(const Vector3& translate) {
 	Matrix4x4 returnMatrix;
 	returnMatrix.m[0][0] = 1.0f; returnMatrix.m[0][1] = 0.0f; returnMatrix.m[0][2] = 0.0f; returnMatrix.m[0][3] = 0.0f;
 	returnMatrix.m[1][0] = 0.0f; returnMatrix.m[1][1] = 1.0f; returnMatrix.m[1][2] = 0.0f; returnMatrix.m[1][3] = 0.0f;
@@ -97,7 +397,7 @@ Matrix4x4 Matrix4x4::MakeTranslateMatrix(const Vector3& translate) {
 }
 
 //拡大縮小行列
-Matrix4x4 Matrix4x4::MakeScaleMatrix(const Vector3& scale) {
+Matrix4x4 MakeScaleMatrix(const Vector3& scale) {
 	Matrix4x4 returnMatrix;
 	returnMatrix.m[0][0] = scale.x; returnMatrix.m[0][1] = 0.0f; returnMatrix.m[0][2] = 0.0f; returnMatrix.m[0][3] = 0.0f;
 	returnMatrix.m[1][0] = 0.0f; returnMatrix.m[1][1] = scale.y; returnMatrix.m[1][2] = 0.0f; returnMatrix.m[1][3] = 0.0f;
@@ -107,7 +407,7 @@ Matrix4x4 Matrix4x4::MakeScaleMatrix(const Vector3& scale) {
 }
 
 //座標変換
-Vector3 Matrix4x4::Transform(const Vector3& vector, const Matrix4x4& matrix) {
+Vector3 Transform(const Vector3& vector, const Matrix4x4& matrix) {
 	Vector3 returnVector;
 	returnVector.x = vector.x * matrix.m[0][0] + vector.y * matrix.m[1][0] + vector.z * matrix.m[2][0] + 1.0f * matrix.m[3][0];
 	returnVector.y = vector.x * matrix.m[0][1] + vector.y * matrix.m[1][1] + vector.z * matrix.m[2][1] + 1.0f * matrix.m[3][1];
@@ -121,7 +421,7 @@ Vector3 Matrix4x4::Transform(const Vector3& vector, const Matrix4x4& matrix) {
 }
 
 //X軸回転行列
-Matrix4x4 Matrix4x4::MakeRotateXMatrix(float radian) {
+Matrix4x4 MakeRotateXMatrix(float radian) {
 	Matrix4x4 returnMatrix;
 	returnMatrix.m[0][0] = 1.0f; returnMatrix.m[0][1] = 0.0f; returnMatrix.m[0][2] = 0.0f; returnMatrix.m[0][3] = 0.0f;
 	returnMatrix.m[1][0] = 0.0f; returnMatrix.m[1][1] = std::cos(radian); returnMatrix.m[1][2] = std::sin(radian); returnMatrix.m[1][3] = 0.0f;
@@ -131,7 +431,7 @@ Matrix4x4 Matrix4x4::MakeRotateXMatrix(float radian) {
 }
 
 //Y軸回転行列
-Matrix4x4 Matrix4x4::MakeRotateYMatrix(float radian) {
+Matrix4x4 MakeRotateYMatrix(float radian) {
 	Matrix4x4 returnMatrix;
 	returnMatrix.m[0][0] = std::cos(radian); returnMatrix.m[0][1] = 0.0f; returnMatrix.m[0][2] = -std::sin(radian); returnMatrix.m[0][3] = 0.0f;
 	returnMatrix.m[1][0] = 0.0f; returnMatrix.m[1][1] = 1.0f; returnMatrix.m[1][2] = 0.0f; returnMatrix.m[1][3] = 0.0f;
@@ -141,7 +441,7 @@ Matrix4x4 Matrix4x4::MakeRotateYMatrix(float radian) {
 }
 
 //Z軸回転行列
-Matrix4x4 Matrix4x4::MakeRotateZMatrix(float radian) {
+Matrix4x4 MakeRotateZMatrix(float radian) {
 	Matrix4x4 returnMatrix;
 	returnMatrix.m[0][0] = std::cos(radian); returnMatrix.m[0][1] = std::sin(radian); returnMatrix.m[0][2] = 0.0f; returnMatrix.m[0][3] = 0.0f;
 	returnMatrix.m[1][0] = -std::sin(radian); returnMatrix.m[1][1] = std::cos(radian); returnMatrix.m[1][2] = 0.0f; returnMatrix.m[1][3] = 0.0f;
@@ -151,19 +451,16 @@ Matrix4x4 Matrix4x4::MakeRotateZMatrix(float radian) {
 }
 
 //回転行列
-Matrix4x4 Matrix4x4::MakeRotateMatrix(Vector3 rotate) {
+Matrix4x4 MakeRotateMatrix(Vector3 rotate) {
 	Matrix4x4 returnMatrix;
 	returnMatrix = MakeRotateXMatrix(rotate.x) * MakeRotateYMatrix(rotate.y) * MakeRotateZMatrix(rotate.z);
 	return returnMatrix;
 }
 
 //3次元アフィン変換行列
-Matrix4x4 Matrix4x4::MakeAffineMatrix(Vector3 scale, Vector3 rotate, Vector3 translate) {
-	Matrix4x4 rotateX = MakeRotateXMatrix(rotate.x);
-	Matrix4x4 rotateY = MakeRotateYMatrix(rotate.y);
-	Matrix4x4 rotateZ = MakeRotateZMatrix(rotate.z);
+Matrix4x4 MakeAffineMatrix(Vector3 scale, Vector3 rotate, Vector3 translate) {
 
-	Matrix4x4 rotateMatrix = Multiply(rotateX, Multiply(rotateY, rotateZ));
+	Matrix4x4 rotateMatrix = MakeRotateMatrix(rotate);
 
 	Matrix4x4 returnMatrix;
 	returnMatrix.m[0][0] = scale.x * rotateMatrix.m[0][0]; returnMatrix.m[0][1] = scale.x * rotateMatrix.m[0][1]; returnMatrix.m[0][2] = scale.x * rotateMatrix.m[0][2]; returnMatrix.m[0][3] = 0.0f;
@@ -174,7 +471,7 @@ Matrix4x4 Matrix4x4::MakeAffineMatrix(Vector3 scale, Vector3 rotate, Vector3 tra
 }
 
 //透視投影行列
-Matrix4x4 Matrix4x4::MakePerspectiveFovMatrix(float fovY, float aspectRatio, float nearClip, float farClip) {
+Matrix4x4 MakePerspectiveFovMatrix(float fovY, float aspectRatio, float nearClip, float farClip) {
 	Matrix4x4 returnMatrix;
 	returnMatrix.m[0][0] = 1 / tanf(fovY / 2) / aspectRatio; returnMatrix.m[0][1] = 0.0f; returnMatrix.m[0][2] = 0.0f; returnMatrix.m[0][3] = 0.0f;
 	returnMatrix.m[1][0] = 0.0f; returnMatrix.m[1][1] = 1 / tanf(fovY / 2); returnMatrix.m[1][2] = 0.0f; returnMatrix.m[1][3] = 0.0f;
@@ -184,7 +481,7 @@ Matrix4x4 Matrix4x4::MakePerspectiveFovMatrix(float fovY, float aspectRatio, flo
 }
 
 //正射影行列
-Matrix4x4 Matrix4x4::MakeOrthographicMatrix(float left, float top, float right, float bottom, float nearClip, float farClip) {
+Matrix4x4 MakeOrthographicMatrix(float left, float top, float right, float bottom, float nearClip, float farClip) {
 	Matrix4x4 returnMatrix;
 	returnMatrix.m[0][0] = 2 / (right - left); returnMatrix.m[0][1] = 0.0f; returnMatrix.m[0][2] = 0.0f; returnMatrix.m[0][3] = 0.0f;
 	returnMatrix.m[1][0] = 0.0f; returnMatrix.m[1][1] = 2 / (top - bottom); returnMatrix.m[1][2] = 0.0f; returnMatrix.m[1][3] = 0.0f;
@@ -194,7 +491,7 @@ Matrix4x4 Matrix4x4::MakeOrthographicMatrix(float left, float top, float right, 
 }
 
 //ビューポート変換行列
-Matrix4x4 Matrix4x4::MakeViewportMatrix(float left, float top, float width, float height, float minDepth, float maxDepth) {
+Matrix4x4 MakeViewportMatrix(float left, float top, float width, float height, float minDepth, float maxDepth) {
 	Matrix4x4 returnMatrix;
 	returnMatrix.m[0][0] = width / 2; returnMatrix.m[0][1] = 0.0f; returnMatrix.m[0][2] = 0.0f; returnMatrix.m[0][3] = 0.0f;
 	returnMatrix.m[1][0] = 0.0f; returnMatrix.m[1][1] = -height / 2; returnMatrix.m[1][2] = 0.0f; returnMatrix.m[1][3] = 0.0f;
@@ -203,8 +500,10 @@ Matrix4x4 Matrix4x4::MakeViewportMatrix(float left, float top, float width, floa
 	return returnMatrix;
 }
 
-Matrix4x4 operator+(const Matrix4x4& m1, const Matrix4x4& m2) { return Matrix4x4::Add(m1, m2); }
-Matrix4x4 operator-(const Matrix4x4& m1, const Matrix4x4& m2) { return Matrix4x4::Subtract(m1, m2); }
-Matrix4x4 operator*(const Matrix4x4& m1, const Matrix4x4& m2) { return Matrix4x4::Multiply(m1, m2); }
-Vector3 operator*(const Vector3& v, const Matrix4x4& m) { return Matrix4x4::Transform(v, m); }
+Matrix4x4 operator+(const Matrix4x4& m1, const Matrix4x4& m2) { return Add(m1, m2); }
+Matrix4x4 operator-(const Matrix4x4& m1, const Matrix4x4& m2) { return Subtract(m1, m2); }
+Matrix4x4 operator*(const Matrix4x4& m1, const Matrix4x4& m2) { return Multiply(m1, m2); }
+Vector3 operator*(const Vector3& v, const Matrix4x4& m) { return Transform(v, m); }
 Vector3 operator*(const Matrix4x4& m, const Vector3& v) { return v * m; }
+
+#pragma endregion

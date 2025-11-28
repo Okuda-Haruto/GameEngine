@@ -17,17 +17,17 @@ void DebugCamera::Initialize() {
 
 	ChangeCameraMode(new CameraModeSphericalCoordinates);
 
-	rotateMatrix_ = Matrix4x4::MakeIdentity4x4();
+	rotateMatrix_ = MakeIdentity4x4();
 	//正面状態
 	sphericalCoordinates_ = { -10.0f,0.0f,std::numbers::pi_v<float> / 4 * 3 };
-	viewMatrix_ = Matrix4x4::MakeIdentity4x4();
+	viewMatrix_ = MakeIdentity4x4();
 }
 
 void DebugCamera::Update() {
 
 	cameraMode_->Update(this);
 	
-	projectionMatrix_ = Matrix4x4::MakePerspectiveFovMatrix(0.45f, float(kWindowWidth_) / float(kWindowHeight_), 0.1f, 2000.0f);
+	projectionMatrix_ = MakePerspectiveFovMatrix(0.45f, float(kWindowWidth_) / float(kWindowHeight_), 0.1f, 2000.0f);
 }
 
 void DebugCamera::Reset() {
@@ -76,7 +76,7 @@ void CameraModePlayerCamera::Update(DebugCamera* debugCamera) {
 
 		//カメラの向きに合わせて変換
 		move = move * rotateMatrix;
-		move = Vector3::Normalize(Vector3{ move.x,0.0f,move.z }) * speed;
+		move = Normalize(Vector3{ move.x,0.0f,move.z }) * speed;
 
 		centerPoint_ = { centerPoint_.x + move.x,centerPoint_.y + move.y,centerPoint_.z + move.z };
 	}
@@ -115,10 +115,10 @@ void CameraModePlayerCamera::Update(DebugCamera* debugCamera) {
 	translate.z = centerPoint_.z + sphericalCoordinates.x * std::sinf(sphericalCoordinates.z) * std::sinf(sphericalCoordinates.y + std::numbers::pi_v<float> / 2);	//-π~πの範囲にするために補正
 
 	//正面状態の初期値を基に、二つの角度を補正
-	rotateMatrix = Matrix4x4::MakeRotateXMatrix(sphericalCoordinates.z - std::numbers::pi_v<float> / 2) * Matrix4x4::MakeRotateYMatrix(-sphericalCoordinates.y);
+	rotateMatrix = MakeRotateXMatrix(sphericalCoordinates.z - std::numbers::pi_v<float> / 2) * MakeRotateYMatrix(-sphericalCoordinates.y);
 
-	Matrix4x4 cameraMatrix = rotateMatrix * Matrix4x4::MakeTranslateMatrix(translate);
-	Matrix4x4 viewMatrix = Matrix4x4::Inverse(cameraMatrix);
+	Matrix4x4 cameraMatrix = rotateMatrix * MakeTranslateMatrix(translate);
+	Matrix4x4 viewMatrix = Inverse(cameraMatrix);
 
 	debugCamera->SetSphericalCoordinates(sphericalCoordinates);
 	debugCamera->SetRotateMatrix(rotateMatrix);
@@ -181,10 +181,10 @@ void CameraModeSphericalCoordinates::Update(DebugCamera* debugCamera) {
 	translate.z = centerPoint_.z + sphericalCoordinates.x * std::sinf(sphericalCoordinates.z) * std::sinf(sphericalCoordinates.y + std::numbers::pi_v<float> / 2);	//-π~πの範囲にするために補正
 
 	//正面状態の初期値を基に、二つの角度を補正
-	rotateMatrix = Matrix4x4::MakeRotateXMatrix(sphericalCoordinates.z - std::numbers::pi_v<float> / 2) * Matrix4x4::MakeRotateYMatrix(-sphericalCoordinates.y);
+	rotateMatrix = MakeRotateXMatrix(sphericalCoordinates.z - std::numbers::pi_v<float> / 2) * MakeRotateYMatrix(-sphericalCoordinates.y);
 
-	Matrix4x4 cameraMatrix = rotateMatrix * Matrix4x4::MakeTranslateMatrix(translate);
-	Matrix4x4 viewMatrix = Matrix4x4::Inverse(cameraMatrix);
+	Matrix4x4 cameraMatrix = rotateMatrix * MakeTranslateMatrix(translate);
+	Matrix4x4 viewMatrix = Inverse(cameraMatrix);
 
 	debugCamera->SetSphericalCoordinates(sphericalCoordinates);
 	debugCamera->SetRotateMatrix(rotateMatrix);

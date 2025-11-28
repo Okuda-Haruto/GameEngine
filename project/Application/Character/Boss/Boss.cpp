@@ -9,8 +9,10 @@ Boss::~Boss() {
 
 }
 
-void Boss::Initialize(ModelHolder* modelHolder) {
+void Boss::Initialize(ModelHolder* modelHolder, float maxHP) {
 	modelHolder_ = modelHolder;
+	maxHP_ = maxHP;
+	HP_ = maxHP_;
 
 	//モデルの生成
 	object_ = std::make_unique<Object>();
@@ -23,12 +25,23 @@ void Boss::Initialize(ModelHolder* modelHolder) {
 
 	targetTransform_ = std::make_unique<SRT>();
 	*targetTransform_ = transform_;
+
+	InitializeCollider(1.0f, CollisionID_Enemy_Character);
+	UpdateCollider();
 }
 
 void Boss::Update() {
 
+
+	UpdateCollider();
 }
 
 void Boss::Draw() {
-	object_->Draw3D();
+	if (HP_ > 0.0f) {
+		object_->Draw3D();
+	}
+}
+
+void Boss::IsCollision() {
+	HP_--;
 }

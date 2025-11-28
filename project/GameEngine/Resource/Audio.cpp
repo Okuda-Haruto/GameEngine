@@ -103,9 +103,7 @@ void Audio::Initialize(std::string path, bool isLoop) {
 
 }
 
-void Audio::SoundLoadWave(bool isLoop) {
-
-	isLoop_ = isLoop;
+void Audio::SetNewSourceVoice() {
 
 	//ソースリーダーを作成
 	MFCreateSourceReaderFromURL(path_.c_str(), NULL, &pMFSourceReader_);

@@ -3,6 +3,6 @@
 #include <AABB.h>
 
 struct AccelerationField {
-	Vector3 acceleration;
+	SRT acceleration;
 	AABB area;
 };

@@ -9,9 +9,9 @@ Camera::Camera() {
 }
 
 void Camera::Initialize(DirectXCommon* dxCommon) {
-	Matrix4x4 worldMatrix = Matrix4x4::MakeAffineMatrix({ 1.0f,1.0f,1.0f }, { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,-10.0f });
-	viewMatrix_ = Matrix4x4::Inverse(worldMatrix);
-	projectionMatrix_ = Matrix4x4::MakePerspectiveFovMatrix(0.45f, float(kWindowWidth_) / float(kWindowHeight_), 0.1f, 100.0f);
+	Matrix4x4 worldMatrix = MakeAffineMatrix({ 1.0f,1.0f,1.0f }, { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,-10.0f });
+	viewMatrix_ = Inverse(worldMatrix);
+	projectionMatrix_ = MakePerspectiveFovMatrix(0.45f, float(kWindowWidth_) / float(kWindowHeight_), 0.1f, 100.0f);
 
 	//カメラ座標用のリソースを作る
 	cameraResource_ = dxCommon->CreateBufferResources(sizeof(CameraForGPU));
@@ -25,9 +25,9 @@ void Camera::Initialize(DirectXCommon* dxCommon) {
 
 void Camera::Update(SRT transform) {
 
-	Matrix4x4 worldMatrix = Matrix4x4::MakeAffineMatrix({ 1.0f,1.0f,1.0f }, transform.rotate, transform.translate);
-	viewMatrix_ = Matrix4x4::Inverse(worldMatrix);
-	projectionMatrix_ = Matrix4x4::MakePerspectiveFovMatrix(0.45f, float(kWindowWidth_) / float(kWindowHeight_), 0.1f, 100.0f);
+	Matrix4x4 worldMatrix = MakeAffineMatrix({ 1.0f,1.0f,1.0f }, transform.rotate, transform.translate);
+	viewMatrix_ = Inverse(worldMatrix);
+	projectionMatrix_ = MakePerspectiveFovMatrix(0.45f, float(kWindowWidth_) / float(kWindowHeight_), 0.1f, 100.0f);
 
 	//書き込むためのアドレスを取得
 	cameraResource_->Map(0, nullptr, reinterpret_cast<void**>(&cameraData_));
@@ -41,7 +41,7 @@ void Camera::Update() {
 	assert(debugCamera_ != nullptr);
 	debugCamera_->UpdateCamera(this);
 
-	Matrix4x4 worldMatrix = Matrix4x4::Inverse(viewMatrix_);
+	Matrix4x4 worldMatrix = Inverse(viewMatrix_);
 
 	//書き込むためのアドレスを取得
 	cameraResource_->Map(0, nullptr, reinterpret_cast<void**>(&cameraData_));

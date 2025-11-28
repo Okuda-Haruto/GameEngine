@@ -19,4 +19,5 @@ public:
 	void SetCamera(Camera* camera) { object_->SetCamera(camera); }
 
 	void SetDirectionalLight(DirectionalLight* directionalLight) { object_->SetDirectionalLight(directionalLight); }
+	void SetPointLight(PointLight* pointLight) { object_->SetPointLight(pointLight); }
 };

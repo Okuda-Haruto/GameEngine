@@ -16,6 +16,9 @@ void ModelHolder::Initialize() {
 	filePath.directoryPath_ = "resources/Caracter/Player";
 	filePath.fileName_ = "Player.obj";
 	filePathes_.push_back(filePath);
+	filePath.directoryPath_ = "resources/Bullet";
+	filePath.fileName_ = "Bullet.obj";
+	filePathes_.push_back(filePath);
 
 	for (FilePath filePath : filePathes_) {
 		ModelManager::GetInstance()->LoadModel(filePath.directoryPath_, filePath.fileName_);

@@ -89,7 +89,7 @@ void Sprite::Update() {
 	};
 
 	material_.color = color_;
-	material_.uvTransform = Matrix4x4::MakeAffineMatrix(uvTransform_.scale, uvTransform_.rotate, uvTransform_.translate);
+	material_.uvTransform = MakeAffineMatrix(uvTransform_.scale, uvTransform_.rotate, uvTransform_.translate);
 
 	float left = 0.0f - anchorPoint_.x;
 	float right = 1.0f - anchorPoint_.x;
