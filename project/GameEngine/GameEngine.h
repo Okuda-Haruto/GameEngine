@@ -32,6 +32,7 @@
 #include "SRVManager/SRVManager.h"
 #include "ParticleManager/ParticleManager.h"
 #include "PrimitiveManager/PrimitiveManager.h"
+#include "AudioManager/AudioManager.h"
 
 #include <vector>
 #include <array>
@@ -184,8 +185,6 @@ private:
 
 	void Intialize_(const wchar_t* WindowName, int32_t kWindowWidth = 1280, int32_t kWindowHeight = 720);
 
-	Microsoft::WRL::ComPtr<IXAudio2> GetXAudio2_() { return xAudio2_; }
-
 	float randomFloat_(float minFloat, float maxFloat);
 	int32_t randomInt_(int32_t minInt,int32_t maxInt);
 
@@ -248,9 +247,6 @@ public:
 	/// <param name="kWindowWidth">ウィンドウの幅 (例:1280)</param>
 	/// <param name="kWindowHeight">ウィンドウの高さ (例:720)</param>
 	static void Intialize(const wchar_t* WindowName, int32_t kWindowWidth = 1280, int32_t kWindowHeight = 720) { getInstance()->Intialize_(WindowName, kWindowWidth, kWindowHeight); }
-
-	[[nodiscard]]
-	static Microsoft::WRL::ComPtr<IXAudio2> GetXAudio2() { return getInstance()->GetXAudio2_(); }
 
 	static float randomFloat(float minFloat, float maxFloat) { return getInstance()->randomFloat_(minFloat, maxFloat); }
 	static int32_t randomInt(int32_t minInt, int32_t maxInt) { return getInstance()->randomInt_(minInt, maxInt); }

@@ -24,36 +24,14 @@
 //音声
 class Audio {
 private:
-	//XAudio2インスタンス
-	Microsoft::WRL::ComPtr<IXAudio2> xAudio2_;
-	//使用する音声データ
-	SoundData soundData_;
-	//波形フォーマットを元にSourceVioceの生成
-	IXAudio2SourceVoice* pSourceVoice_ = nullptr;
-	//再生する波形データの設定
-	XAUDIO2_BUFFER buf_{};
-
-	//メディアファンデーション	ソースリーダー
-	IMFSourceReader* pMFSourceReader_ = nullptr;
-	//メディアタイプ
-	IMFMediaType* pMFMediaType_ = nullptr;
-	//オーディオデータ形式
-	WAVEFORMATEX* waveFormat = nullptr;
-	//オーディオデータ
-	std::vector<BYTE> mediaData;
-
-	Microsoft::WRL::ComPtr<IMFAttributes> pAttr_ = nullptr;
+	std::list<IXAudio2SourceVoice*> sourceVoiceList;
 
 	//音量
-	float Volume_ = 1.0f;
+	float volume_ = 1.0f;
 	//音声データのループ再生するか
 	bool isLoop_ = false;
 
-	std::list<IXAudio2SourceVoice*> sourceList_;
-
-	std::wstring path_;
-
-	void SetNewSourceVoice();
+	std::string path_;
 public:
 	~Audio();
 
@@ -62,10 +40,7 @@ public:
 	/// </summary>
 	/// <param name="filename">.wavファイル名 (例:resources/Audio.wav)</param>
 	/// <param name="isLoop">ループ再生するか</param>
-	void Initialize(std::string path,bool isLoop);
-
-	// 音声データの解放
-	void SoundUnload();
+	void Initialize(std::string path, float volume);
 
 	/// <summary>
 	/// 音量入力
@@ -79,4 +54,8 @@ public:
 	void SoundStopWave();
 	//音声データの終了
 	void SoundEndWave();
+private:
+	void IsPlaying();
+
+	void DeleteSourceVoice(IXAudio2SourceVoice* sourceVoice);
 };
