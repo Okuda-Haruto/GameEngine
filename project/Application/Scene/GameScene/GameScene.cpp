@@ -275,7 +275,13 @@ void GameScene::Update() {
 	emitter.transform.translate.y = 0.0f;
 	editor_4->SetEmitter(emitter);
 
-
+#ifdef USE_IMGUI
+	ImGui::Begin("操作方法");
+	ImGui::Text("矢印キー：移動");
+	ImGui::Text("X：発射");
+	ImGui::Text("C：回避");
+	ImGui::End();
+#endif
 }
 
 void GameScene::Draw() {

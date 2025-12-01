@@ -48,6 +48,7 @@ GameEngine::~GameEngine() {
 	delete srvManager_;
 	delete dxCommon_;
 	delete winApp_;
+	AudioManager::GetInstance()->Finalize();
 	TextureManager::GetInstance()->Finalize();
 	ModelManager::GetInstance()->Finalize();
 	PrimitiveManager::GetInstance()->Finalize();
@@ -156,6 +157,8 @@ void GameEngine::Intialize_(const wchar_t* WindowName, int32_t kWindowWidth, int
 	//マスターボイスを生成
 	hr = xAudio2_->CreateMasteringVoice(&masterVoice_);
 	assert(SUCCEEDED(hr));
+
+	AudioManager::GetInstance()->Initialize(xAudio2_);
 
 	//乱数シード初期化
 	std::random_device seedGenerator;

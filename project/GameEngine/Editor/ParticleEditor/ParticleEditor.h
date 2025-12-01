@@ -2,7 +2,6 @@
 #include <ParticleManager/ParticleManager.h>
 #include <ParticleEmitter/ParticleEmitter.h>
 
-#ifdef USE_IMGUI
 class ParticleEditor {
 private:
 
@@ -21,4 +20,3 @@ public:
 	AccelerationField GetField() { return field_; }
 	void SetField(AccelerationField field) { field_ = field; }
 };
-#endif

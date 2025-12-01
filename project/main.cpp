@@ -22,8 +22,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			//	更新処理
 			//
 			
-			//sampleScene->Update();
-			gameManager->Update();
+			sampleScene->Update();
+			//gameManager->Update();
 
 			//
 			//	描画処理
@@ -31,8 +31,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 			GameEngine::PreDraw();
 
-			//sampleScene->Draw();
-			gameManager->Draw();
+			sampleScene->Draw();
+			//gameManager->Draw();
 
 			GameEngine::PostDraw();
 

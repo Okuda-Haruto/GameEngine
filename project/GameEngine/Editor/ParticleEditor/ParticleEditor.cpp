@@ -3,7 +3,6 @@
 #include "PrimitiveManager/PrimitiveManager.h"
 #include "Operation/Operation.h"
 
-#ifdef USE_IMGUI
 void ParticleEditor::Initialize(ParticleEmitter* particleEmitter) {
 	particleEmitter_ = particleEmitter;
 
@@ -29,6 +28,7 @@ void ParticleEditor::Initialize(ParticleEmitter* particleEmitter) {
 }
 
 void ParticleEditor::Update() {
+#ifdef USE_IMGUI
 	ImGui::Begin(particleEmitter_->GetName().c_str());
 	if (ImGui::CollapsingHeader("Emitter")) {
 		int count = emitter_.count;
@@ -81,6 +81,7 @@ void ParticleEditor::Update() {
 		}
 	}
 	ImGui::End();
+#endif
 
 	particleEmitter_->SetEmitter(emitter_);
 	particleEmitter_->SetField(field_);
@@ -89,6 +90,7 @@ void ParticleEditor::Update() {
 }
 
 void ParticleEditor::Draw() {
+#ifdef USE_IMGUI
 	PrimitiveManager::GetInstance()->AddPoint(emitter_.transform.translate);
 	AABB aabb = emitter_.spawnRange;
 	aabb.min = emitter_.spawnRange.min + emitter_.transform.translate;
@@ -107,7 +109,7 @@ void ParticleEditor::Draw() {
 	};
 	line.diff = field_.acceleration.translate;
 	PrimitiveManager::GetInstance()->AddLine(line);
+#endif
 
 	particleEmitter_->Draw();
 }
-#endif
