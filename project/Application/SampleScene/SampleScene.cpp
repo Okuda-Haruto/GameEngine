@@ -86,7 +86,7 @@ void SampleScene::Initialize() {
 
 	//音源
 	audio_ = new Audio;
-	audio_->Initialize("resources/DebugResources/fanfare.wav",false);
+	audio_->Initialize("resources/DebugResources/TestAudio_koukaonLabo.mp3",false);
 
 	//デバッグカメラ
 	debugCamera_ = new DebugCamera();
