@@ -4,6 +4,7 @@
 enum class ModelIndex {
 	Skydome,
 	Ground,
+	Fence,
 	Player,
 	Bullet
 };

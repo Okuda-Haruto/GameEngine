@@ -178,6 +178,12 @@
     <ClCompile Include="GameEngine\Modules\PrimitiveManager\PrimitiveManager.cpp">
       <Filter>GameEngine\Modules\PrimitiveManager</Filter>
     </ClCompile>
+    <ClCompile Include="Application\BackGround\Fence\Fence.cpp">
+      <Filter>Application\BackGround\Fence</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Bullet\BossBullet\BossBullet.cpp">
+      <Filter>Application\Bullet\BossBullet</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\BackGround\Ground\Ground.h">
@@ -444,6 +450,12 @@
     <ClInclude Include="GameEngine\Modules\PrimitiveManager\PrimitiveManager.h">
       <Filter>GameEngine\Modules\PrimitiveManager</Filter>
     </ClInclude>
+    <ClInclude Include="Application\BackGround\Fence\Fence.h">
+      <Filter>Application\BackGround\Fence</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Bullet\BossBullet\BossBullet.h">
+      <Filter>Application\Bullet\BossBullet</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -631,6 +643,12 @@
     </Filter>
     <Filter Include="GameEngine\Modules\PrimitiveManager">
       <UniqueIdentifier>{f6336c19-5f0e-4227-84d0-ef1f2364fa48}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Bullet\BossBullet">
+      <UniqueIdentifier>{4aa5fe03-41ea-49c0-94d6-731469498c92}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\BackGround\Fence">
+      <UniqueIdentifier>{6e980b69-b0ae-4218-a2d9-927e327b3fc5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

@@ -7,15 +7,23 @@ ModelHolder::~ModelHolder() {
 
 void ModelHolder::Initialize() {
 	FilePath filePath;
+	//天球
 	filePath.directoryPath_ = "resources/BackGround/Skydome";
 	filePath.fileName_ = "Skydome.obj";
 	filePathes_.push_back(filePath);
+	//地面
 	filePath.directoryPath_ = "resources/BackGround/Ground";
 	filePath.fileName_ = "Ground.obj";
 	filePathes_.push_back(filePath);
+	//柵
+	filePath.directoryPath_ = "resources/BackGround/Fence";
+	filePath.fileName_ = "Fence.obj";
+	filePathes_.push_back(filePath);
+	//プレイヤー
 	filePath.directoryPath_ = "resources/Caracter/Player";
 	filePath.fileName_ = "Player.obj";
 	filePathes_.push_back(filePath);
+	//弾丸
 	filePath.directoryPath_ = "resources/Bullet";
 	filePath.fileName_ = "Bullet.obj";
 	filePathes_.push_back(filePath);

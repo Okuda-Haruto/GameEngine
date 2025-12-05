@@ -4,11 +4,20 @@
 #include "../TitleScene/TitleScene.h"
 
 GameScene::~GameScene() {
+	for (Fence* fence : fence_) {
+		delete fence;
+		fence = nullptr;
+	}
 	for (PlayerBullet* bullet : playerBullet_) {
 		delete bullet;
 		bullet = nullptr;
 	}
 	playerBullet_.clear();
+	for (BossBullet* bullet : bossBullet_) {
+		delete bullet;
+		bullet = nullptr;
+	}
+	bossBullet_.clear();
 	ParticleManager::GetInstance()->Reset();
 }
 
@@ -128,32 +137,13 @@ void GameScene::Initialize(ModelHolder* modelHolder, SpriteManager* spriteManage
 	field_4.acceleration = {};
 	editor_4->SetField(field_4);
 
-	//プレイヤー
-	player_ = std::make_unique<Player>();
-	player_->Initialize(modelHolder_,this, particle_4.get());
-
-	//ボス
-	boss_ = std::make_unique<Boss>();
-	boss_->Initialize(modelHolder_,3.0f);
-
 	//メインカメラ
 	gameCamera_ = std::make_unique<GameCamera>();
 	gameCamera_->Initialize();
-	gameCamera_->SetTarget(player_->GetTransform());
 	gameCamera_->SetOffset(Vector3{ 0.0f,6.0f,-60.0f });
 	gameCamera_->SetRotate(Vector3{ std::numbers::pi_v<float> / 180 * 10,0.0f,0.0f });
-	player_->SetCameraTransform(gameCamera_->GetTransform());
-	player_->SetCamera(gameCamera_->GetCamera());
-	boss_->SetCamera(gameCamera_->GetCamera());
 	PlayerBullet::SetCamera(gameCamera_->GetCamera());
-
-	//背景
-	skydome_ = std::make_unique<Skydome>();
-	skydome_->Initialize(modelHolder_);
-	skydome_->SetCamera(gameCamera_->GetCamera());
-	ground_ = std::make_unique<Ground>();
-	ground_->Initialize(modelHolder_);
-	ground_->SetCamera(gameCamera_->GetCamera());
+	BossBullet::SetCamera(gameCamera_->GetCamera());
 
 	directionalLight_ = std::make_unique<DirectionalLight>();
 	directionalLight_->Initialize(GameEngine::GetDirectXCommon());
@@ -161,10 +151,8 @@ void GameScene::Initialize(ModelHolder* modelHolder, SpriteManager* spriteManage
 	directionalLightElement_.direction = Normalize(Vector3{ 0.0f,-1.0f,1.0f });
 	directionalLightElement_.intensity = 1.0f;
 	directionalLight_->SetDirectionalLightElement(directionalLightElement_);
-	player_->SetDirectionalLight(directionalLight_.get());
-	boss_->SetDirectionalLight(directionalLight_.get());
 	PlayerBullet::SetDirectionalLight(directionalLight_.get());
-	ground_->SetDirectionalLight(directionalLight_.get());
+	BossBullet::SetDirectionalLight(directionalLight_.get());
 
 	pointLight_ = std::make_unique<PointLight>();
 	pointLight_->Initialize(GameEngine::GetDirectXCommon());
@@ -174,10 +162,73 @@ void GameScene::Initialize(ModelHolder* modelHolder, SpriteManager* spriteManage
 	pointLightElement_.position = {};
 	pointLightElement_.decay = 1.0f;
 	pointLight_->SetPointLightElement(pointLightElement_);
-	player_->SetPointLight(pointLight_.get());
-	boss_->SetPointLight(pointLight_.get());
 	PlayerBullet::SetPointLight(pointLight_.get());
+	BossBullet::SetPointLight(pointLight_.get());
+
+	//プレイヤー
+	player_ = std::make_unique<Player>();
+	player_->Initialize(modelHolder_,this, particle_4.get());
+	gameCamera_->SetPlayer(player_->GetTransform());
+	player_->SetCameraTransform(gameCamera_->GetTransform());
+	player_->SetCamera(gameCamera_->GetCamera());
+	player_->SetDirectionalLight(directionalLight_.get());
+	player_->SetPointLight(pointLight_.get());
+
+	//ボス
+	boss_ = std::make_unique<Boss>();
+	boss_->Initialize(modelHolder_,this,player_.get(), 30.0f);
+	gameCamera_->SetTarget(boss_->GetTransform());
+	player_->SetBossTransform(boss_->GetTransform());
+	boss_->SetCamera(gameCamera_->GetCamera());
+	boss_->SetDirectionalLight(directionalLight_.get());
+	boss_->SetPointLight(pointLight_.get());
+
+	//背景
+	skydome_ = std::make_unique<Skydome>();
+	skydome_->Initialize(modelHolder_);
+	skydome_->SetCamera(gameCamera_->GetCamera());
+	ground_ = std::make_unique<Ground>();
+	ground_->Initialize(modelHolder_);
+	ground_->SetCamera(gameCamera_->GetCamera());
+	ground_->SetDirectionalLight(directionalLight_.get());
 	ground_->SetPointLight(pointLight_.get());
+
+	SRT transform{};
+	transform.scale = { 1.0f,1.0f,1.0f };
+	int size = int(fence_.size());
+	for (int i = 0; i < size; i++) {
+		fence_[i] = new Fence;
+		fence_[i]->Initialize(modelHolder_);
+		switch (i / (size / 4))
+		{
+		case 0:
+			transform.rotate.y = 0.0f;
+			transform.translate.x = 3.0f * (-size / 8 + i);
+			transform.translate.z = 3.0f * -size / 8;
+			break;
+		case 1:
+			transform.rotate.y = -std::numbers::pi_v<float> / 2;
+			transform.translate.x = -3.0f * -size / 8;
+			transform.translate.z = 3.0f * (-size / 8 + i - size / 4);
+			break;
+		case 2:
+			transform.rotate.y = -std::numbers::pi_v<float>;
+			transform.translate.x = -3.0f * (-size / 8 + i - size / 4 * 2);
+			transform.translate.z = -3.0f * -size / 8;
+			break;
+		case 3:
+			transform.rotate.y = -std::numbers::pi_v<float> * 3 / 2;
+			transform.translate.x = 3.0f * -size / 8;
+			transform.translate.z = -3.0f * (-size / 8 + i - size / 4 * 3);
+			break;
+		default:
+			break;
+		}
+		fence_[i]->SetTransform(transform);
+		fence_[i]->SetCamera(gameCamera_->GetCamera());
+		fence_[i]->SetDirectionalLight(directionalLight_.get());
+		fence_[i]->SetPointLight(pointLight_.get());
+	}
 
 	fadeSprite_ = std::make_unique<Sprite>();
 	fadeSprite_->Initialize("resources/DebugResources/white2x2.png", spriteManager);
@@ -207,6 +258,8 @@ void GameScene::Update() {
 		player_->Update();
 	}
 
+	gameCamera_->SetMoveVelocity(player_->GetMove().x);
+	gameCamera_->SetIsTargeted(player_->GetIsTargeted());
 	gameCamera_->Update();
 
 	if ((player_->IsDead() || boss_->IsDead()) && fade_ == Fade::None) {
@@ -227,6 +280,10 @@ void GameScene::Update() {
 		bullet->Update();
 	}
 
+	for (BossBullet* bullet : bossBullet_) {
+		bullet->Update();
+	}
+
 	boss_->Update();
 
 	Collision();
@@ -240,6 +297,15 @@ void GameScene::Update() {
 		}
 		return false;
 	});
+
+	bossBullet_.remove_if([](BossBullet* bullet) {
+		if (bullet->IsDead()) {
+			delete bullet;
+			bullet = nullptr;
+			return true;
+		}
+		return false;
+		});
 
 
 
@@ -280,6 +346,8 @@ void GameScene::Update() {
 	ImGui::Text("矢印キー：移動");
 	ImGui::Text("X：発射");
 	ImGui::Text("C：回避");
+	ImGui::Text("LShift：注目");
+	ImGui::Text("攻撃と回避をしていないならリロード");
 	ImGui::End();
 #endif
 }
@@ -288,6 +356,9 @@ void GameScene::Draw() {
 	//背景
 	skydome_->Draw();
 	ground_->Draw();
+	for (Fence* fence : fence_) {
+		fence->Draw();
+	}
 
 	//プレイヤー
 	boss_->Draw();
@@ -303,6 +374,10 @@ void GameScene::Draw() {
 		bullet->Draw();
 	}
 
+	for (BossBullet* bullet : bossBullet_) {
+		bullet->Draw();
+	}
+
 	if (fade_ != Fade::None) {
 		fadeSprite_->Draw2D();
 	}
@@ -312,6 +387,10 @@ void GameScene::Collision() {
 	std::list<BaseBullet*> bulletList;
 	for (std::list<PlayerBullet*>::iterator iterator = playerBullet_.begin();
 		iterator != playerBullet_.end(); iterator++) {
+		bulletList.push_back(*iterator);
+	}
+	for (std::list<BossBullet*>::iterator iterator = bossBullet_.begin();
+		iterator != bossBullet_.end(); iterator++) {
 		bulletList.push_back(*iterator);
 	}
 
@@ -325,6 +404,9 @@ void GameScene::Collision() {
 	for (BaseBullet* bullet : playerBullet_) {
 		collider.push_back(bullet);
 	}
+	for (BaseBullet* bullet : bossBullet_) {
+		collider.push_back(bullet);
+	}
 
 	for (std::list<Collider*>::iterator iteratorA = collider.begin();
 		iteratorA != collider.end(); iteratorA++) {
@@ -333,45 +415,52 @@ void GameScene::Collision() {
 
 			if (iteratorA == iteratorB)continue;
 
+			uint8_t idA = (*iteratorA)->GetID(), idB = (*iteratorB)->GetID();
+
 			//プレイヤー側と敵側の場合
-			if (((*iteratorA)->GetID() & 0b01 && (*iteratorB)->GetID() & 0b10) ||
-				((*iteratorA)->GetID() & 0b10 && (*iteratorB)->GetID() & 0b01)) {
+			if ((idA & 0b01 && idB & 0b10) ||
+				(idA & 0b10 && idB & 0b01)) {
 				
 				if ((*iteratorA)->GetInvincible() || (*iteratorB)->GetInvincible())continue;
 
 				if (Length((*iteratorA)->GetSphare().center - (*iteratorB)->GetSphare().center) <=
 					((*iteratorA)->GetSphare().radius + (*iteratorB)->GetSphare().radius)) {
+					
+					//敵キャラクターに対して接触したら
+					if (idA & CollisionID_Enemy_Character || idB & CollisionID_Enemy_Character) {
+						particle_3->Emit();
+					}
 					(*iteratorA)->IsCollision();
 					(*iteratorB)->IsCollision();
-					particle_3->Emit();
+					gameCamera_->SetShakeTime(0.2f);
 				}
 			//プレイヤー側とアイテムの場合
-			} else if ((*iteratorA)->GetID() & 0b01 && (*iteratorB)->GetID() & 0b00) {
+			} else if (idA & 0b01 && idB & 0b00) {
 				//プレイヤーがアイテムを取得
-				if ((*iteratorA)->GetID() == CollisionID_Player_Character && (*iteratorB)->GetID() == CollisionID_Item_Bullet) {
+				if (idA == CollisionID_Player_Character && idB == CollisionID_Item_Bullet) {
 					if (Length((*iteratorA)->GetSphare().center - (*iteratorB)->GetSphare().center) <=
 						((*iteratorA)->GetSphare().radius + (*iteratorB)->GetSphare().radius)) {
 						(*iteratorB)->IsCollision();
 					}
 				}
 				//プレイヤー弾がボックスを破壊
-				if ((*iteratorA)->GetID() == CollisionID_Player_Bullet && (*iteratorB)->GetID() == CollisionID_Item_Character) {
+				if (idA == CollisionID_Player_Bullet && idB == CollisionID_Item_Character) {
 					if (Length((*iteratorA)->GetSphare().center - (*iteratorB)->GetSphare().center) <=
 						((*iteratorA)->GetSphare().radius + (*iteratorB)->GetSphare().radius)) {
 						(*iteratorA)->IsCollision();
 						(*iteratorB)->IsCollision();
 					}
 				}
-			} else if ((*iteratorA)->GetID() & 0b00 && (*iteratorB)->GetID() & 0b01) {
+			} else if (idA & 0b00 && idB & 0b01) {
 				//プレイヤーがアイテムを取得
-				if ((*iteratorA)->GetID() == CollisionID_Item_Bullet && (*iteratorB)->GetID() == CollisionID_Player_Character) {
+				if (idA == CollisionID_Item_Bullet && idB == CollisionID_Player_Character) {
 					if (Length((*iteratorA)->GetSphare().center - (*iteratorB)->GetSphare().center) <=
 						((*iteratorA)->GetSphare().radius + (*iteratorB)->GetSphare().radius)) {
 						(*iteratorA)->IsCollision();
 					}
 				}
 				//プレイヤー弾がボックスを破壊
-				if ((*iteratorA)->GetID() == CollisionID_Item_Character && (*iteratorB)->GetID() == CollisionID_Player_Bullet) {
+				if (idA == CollisionID_Item_Character && idB == CollisionID_Player_Bullet) {
 					if (Length((*iteratorA)->GetSphare().center - (*iteratorB)->GetSphare().center) <=
 						((*iteratorA)->GetSphare().radius + (*iteratorB)->GetSphare().radius)) {
 						(*iteratorA)->IsCollision();
@@ -381,7 +470,7 @@ void GameScene::Collision() {
 			}
 
 			//キャラクター同士の場合
-			if ((*iteratorA)->GetID() & 0b100 && (*iteratorB)->GetID() & 0b100) {
+			if (idA & 0b100 && idB & 0b100) {
 
 				if (Length((*iteratorA)->GetSphare().center - (*iteratorB)->GetSphare().center) <=
 					((*iteratorA)->GetSphare().radius + (*iteratorB)->GetSphare().radius)) {
@@ -401,4 +490,10 @@ void GameScene::AddPlayerBullet(Vector3 translate, Vector3 rotate) {
 	pointLightElement_.intensity = 1.0f;
 
 	particle_2->Emit();
+}
+
+void GameScene::AddBossBullet(Vector3 translate, Vector3 rotate) {
+	BossBullet* newBullet = new BossBullet;
+	newBullet->Initialize(modelHolder_, translate, rotate);
+	bossBullet_.push_back(newBullet);
 }

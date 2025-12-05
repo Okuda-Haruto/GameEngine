@@ -1,6 +1,9 @@
 #pragma once
 #include <memory>
 #include "../BaseCharacter.h"
+#include "../Player/Player.h"
+
+class GameScene;
 
 class BossAction {
 protected:
@@ -15,6 +18,8 @@ public:
 class Boss : public BaseCharacter
 {
 private:
+	const float kMaxShotCooltime = 1.0f;
+	float shotCooltime_ = 0.0f;
 
 	float angle;
 
@@ -23,12 +28,15 @@ private:
 	float maxHP_;
 	float HP_;
 
+	GameScene* gameScene_ = nullptr;
+	Player* player_ = nullptr;
+
 public:
 
 	~Boss();
 
 	//初期化
-	void Initialize(ModelHolder* modelHolder, float maxHP);
+	void Initialize(ModelHolder* modelHolder, GameScene* gameScene, Player* player, float maxHP);
 	//更新
 	void Update();
 	//描画

@@ -582,7 +582,7 @@ void GameEngine::DrawObject_3D_(Object* object, DirectionalLight* directionalLig
 	std::vector<Offset> offsets = object->GetOffsets();
 	
 	//オブジェクトのワールド座標
-	Matrix4x4 worldMatrix = MakeAffineMatrix(object->GetTransform().scale, object->GetTransform().rotate, object->GetTransform().translate);
+	Matrix4x4 worldMatrix = MakeQuaternionMatrix(object->GetTransform().scale, object->GetTransform().rotate, object->GetTransform().translate);
 
 	//変更が必要な部分だけ変える
 	for (int i = 0; i < parts.size();i++) {
@@ -591,12 +591,12 @@ void GameEngine::DrawObject_3D_(Object* object, DirectionalLight* directionalLig
 		objectWvpResource_[objectIndex]->Map(0, nullptr, reinterpret_cast<void**>(&objectWvpData_[objectIndex]));
 
 		//ワールド座標を親に持つPartsのローカル座標
-		Matrix4x4 partsMatrix = MakeAffineMatrix(parts[i].transform.scale, parts[i].transform.rotate, parts[i].transform.translate);
+		Matrix4x4 partsMatrix = MakeQuaternionMatrix(parts[i].transform.scale, parts[i].transform.rotate, parts[i].transform.translate);
 
 		worldMatrix = partsMatrix * worldMatrix;
 
 		objectWvpData_[objectIndex]->World = worldMatrix;
-		objectWvpData_[objectIndex]->WorldInverseTranspose = Inverse(worldMatrix);
+		objectWvpData_[objectIndex]->WorldInverseTranspose = Transpose(Inverse(worldMatrix));
 		Matrix4x4 worldViewProjectionMatrix =  worldMatrix * object->GetCamera()->GetViewMatrix() * object->GetCamera()->GetProjectionMatrix();
 		objectWvpData_[objectIndex]->WVP = worldViewProjectionMatrix;
 
@@ -711,7 +711,7 @@ void GameEngine::DrawInstancingObject_3D_(std::list<Object*> objects, Directiona
 			Matrix4x4 worldMatrix = worldMatries[i] * partsMatrix;
 
 			instancingObjectData_[instancingObjectIndex][numInstance]->World = worldMatrix;
-			instancingObjectData_[instancingObjectIndex][numInstance]->WorldInverseTranspose = Inverse(worldMatrix);
+			instancingObjectData_[instancingObjectIndex][numInstance]->WorldInverseTranspose = Transpose(Inverse(worldMatrix));
 			Matrix4x4 worldViewProjectionMatrix = worldMatrix * camera->GetViewMatrix() * camera->GetProjectionMatrix();
 			instancingObjectData_[instancingObjectIndex][numInstance]->WVP = worldViewProjectionMatrix;
 
@@ -822,7 +822,7 @@ void GameEngine::DrawParticle_(ParticleGroup particleGroup) {
 		}
 
 		instancingObjectData_[instancingObjectIndex][numInstance]->World = worldMatrix;
-		instancingObjectData_[instancingObjectIndex][numInstance]->WorldInverseTranspose = Inverse(worldMatrix);
+		instancingObjectData_[instancingObjectIndex][numInstance]->WorldInverseTranspose = Transpose(Inverse(worldMatrix));
 		Matrix4x4 worldViewProjectionMatrix = worldMatrix * camera->GetViewMatrix() * camera->GetProjectionMatrix();
 		instancingObjectData_[instancingObjectIndex][numInstance]->WVP = worldViewProjectionMatrix;
 		instancingObjectData_[instancingObjectIndex][numInstance]->color = (*particleIterator).color;
@@ -876,7 +876,7 @@ void GameEngine::DrawSprite_2D_(Sprite* sprite) {
 
 	Matrix4x4 worldMatrix = MakeAffineMatrix(sprite->GetTransform().scale, sprite->GetTransform().rotate, sprite->GetTransform().translate);
 	spriteWvpData_[spriteIndex]->World = worldMatrix;
-	spriteWvpData_[spriteIndex]->WorldInverseTranspose = Inverse(worldMatrix);
+	spriteWvpData_[spriteIndex]->WorldInverseTranspose = Transpose(Inverse(worldMatrix));
 
 	Matrix4x4 worldViewProjectionMatrix = worldMatrix * viewMatrix * projectionMatrix;
 	spriteWvpData_[spriteIndex]->WVP = worldViewProjectionMatrix;
@@ -932,7 +932,7 @@ void GameEngine::DrawInstancingSprite_2D_(std::vector<Sprite*> sprits) {
 
 		Matrix4x4 worldMatrix = MakeAffineMatrix(sprits[i]->GetTransform().translate, sprits[i]->GetTransform().rotate, sprits[i]->GetTransform().translate);
 		instancingSpriteData_[instancingSpriteIndex][numInstance]->World = worldMatrix;
-		instancingSpriteData_[instancingSpriteIndex][numInstance]->WorldInverseTranspose = Inverse(worldMatrix);
+		instancingSpriteData_[instancingSpriteIndex][numInstance]->WorldInverseTranspose = Transpose(Inverse(worldMatrix));
 		Matrix4x4 worldViewProjectionMatrix = worldMatrix * viewMatrix * projectionMatrix;
 		instancingSpriteData_[instancingSpriteIndex][numInstance]->WVP = worldViewProjectionMatrix;
 
@@ -1013,7 +1013,7 @@ void GameEngine::DrawLine_(std::list<Line> lines, PrimitiveManager::PrimitiveRes
 		Matrix4x4 worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
 
 		primitiveData_[PrimitiveManager::SHAPE_Plane][numInstance]->World = worldMatrix;
-		primitiveData_[PrimitiveManager::SHAPE_Plane][numInstance]->WorldInverseTranspose = Inverse(worldMatrix);
+		primitiveData_[PrimitiveManager::SHAPE_Plane][numInstance]->WorldInverseTranspose = Transpose(Inverse(worldMatrix));
 		Matrix4x4 worldViewProjectionMatrix = worldMatrix * camera->GetViewMatrix() * camera->GetProjectionMatrix();
 		primitiveData_[PrimitiveManager::SHAPE_Plane][numInstance]->WVP = worldViewProjectionMatrix;
 		primitiveData_[PrimitiveManager::SHAPE_Plane][numInstance]->color = Vector4{1.0f,0.0f,0.0f,1.0f};
@@ -1089,7 +1089,7 @@ void GameEngine::DrawPoint_(std::list<Vector3> points, PrimitiveManager::Primiti
 		Matrix4x4 worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
 
 		primitiveData_[PrimitiveManager::SHAPE_Point][numInstance]->World = worldMatrix;
-		primitiveData_[PrimitiveManager::SHAPE_Point][numInstance]->WorldInverseTranspose = Inverse(worldMatrix);
+		primitiveData_[PrimitiveManager::SHAPE_Point][numInstance]->WorldInverseTranspose = Transpose(Inverse(worldMatrix));
 		Matrix4x4 worldViewProjectionMatrix = worldMatrix * camera->GetViewMatrix() * camera->GetProjectionMatrix();
 		primitiveData_[PrimitiveManager::SHAPE_Point][numInstance]->WVP = worldViewProjectionMatrix;
 		primitiveData_[PrimitiveManager::SHAPE_Point][numInstance]->color = Vector4{ 1.0f,0.0f,0.0f,1.0f };
@@ -1166,7 +1166,7 @@ void GameEngine::DrawAABB_(std::list<AABB> aabbs, PrimitiveManager::PrimitiveRes
 		Matrix4x4 worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
 
 		primitiveData_[PrimitiveManager::SHAPE_AABB][numInstance]->World = worldMatrix;
-		primitiveData_[PrimitiveManager::SHAPE_AABB][numInstance]->WorldInverseTranspose = Inverse(worldMatrix);
+		primitiveData_[PrimitiveManager::SHAPE_AABB][numInstance]->WorldInverseTranspose = Transpose(Inverse(worldMatrix));
 		Matrix4x4 worldViewProjectionMatrix = worldMatrix * camera->GetViewMatrix() * camera->GetProjectionMatrix();
 		primitiveData_[PrimitiveManager::SHAPE_AABB][numInstance]->WVP = worldViewProjectionMatrix;
 		primitiveData_[PrimitiveManager::SHAPE_AABB][numInstance]->color = Vector4{ 1.0f,0.0f,0.0f,1.0f };

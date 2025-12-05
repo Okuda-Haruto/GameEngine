@@ -28,7 +28,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Application\BackGround\Fence\Fence.cpp" />
     <ClCompile Include="Application\Bullet\BaseBullet.cpp" />
+    <ClCompile Include="Application\Bullet\BossBullet\BossBullet.cpp" />
     <ClCompile Include="Application\Bullet\PlayerBullet\PlayerBullet.cpp" />
     <ClCompile Include="Application\Character\BaseCharacter.cpp" />
     <ClCompile Include="Application\Character\Boss\Boss.cpp" />
@@ -102,7 +104,9 @@
     <ClCompile Include="GameEngine\Modules\ParticleManager\ParticleManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Application\BackGround\Fence\Fence.h" />
     <ClInclude Include="Application\Bullet\BaseBullet.h" />
+    <ClInclude Include="Application\Bullet\BossBullet\BossBullet.h" />
     <ClInclude Include="Application\Bullet\PlayerBullet\PlayerBullet.h" />
     <ClInclude Include="Application\Character\BaseCharacter.h" />
     <ClInclude Include="Application\Character\Boss\Boss.h" />
