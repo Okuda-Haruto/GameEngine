@@ -127,9 +127,18 @@ Matrix4x4 MakeRotateYMatrix(float radian);
 Matrix4x4 MakeRotateZMatrix(float radian);
 //回転行列
 Matrix4x4 MakeRotateMatrix(Vector3 rotate);
+//任意軸回転行列
+Matrix4x4 MakeRotateAxisAngle(const Vector3& axis, float angle);
 
 //3次元アフィン変換行列
 Matrix4x4 MakeAffineMatrix(Vector3 scale, Vector3 rotate, Vector3 translate);
+//クォータニオン行列
+Matrix4x4 MakeQuaternionMatrix(Vector3 scale, Vector3 rotate, Vector3 translate);
+
+//内積行列
+Matrix4x4 DotMatrix(const Vector3& v1, const Vector3& v2);
+//クロス積行列
+Matrix4x4 CrossMatrix(const Vector3& v);
 
 //透視投影行列
 Matrix4x4 MakePerspectiveFovMatrix(float fovY, float aspectRatio, float nearClip, float farClip);
@@ -141,6 +150,8 @@ Matrix4x4 MakeViewportMatrix(float left, float top, float width, float height, f
 Matrix4x4 operator+(const Matrix4x4& m1, const Matrix4x4& m2);
 Matrix4x4 operator-(const Matrix4x4& m1, const Matrix4x4& m2);
 Matrix4x4 operator*(const Matrix4x4& m1, const Matrix4x4& m2);
+Matrix4x4 operator*(const Matrix4x4& m, const float f);
+Matrix4x4 operator*(const float f, const Matrix4x4& m);
 Vector3 operator*(const Vector3& v, const Matrix4x4& m);
 Vector3 operator*(const Matrix4x4& m, const Vector3& v);
 

@@ -3,11 +3,14 @@
 #include "GameCamera/GameCamera.h"
 #include "BackGround/Skydome/Skydome.h"
 #include "BackGround/Ground/Ground.h"
+#include "BackGround/Fence/Fence.h"
 #include "Bullet/PlayerBullet/PlayerBullet.h"
+#include "Bullet/BossBullet/BossBullet.h"
 #include "Character/Player/Player.h"
 #include "Character/Boss/Boss.h"
 #include "Sprite/Sprite.h"
 #include "Editor/ParticleEditor/ParticleEditor.h"
+#include <array>
 
 class GameScene : public BaseScene
 {
@@ -20,11 +23,13 @@ private:
 	//背景
 	std::unique_ptr<Skydome> skydome_;
 	std::unique_ptr<Ground> ground_;
+	std::array<Fence*, 160> fence_;
 	//キャラクター
 	std::unique_ptr<Player> player_;
 	std::unique_ptr<Boss> boss_;
 
 	std::list<PlayerBullet*> playerBullet_;
+	std::list<BossBullet*> bossBullet_;
 
 	std::unique_ptr<Sprite>fadeSprite_;
 
@@ -57,5 +62,6 @@ public:
 	void Collision();
 
 	void AddPlayerBullet(Vector3 translate, Vector3 rotate);
+	void AddBossBullet(Vector3 translate, Vector3 rotate);
 };
 

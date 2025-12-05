@@ -46,9 +46,13 @@ void Player::Initialize(ModelHolder* modelHolder, GameScene* gameScene, Particle
 	*targetTransform_ = transform_;
 	dodgeCoolTime = 0.0f;
 	dodgeActiveTime = kMaxDodgeActiveTime;
-	shotCooltime = 0.0f;
+	shotCooltime_ = 0.0f;
 
 	HP_ = kMaxHP;
+	remainingRounds_ = kMaxRemainingRounds;
+	reloadTime_ = 0.0f;
+
+	isTargeted_ = false;
 
 	InitializeCollider(1.0f, CollisionID_Player_Character);
 	UpdateCollider();
@@ -57,143 +61,244 @@ void Player::Initialize(ModelHolder* modelHolder, GameScene* gameScene, Particle
 void Player::Update() {
 	Pad pad = GameEngine::GetPad();
 	Keybord keys = GameEngine::GetKeybord();
-	const float deadZone = 0.7f;
-	bool isMove = false;
 
-	//速さ
-	const float speed = 0.3f;
+	move_ = {};
+	isMove = false;
 
-	Vector3 move{};
-
-	//移動量
-	if (pad.isConnected) {
-		move = {
-			pad.LeftStick.vector.x * pad.LeftStick.magnitude,0.0f,pad.LeftStick.vector.y * pad.LeftStick.magnitude
-		};
-	}
-	if (Length(move) > deadZone) {
-		isMove = true;
+	if (stunTime > 0.0f) {
+		stunTime -= 1.0f / 60.0f;
+		if (stunTime < 0.0f) {
+			stunTime = 0.0f;
+		}
 	}
 
-	if (!isMove) {
-		if (keys.hold[DIK_W] || keys.hold[DIK_UP]) {
-			move.z = 1.0f;
+	if (stunTime > 0.0f) {
+		transform_.rotate.x = std::numbers::pi_v<float> / 2;
+		transform_.rotate.z = 0.0f;
+		transform_.translate.y = 0.5f;
+	} else {
+		transform_.rotate.x = 0.0f;
+		transform_.rotate.z = 0.0f;
+		transform_.translate.y = 1.0f;
+	}
+
+	if (stunTime <= 0.0f) {
+		//移動量
+		if (pad.isConnected) {
+			move_ = {
+				pad.LeftStick.vector.x * pad.LeftStick.magnitude,0.0f,pad.LeftStick.vector.y * pad.LeftStick.magnitude
+			};
 		}
-		if (keys.hold[DIK_S] || keys.hold[DIK_DOWN]) {
-			move.z = -1.0f;
-		}
-		if (keys.hold[DIK_D] || keys.hold[DIK_RIGHT]) {
-			move.x = 1.0f;
-		}
-		if (keys.hold[DIK_A] || keys.hold[DIK_LEFT]) {
-			move.x = -1.0f;
-		}
-		if (Length(move) > deadZone) {
+		if (Length(move_) > deadZone) {
 			isMove = true;
 		}
-	}
+
+		if (!isMove) {
+			if (keys.hold[DIK_W] || keys.hold[DIK_UP]) {
+				move_.z = 1.0f;
+			}
+			if (keys.hold[DIK_S] || keys.hold[DIK_DOWN]) {
+				move_.z = -1.0f;
+			}
+			if (keys.hold[DIK_D] || keys.hold[DIK_RIGHT]) {
+				move_.x = 1.0f;
+			}
+			if (keys.hold[DIK_A] || keys.hold[DIK_LEFT]) {
+				move_.x = -1.0f;
+			}
+			if (Length(move_) > deadZone) {
+				isMove = true;
+			}
+		}
 
 #pragma region 移動処理
 
-	//回避中は移動させないこと
-	if (isMove && dodgeActiveTime >= kMaxDodgeActiveTime) {
-		//移動量に速さを反映
-		velocity_ = Normalize(move) * speed;
+		//注目中は角度をつける
+		if (isTargeted_ && bossTransform_) {
+			Vector3 diff = Normalize(bossTransform_->translate - transform_.translate);
+			angle = std::atan2(diff.x, diff.z);
+		}
 
-		Matrix4x4 rotateMatrix = MakeRotateYMatrix(cameraTransform_->rotate.y);
-		velocity_ = rotateMatrix * velocity_;
+		//回避中は移動させないこと
+		if (isMove && dodgeActiveTime >= kMaxDodgeActiveTime) {
+			//移動量に速さを反映
+			velocity_ = Normalize(move_) * speed;
 
-		//移動
-		transform_.translate += velocity_;
+			Matrix4x4 rotateMatrix = MakeRotateYMatrix(cameraTransform_->rotate.y);
+			velocity_ = rotateMatrix * velocity_;
 
-		angle = std::atan2(velocity_.x, velocity_.z);
+			//移動
+			transform_.translate += velocity_;
 
-		particle_1->Emit();
-	}
+			transform_.translate.x = std::clamp(transform_.translate.x, -59.0f, 59.0f);
+			transform_.translate.z = std::clamp(transform_.translate.z, -59.0f, 59.0f);
 
-	//最短角度補完
-	float diff = angle - transform_.rotate.y;
+			if (!(isTargeted_ && bossTransform_)) {
+				angle = std::atan2(velocity_.x, velocity_.z);
+			}
 
-	if (diff >= std::numbers::pi_v<float>*2) {
-		diff = angle - transform_.rotate.y;
-	}
+			particle_1->Emit();
+		}
 
-	diff = std::fmodf(diff, std::numbers::pi_v<float> *2);
+		//最短角度補完
+		float diff = angle - transform_.rotate.y;
 
-	if (diff > std::numbers::pi_v<float>) {
-		diff -= std::numbers::pi_v<float> *2;
-	} else if (diff < -std::numbers::pi_v<float>) {
-		diff += std::numbers::pi_v<float> *2;
-	}
+		if (diff >= std::numbers::pi_v<float>*2) {
+			diff = angle - transform_.rotate.y;
+		}
 
-	if (diff > std::numbers::pi_v<float>) {
-		diff -= std::numbers::pi_v<float> *2;
-	} else if (diff < -std::numbers::pi_v<float>) {
-		diff += std::numbers::pi_v<float> *2;
-	}
+		diff = std::fmodf(diff, std::numbers::pi_v<float> *2);
 
-	//正直あまりやりたくはない方法だが2πを超えると遠回りで回転してしまうので致し方無い
-	transform_.rotate.y = (transform_.rotate.y + diff * 0.1f);
-	transform_.rotate.y = std::fmodf(transform_.rotate.y, std::numbers::pi_v<float> *2);
+		if (diff > std::numbers::pi_v<float>) {
+			diff -= std::numbers::pi_v<float> *2;
+		} else if (diff < -std::numbers::pi_v<float>) {
+			diff += std::numbers::pi_v<float> *2;
+		}
+
+		if (diff > std::numbers::pi_v<float>) {
+			diff -= std::numbers::pi_v<float> *2;
+		} else if (diff < -std::numbers::pi_v<float>) {
+			diff += std::numbers::pi_v<float> *2;
+		}
+
+		//正直あまりやりたくはない方法だが2πを超えると遠回りで回転してしまうので致し方無い
+		transform_.rotate.y = (transform_.rotate.y + diff * 0.2f);
+		transform_.rotate.y = std::fmodf(transform_.rotate.y, std::numbers::pi_v<float> *2);
 
 #pragma endregion
 
 #pragma region 回避行動
 
-	const float dodgeSpeed = 2.0f;
+		//回避中
+		if (dodgeActiveTime < kMaxDodgeActiveTime) {
+			dodgeActiveTime += 1.0f / 60.0f;
+			//kMaxDodgeActiveTimeを超えると角度がおかしくなる気がするので戻す
+			if (dodgeActiveTime >= kMaxDodgeActiveTime) {
+				dodgeActiveTime = kMaxDodgeActiveTime;
+			}
+			switch (dodgeAngle_)
+			{
+			case Player::DODGE_ANGLE::FRONT:
+				//前転
+				velocity_ = Vector3{ 0.0f,0.0f,1.0f } *Lerp(0.2f, dodgeSpeed, powf(1.0f - dodgeActiveTime / kMaxDodgeActiveTime, 3));
+				transform_.rotate.x = Lerp(0.0f, std::numbers::pi_v<float> *2, 1.0f - powf(1.0f - dodgeActiveTime / kMaxDodgeActiveTime, 3));
+				break;
+			case Player::DODGE_ANGLE::BACK:
+				//後転
+				velocity_ = Vector3{ 0.0f,0.0f,-1.0f } *Lerp(0.2f, dodgeSpeed, powf(1.0f - dodgeActiveTime / kMaxDodgeActiveTime, 3));
+				transform_.rotate.x = -Lerp(0.0f, std::numbers::pi_v<float> *2, 1.0f - powf(1.0f - dodgeActiveTime / kMaxDodgeActiveTime, 3));
+				break;
+			case Player::DODGE_ANGLE::RIGHT:
+				//右側転
+				velocity_ = Vector3{ 1.0f,0.0f,0.0f } *Lerp(0.2f, dodgeSpeed, powf(1.0f - dodgeActiveTime / kMaxDodgeActiveTime, 3));
+				transform_.rotate.z = -Lerp(0.0f, std::numbers::pi_v<float> *2, 1.0f - powf(1.0f - dodgeActiveTime / kMaxDodgeActiveTime, 3));
+				break;
+			case Player::DODGE_ANGLE::LEFT:
+				//左側転
+				velocity_ = Vector3{ -1.0f,0.0f,0.0f } *Lerp(0.2f, dodgeSpeed, powf(1.0f - dodgeActiveTime / kMaxDodgeActiveTime, 3));
+				transform_.rotate.z = Lerp(0.0f, std::numbers::pi_v<float> *2, 1.0f - powf(1.0f - dodgeActiveTime / kMaxDodgeActiveTime, 3));
+				break;
+			default:
+				break;
+			}
 
-	//回避中
-	if (dodgeActiveTime < kMaxDodgeActiveTime) {
-		dodgeActiveTime += 1.0f / 60.0f;
-		//kMaxDodgeActiveTimeを超えると角度がおかしくなる気がするので戻す
-		if (dodgeActiveTime >= kMaxDodgeActiveTime) {
-			//dodgeActiveTime = kMaxDodgeActiveTime;
+			Matrix4x4 rotateMatrix = MakeRotateYMatrix(transform_.rotate.y);
+			velocity_ = rotateMatrix * velocity_;
+
+			//移動
+			transform_.translate += velocity_;
+
+			if (transform_.translate.x > 59.0f || transform_.translate.x < -59.0f ||
+				transform_.translate.z > 59.0f || transform_.translate.z < -59.0f) {
+				transform_.translate.x = std::clamp(transform_.translate.x, -59.0f, 59.0f);
+				transform_.translate.z = std::clamp(transform_.translate.z, -59.0f, 59.0f);
+				stunTime = kMaxHitFenceStunTime;
+				dodgeActiveTime = kMaxDodgeActiveTime;
+			}
+
+			emitter_.transform.translate = transform_.translate;
+			emitter_.transform.translate.y = 0.0f;
+			particle_2->SetEmitter(emitter_);
+			particle_2->Emit();
+
+			//回避中じゃない
+		} else {
+			//回避インターバル
+			if (dodgeCoolTime < kMaxDodgeCoolTime) {
+				dodgeCoolTime += 1.0f / 60.0f;
+			}
 		}
-		velocity_ = Vector3{ 0.0f,0.0f,1.0f } *Lerp(0.2f, dodgeSpeed, powf(1.0f - dodgeActiveTime / kMaxDodgeActiveTime, 3));
-		//前転
-		transform_.rotate.x = Lerp(0.0f, std::numbers::pi_v<float> *2, 1.0f - powf(1.0f - dodgeActiveTime / kMaxDodgeActiveTime, 3));
 
-		Matrix4x4 rotateMatrix = MakeRotateYMatrix(transform_.rotate.y);
-		velocity_ = rotateMatrix * velocity_;
-
-		//移動
-		transform_.translate += velocity_;
-
-		emitter_.transform.translate = transform_.translate;
-		emitter_.transform.translate.y = 0.0f;
-		particle_2->SetEmitter(emitter_);
-		particle_2->Emit();
-
-		//回避中じゃない
-	} else {
 		//回避インターバル
-		if (dodgeCoolTime < kMaxDodgeCoolTime) {
-			dodgeCoolTime += 1.0f / 60.0f;
+		if (dodgeCoolTime >= kMaxDodgeCoolTime) {
+			if ((keys.trigger[DIK_C] || keys.trigger[DIK_SPACE] || pad.Button[PAD_BUTTON_Y].trigger) && isMove) {
+				dodgeActiveTime = 0.0f;
+				dodgeCoolTime = 0.0f;
+				//注視中は他の方にも回避できる
+				if (isTargeted_) {
+					if (fabsf(move_.x) > fabsf(move_.z)) {
+						if (move_.x > 0.0f) {
+							dodgeAngle_ = DODGE_ANGLE::RIGHT;
+						} else {
+							dodgeAngle_ = DODGE_ANGLE::LEFT;
+						}
+					} else {
+						if (move_.z > 0.0f) {
+							dodgeAngle_ = DODGE_ANGLE::FRONT;
+						} else {
+							dodgeAngle_ = DODGE_ANGLE::BACK;
+						}
+					}
+				} else {
+					dodgeAngle_ = DODGE_ANGLE::FRONT;
+				}
+			}
 		}
-	}
-
-	//回避インターバル
-	if (dodgeCoolTime >= kMaxDodgeCoolTime) {
-		if ((keys.trigger[DIK_C] || keys.trigger[DIK_LSHIFT] || keys.trigger[DIK_RSHIFT] || keys.trigger[DIK_SPACE] || pad.Button[PAD_BUTTON_Y].trigger) && isMove) {
-			dodgeActiveTime = 0.0f;
-			dodgeCoolTime = 0.0f;
-		}
-	}
 
 #pragma endregion
 
 #pragma region 攻撃行動
 
-	if (shotCooltime >= kMaxShotCooltime){
-		if (keys.hold[DIK_Z] || keys.hold[DIK_X]) {
-			gameScene_->AddPlayerBullet(transform_.translate, transform_.rotate);
-			shotCooltime = 0.0f;
+		if (shotCooltime_ < kMaxShotCooltime) {
+			shotCooltime_ += 1.0f / 60.0f;
 		}
-	} else {
-		shotCooltime += 1.0f / 60.0f;
-	}
+		if (keys.hold[DIK_Z] || keys.hold[DIK_X]) {
+			if (remainingRounds_ > 0.0f) {
+				if (shotCooltime_ >= kMaxShotCooltime) {
+					gameScene_->AddPlayerBullet(transform_.translate, transform_.rotate);
+					shotCooltime_ = 0.0f;
+					remainingRounds_--;
+				}
+			}
+		}
 
 #pragma endregion
+
+#pragma region 注目行動
+
+		if (keys.hold[DIK_LSHIFT] || keys.hold[DIK_RSHIFT]) {
+			isTargeted_ = true;
+		} else if (keys.release[DIK_LSHIFT] || keys.release[DIK_RSHIFT]) {
+			isTargeted_ = false;
+		}
+
+#pragma endregion
+
+#pragma region リロード行動
+
+		//動いていない場合
+		if (shotCooltime_ != 0.0f && dodgeCoolTime != 0.0f) {
+			if (reloadTime_ >= kMaxReloadTime) {
+				remainingRounds_ = kMaxRemainingRounds;
+			} else {
+				reloadTime_ += 1.0f / 60.0f;
+			}
+		} else {
+			reloadTime_ = 0.0f;
+		}
+
+#pragma endregion
+	}
 
 #ifdef USE_IMGUI
 	ImGui::Begin("プレイヤー");
@@ -201,6 +306,7 @@ void Player::Update() {
 	ImGui::DragFloat3("translate", &transform_.translate.x, 0.1f);
 	ImGui::DragFloat3("rotate", &transform_.rotate.x, 0.1f);
 	ImGui::DragFloat3("velocity", &velocity_.x);
+	ImGui::InputInt("remainingRounds", &remainingRounds_);
 	ImGui::End();
 #endif
 
