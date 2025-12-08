@@ -6,7 +6,10 @@ enum class ModelIndex {
 	Ground,
 	Fence,
 	Player,
-	Bullet
+	Boss,
+	Bullet,
+	Cylinder,
+	Hat,
 };
 
 //使用するモデルを保持

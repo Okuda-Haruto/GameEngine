@@ -5,6 +5,9 @@
 Camera* Object::DefaultCamera = nullptr;
 
 Object::~Object() {
+	for (int i = 0; i < parts_.size(); i++) {
+		delete parts_[i].transform;
+	}
 }
 
 void Object::Initialize(Model* model) {
@@ -23,8 +26,9 @@ void Object::Initialize(Model* model) {
 		parts_[i].material->reflection = REFLECTION_HalfLambert;
 		parts_[i].material->shininess = 40.0f;
 
-		parts_[i].transform = {};
-		parts_[i].transform.scale = { 1.0f,1.0f,1.0f };
+		parts_[i].transform = new SRT;
+		*parts_[i].transform = {};
+		parts_[i].transform->scale = { 1.0f,1.0f,1.0f };
 
 		parts_[i].UVtransform = {};
 		parts_[i].UVtransform.scale = { 1.0f,1.0f,1.0f };
@@ -40,6 +44,10 @@ void Object::Initialize(Model* model) {
 
 void Object::Draw3D() {
 	GameEngine::DrawObject_3D(this, directionalLight_, pointLight_, spotLight_);
+}
+
+void Object::Draw2D() {
+	GameEngine::DrawObject_2D(this, directionalLight_);
 }
 
 void Object::SetReflection(UINT reflection) {

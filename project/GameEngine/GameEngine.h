@@ -72,6 +72,7 @@ private:
 
 	//PSO
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> trianglePipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> noDepthTrianglePipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> instancingTrianglePipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> particlePipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> spritePipelineState_ = nullptr;
@@ -100,6 +101,7 @@ private:
 
 #pragma region instancingObject
 	int16_t instancingObjectIndex;
+	uint32_t startInstancingObjectIndex;
 	//マテリアルリソース
 	std::array <Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxInstanceIndex > instancingObjectMaterialResource_;
 	//マテリアルデータ
@@ -108,6 +110,18 @@ private:
 	std::array <Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxInstanceIndex > instancingObjectResource_;
 	//インスタンスデータ
 	std::array < std::array <InstancingTransformationMatrix*, kMaxNumInstance>, kMaxInstanceIndex> instancingObjectData_;
+#pragma endregion
+
+#pragma region Particle
+	int16_t particleIndex;
+	//マテリアルリソース
+	std::array <Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxInstanceIndex > particleMaterialResource_;
+	//マテリアルデータ
+	std::array <Material*, kMaxInstanceIndex> particleMaterialData_;
+	//インスタンス用リソース
+	std::array <Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxInstanceIndex > particleResource_;
+	//インスタンスデータ
+	std::array < std::array <InstancingTransformationMatrix*, kMaxNumInstance>, kMaxInstanceIndex> particleData_;
 #pragma endregion
 
 #pragma region sprite
@@ -124,10 +138,11 @@ private:
 
 #pragma region instancingSprite
 	int16_t instancingSpriteIndex;
+	uint32_t startInstancingSpriteIndex;
 	//マテリアルリソース
 	std::array <Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxInstanceIndex > instancingSpriteMaterialResource_;
 	//マテリアルデータ
-	std::array <std::array <Material*, kMaxNumInstance>, kMaxInstanceIndex > instancingSpriteMaterialData_;
+	std::array <Material*, kMaxInstanceIndex > instancingSpriteMaterialData_;
 	//インスタンス用リソース
 	std::array <Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxInstanceIndex > instancingSpriteResource_;
 	//インスタンスデータ
@@ -204,6 +219,7 @@ private:
 	ID3D12PipelineState* LinePSO_() { return linePipelineState_.Get(); }
 
 	void DrawObject_3D_(Object* object, DirectionalLight* directionalLight, PointLight* pointLight, SpotLight* spotLight);
+	void DrawObject_2D_(Object* object, DirectionalLight* directionalLight);
 	void DrawInstancingObject_3D_(std::list<Object*> objects, DirectionalLight* directionalLight, PointLight* pointLight, SpotLight* spotLight);
 	void DrawParticle_(ParticleGroup particleGroup);
 	/*void DrawSprite_3D_();
@@ -217,7 +233,7 @@ private:
 	void DrawObject_2D_();
 	void DrawInstancingObject_2D_();*/
 	void DrawSprite_2D_(Sprite* sprite);
-	void DrawInstancingSprite_2D_(std::vector<Sprite*> sprits);
+	void DrawInstancingSprite_2D_(std::list<Sprite*> sprits);
 
 	void DrawLine_(std::list<Line> lines, PrimitiveManager::PrimitiveResource primitiveResource);
 	void DrawPoint_(std::list<Vector3> points, PrimitiveManager::PrimitiveResource primitiveResource);
@@ -297,11 +313,12 @@ public:
 
 
 	static void DrawObject_3D(Object* object, DirectionalLight* directionalLight, PointLight* pointLight, SpotLight* spotLight) { return getInstance()->DrawObject_3D_(object, directionalLight, pointLight, spotLight); }
+	static void DrawObject_2D(Object* object, DirectionalLight* directionalLight) { return getInstance()->DrawObject_2D_(object, directionalLight); }
 	static void DrawInstancingObject_3D(std::list<Object*> objects, DirectionalLight* directionalLight, PointLight* pointLight, SpotLight* spotLight) { return getInstance()->DrawInstancingObject_3D_(objects, directionalLight, pointLight, spotLight); }
 	static void DrawParticle(ParticleGroup particleGroup) { return getInstance()->DrawParticle_(particleGroup); }
 	
 	static void DrawSprite_2D(Sprite* sprite) { return getInstance()->DrawSprite_2D_(sprite); }
-	static void DrawInstancingSprite_2D(std::vector<Sprite*> sprits) { return getInstance()->DrawInstancingSprite_2D_(sprits); }
+	static void DrawInstancingSprite_2D(std::list<Sprite*> sprits) { return getInstance()->DrawInstancingSprite_2D_(sprits); }
 
 	static void DrawLine(std::list<Line> lines, PrimitiveManager::PrimitiveResource primitiveResource) { return getInstance()->DrawLine_(lines, primitiveResource); }
 	static void DrawPoint(std::list<Vector3> points, PrimitiveManager::PrimitiveResource primitiveResource) { return getInstance()->DrawPoint_(points, primitiveResource); }

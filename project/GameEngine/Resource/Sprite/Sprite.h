@@ -113,8 +113,8 @@ public:
 
 	const Material& GetMaterial()const { return material_; }
 
-	const D3D12_VERTEX_BUFFER_VIEW& GetVertexBufferView() const { return vertexBufferView_; }
-	const D3D12_INDEX_BUFFER_VIEW& GetIndexBufferView() const { return indexBufferView_; }
+	const D3D12_VERTEX_BUFFER_VIEW& GetVBV() const { return vertexBufferView_; }
+	const D3D12_INDEX_BUFFER_VIEW& GetIBV() const { return indexBufferView_; }
 	UINT GetTextureIndex() { return textureIndex_; }
 private:
 	//テクスチャサイズをイメージに合わせる

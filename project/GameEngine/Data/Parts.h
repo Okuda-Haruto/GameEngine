@@ -6,6 +6,7 @@
 struct Parts {
 	UINT textureIndex;
 	Material* material = nullptr;
-	SRT transform;
+	SRT* parent = nullptr;
+	SRT* transform = nullptr;
 	SRT UVtransform;
 };

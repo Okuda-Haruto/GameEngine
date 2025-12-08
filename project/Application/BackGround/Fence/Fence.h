@@ -8,17 +8,15 @@ class Fence
 {
 private:
 	//地面モデル
-	std::unique_ptr<Object> object_;
+	std::list<Object*> objects_;
+	const int size = 160;
 	SRT transform_{};
+	DirectionalLight* directionalLight_ = nullptr;
+	PointLight* pointLight_ = nullptr;
 public:
+	~Fence();
 	//初期化
-	void Initialize(ModelHolder* modelHolder);
+	void Initialize(ModelHolder* modelHolder, Camera* camera, DirectionalLight* directionalLight, PointLight* pointLight);
 	//描画
 	void Draw();
-
-	void SetCamera(Camera* camera) { object_->SetCamera(camera); }
-	void SetTransform(SRT transform) { transform_ = transform; object_->SetTransform(transform_); }
-
-	void SetDirectionalLight(DirectionalLight* directionalLight) { object_->SetDirectionalLight(directionalLight); }
-	void SetPointLight(PointLight* pointLight) { object_->SetPointLight(pointLight); }
 };
