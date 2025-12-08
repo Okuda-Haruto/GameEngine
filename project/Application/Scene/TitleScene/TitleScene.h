@@ -28,6 +28,8 @@ private:
 	std::unique_ptr<Sprite>titleSprite_;
 	std::unique_ptr<Sprite>pless_B_Start_Sprite_;
 
+	float animationTime = 0.0f;
+
 public:
 
 	~TitleScene();
