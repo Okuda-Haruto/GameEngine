@@ -243,7 +243,7 @@ void Player::Update() {
 
 		//回避インターバル
 		if (dodgeCoolTime >= kMaxDodgeCoolTime) {
-			if ((keys.trigger[DIK_C] || keys.trigger[DIK_SPACE] || pad.Button[PAD_BUTTON_B].trigger) && isMove && isTargeted_) {
+			if ((keys.trigger[DIK_C] || keys.trigger[DIK_SPACE] || pad.Button[PAD_BUTTON_B].trigger) && isMove) {
 				dodgeActiveTime = 0.0f;
 				dodgeCoolTime = 0.0f;
 				//注視中は他の方にも回避できる

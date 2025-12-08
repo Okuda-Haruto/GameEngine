@@ -55,6 +55,9 @@ void TitleScene::Update() {
 	Keybord key = GameEngine::GetKeybord();
 	Pad pad = GameEngine::GetPad();
 
+	animationTime += 1.0f / 60.0f;
+	if (animationTime > 60.0f)animationTime -= 60.0f;
+
 	if (fadeTime_ < kMaxFadeTime) {
 		fadeTime_ += 1.0f / 60.0f;
 	}
@@ -78,6 +81,9 @@ void TitleScene::Update() {
 	} else if (fade_ == Fade::FadeOut) {
 		a = fadeTime_ / kMaxFadeTime;
 	}
+
+	pless_B_Start_Sprite_->SetPosition(Vector2{ 640.0f,500.0f + 15.0f * cosf(std::numbers::pi_v<float> / 2 * animationTime)});
+
 	fadeSprite_->SetColor({ 0.0f,0.0f,0.0f,a });
 	fadeSprite_->Update();
 	titleSprite_->Update();
