@@ -2,6 +2,7 @@
 #include <memory>
 #include "../BaseCharacter.h"
 #include "Shape/Sphere.h"
+#include "GameCamera/GameCamera.h"
 #include "ParticleEmitter/ParticleEmitter.h"
 
 class GameScene;
@@ -36,15 +37,15 @@ private:
 	DODGE_ANGLE dodgeAngle_;
 	const float dodgeSpeed = 3.0f;
 
-	const float kMaxHP = 3.0f;
-	float HP_;
+	const int32_t kMaxHP = 5;
+	int32_t HP_;
 
 	//残弾数
-	const int kMaxRemainingRounds = 6;
-	int remainingRounds_;
+	const int32_t kMaxRemainingRounds = 6;
+	int32_t remainingRounds_;
 
 	//リロード時間
-	const float kMaxReloadTime = 2.0f;
+	const float kMaxReloadTime = 1.0f;
 	float reloadTime_;
 
 	//発射間隔
@@ -55,7 +56,12 @@ private:
 	const float kMaxHitFenceStunTime = 0.2f;
 	float stunTime = 0.0f;
 
+	//無敵時間
+	const float kMaxInvincibleTime_ = 0.5f;
+	float invincibleTime_ = 0.0f;
+
 	GameScene* gameScene_ = nullptr;
+	GameCamera* gameCamera_ = nullptr;
 
 	ParticleEmitter* particle_1 = nullptr;
 	std::unique_ptr<ParticleEmitter> particle_2;
@@ -68,7 +74,7 @@ public:
 	~Player();
 
 	//初期化
-	void Initialize(ModelHolder* modelHolder, GameScene* gameScene, ParticleEmitter* particle1);
+	void Initialize(ModelHolder* modelHolder, GameScene* gameScene, GameCamera* gameCamera, ParticleEmitter* particle1);
 	//更新
 	void Update();
 	//描画
@@ -88,6 +94,9 @@ public:
 
 	bool GetIsTargeted() { return isTargeted_; }
 	bool IsDead() { return HP_ <= 0; }
+
+	int32_t GetHP() { return HP_; }
+	int32_t GetRemainingRounds() { return remainingRounds_; }
 
 	Vector3 GetMove() { return move_; }
 };

@@ -43,6 +43,7 @@ public:
 	void Initialize(Model* model);
 	//描画
 	void Draw3D();
+	void Draw2D();
 
 	static Camera* GetDefaultCamera() { return DefaultCamera; }
 	static void SetDefaultCamera(Camera* defaultCamera) { DefaultCamera = defaultCamera; }

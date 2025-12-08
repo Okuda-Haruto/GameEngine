@@ -41,7 +41,7 @@ void SampleScene::Initialize() {
 
 	//3Dオブジェクト
 	object_[0] = new Object;
-	object_[0]->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/plane", "plane.obj"));
+	object_[0]->Initialize(ModelManager::GetInstance()->GetModel("resources/Cylinder", "Cylinder.obj"));
 	object_[1] = new Object;
 	object_[1]->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/sphere", "sphere.obj"));
 	object_[2] = new Object;
@@ -443,15 +443,15 @@ void SampleScene::Update() {
 				for (INT j = 0; j < object_[i]->GetParts().size(); j++) {
 					Parts parts = object_[i]->GetParts()[j];
 					str = "Object[" + std::to_string(i) + "]" + "Material " + std::to_string(j) + " Scale";
-					ImGui::DragFloat3(str.c_str(), &parts.transform.scale.x, 0.1f);
+					ImGui::DragFloat3(str.c_str(), &parts.transform->scale.x, 0.1f);
 					str = "Object[" + std::to_string(i) + "]" + "Material " + std::to_string(j) + " RotateX";
-					ImGui::SliderAngle(str.c_str(), &parts.transform.rotate.x);
+					ImGui::SliderAngle(str.c_str(), &parts.transform->rotate.x);
 					str = "Object[" + std::to_string(i) + "]" + "Material " + std::to_string(j) + " RotateY";
-					ImGui::SliderAngle(str.c_str(), &parts.transform.rotate.y);
+					ImGui::SliderAngle(str.c_str(), &parts.transform->rotate.y);
 					str = "Object[" + std::to_string(i) + "]" + "Material " + std::to_string(j) + " RotateZ";
-					ImGui::SliderAngle(str.c_str(), &parts.transform.rotate.z);
+					ImGui::SliderAngle(str.c_str(), &parts.transform->rotate.z);
 					str = "Object[" + std::to_string(i) + "]" + "Material " + std::to_string(j) + " Transrate";
-					ImGui::DragFloat3(str.c_str(), &parts.transform.translate.x, 0.1f);
+					ImGui::DragFloat3(str.c_str(), &parts.transform->translate.x, 0.1f);
 					str = "Object[" + std::to_string(i) + "]" + "Material " + std::to_string(j) + " UVScale";
 					ImGui::DragFloat3(str.c_str(), &parts.UVtransform.scale.x, 0.1f);
 					str = "Object[" + std::to_string(i) + "]" + "Material " + std::to_string(j) + " UVRotateX";

@@ -4,10 +4,6 @@
 #include "../TitleScene/TitleScene.h"
 
 GameScene::~GameScene() {
-	for (Fence* fence : fence_) {
-		delete fence;
-		fence = nullptr;
-	}
 	for (PlayerBullet* bullet : playerBullet_) {
 		delete bullet;
 		bullet = nullptr;
@@ -18,6 +14,10 @@ GameScene::~GameScene() {
 		bullet = nullptr;
 	}
 	bossBullet_.clear();
+
+	for (Sprite* sprite : sprite_) {
+		delete sprite;
+	}
 	ParticleManager::GetInstance()->Reset();
 }
 
@@ -167,7 +167,7 @@ void GameScene::Initialize(ModelHolder* modelHolder, SpriteManager* spriteManage
 
 	//プレイヤー
 	player_ = std::make_unique<Player>();
-	player_->Initialize(modelHolder_,this, particle_4.get());
+	player_->Initialize(modelHolder_,this,gameCamera_.get(), particle_4.get());
 	gameCamera_->SetPlayer(player_->GetTransform());
 	player_->SetCameraTransform(gameCamera_->GetTransform());
 	player_->SetCamera(gameCamera_->GetCamera());
@@ -176,12 +176,47 @@ void GameScene::Initialize(ModelHolder* modelHolder, SpriteManager* spriteManage
 
 	//ボス
 	boss_ = std::make_unique<Boss>();
-	boss_->Initialize(modelHolder_,this,player_.get(), 30.0f);
+	boss_->Initialize(modelHolder_,this,gameCamera_.get(), particle_3.get(), player_.get(), 30.0f);
 	gameCamera_->SetTarget(boss_->GetTransform());
 	player_->SetBossTransform(boss_->GetTransform());
 	boss_->SetCamera(gameCamera_->GetCamera());
 	boss_->SetDirectionalLight(directionalLight_.get());
 	boss_->SetPointLight(pointLight_.get());
+
+	cylinder_ = std::make_unique<Object>();
+	cylinder_->Initialize(modelHolder_->GetModel(ModelIndex::Cylinder));
+	cylinder_->SetDirectionalLight(directionalLight_.get());
+	cylinderTransform_.scale = { 0.0005f, 0.0005f, 0.0005f };
+	cylinderTransform_.rotate.x = std::numbers::pi_v<float> / 180 * 9;
+	cylinderTransform_.rotate.y = std::numbers::pi_v<float> / 180 * -15;
+	cylinderTransform_.translate = { -0.0032f,-0.0015f,0.01f };
+	cylinder_->SetTransform(cylinderTransform_);
+
+	hat_ = std::make_unique<Object>();
+	hat_->Initialize(modelHolder_->GetModel(ModelIndex::Hat));
+	hat_->SetDirectionalLight(directionalLight_.get());
+	hatTransform_.scale = { 0.0003f,0.0003f,0.0003f };
+	hatTransform_.rotate.x = std::numbers::pi_v<float> / 180 * -25;
+	hatTransform_.translate = { -0.0038f,0.0018f,0.01f };
+	hat_->SetTransform(hatTransform_);
+	animationTime_ = 0.0f;
+
+	sprite_[0] = new Sprite;
+	sprite_[0]->Initialize("resources/Sprite/LT.png", spriteManager);
+	sprite_[0]->SetPosition(Vector2{ 200,720 - 84 });
+	sprite_[0]->SetSize(Vector2{ 64,64 });
+	sprite_[1] = new Sprite;
+	sprite_[1]->Initialize("resources/Sprite/RT.png", spriteManager);
+	sprite_[1]->SetPosition(Vector2{ 270,720 - 84 });
+	sprite_[1]->SetSize(Vector2{ 64,64 });
+	sprite_[2] = new Sprite;
+	sprite_[2]->Initialize("resources/Sprite/B.png", spriteManager);
+	sprite_[2]->SetPosition(Vector2{ 340,720 - 84 });
+	sprite_[2]->SetSize(Vector2{ 64,64 });
+	sprite_[3] = new Sprite;
+	sprite_[3]->Initialize("resources/Sprite/Reload_UI.png", spriteManager);
+	sprite_[3]->SetPosition(Vector2{ 410,720 - 84 });
+	sprite_[3]->SetSize(Vector2{ 64,64 });
 
 	//背景
 	skydome_ = std::make_unique<Skydome>();
@@ -193,42 +228,8 @@ void GameScene::Initialize(ModelHolder* modelHolder, SpriteManager* spriteManage
 	ground_->SetDirectionalLight(directionalLight_.get());
 	ground_->SetPointLight(pointLight_.get());
 
-	SRT transform{};
-	transform.scale = { 1.0f,1.0f,1.0f };
-	int size = int(fence_.size());
-	for (int i = 0; i < size; i++) {
-		fence_[i] = new Fence;
-		fence_[i]->Initialize(modelHolder_);
-		switch (i / (size / 4))
-		{
-		case 0:
-			transform.rotate.y = 0.0f;
-			transform.translate.x = 3.0f * (-size / 8 + i);
-			transform.translate.z = 3.0f * -size / 8;
-			break;
-		case 1:
-			transform.rotate.y = -std::numbers::pi_v<float> / 2;
-			transform.translate.x = -3.0f * -size / 8;
-			transform.translate.z = 3.0f * (-size / 8 + i - size / 4);
-			break;
-		case 2:
-			transform.rotate.y = -std::numbers::pi_v<float>;
-			transform.translate.x = -3.0f * (-size / 8 + i - size / 4 * 2);
-			transform.translate.z = -3.0f * -size / 8;
-			break;
-		case 3:
-			transform.rotate.y = -std::numbers::pi_v<float> * 3 / 2;
-			transform.translate.x = 3.0f * -size / 8;
-			transform.translate.z = -3.0f * (-size / 8 + i - size / 4 * 3);
-			break;
-		default:
-			break;
-		}
-		fence_[i]->SetTransform(transform);
-		fence_[i]->SetCamera(gameCamera_->GetCamera());
-		fence_[i]->SetDirectionalLight(directionalLight_.get());
-		fence_[i]->SetPointLight(pointLight_.get());
-	}
+	fence_ = std::make_unique<Fence>();
+	fence_->Initialize(modelHolder_,gameCamera_->GetCamera(),directionalLight_.get(),pointLight_.get());
 
 	fadeSprite_ = std::make_unique<Sprite>();
 	fadeSprite_->Initialize("resources/DebugResources/white2x2.png", spriteManager);
@@ -242,6 +243,13 @@ void GameScene::Initialize(ModelHolder* modelHolder, SpriteManager* spriteManage
 
 void GameScene::Update() {
 	Keybord key = GameEngine::GetKeybord();
+
+	if (animationTime_ < kMaxAnimationTime) {
+		animationTime_ += 1.0f / 60.0f;
+		if (animationTime_ > kMaxAnimationTime) {
+			animationTime_ -= kMaxAnimationTime;
+		}
+	}
 
 	if (fadeTime_ < kMaxFadeTime) {
 		fadeTime_ += 1.0f / 60.0f;
@@ -318,6 +326,15 @@ void GameScene::Update() {
 	fadeSprite_->SetColor({ 0.0f,0.0f,0.0f,a });
 	fadeSprite_->Update();
 
+
+
+	hatTransform_.rotate.z = std::numbers::pi_v<float> / 180 * (-15 + 15 * cosf(std::numbers::pi_v<float> *2 * (animationTime_ / kMaxAnimationTime)));
+	hat_->SetTransform(hatTransform_);
+
+	for (Sprite* sprite : sprite_) {
+		sprite->Update();
+	}
+
 	editor_->Update();
 	editor_2->Update();
 	editor_3->Update();
@@ -341,6 +358,7 @@ void GameScene::Update() {
 	emitter.transform.translate.y = 0.0f;
 	editor_4->SetEmitter(emitter);
 
+
 #ifdef USE_IMGUI
 	ImGui::Begin("操作方法");
 	ImGui::Text("矢印キー：移動");
@@ -356,9 +374,7 @@ void GameScene::Draw() {
 	//背景
 	skydome_->Draw();
 	ground_->Draw();
-	for (Fence* fence : fence_) {
-		fence->Draw();
-	}
+	fence_->Draw();
 
 	//プレイヤー
 	boss_->Draw();
@@ -368,14 +384,37 @@ void GameScene::Draw() {
 	editor_3->Draw();
 	editor_4->Draw();
 
-	player_->Draw();
-
 	for (PlayerBullet* bullet : playerBullet_) {
 		bullet->Draw();
 	}
 
 	for (BossBullet* bullet : bossBullet_) {
 		bullet->Draw();
+	}
+
+	player_->Draw();
+
+	int32_t remainingRounds = player_->GetRemainingRounds();
+	std::vector<Parts> parts = cylinder_->GetParts();
+	for (int32_t i = 1; i <= 6;i++) {
+		if (remainingRounds >= i) {
+			parts[i].material->color = { 1.0f,1.0f,1.0f,1.0f };
+		} else {
+			parts[i].material->color = { 1.0f,1.0f,1.0f,0.0f };
+		}
+		cylinder_->SetParts(parts[i], i);
+	}
+	cylinder_->Draw2D();
+
+	for (Sprite* sprite : sprite_) {
+		sprite->Draw2D();
+	}
+
+	for (int32_t i = 0; i < player_->GetHP();i++) {
+		SRT transform = hatTransform_;
+		transform.translate.x += i * hatTransform_.scale.x * 2;
+		hat_->SetTransform(transform);
+		hat_->Draw2D();
 	}
 
 	if (fade_ != Fade::None) {
@@ -425,14 +464,8 @@ void GameScene::Collision() {
 
 				if (Length((*iteratorA)->GetSphare().center - (*iteratorB)->GetSphare().center) <=
 					((*iteratorA)->GetSphare().radius + (*iteratorB)->GetSphare().radius)) {
-					
-					//敵キャラクターに対して接触したら
-					if (idA & CollisionID_Enemy_Character || idB & CollisionID_Enemy_Character) {
-						particle_3->Emit();
-					}
 					(*iteratorA)->IsCollision();
 					(*iteratorB)->IsCollision();
-					gameCamera_->SetShakeTime(0.2f);
 				}
 			//プレイヤー側とアイテムの場合
 			} else if (idA & 0b01 && idB & 0b00) {

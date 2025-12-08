@@ -23,9 +23,21 @@ void ModelHolder::Initialize() {
 	filePath.directoryPath_ = "resources/Caracter/Player";
 	filePath.fileName_ = "Player.obj";
 	filePathes_.push_back(filePath);
+	//ボス
+	filePath.directoryPath_ = "resources/Caracter/Boss";
+	filePath.fileName_ = "Boss.obj";
+	filePathes_.push_back(filePath);
 	//弾丸
 	filePath.directoryPath_ = "resources/Bullet";
 	filePath.fileName_ = "Bullet.obj";
+	filePathes_.push_back(filePath);
+	//シリンダー
+	filePath.directoryPath_ = "resources/Cylinder";
+	filePath.fileName_ = "Cylinder.obj";
+	filePathes_.push_back(filePath);
+	//ハット(HP)
+	filePath.directoryPath_ = "resources/Hat";
+	filePath.fileName_ = "Hat.obj";
 	filePathes_.push_back(filePath);
 
 	for (FilePath filePath : filePathes_) {

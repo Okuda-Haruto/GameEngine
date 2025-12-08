@@ -10,9 +10,10 @@ Player::~Player() {
 
 }
 
-void Player::Initialize(ModelHolder* modelHolder, GameScene* gameScene, ParticleEmitter* particle1) {
+void Player::Initialize(ModelHolder* modelHolder, GameScene* gameScene, GameCamera* gameCamera, ParticleEmitter* particle1) {
 	modelHolder_ = modelHolder;
 	gameScene_ = gameScene;
+	gameCamera_ = gameCamera;
 	particle_1 = particle1;
 	//パーティクル
 	ParticleManager::GetInstance()->CreateParticleGroup("particle_5", "resources/Particle/Sand.png");
@@ -51,6 +52,7 @@ void Player::Initialize(ModelHolder* modelHolder, GameScene* gameScene, Particle
 	HP_ = kMaxHP;
 	remainingRounds_ = kMaxRemainingRounds;
 	reloadTime_ = 0.0f;
+	invincibleTime_ = 0.0f;
 
 	isTargeted_ = false;
 
@@ -69,6 +71,12 @@ void Player::Update() {
 		stunTime -= 1.0f / 60.0f;
 		if (stunTime < 0.0f) {
 			stunTime = 0.0f;
+		}
+	}
+	if (invincibleTime_ > 0.0f) {
+		invincibleTime_ -= 1.0f / 60.0f;
+		if (invincibleTime_ < 0.0f) {
+			invincibleTime_ = 0.0f;
 		}
 	}
 
@@ -126,6 +134,10 @@ void Player::Update() {
 
 			Matrix4x4 rotateMatrix = MakeRotateYMatrix(cameraTransform_->rotate.y);
 			velocity_ = rotateMatrix * velocity_;
+
+			if (isTargeted_) {
+				velocity_ /= 3.0f;
+			}
 
 			//移動
 			transform_.translate += velocity_;
@@ -231,7 +243,7 @@ void Player::Update() {
 
 		//回避インターバル
 		if (dodgeCoolTime >= kMaxDodgeCoolTime) {
-			if ((keys.trigger[DIK_C] || keys.trigger[DIK_SPACE] || pad.Button[PAD_BUTTON_Y].trigger) && isMove) {
+			if ((keys.trigger[DIK_C] || keys.trigger[DIK_SPACE] || pad.Button[PAD_BUTTON_B].trigger) && isMove && isTargeted_) {
 				dodgeActiveTime = 0.0f;
 				dodgeCoolTime = 0.0f;
 				//注視中は他の方にも回避できる
@@ -262,12 +274,13 @@ void Player::Update() {
 		if (shotCooltime_ < kMaxShotCooltime) {
 			shotCooltime_ += 1.0f / 60.0f;
 		}
-		if (keys.hold[DIK_Z] || keys.hold[DIK_X]) {
+		if (keys.hold[DIK_Z] || keys.hold[DIK_X] || pad.Button[PAD_BUTTON_RT].hold && dodgeActiveTime >= kMaxDodgeActiveTime) {
 			if (remainingRounds_ > 0.0f) {
 				if (shotCooltime_ >= kMaxShotCooltime) {
 					gameScene_->AddPlayerBullet(transform_.translate, transform_.rotate);
 					shotCooltime_ = 0.0f;
 					remainingRounds_--;
+					gameCamera_->SetShakeTime(0.1f);
 				}
 			}
 		}
@@ -276,9 +289,9 @@ void Player::Update() {
 
 #pragma region 注目行動
 
-		if (keys.hold[DIK_LSHIFT] || keys.hold[DIK_RSHIFT]) {
+		if (keys.hold[DIK_LSHIFT] || keys.hold[DIK_RSHIFT] || pad.Button[PAD_BUTTON_LT].hold) {
 			isTargeted_ = true;
-		} else if (keys.release[DIK_LSHIFT] || keys.release[DIK_RSHIFT]) {
+		} else if (keys.release[DIK_LSHIFT] || keys.release[DIK_RSHIFT] || pad.Button[PAD_BUTTON_LT].release) {
 			isTargeted_ = false;
 		}
 
@@ -320,10 +333,19 @@ void Player::Update() {
 void Player::Draw() {
 	particle_2->Draw();
 	if (HP_ > 0.0f) {
+		if (invincibleTime_ > 0.0f) {
+			object_->SetColor(Vector4{ 1.0f,1.0f,1.0f,0.5f });
+		} else {
+			object_->SetColor(Vector4{ 1.0f,1.0f,1.0f,1.0f });
+		}
 		object_->Draw3D();
 	}
 }
 
 void Player::IsCollision() {
-	HP_--;
+	if (invincibleTime_ > 0.0f) {
+		HP_--;
+		gameCamera_->SetShakeTime(0.3f);
+		invincibleTime_ = kMaxInvincibleTime_;
+	}
 }

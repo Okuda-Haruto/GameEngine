@@ -23,13 +23,20 @@ private:
 	//背景
 	std::unique_ptr<Skydome> skydome_;
 	std::unique_ptr<Ground> ground_;
-	std::array<Fence*, 160> fence_;
+	std::unique_ptr<Fence> fence_;
 	//キャラクター
 	std::unique_ptr<Player> player_;
 	std::unique_ptr<Boss> boss_;
 
 	std::list<PlayerBullet*> playerBullet_;
 	std::list<BossBullet*> bossBullet_;
+
+	std::unique_ptr<Object> cylinder_;
+	SRT cylinderTransform_;
+	std::unique_ptr<Object> hat_;
+	SRT hatTransform_;
+	const float kMaxAnimationTime = 2.0f;
+	float animationTime_ = 0.0f;
 
 	std::unique_ptr<Sprite>fadeSprite_;
 
@@ -41,6 +48,9 @@ private:
 	std::unique_ptr<ParticleEditor> editor_3;
 	std::unique_ptr<ParticleEmitter> particle_4;
 	std::unique_ptr<ParticleEditor> editor_4;
+
+	std::array<Sprite*, 4> sprite_;
+	std::array<SRT,4> spriteTransform;
 
 
 	//光源
