@@ -75,8 +75,9 @@ void Player::Update() {
 	}
 	if (invincibleTime_ > 0.0f) {
 		invincibleTime_ -= 1.0f / 60.0f;
-		if (invincibleTime_ < 0.0f) {
+		if (invincibleTime_ <= 0.0f) {
 			invincibleTime_ = 0.0f;
+			SetInvincible(false);
 		}
 	}
 
@@ -343,9 +344,10 @@ void Player::Draw() {
 }
 
 void Player::IsCollision() {
-	if (invincibleTime_ > 0.0f) {
+	if (invincibleTime_ <= 0.0f) {
 		HP_--;
 		gameCamera_->SetShakeTime(0.3f);
 		invincibleTime_ = kMaxInvincibleTime_;
+		SetInvincible(true);
 	}
 }
