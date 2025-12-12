@@ -6,10 +6,9 @@ Camera* BossBullet::camera_ = nullptr;
 DirectionalLight* BossBullet::directionalLight_ = nullptr;
 PointLight* BossBullet::pointLight_ = nullptr;
 
-void BossBullet::Initialize(ModelHolder* modelHolder, Vector3 translate, Vector3 rotate) {
-	modelHolder_ = modelHolder;
+void BossBullet::Initialize(Vector3 translate, Vector3 rotate) {
 	object_ = std::make_unique<Object>();
-	object_->Initialize(modelHolder_->GetModel(ModelIndex::Bullet));
+	object_->Initialize(ModelHolder::GetInstance()->GetModel(ModelIndex::Bullet));
 	object_->SetCamera(camera_);
 	object_->SetDirectionalLight(directionalLight_);
 	object_->SetPointLight(pointLight_);

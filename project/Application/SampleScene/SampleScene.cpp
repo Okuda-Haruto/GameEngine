@@ -12,7 +12,6 @@ SampleScene::~SampleScene() {
 	for (Object* object : object_) {
 		delete object;
 	}
-	delete spriteManager_;
 	for (Sprite* sprite : sprite_) {
 		delete sprite;
 	}
@@ -55,15 +54,12 @@ void SampleScene::Initialize() {
 	object_[6] = new Object;
 	object_[6]->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/teapot", "teapot.obj"));
 
-	spriteManager_ = new SpriteManager;
-	spriteManager_->Initialize(GameEngine::GetDirectXCommon());
-
 	//2Dスプライト
 	sprite_[0] = new Sprite;
-	sprite_[0]->Initialize("resources/DebugResources/uvChecker.png", spriteManager_);
+	sprite_[0]->Initialize("resources/DebugResources/uvChecker.png");
 	sprite_[0]->SetPosition(Vector2{100.0f,100.0f});
 	sprite_[1] = new Sprite;
-	sprite_[1]->Initialize("resources/DebugResources/monsterBall.png", spriteManager_);
+	sprite_[1]->Initialize("resources/DebugResources/monsterBall.png");
 	sprite_[1]->SetPosition(Vector2{ 50,50 });
 
 	//エフェクト

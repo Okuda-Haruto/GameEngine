@@ -15,6 +15,13 @@ enum class ModelIndex {
 //使用するモデルを保持
 class ModelHolder {
 private:
+	static ModelHolder* instance;
+
+	ModelHolder() = default;
+	~ModelHolder() = default;
+	ModelHolder(ModelHolder&) = delete;
+	ModelHolder& operator=(ModelHolder&) = delete;
+
 	struct FilePath {
 		std::string directoryPath_;
 		std::string fileName_;
@@ -23,8 +30,10 @@ private:
 	std::vector<FilePath> filePathes_;
 
 public:
+	static ModelHolder* GetInstance();
 
-	~ModelHolder();
+	void Finalize();
+
 	//初期化
 	void Initialize();
 

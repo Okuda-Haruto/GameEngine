@@ -10,7 +10,7 @@
 #include <Emitter.h>
 #include <Field.h>
 #include <InstancingTransformationMatrix.h>
-#include <Camera.h>
+#include <Camera/Camera.h>
 
 struct ParticleGroup {
 	std::string TextureFilePath;

@@ -41,7 +41,7 @@ public:
 	~Boss();
 
 	//初期化
-	void Initialize(ModelHolder* modelHolder, GameScene* gameScene, GameCamera* gameCamera, ParticleEmitter* particle, Player* player, float maxHP);
+	void Initialize(GameScene* gameScene, GameCamera* gameCamera, ParticleEmitter* particle, Player* player, float maxHP);
 	//更新
 	void Update();
 	//描画

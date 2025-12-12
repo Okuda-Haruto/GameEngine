@@ -51,7 +51,7 @@ private:
 	//発射間隔
 	const float kMaxShotCooltime = 0.25f;
 	float shotCooltime_ = 0.0f;
-
+	
 	//気絶時間
 	const float kMaxHitFenceStunTime = 0.2f;
 	float stunTime = 0.0f;
@@ -74,7 +74,7 @@ public:
 	~Player();
 
 	//初期化
-	void Initialize(ModelHolder* modelHolder, GameScene* gameScene, GameCamera* gameCamera, ParticleEmitter* particle1);
+	void Initialize(GameScene* gameScene, GameCamera* gameCamera, ParticleEmitter* particle1);
 	//更新
 	void Update();
 	//描画

@@ -1,10 +1,10 @@
 #include "Ground.h"
 #include "GameEngine.h"
 
-void Ground::Initialize(ModelHolder* modelHolder) {
+void Ground::Initialize() {
 	//モデルの生成
 	object_ = std::make_unique<Object>();
-	object_->Initialize(modelHolder->GetModel(ModelIndex::Ground));
+	object_->Initialize(ModelHolder::GetInstance()->GetModel(ModelIndex::Ground));
 }
 
 void Ground::Draw() {

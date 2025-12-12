@@ -3,11 +3,9 @@
 #include <LoadObjFile.h>
 #include <SpriteManager/SpriteManager.h>
 
-void Sprite::Initialize(const std::string& textureFilePath, SpriteManager* spriteManager) {
+void Sprite::Initialize(const std::string& textureFilePath) {
 
-	spriteManager_ = spriteManager;
-
-	DirectXCommon* dxCommon = spriteManager->GetDirectXCommon();
+	DirectXCommon* dxCommon = SpriteManager::GetInstance()->GetDirectXCommon();
 
 	//頂点リソースを作る
 	vertexResource_ = dxCommon->CreateBufferResources(sizeof(VertexData) * 4);

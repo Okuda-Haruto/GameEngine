@@ -11,8 +11,7 @@ Boss::~Boss() {
 
 }
 
-void Boss::Initialize(ModelHolder* modelHolder, GameScene* gameScene, GameCamera* gameCamera, ParticleEmitter* particle, Player* player, float maxHP) {
-	modelHolder_ = modelHolder;
+void Boss::Initialize(GameScene* gameScene, GameCamera* gameCamera, ParticleEmitter* particle, Player* player, float maxHP) {
 	maxHP_ = maxHP;
 	HP_ = maxHP_;
 
@@ -23,7 +22,7 @@ void Boss::Initialize(ModelHolder* modelHolder, GameScene* gameScene, GameCamera
 
 	//モデルの生成
 	object_ = std::make_unique<Object>();
-	object_->Initialize(modelHolder_->GetModel(ModelIndex::Boss));
+	object_->Initialize(ModelHolder::GetInstance()->GetModel(ModelIndex::Boss));
 	object_->SetColor(Vector4{ 1.0f,0.0f,0.0f,1.0f });
 	transform_.scale = { 2.0f,2.0f,2.0f };
 	transform_.rotate = { 0.0f,std::numbers::pi_v<float>,0.0f };

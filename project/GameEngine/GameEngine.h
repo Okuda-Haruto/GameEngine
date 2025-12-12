@@ -19,7 +19,7 @@
 #include "TransformationMatrix.h"
 
 #include "Text.h"
-#include "Audio.h"
+#include <Audio/Audio.h>
 #include "Input/Input.h"
 #include "DebugCamera.h"
 

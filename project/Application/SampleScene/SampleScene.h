@@ -4,8 +4,8 @@
 #include <array>
 #include <Effect.h>
 #include <Input/Input.h>
-#include <PointLight.h>
-#include <SpotLight.h>
+#include <PointLight/PointLight.h>
+#include <SpotLight/SpotLight.h>
 #include <WindowsAPI/WindowsAPI.h>
 
 #include <Object/Object.h>
@@ -28,7 +28,6 @@ private:
 	ParticleEmitter* particleEmitter_ = nullptr;
 
 	//2Dモデル
-	SpriteManager* spriteManager_ = nullptr;
 	std::array<bool, 2> isSpriteDraw_ = { true,false };
 	std::array<Sprite*,2> sprite_;
 

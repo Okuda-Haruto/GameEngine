@@ -1,7 +1,7 @@
 #pragma once
 #include <memory>
 #include <Object/Object.h>
-#include <Camera.h>
+#include <Camera/Camera.h>
 #include <ModelHolder/ModelHolder.h>
 
 class Fence
@@ -16,7 +16,7 @@ private:
 public:
 	~Fence();
 	//初期化
-	void Initialize(ModelHolder* modelHolder, Camera* camera, DirectionalLight* directionalLight, PointLight* pointLight);
+	void Initialize(Camera* camera, DirectionalLight* directionalLight, PointLight* pointLight);
 	//描画
 	void Draw();
 };

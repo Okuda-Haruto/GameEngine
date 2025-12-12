@@ -6,10 +6,10 @@
 #include "Model/Model.h"
 #include "Material.h"
 #include "Parts.h"
-#include "Camera.h"
-#include "DirectionalLight.h"
-#include "PointLight.h"
-#include "SpotLight.h"
+#include <Camera/Camera.h>
+#include <DirectionalLight/DirectionalLight.h>
+#include <PointLight/PointLight.h>
+#include <SpotLight/SpotLight.h>
 
 enum REFLECTION {
 	REFLECTION_None,

@@ -3,6 +3,8 @@
 #include "SpriteManager/SpriteManager.h"
 #include <memory>
 
+class SceneManager;
+
 enum class Fade {
 	None,
 	FadeIn,
@@ -11,20 +13,19 @@ enum class Fade {
 
 class BaseScene {
 protected:
+	SceneManager* sceneManager_ = nullptr;
+
 	const float kMaxFadeTime = 0.5f;
 	float fadeTime_;
 
-	bool isfinished_ = false;
-	BaseScene* nextScene_ = nullptr;
-
 	Fade fade_ = Fade::FadeIn;
 public:
-	virtual ~BaseScene() {}
+	virtual ~BaseScene() = default;
 
-	virtual void Initialize(ModelHolder* modelHolder, SpriteManager* spriteManager) {}
+	virtual void Initialize() {}
+	virtual void Finalize() {}
 	virtual void Update() {}
 	virtual void Draw() {}
 
-	bool IsFinished() { return isfinished_; }
-	BaseScene* NextScene() { return nextScene_; }
+	virtual void SetSceneManager(SceneManager* sceneManager) { sceneManager_ = sceneManager; };
 };

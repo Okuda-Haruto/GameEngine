@@ -1,6 +1,7 @@
 #include "GameScene.h"
 #include "GameEngine.h"
 #include <numbers>
+#include <SceneManager/SceneManager.h>
 #include "../TitleScene/TitleScene.h"
 
 GameScene::~GameScene() {
@@ -21,9 +22,7 @@ GameScene::~GameScene() {
 	ParticleManager::GetInstance()->Reset();
 }
 
-void GameScene::Initialize(ModelHolder* modelHolder, SpriteManager* spriteManager) {
-	modelHolder_ = modelHolder;
-
+void GameScene::Initialize() {
 	//パーティクル
 	ParticleManager::GetInstance()->CreateParticleGroup("particle_1", "resources/Particle/Sand.png");
 	particle_ = std::make_unique<ParticleEmitter>("particle_1");
@@ -167,7 +166,7 @@ void GameScene::Initialize(ModelHolder* modelHolder, SpriteManager* spriteManage
 
 	//プレイヤー
 	player_ = std::make_unique<Player>();
-	player_->Initialize(modelHolder_,this,gameCamera_.get(), particle_4.get());
+	player_->Initialize(this,gameCamera_.get(), particle_4.get());
 	gameCamera_->SetPlayer(player_->GetTransform());
 	player_->SetCameraTransform(gameCamera_->GetTransform());
 	player_->SetCamera(gameCamera_->GetCamera());
@@ -176,7 +175,7 @@ void GameScene::Initialize(ModelHolder* modelHolder, SpriteManager* spriteManage
 
 	//ボス
 	boss_ = std::make_unique<Boss>();
-	boss_->Initialize(modelHolder_,this,gameCamera_.get(), particle_3.get(), player_.get(), 30.0f);
+	boss_->Initialize(this,gameCamera_.get(), particle_3.get(), player_.get(), 30.0f);
 	gameCamera_->SetTarget(boss_->GetTransform());
 	player_->SetBossTransform(boss_->GetTransform());
 	boss_->SetCamera(gameCamera_->GetCamera());
@@ -184,7 +183,7 @@ void GameScene::Initialize(ModelHolder* modelHolder, SpriteManager* spriteManage
 	boss_->SetPointLight(pointLight_.get());
 
 	cylinder_ = std::make_unique<Object>();
-	cylinder_->Initialize(modelHolder_->GetModel(ModelIndex::Cylinder));
+	cylinder_->Initialize(ModelHolder::GetInstance()->GetModel(ModelIndex::Cylinder));
 	cylinder_->SetDirectionalLight(directionalLight_.get());
 	cylinderTransform_.scale = { 0.0005f, 0.0005f, 0.0005f };
 	cylinderTransform_.rotate.x = std::numbers::pi_v<float> / 180 * 9;
@@ -193,7 +192,7 @@ void GameScene::Initialize(ModelHolder* modelHolder, SpriteManager* spriteManage
 	cylinder_->SetTransform(cylinderTransform_);
 
 	hat_ = std::make_unique<Object>();
-	hat_->Initialize(modelHolder_->GetModel(ModelIndex::Hat));
+	hat_->Initialize(ModelHolder::GetInstance()->GetModel(ModelIndex::Hat));
 	hat_->SetDirectionalLight(directionalLight_.get());
 	hatTransform_.scale = { 0.0003f,0.0003f,0.0003f };
 	hatTransform_.rotate.x = std::numbers::pi_v<float> / 180 * -25;
@@ -202,43 +201,42 @@ void GameScene::Initialize(ModelHolder* modelHolder, SpriteManager* spriteManage
 	animationTime_ = 0.0f;
 
 	sprite_[0] = new Sprite;
-	sprite_[0]->Initialize("resources/Sprite/LT.png", spriteManager);
+	sprite_[0]->Initialize("resources/Sprite/LT.png");
 	sprite_[0]->SetPosition(Vector2{ 200,720 - 84 });
 	sprite_[0]->SetSize(Vector2{ 64,64 });
 	sprite_[1] = new Sprite;
-	sprite_[1]->Initialize("resources/Sprite/RT.png", spriteManager);
+	sprite_[1]->Initialize("resources/Sprite/RT.png");
 	sprite_[1]->SetPosition(Vector2{ 270,720 - 84 });
 	sprite_[1]->SetSize(Vector2{ 64,64 });
 	sprite_[2] = new Sprite;
-	sprite_[2]->Initialize("resources/Sprite/B.png", spriteManager);
+	sprite_[2]->Initialize("resources/Sprite/B.png");
 	sprite_[2]->SetPosition(Vector2{ 340,720 - 84 });
 	sprite_[2]->SetSize(Vector2{ 64,64 });
 	sprite_[3] = new Sprite;
-	sprite_[3]->Initialize("resources/Sprite/Reload_UI.png", spriteManager);
+	sprite_[3]->Initialize("resources/Sprite/Reload_UI.png");
 	sprite_[3]->SetPosition(Vector2{ 410,720 - 84 });
 	sprite_[3]->SetSize(Vector2{ 64,64 });
 
 	//背景
 	skydome_ = std::make_unique<Skydome>();
-	skydome_->Initialize(modelHolder_);
+	skydome_->Initialize();
 	skydome_->SetCamera(gameCamera_->GetCamera());
 	ground_ = std::make_unique<Ground>();
-	ground_->Initialize(modelHolder_);
+	ground_->Initialize();
 	ground_->SetCamera(gameCamera_->GetCamera());
 	ground_->SetDirectionalLight(directionalLight_.get());
 	ground_->SetPointLight(pointLight_.get());
 
 	fence_ = std::make_unique<Fence>();
-	fence_->Initialize(modelHolder_,gameCamera_->GetCamera(),directionalLight_.get(),pointLight_.get());
+	fence_->Initialize(gameCamera_->GetCamera(),directionalLight_.get(),pointLight_.get());
 
 	fadeSprite_ = std::make_unique<Sprite>();
-	fadeSprite_->Initialize("resources/DebugResources/white2x2.png", spriteManager);
+	fadeSprite_->Initialize("resources/DebugResources/white2x2.png");
 	fadeSprite_->SetSize({ 1280,720 });
 	fadeSprite_->SetColor({ 0.0f,0.0f,0.0f,1.0f });
 
 	fade_ = Fade::FadeIn;
 	fadeTime_ = 0.0f;
-	isfinished_ = false;
 }
 
 void GameScene::Update() {
@@ -259,7 +257,7 @@ void GameScene::Update() {
 		fade_ = Fade::None;
 	}
 	if (fade_ == Fade::FadeOut && fadeTime_ >= kMaxFadeTime) {
-		isfinished_ = true;
+		SceneManager::GetInstance()->ChangeScene("Title");
 	}
 
 	if (fade_ == Fade::None) {
@@ -273,7 +271,6 @@ void GameScene::Update() {
 	if ((player_->IsDead() || boss_->IsDead()) && fade_ == Fade::None) {
 		fade_ = Fade::FadeOut;
 		fadeTime_ = 0.0f;
-		nextScene_ = new TitleScene;
 	}
 
 	if (pointLightElement_.intensity > 0.0f) {
@@ -517,7 +514,7 @@ void GameScene::Collision() {
 
 void GameScene::AddPlayerBullet(Vector3 translate, Vector3 rotate) {
 	PlayerBullet* newBullet = new PlayerBullet;
-	newBullet->Initialize(modelHolder_, translate, rotate);
+	newBullet->Initialize(translate, rotate);
 	playerBullet_.push_back(newBullet);
 
 	pointLightElement_.intensity = 1.0f;
@@ -527,6 +524,6 @@ void GameScene::AddPlayerBullet(Vector3 translate, Vector3 rotate) {
 
 void GameScene::AddBossBullet(Vector3 translate, Vector3 rotate) {
 	BossBullet* newBullet = new BossBullet;
-	newBullet->Initialize(modelHolder_, translate, rotate);
+	newBullet->Initialize(translate, rotate);
 	bossBullet_.push_back(newBullet);
 }

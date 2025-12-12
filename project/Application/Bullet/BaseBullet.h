@@ -1,7 +1,7 @@
 #pragma once
 #include <memory>
 #include <Object/Object.h>
-#include <Camera.h>
+#include <Camera/Camera.h>
 #include <ModelHolder/ModelHolder.h>
 #include "../Collider/Collider.h"
 
@@ -10,9 +10,6 @@ protected:
 	std::unique_ptr<Object> object_;
 	SRT transform_;
 	SRT velocity_;
-
-	//モデル
-	ModelHolder* modelHolder_;
 public:
 	virtual void Initialize();
 	virtual void Update();
