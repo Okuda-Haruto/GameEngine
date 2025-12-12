@@ -12,9 +12,6 @@ protected:
 	SRT transform_;
 	Vector3 velocity_;
 
-	//モデル
-	ModelHolder* modelHolder_;
-
 public:
 	//初期化
 	void Initialize();

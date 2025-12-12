@@ -1,8 +1,19 @@
 #include "ModelHolder.h"
 #include <ModelManager/ModelManager.h>
 
-ModelHolder::~ModelHolder() {
-	
+
+ModelHolder* ModelHolder::instance = nullptr;
+
+ModelHolder* ModelHolder::GetInstance() {
+	if (instance == nullptr) {
+		instance = new ModelHolder;
+	}
+	return instance;
+}
+
+void ModelHolder::Finalize() {
+	delete instance;
+	instance = nullptr;
 }
 
 void ModelHolder::Initialize() {

@@ -118,21 +118,6 @@
     <ClCompile Include="GameEngine\Resource\Sprite\Sprite.cpp">
       <Filter>GameEngine\Resource\Sprite</Filter>
     </ClCompile>
-    <ClCompile Include="GameEngine\Resource\DirectionalLight.cpp">
-      <Filter>GameEngine\Resource\DirectiolalLight</Filter>
-    </ClCompile>
-    <ClCompile Include="GameEngine\Resource\SpotLight.cpp">
-      <Filter>GameEngine\Resource\SpotLight</Filter>
-    </ClCompile>
-    <ClCompile Include="GameEngine\Resource\Audio.cpp">
-      <Filter>GameEngine\Resource\Audio</Filter>
-    </ClCompile>
-    <ClCompile Include="GameEngine\Resource\Camera.cpp">
-      <Filter>GameEngine\Resource\Camera</Filter>
-    </ClCompile>
-    <ClCompile Include="GameEngine\Resource\PointLight.cpp">
-      <Filter>GameEngine\Resource\PointLight</Filter>
-    </ClCompile>
     <ClCompile Include="GameEngine\Resource\Text.cpp">
       <Filter>GameEngine\Resource</Filter>
     </ClCompile>
@@ -150,12 +135,6 @@
     </ClCompile>
     <ClCompile Include="Application\Scene\TitleScene\TitleScene.cpp">
       <Filter>Application\Scene\TitleScene</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\GameManager.cpp">
-      <Filter>Application</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Scene\BaseScene.cpp">
-      <Filter>Application\Scene</Filter>
     </ClCompile>
     <ClCompile Include="Application\Character\Item\Item.cpp">
       <Filter>Application\Character\Item</Filter>
@@ -183,6 +162,33 @@
     </ClCompile>
     <ClCompile Include="Application\Bullet\BossBullet\BossBullet.cpp">
       <Filter>Application\Bullet\BossBullet</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEngine\Modules\SceneManager\SceneManager.cpp">
+      <Filter>GameEngine\Modules\SceneManager</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEngine\Resource\Camera\Camera.cpp">
+      <Filter>GameEngine\Resource\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEngine\Resource\Audio\Audio.cpp">
+      <Filter>GameEngine\Resource\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEngine\Resource\DirectionalLight\DirectionalLight.cpp">
+      <Filter>GameEngine\Resource\DirectiolalLight</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEngine\Resource\PointLight\PointLight.cpp">
+      <Filter>GameEngine\Resource\PointLight</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEngine\Resource\SpotLight\SpotLight.cpp">
+      <Filter>GameEngine\Resource\SpotLight</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEngine\Resource\BaseScene\BaseScene.cpp">
+      <Filter>GameEngine\Resource\BaseScene</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\GameManager\SceneFactory\SceneFactory.cpp">
+      <Filter>Application\GameManager\SceneFactory</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\GameManager\GameManager.cpp">
+      <Filter>Application\GameManager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -318,21 +324,6 @@
     <ClInclude Include="GameEngine\Resource\Sprite\Sprite.h">
       <Filter>GameEngine\Resource\Sprite</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\Resource\DirectionalLight.h">
-      <Filter>GameEngine\Resource\DirectiolalLight</Filter>
-    </ClInclude>
-    <ClInclude Include="GameEngine\Resource\SpotLight.h">
-      <Filter>GameEngine\Resource\SpotLight</Filter>
-    </ClInclude>
-    <ClInclude Include="GameEngine\Resource\Audio.h">
-      <Filter>GameEngine\Resource\Audio</Filter>
-    </ClInclude>
-    <ClInclude Include="GameEngine\Resource\Camera.h">
-      <Filter>GameEngine\Resource\Camera</Filter>
-    </ClInclude>
-    <ClInclude Include="GameEngine\Resource\PointLight.h">
-      <Filter>GameEngine\Resource\PointLight</Filter>
-    </ClInclude>
     <ClInclude Include="GameEngine\Resource\Text.h">
       <Filter>GameEngine\Resource</Filter>
     </ClInclude>
@@ -411,14 +402,8 @@
     <ClInclude Include="GameEngine\Data\VertexData.h">
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
-    <ClInclude Include="Application\Scene\BaseScene.h">
-      <Filter>Application\Scene</Filter>
-    </ClInclude>
     <ClInclude Include="Application\Scene\TitleScene\TitleScene.h">
       <Filter>Application\Scene\TitleScene</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\GameManager.h">
-      <Filter>Application</Filter>
     </ClInclude>
     <ClInclude Include="Application\Scene\GameScene\GameScene.h">
       <Filter>Application\Scene\GameScene</Filter>
@@ -455,6 +440,36 @@
     </ClInclude>
     <ClInclude Include="Application\Bullet\BossBullet\BossBullet.h">
       <Filter>Application\Bullet\BossBullet</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Modules\SceneManager\SceneManager.h">
+      <Filter>GameEngine\Modules\SceneManager</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Resource\Camera\Camera.h">
+      <Filter>GameEngine\Resource\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Resource\Audio\Audio.h">
+      <Filter>GameEngine\Resource\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Resource\DirectionalLight\DirectionalLight.h">
+      <Filter>GameEngine\Resource\DirectiolalLight</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Resource\PointLight\PointLight.h">
+      <Filter>GameEngine\Resource\PointLight</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Resource\SpotLight\SpotLight.h">
+      <Filter>GameEngine\Resource\SpotLight</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Resource\BaseScene\BaseScene.h">
+      <Filter>GameEngine\Resource\BaseScene</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Factory\AbstractSceneFactory\AbstractSceneFactory.h">
+      <Filter>GameEngine\Factory\AbstractSceneFactory</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\GameManager\SceneFactory\SceneFactory.h">
+      <Filter>Application\GameManager\SceneFactory</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\GameManager\GameManager.h">
+      <Filter>Application\GameManager</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -649,6 +664,24 @@
     </Filter>
     <Filter Include="Application\BackGround\Fence">
       <UniqueIdentifier>{6e980b69-b0ae-4218-a2d9-927e327b3fc5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\Modules\SceneManager">
+      <UniqueIdentifier>{3727cc7c-0eb3-4bc1-9cd4-2b96d97824aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\Resource\BaseScene">
+      <UniqueIdentifier>{f243074b-d344-4b43-b554-4212cfcc7294}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\Factory">
+      <UniqueIdentifier>{f6a8960a-68c9-4af8-9582-b66f0d2c11da}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\GameManager">
+      <UniqueIdentifier>{2cb838c1-ed28-4467-b96b-de7090f1874a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\GameManager\SceneFactory">
+      <UniqueIdentifier>{17bb9e5d-32e7-4f69-aba8-55848056d217}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\Factory\AbstractSceneFactory">
+      <UniqueIdentifier>{6694e463-239f-49ff-a797-bf37f828eaaf}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

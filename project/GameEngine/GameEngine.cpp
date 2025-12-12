@@ -51,6 +51,7 @@ GameEngine::~GameEngine() {
 	AudioManager::GetInstance()->Finalize();
 	TextureManager::GetInstance()->Finalize();
 	ModelManager::GetInstance()->Finalize();
+	SpriteManager::GetInstance()->Finalize();
 	PrimitiveManager::GetInstance()->Finalize();
 	Object::FinalizeDefaultCamera();
 	ParticleManager::GetInstance()->Finalize();
@@ -92,6 +93,7 @@ void GameEngine::Intialize_(const wchar_t* WindowName, int32_t kWindowWidth, int
 	
 	TextureManager::GetInstance()->Initialize(dxCommon_, srvManager_);
 	ModelManager::GetInstance()->Initialize(dxCommon_);
+	SpriteManager::GetInstance()->Initialize(dxCommon_);
 	PrimitiveManager::GetInstance()->Initialize(dxCommon_, srvManager_);
 
 	//カメラ初期値

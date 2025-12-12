@@ -1,17 +1,15 @@
 #pragma once
-#include "../BaseScene.h"
+#include "BaseScene/BaseScene.h"
 #include "Sprite/Sprite.h"
 #include "BackGround/Skydome/Skydome.h"
 #include "BackGround/Ground/Ground.h"
 #include "BackGround/Fence/Fence.h"
 #include "GameCamera/GameCamera.h"
-#include "DirectionalLight.h"
+#include "DirectionalLight/DirectionalLight.h"
 
 class TitleScene : public BaseScene
 {
 private:
-	//モデルを保持
-	ModelHolder* modelHolder_;
 
 	std::unique_ptr<Sprite>fadeSprite_;
 
@@ -35,7 +33,7 @@ public:
 	~TitleScene();
 
 	//初期化
-	void Initialize(ModelHolder* modelHolder, SpriteManager* spriteManager);
+	void Initialize();
 	//更新
 	void Update();
 	//描画

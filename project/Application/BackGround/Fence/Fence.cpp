@@ -10,7 +10,7 @@ Fence::~Fence() {
 	objects_.clear();
 }
 
-void Fence::Initialize(ModelHolder* modelHolder, Camera* camera, DirectionalLight* directionalLight, PointLight* pointLight){
+void Fence::Initialize(Camera* camera, DirectionalLight* directionalLight, PointLight* pointLight){
 	directionalLight_ = directionalLight;
 	pointLight_ = pointLight;
 
@@ -20,7 +20,7 @@ void Fence::Initialize(ModelHolder* modelHolder, Camera* camera, DirectionalLigh
 	for (int i = 0; i < size; i++) {
 		
 		Object* object = new Object;
-		object->Initialize(modelHolder->GetModel(ModelIndex::Fence));
+		object->Initialize(ModelHolder::GetInstance()->GetModel(ModelIndex::Fence));
 
 		switch (i / (size / 4))
 		{

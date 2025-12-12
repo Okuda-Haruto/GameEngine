@@ -10,8 +10,7 @@ Player::~Player() {
 
 }
 
-void Player::Initialize(ModelHolder* modelHolder, GameScene* gameScene, GameCamera* gameCamera, ParticleEmitter* particle1) {
-	modelHolder_ = modelHolder;
+void Player::Initialize(GameScene* gameScene, GameCamera* gameCamera, ParticleEmitter* particle1) {
 	gameScene_ = gameScene;
 	gameCamera_ = gameCamera;
 	particle_1 = particle1;
@@ -37,7 +36,7 @@ void Player::Initialize(ModelHolder* modelHolder, GameScene* gameScene, GameCame
 
 	//モデルの生成
 	object_ = std::make_unique<Object>();
-	object_->Initialize(modelHolder_->GetModel(ModelIndex::Player));
+	object_->Initialize(ModelHolder::GetInstance()->GetModel(ModelIndex::Player));
 	transform_.scale = { 1.0f,1.0f,1.0f };
 	transform_.rotate = { 0.0f,0.0f,0.0f };
 	transform_.translate = { 0.0f,1.0f,-20.0f };

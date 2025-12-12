@@ -1,5 +1,5 @@
 #pragma once
-#include "../BaseScene.h"
+#include <BaseScene/BaseScene.h>
 #include "GameCamera/GameCamera.h"
 #include "BackGround/Skydome/Skydome.h"
 #include "BackGround/Ground/Ground.h"
@@ -15,8 +15,6 @@
 class GameScene : public BaseScene
 {
 private:
-	//モデルを保持
-	ModelHolder* modelHolder_;
 
 	//メインカメラ
 	std::unique_ptr<GameCamera> gameCamera_;
@@ -63,7 +61,7 @@ public:
 	~GameScene();
 
 	//初期化
-	void Initialize(ModelHolder* modelHolder, SpriteManager* spriteManager);
+	void Initialize();
 	//更新
 	void Update();
 	//描画

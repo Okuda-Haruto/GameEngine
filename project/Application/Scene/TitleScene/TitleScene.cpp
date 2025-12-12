@@ -1,15 +1,14 @@
 #include "TitleScene.h"
 #include "GameEngine.h"
 #include <numbers>
+#include <SceneManager/SceneManager.h>
 #include "../GameScene/GameScene.h"
 
 TitleScene::~TitleScene() {
 
 }
 
-void TitleScene::Initialize(ModelHolder* modelHolder, SpriteManager* spriteManager) {
-	modelHolder_ = modelHolder;
-
+void TitleScene::Initialize() {
 	directionalLight_ = std::make_unique<DirectionalLight>();
 	directionalLight_->Initialize(GameEngine::GetDirectXCommon());
 	directionalLightElement_.color = Vector4{ 1.0f,1.0f,1.0f,1.0f };
@@ -22,33 +21,32 @@ void TitleScene::Initialize(ModelHolder* modelHolder, SpriteManager* spriteManag
 	camera_->Initialize(GameEngine::GetDirectXCommon());
 
 	skydome_ = std::make_unique<Skydome>();
-	skydome_->Initialize(modelHolder_);
+	skydome_->Initialize();
 	skydome_->SetCamera(camera_.get());
 	ground_ = std::make_unique<Ground>();
-	ground_->Initialize(modelHolder_);
+	ground_->Initialize();
 	ground_->SetDirectionalLight(directionalLight_.get());
 	ground_->SetCamera(camera_.get());
 	fence_ = std::make_unique<Fence>();
-	fence_->Initialize(modelHolder_, camera_.get(), directionalLight_.get(), nullptr);;
+	fence_->Initialize(camera_.get(), directionalLight_.get(), nullptr);;
 
 
 	titleSprite_ = std::make_unique<Sprite>();
-	titleSprite_->Initialize("resources/Title/GunKid_Title.png", spriteManager);
+	titleSprite_->Initialize("resources/Title/GunKid_Title.png");
 	titleSprite_->SetAnchorPoint(Vector2{ 0.5f,0.5f });
 	titleSprite_->SetPosition(Vector2{ 640.0f,200.0f });
 	pless_B_Start_Sprite_ = std::make_unique<Sprite>();
-	pless_B_Start_Sprite_->Initialize("resources/Title/Pless_B_Start.png", spriteManager);
+	pless_B_Start_Sprite_->Initialize("resources/Title/Pless_B_Start.png");
 	pless_B_Start_Sprite_->SetAnchorPoint(Vector2{ 0.5f,0.5f });
 	pless_B_Start_Sprite_->SetPosition(Vector2{ 640.0f,500.0f });
 
 	fadeSprite_ = std::make_unique<Sprite>();
-	fadeSprite_->Initialize("resources/DebugResources/white2x2.png", spriteManager);
+	fadeSprite_->Initialize("resources/DebugResources/white2x2.png");
 	fadeSprite_->SetSize({ 1280,720 });
 	fadeSprite_->SetColor({ 0.0f,0.0f,0.0f,1.0f });
 
 	fade_ = Fade::FadeIn;
 	fadeTime_ = 0.0f;
-	isfinished_ = false;
 }
 
 void TitleScene::Update() {
@@ -66,13 +64,12 @@ void TitleScene::Update() {
 		fade_ = Fade::None;
 	}
 	if (fade_ == Fade::FadeOut&& fadeTime_ >= kMaxFadeTime) {
-		isfinished_ = true;
+		SceneManager::GetInstance()->ChangeScene("Game");
 	}
 
 	if ((key.trigger[DIK_SPACE] || key.trigger[DIK_C] || pad.Button[PAD_BUTTON_B].trigger) && fade_ == Fade::None) {
 		fade_ = Fade::FadeOut;
 		fadeTime_ = 0.0f;
-		nextScene_ = new GameScene;
 	}
 
 	float a = 0.0f;

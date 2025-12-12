@@ -1,7 +1,7 @@
 #pragma once
 #include <memory>
 #include <Object/Object.h>
-#include <Camera.h>
+#include <Camera/Camera.h>
 #include <ModelHolder/ModelHolder.h>
 
 class Ground
@@ -12,7 +12,7 @@ private:
 
 public:
 	//初期化
-	void Initialize(ModelHolder* modelHolder);
+	void Initialize();
 	//描画
 	void Draw();
 

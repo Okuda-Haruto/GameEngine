@@ -14,7 +14,7 @@ private:
 	bool isDead = false;
 public:
 	//初期化
-	void Initialize(ModelHolder* modelHolder, Vector3 translate, Vector3 rotate);
+	void Initialize(Vector3 translate, Vector3 rotate);
 	//更新処理
 	void Update();
 	//描画処理

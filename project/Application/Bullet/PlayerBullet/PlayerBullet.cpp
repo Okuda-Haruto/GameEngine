@@ -6,10 +6,9 @@ Camera*  PlayerBullet::camera_ = nullptr;
 DirectionalLight* PlayerBullet::directionalLight_ = nullptr;
 PointLight* PlayerBullet::pointLight_ = nullptr;
 
-void PlayerBullet::Initialize(ModelHolder* modelHolder, Vector3 translate, Vector3 rotate) {
-	modelHolder_ = modelHolder;
+void PlayerBullet::Initialize(Vector3 translate, Vector3 rotate) {
 	object_ = std::make_unique<Object>();
-	object_->Initialize(modelHolder_->GetModel(ModelIndex::Bullet));
+	object_->Initialize(ModelHolder::GetInstance()->GetModel(ModelIndex::Bullet));
 	object_->SetCamera(camera_);
 	object_->SetDirectionalLight(directionalLight_);
 	object_->SetPointLight(pointLight_);
