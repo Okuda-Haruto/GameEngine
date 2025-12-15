@@ -200,7 +200,7 @@ void DebugCamera::ChangeCameraMode(unique_ptr<BaseCameraMode> newCameraMode) {
 	cameraMode_ = move(newCameraMode);
 	//正面状態
 	sphericalCoordinates_ = { -10.0f,0.0f,std::numbers::pi_v<float> / 4 * 3 };
-	newCameraMode->Initialize(input_);
+	cameraMode_->Initialize(input_);
 }
 
 void DebugCamera::ChangeCameraMode(DebugCameraMode debugCameraMode) {

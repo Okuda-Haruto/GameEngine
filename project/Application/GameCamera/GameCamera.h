@@ -34,6 +34,8 @@ private:
 
 	shared_ptr<Input> input_;
 public:
+	~GameCamera();
+
 	//初期化
 	void Initialize(shared_ptr<Input> input);
 	//更新

@@ -2,16 +2,16 @@
 #include "Operation/Operation.h"
 #include <numbers>
 
-shared_ptr<Camera> BossBullet::camera_ = nullptr;
-shared_ptr<DirectionalLight> BossBullet::directionalLight_ = nullptr;
-shared_ptr<PointLight> BossBullet::pointLight_ = nullptr;
+weak_ptr<Camera> BossBullet::camera_;
+weak_ptr<DirectionalLight> BossBullet::directionalLight_;
+weak_ptr<PointLight> BossBullet::pointLight_;
 
 void BossBullet::Initialize(Vector3 translate, Vector3 rotate) {
 	object_ = std::make_unique<Object>();
 	object_->Initialize(ModelHolder::GetInstance()->GetModel(ModelIndex::Bullet));
-	object_->SetCamera(camera_);
-	object_->SetDirectionalLight(directionalLight_);
-	object_->SetPointLight(pointLight_);
+	object_->SetCamera(camera_.lock());
+	object_->SetDirectionalLight(directionalLight_.lock());
+	object_->SetPointLight(pointLight_.lock());
 	transform_ = {
 		{1.0f,1.0f,1.0f},
 		rotate,
