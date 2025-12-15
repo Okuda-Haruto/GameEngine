@@ -4,7 +4,9 @@
 #include <Camera/Camera.h>
 #include <cstdint>
 
-#include "Input.h"
+#include "Input/Input.h"
+
+using namespace std;
 
 //カメラモード
 enum class DebugCameraMode {
@@ -15,32 +17,34 @@ enum class DebugCameraMode {
 class BaseCameraMode {
 public: // 純粋仮想関数	＊派生クラスに実装を強要する
 	//初期化
-	virtual void Initialize();
+	virtual void Initialize(shared_ptr<Input> input);
 	//更新
 	virtual void Update(DebugCamera* debugCamera);
 };
 
 class CameraModePlayerCamera : public BaseCameraMode {
 private:
+	shared_ptr<Input> input_;
 	//注目地点
 	Vector3 centerPoint_{ 0.0f,0.0f,0.0f };
 	//球面座標系
 	Vector3 sphericalCoordinates_{ 10.0f,0.0f,0.0f };
 
 public:
-	void Initialize();
+	void Initialize(shared_ptr<Input> input);
 	void Update(DebugCamera* debugCamera);
 };
 
 class CameraModeSphericalCoordinates : public BaseCameraMode {
 private:
+	shared_ptr<Input> input_;
 	//注目地点
 	Vector3 centerPoint_{ 0.0f,0.0f,0.0f };
 	//球面座標系
 	Vector3 sphericalCoordinates_{ 10.0f,0.0f,0.0f };
 
 public:
-	void Initialize();
+	void Initialize(shared_ptr<Input> input);
 	void Update(DebugCamera* debugCamera);
 };
 
@@ -64,15 +68,17 @@ private:
 	//射影行列
 	Matrix4x4 projectionMatrix_;
 
-	BaseCameraMode* cameraMode_;
+	unique_ptr<BaseCameraMode> cameraMode_;
 
-	void SetDebugCameraType(BaseCameraMode* cameraMode) { cameraMode_ = cameraMode; }
+	shared_ptr<Input> input_;
+
+	void SetDebugCameraType(unique_ptr<BaseCameraMode> cameraMode) { cameraMode_ = move(cameraMode); }
 public:
 
 	DebugCamera();
 
 	//初期化
-	void Initialize();
+	void Initialize(shared_ptr<Input> input);
 
 	//更新
 	void Update();
@@ -83,7 +89,7 @@ public:
 	//出力
 	void UpdateCamera(Camera* camera);
 
-	void ChangeCameraMode(BaseCameraMode* newCameraMode);
+	void ChangeCameraMode(unique_ptr<BaseCameraMode> newCameraMode);
 
 	void ChangeCameraMode(DebugCameraMode debugCameraMode);
 

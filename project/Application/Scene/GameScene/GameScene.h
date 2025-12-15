@@ -12,9 +12,13 @@
 #include "Editor/ParticleEditor/ParticleEditor.h"
 #include <array>
 
+using namespace std;
+
 class GameScene : public BaseScene
 {
 private:
+
+	shared_ptr<Input> input_;
 
 	//メインカメラ
 	std::unique_ptr<GameCamera> gameCamera_;
@@ -26,8 +30,8 @@ private:
 	std::unique_ptr<Player> player_;
 	std::unique_ptr<Boss> boss_;
 
-	std::list<PlayerBullet*> playerBullet_;
-	std::list<BossBullet*> bossBullet_;
+	std::list<std::unique_ptr<PlayerBullet>> playerBullet_;
+	std::list<std::unique_ptr<BossBullet>> bossBullet_;
 
 	std::unique_ptr<Object> cylinder_;
 	SRT cylinderTransform_;
@@ -47,25 +51,25 @@ private:
 	std::unique_ptr<ParticleEmitter> particle_4;
 	std::unique_ptr<ParticleEditor> editor_4;
 
-	std::array<Sprite*, 4> sprite_;
+	std::array<std::unique_ptr<Sprite>, 4> sprite_;
 	std::array<SRT,4> spriteTransform;
 
 
 	//光源
-	std::unique_ptr<DirectionalLight> directionalLight_;
+	shared_ptr<DirectionalLight> directionalLight_;
 	DirectionalLightElement directionalLightElement_;
-	std::unique_ptr<PointLight> pointLight_;
+	shared_ptr<PointLight> pointLight_;
 	PointLightElement pointLightElement_;
 public:
 
 	~GameScene();
 
 	//初期化
-	void Initialize();
+	void Initialize(shared_ptr<Input> input) override;
 	//更新
-	void Update();
+	void Update() override;
 	//描画
-	void Draw();
+	void Draw() override;
 
 	void Collision();
 

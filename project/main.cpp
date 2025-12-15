@@ -2,11 +2,13 @@
 //#include "SampleScene/SampleScene.h"
 #include "GameManager.h"
 
+using namespace std;
+
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//ゲームエンジン
 	GameEngine::Intialize(L"LE2A_03_オクダ_ハルト_GunKid", 1280, 720);
 
-	GameManager* gameManager = new GameManager;
+	unique_ptr<GameManager> gameManager = make_unique<GameManager>();
 	gameManager->Initialize();
 
 	//SampleScene* sampleScene = new SampleScene;
@@ -37,9 +39,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		}
 	}
 
-	delete gameManager;
+	gameManager.reset();
 	//delete sampleScene;
-	GameEngine::Delete();
+	GameEngine::Finalize();
 	
 	return 0;
 }

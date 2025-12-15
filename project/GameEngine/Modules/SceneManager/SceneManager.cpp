@@ -1,22 +1,20 @@
 #include "SceneManager.h"
 
-SceneManager* SceneManager::instance = nullptr;
+unique_ptr<SceneManager> SceneManager::instance;
 
 SceneManager* SceneManager::GetInstance() {
-	if (instance == nullptr) {
-		instance = new SceneManager;
+	if (!instance) {
+		instance = make_unique<SceneManager>();
 	}
-	return instance;
+	return instance.get();
 }
 
 void SceneManager::Finalize() {
 	//最期のシーンの終了と解放
 	scene_->Finalize();
-	delete scene_;
-	scene_ = nullptr;
+	scene_.reset();
 
-	delete instance;
-	instance = nullptr;
+	instance.reset();
 }
 
 void SceneManager::Update() {
@@ -26,18 +24,17 @@ void SceneManager::Update() {
 		//旧シーンの終了
 		if (scene_) {
 			scene_->Finalize();
-			delete scene_;
-			scene_ = nullptr;
+			scene_.reset();
 		}
 
 		//シーンの切り替え
-		scene_ = nextScene_;
-		nextScene_ = nullptr;
+		scene_ = move(nextScene_);
+		nextScene_.reset();
 
 		scene_->SetSceneManager(this);
 
 		//次シーンを初期化
-		scene_->Initialize();
+		scene_->Initialize(input_);
 	}
 
 	scene_->Update();

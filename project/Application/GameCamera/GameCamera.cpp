@@ -4,10 +4,10 @@
 #include <Matrix4x4.h>
 #include <numbers>
 
-void GameCamera::Initialize() {
-	camera_ = new Camera;
+void GameCamera::Initialize(shared_ptr<Input> input) {
+	camera_ = make_shared<Camera>();
 	camera_= Object::GetDefaultCamera();
-	transform_ = std::make_unique<SRT>();
+	transform_ = make_shared<SRT>();
 	transform_->scale = { 1.0f,1.0f,1.0f };
 	transform_->rotate = { 0.0f,0.0f,0.0f };
 	transform_->translate = { 0.0f,1.0f,0.0f };
@@ -15,11 +15,14 @@ void GameCamera::Initialize() {
 	shakeTime_ = 0.0f;
 	lockonTransform_ = *transform_;
 	normalTransform_ = *transform_;
+
+	input_ = input;
+
 }
 
 void GameCamera::Update() {
 
-	Pad pad = GameEngine::GetPad();
+	Pad pad = input_->GetPad(0);
 
 	if (shakeTime_ > 0.0f) {
 		shakeTime_ -= 1.0f / 60.0f;

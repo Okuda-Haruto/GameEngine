@@ -1,6 +1,8 @@
 #pragma once
 #include "Object/Object.h"
 
+using namespace std;
+
 enum class ModelIndex {
 	Skydome,
 	Ground,
@@ -15,12 +17,8 @@ enum class ModelIndex {
 //使用するモデルを保持
 class ModelHolder {
 private:
-	static ModelHolder* instance;
 
-	ModelHolder() = default;
-	~ModelHolder() = default;
-	ModelHolder(ModelHolder&) = delete;
-	ModelHolder& operator=(ModelHolder&) = delete;
+	static unique_ptr<ModelHolder> instance;
 
 	struct FilePath {
 		std::string directoryPath_;
@@ -30,6 +28,12 @@ private:
 	std::vector<FilePath> filePathes_;
 
 public:
+
+	ModelHolder() = default;
+	~ModelHolder() = default;
+	ModelHolder(ModelHolder&) = delete;
+	ModelHolder& operator=(ModelHolder&) = delete;
+
 	static ModelHolder* GetInstance();
 
 	void Finalize();
@@ -37,5 +41,5 @@ public:
 	//初期化
 	void Initialize();
 
-	Model* GetModel(ModelIndex model);
+	shared_ptr<Model> GetModel(ModelIndex model);
 };

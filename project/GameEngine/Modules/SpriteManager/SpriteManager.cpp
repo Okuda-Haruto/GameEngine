@@ -1,17 +1,16 @@
 #include "SpriteManager.h"
 
-SpriteManager* SpriteManager::instance = nullptr;
+unique_ptr<SpriteManager> SpriteManager::instance;
 
 SpriteManager* SpriteManager::GetInstance() {
-	if (instance == nullptr) {
-		instance = new SpriteManager;
+	if (!instance) {
+		instance = make_unique<SpriteManager>();
 	}
-	return instance;
+	return instance.get();
 }
 
 void SpriteManager::Finalize() {
-	delete instance;
-	instance = nullptr;
+	instance.reset();
 }
 
 //初期化

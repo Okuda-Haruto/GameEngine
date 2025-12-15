@@ -140,7 +140,6 @@
     <ClInclude Include="GameEngine\Data\ChunkHeader.h" />
     <ClInclude Include="GameEngine\Data\DirectionalLightElement.h" />
     <ClInclude Include="GameEngine\Data\FormatChunk.h" />
-    <ClInclude Include="GameEngine\Data\Input.h" />
     <ClInclude Include="GameEngine\Math\Shape\Line.h" />
     <ClInclude Include="GameEngine\Data\Material.h" />
     <ClInclude Include="GameEngine\Data\ModelData.h" />

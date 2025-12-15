@@ -7,14 +7,11 @@
 #include <DirectXCommon/DirectXCommon.h>
 #include <SRVManager/SRVManager.h>
 
+using namespace std;
+
 class TextureManager {
 private:
-	static TextureManager* instance;
-
-	TextureManager() = default;
-	~TextureManager() = default;
-	TextureManager(TextureManager&) = delete;
-	TextureManager& operator=(TextureManager&) = delete;
+	static unique_ptr<TextureManager> instance;
 
 	DirectXCommon* dxCommon_ = nullptr;
 	SRVManager* srvManager_ = nullptr;
@@ -37,6 +34,12 @@ private:
 	int32_t white2x2;
 
 public:
+
+	TextureManager() = default;
+	~TextureManager() = default;
+	TextureManager(TextureManager&) = delete;
+	TextureManager& operator=(TextureManager&) = delete;
+
 	//シングルトンインスタンスの取得
 	static TextureManager* GetInstance();
 

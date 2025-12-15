@@ -354,9 +354,6 @@
     <ClInclude Include="GameEngine\Data\FormatChunk.h">
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\Data\Input.h">
-      <Filter>GameEngine\Data</Filter>
-    </ClInclude>
     <ClInclude Include="GameEngine\Data\Material.h">
       <Filter>GameEngine\Data</Filter>
     </ClInclude>

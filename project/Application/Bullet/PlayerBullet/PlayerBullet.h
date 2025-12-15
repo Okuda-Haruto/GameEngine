@@ -3,9 +3,9 @@
 
 class PlayerBullet : public BaseBullet {
 private:
-	static Camera* camera_;
-	static DirectionalLight* directionalLight_;
-	static PointLight* pointLight_;
+	static shared_ptr<Camera> camera_;
+	static shared_ptr<DirectionalLight> directionalLight_;
+	static shared_ptr<PointLight> pointLight_;
 	const float speed_ = 1.5f;
 
 	const float kMaxLifeTime_ = 1.5f;
@@ -22,9 +22,9 @@ public:
 
 	void IsCollision();
 
-	static void SetCamera(Camera* camera) { camera_ = camera; }
-	static void SetDirectionalLight(DirectionalLight* directionalLight) { directionalLight_ = directionalLight; }
-	static void SetPointLight(PointLight* pointLight) { pointLight_ = pointLight; }
+	static void SetCamera(shared_ptr<Camera> camera) { camera_ = camera; }
+	static void SetDirectionalLight(shared_ptr<DirectionalLight> directionalLight) { directionalLight_ = directionalLight; }
+	static void SetPointLight(shared_ptr<PointLight> pointLight) { pointLight_ = pointLight; }
 
 	bool IsDead() { return isDead; }
 };

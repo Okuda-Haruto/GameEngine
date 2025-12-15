@@ -13,6 +13,8 @@
 #include "Plane.h"
 #include "AABB.h"
 
+using namespace std;
+
 class PrimitiveManager {
 public:
 	//プリミティブで使用可能な形
@@ -33,12 +35,7 @@ public:
 	static const uint32_t kMaxNumPrimitive = 1024;
 private:
 
-	static PrimitiveManager* instance;
-
-	PrimitiveManager() = default;
-	~PrimitiveManager() = default;
-	PrimitiveManager(PrimitiveManager&) = delete;
-	PrimitiveManager& operator=(PrimitiveManager&) = delete;
+	static unique_ptr<PrimitiveManager> instance;
 
 	DirectXCommon* dxCommon_ = nullptr;
 
@@ -71,6 +68,11 @@ private:
 	int32_t aabbIndex_ = 0;
 
 public:
+
+	PrimitiveManager() = default;
+	~PrimitiveManager() = default;
+	PrimitiveManager(PrimitiveManager&) = delete;
+	PrimitiveManager& operator=(PrimitiveManager&) = delete;
 
 	static PrimitiveManager* GetInstance();
 

@@ -4,13 +4,13 @@
 
 #include <cassert>
 
-AudioManager* AudioManager::instance = nullptr;
+unique_ptr<AudioManager> AudioManager::instance;
 
 AudioManager* AudioManager::GetInstance() {
-	if (instance == nullptr) {
-		instance = new AudioManager;
+	if (!instance) {
+		instance = make_unique<AudioManager>();
 	}
-	return instance;
+	return instance.get();
 }
 
 void AudioManager::Finalize() {
@@ -25,8 +25,7 @@ void AudioManager::Finalize() {
 
 	CoUninitialize();
 
-	delete instance;
-	instance = nullptr;
+	instance.reset();
 }
 
 void AudioManager::Initialize(Microsoft::WRL::ComPtr<IXAudio2> xAudio2) {

@@ -26,28 +26,30 @@
 
 int32_t GameEngine::kWindowWidth_;
 int32_t GameEngine::kWindowHeight_;
+unique_ptr<GameEngine> GameEngine::instance;
 
-GameEngine::GameEngine() {
-
+GameEngine* GameEngine::GetInstance() {
+	if (!instance) {
+		instance = make_unique<GameEngine>();
+	}
+	return instance.get();
 }
 
-GameEngine::~GameEngine() {
-
+void GameEngine::Finalize_() {
+	if (masterVoice_) {
+		masterVoice_->DestroyVoice();
+		masterVoice_ = nullptr;
+	}
 	xAudio2_.Reset();
 
-	directInput_->Release();
-	keyboardDevice_->Release();
-	mouseDevice_->Release();
-
 	trianglePipelineState_.Reset();
+	noDepthTrianglePipelineState_.Reset();
 	instancingTrianglePipelineState_.Reset();
 	particlePipelineState_.Reset();
+	spritePipelineState_.Reset();
 	linePipelineState_.Reset();
+	noDepthLinePipelineState_.Reset();
 
-	delete imguiManager_;
-	delete srvManager_;
-	delete dxCommon_;
-	delete winApp_;
 	AudioManager::GetInstance()->Finalize();
 	TextureManager::GetInstance()->Finalize();
 	ModelManager::GetInstance()->Finalize();
@@ -55,11 +57,20 @@ GameEngine::~GameEngine() {
 	PrimitiveManager::GetInstance()->Finalize();
 	Object::FinalizeDefaultCamera();
 	ParticleManager::GetInstance()->Finalize();
+
+	imguiManager_.reset();
+	srvManager_.reset();
+	dxCommon_.reset();
+	winApp_.reset();
+
+	textureData_.clear();
 }
 
-GameEngine* GameEngine::getInstance() {
-	static GameEngine* instance = new GameEngine();
-	return instance;
+void GameEngine::Finalize() {
+	if (instance) {
+		instance->Finalize_(); // リソース解放（this はまだ有効）
+		instance.reset();      // この呼び出しでオブジェクトを削除する（呼出し元スタック上なので安全）
+	}
 }
 
 void GameEngine::Intialize_(const wchar_t* WindowName, int32_t kWindowWidth, int32_t kWindowHeight) {
@@ -79,54 +90,31 @@ void GameEngine::Intialize_(const wchar_t* WindowName, int32_t kWindowWidth, int
 	//メディアファンデーションの初期化
 	MFStartup(MF_VERSION, MFSTARTUP_NOSOCKET);
 
-	winApp_ = new WindowsAPI;
+	winApp_ = make_unique<WindowsAPI>();
 	winApp_->Initialize(WindowName, kWindowWidth, kWindowHeight);
 
-	dxCommon_ = new DirectXCommon;
-	dxCommon_->Initialize(winApp_);
+	dxCommon_ = make_unique<DirectXCommon>();
+	dxCommon_->Initialize(winApp_.get());
 
-	srvManager_ = new SRVManager;
-	srvManager_->Initialize(dxCommon_);
+	srvManager_ = make_unique<SRVManager>();
+	srvManager_->Initialize(dxCommon_.get());
 
-	imguiManager_ = new ImGuiManager();
-	imguiManager_->Initialize(dxCommon_, winApp_, srvManager_);
+	imguiManager_ = make_unique<ImGuiManager>();
+	imguiManager_->Initialize(dxCommon_.get(), winApp_.get(), srvManager_.get());
 	
-	TextureManager::GetInstance()->Initialize(dxCommon_, srvManager_);
-	ModelManager::GetInstance()->Initialize(dxCommon_);
-	SpriteManager::GetInstance()->Initialize(dxCommon_);
-	PrimitiveManager::GetInstance()->Initialize(dxCommon_, srvManager_);
+	TextureManager::GetInstance()->Initialize(dxCommon_.get(), srvManager_.get());
+	ModelManager::GetInstance()->Initialize(dxCommon_.get());
+	SpriteManager::GetInstance()->Initialize(dxCommon_.get());
+	PrimitiveManager::GetInstance()->Initialize(dxCommon_.get(), srvManager_.get());
 
 	//カメラ初期値
-	Camera* DefaultCamera = new Camera;
-	DefaultCamera->Initialize(dxCommon_);
+	std::shared_ptr<Camera> DefaultCamera = std::make_shared<Camera>();
+	DefaultCamera->Initialize(dxCommon_.get());
 	Object::SetDefaultCamera(DefaultCamera);
-	ParticleManager::GetInstance()->Initialize(dxCommon_, srvManager_);
+	ParticleManager::GetInstance()->Initialize(dxCommon_.get(), srvManager_.get());
 
 	device_ = dxCommon_->GetDevice();
 	commandList_ = dxCommon_->GetCommandList();
-
-	//DirectInputの初期化
-	hr = DirectInput8Create(winApp_->GetHInstance(), DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&directInput_, nullptr);
-	assert(SUCCEEDED(hr));
-
-	//キーボードデバイスの生成
-	hr = directInput_->CreateDevice(GUID_SysKeyboard, &keyboardDevice_, NULL);
-	assert(SUCCEEDED(hr));
-	//入力データ形式のセット
-	hr = keyboardDevice_->SetDataFormat(&c_dfDIKeyboard);	//標準形式
-	assert(SUCCEEDED(hr));
-	//排他制御レベルのセット
-	hr = keyboardDevice_->SetCooperativeLevel(winApp_->GetHwnd(), DISCL_FOREGROUND | DISCL_NONEXCLUSIVE | DISCL_NOWINKEY);
-
-	//マウスデバイスの生成
-	hr = directInput_->CreateDevice(GUID_SysMouse, &mouseDevice_, NULL);
-	assert(SUCCEEDED(hr));
-	//入力データ形式のセット
-	hr = mouseDevice_->SetDataFormat(&c_dfDIMouse);	//標準形式
-	assert(SUCCEEDED(hr));
-	//排他制御レベルのセット
-	hr = mouseDevice_->SetCooperativeLevel(winApp_->GetHwnd(), DISCL_FOREGROUND | DISCL_NONEXCLUSIVE | DISCL_NOWINKEY);
-
 
 
 	//RootSignature作成
@@ -397,33 +385,7 @@ bool GameEngine::StartFlame_() {
 		infoQueue->PushStorageFilter(&filter);
 	}
 #endif
-
-	keyboardDevice_->Acquire();
-	//前frame処理
-	memcpy(preKeys_, keys_, sizeof(BYTE) * 256);
-	//キーボード入力
-	keyboardDevice_->GetDeviceState(sizeof(BYTE) * 256, keys_);
-
-	mouseDevice_->Acquire();
-	//前frame処理
-	memcpy(&preMouse_, &mouse_, sizeof(DIMOUSESTATE));
-	//マウス入力
-	mouseDevice_->GetDeviceState(sizeof(DIMOUSESTATE),&mouse_);
-
-	//パッド入力
-	//0~4個のパッドから接続されているパッド入力を得る
-	for (DWORD i = 0; i < XUSER_MAX_COUNT; i++) {
-
-		//前frame処理
-		memcpy(&prePad_[i], &pad_[i], sizeof(XINPUT_STATE));
-		ZeroMemory(&pad_[i], sizeof(XINPUT_STATE));
-
-		//パッド入力を入手
-		dwResult_[i] = XInputGetState(i, &pad_[i]);
-	}
-
 	imguiManager_->Begin();
-
 	return true;
 }
 
@@ -460,139 +422,7 @@ void GameEngine::PostDraw_() {
 	dxCommon_->PostDraw();
 }
 
-[[nodiscard]]
-Keybord GameEngine::GetKeybord_() {
-
-	Keybord returnKeybord{};
-
-	for (int i = 0; i < 256; i++) {
-		returnKeybord.hold[i] = keys_[i];
-		returnKeybord.idle[i] = ~keys_[i];
-		returnKeybord.trigger[i] = keys_[i] & ~preKeys_[i];
-		returnKeybord.release[i] = ~keys_[i] & preKeys_[i];
-	}
-
-	return returnKeybord;
-}
-
-[[nodiscard]]
-Mouse GameEngine::GetMouse_() {
-
-	Mouse returnMouse{};
-
-	//マウス座標
-	POINT p;
-	GetCursorPos(&p);
-	//スクリーン上からウィンドウ上へ
-	ScreenToClient(winApp_->GetHwnd(), &p);
-
-	returnMouse.Position = { float(p.x),float(p.y) };
-	returnMouse.Movement = { float(mouse_.lX),float(mouse_.lY),float(mouse_.lZ) };
-	for (int i = 0; i < 3; i++) {
-		returnMouse.click[i] = mouse_.rgbButtons[i];
-	}
-
-	return returnMouse;
-}
-
-[[nodiscard]]
-Pad GameEngine::GetPad_(int usePadNum) {
-
-	Pad returnPad{};
-
-	//接続されているか
-	if (dwResult_[usePadNum] == ERROR_SUCCESS) {
-		//接続されている
-		returnPad.isConnected = true;
-
-		//スティックの傾きを得る
-		//デッドゾーンチェック
-		float LX = pad_[usePadNum].Gamepad.sThumbLX;
-		float LY = pad_[usePadNum].Gamepad.sThumbLY;
-
-		float magnitude = sqrtf(powf(LX, 2) + powf(LY, 2));
-
-		float normalizedLX = LX / magnitude;
-		float normalizedLY = LY / magnitude;
-
-		float normalizedMagnitude = 0;
-
-		if (magnitude > XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
-			if (magnitude > 32767) {
-				magnitude = 32767;
-			}
-			magnitude -= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE;
-
-			normalizedMagnitude = magnitude / (32767 - XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE);
-		} else {
-			magnitude = 0.0f;
-			normalizedMagnitude = 0.0f;
-		}
-
-		returnPad.LeftStick = {
-			normalizedMagnitude,
-			{ normalizedLX, normalizedLY}
-		};
-
-		//Rスティックも
-		float RX = pad_[usePadNum].Gamepad.sThumbRX;
-		float RY = pad_[usePadNum].Gamepad.sThumbRY;
-
-		magnitude = sqrtf(powf(RX, 2) + powf(RY, 2));
-
-		float normalizedRX = RX / magnitude;
-		float normalizedRY = RY / magnitude;
-
-		normalizedMagnitude = 0;
-
-		if (magnitude > XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) {
-			if (magnitude > 32767) {
-				magnitude = 32767;
-			}
-			magnitude -= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE;
-
-			normalizedMagnitude = magnitude / (32767 - XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE);
-		} else {
-			magnitude = 0.0f;
-			normalizedMagnitude = 0.0f;
-		}
-
-		returnPad.RightStick = {
-			normalizedMagnitude,
-			{ normalizedRX, normalizedRY}
-		};
-
-		//ボタンの入力変換
-		for (int i = 0; i <= 16; i++) {
-			int hold = 0x0001 << i;
-			if (i != PAD_BUTTON_LT && i != PAD_BUTTON_RT) {
-				returnPad.Button[i].hold = pad_[usePadNum].Gamepad.wButtons & hold;
-				returnPad.Button[i].idle = ~(pad_[usePadNum].Gamepad.wButtons & hold);
-				returnPad.Button[i].trigger = (pad_[usePadNum].Gamepad.wButtons & hold) & ~(prePad_[usePadNum].Gamepad.wButtons & hold);
-				returnPad.Button[i].release = ~(pad_[usePadNum].Gamepad.wButtons & hold) & (prePad_[usePadNum].Gamepad.wButtons & hold);
-			} else {
-				if (i == PAD_BUTTON_LT) {
-					returnPad.Button[i].hold = pad_[usePadNum].Gamepad.bLeftTrigger >= 0x80;
-					returnPad.Button[i].idle = !(pad_[usePadNum].Gamepad.bLeftTrigger >= 0x80);
-					returnPad.Button[i].trigger = (pad_[usePadNum].Gamepad.bLeftTrigger >= 0x80) && !(prePad_[usePadNum].Gamepad.bLeftTrigger >= 0x80);
-					returnPad.Button[i].release = !(pad_[usePadNum].Gamepad.bLeftTrigger >= 0x80) && (prePad_[usePadNum].Gamepad.bLeftTrigger >= 0x80);
-				} else {
-					returnPad.Button[i].hold = pad_[usePadNum].Gamepad.bRightTrigger >= 0x80;
-					returnPad.Button[i].idle = !(pad_[usePadNum].Gamepad.bRightTrigger >= 0x80);
-					returnPad.Button[i].trigger = (pad_[usePadNum].Gamepad.bRightTrigger >= 0x80) && !(prePad_[usePadNum].Gamepad.bRightTrigger >= 0x80);
-					returnPad.Button[i].release = !(pad_[usePadNum].Gamepad.bRightTrigger >= 0x80) && (prePad_[usePadNum].Gamepad.bRightTrigger >= 0x80);
-				}
-			}
-		}
-	} else {
-		//接続されていない
-		returnPad.isConnected = false;
-	}
-
-	return returnPad;
-}
-
-void GameEngine::DrawObject_3D_(Object* object, DirectionalLight* directionalLight, PointLight* pointLight, SpotLight* spotLight) {
+void GameEngine::DrawObject_3D_(Object* object, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight) {
 
 	//上限に達していたら描画しない
 	if (objectIndex >= kMaxIndex)return;
@@ -677,7 +507,7 @@ void GameEngine::DrawObject_3D_(Object* object, DirectionalLight* directionalLig
 	}
 }
 
-void GameEngine::DrawObject_2D_(Object* object, DirectionalLight* directionalLight) {
+void GameEngine::DrawObject_2D_(Object* object, shared_ptr<DirectionalLight> directionalLight) {
 
 	//上限に達していたら描画しない
 	if (objectIndex >= kMaxIndex)return;
@@ -759,13 +589,13 @@ void GameEngine::DrawObject_2D_(Object* object, DirectionalLight* directionalLig
 	}
 }
 
-void GameEngine::DrawInstancingObject_3D_(std::list<Object*> objects, DirectionalLight* directionalLight, PointLight* pointLight, SpotLight* spotLight) {
+void GameEngine::DrawInstancingObject_3D_(std::list<Object*> objects, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight) {
 	
 	//上限に達していたら描画しない
 	if (instancingObjectIndex > kMaxInstanceIndex)return;
 
 	std::list<Object*>::iterator objectIterator = objects.begin();
-	Camera* camera = (*objectIterator)->GetCamera();
+	shared_ptr<Camera> camera = (*objectIterator)->GetCamera();
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList_->SetGraphicsRootSignature(instancingRootSignature_.Get());
@@ -904,7 +734,7 @@ void GameEngine::DrawParticle_(ParticleGroup particleGroup) {
 	commandList_->IASetVertexBuffers(0, 1, &ParticleManager::GetInstance()->GetVertexBufferView());	//VBVを設定
 	commandList_->IASetIndexBuffer(&ParticleManager::GetInstance()->GetIndexBufferView());	//IBVを設定
 
-	Camera* camera = Object::GetDefaultCamera();
+	shared_ptr<Camera> camera = Object::GetDefaultCamera();
 
 	//WVPデータを更新
 	InstancingTransformationMatrix* mappedBase = nullptr;
@@ -1125,7 +955,7 @@ void GameEngine::DrawLine_(std::list<Line> lines, PrimitiveManager::PrimitiveRes
 	commandList_->IASetVertexBuffers(0, 1, &PrimitiveManager::GetInstance()->GetVertexBufferView());	//VBVを設定
 	commandList_->IASetIndexBuffer(&PrimitiveManager::GetInstance()->GetIndexBufferView());	//IBVを設定
 
-	Camera* camera = Object::GetDefaultCamera();
+	shared_ptr<Camera> camera = Object::GetDefaultCamera();
 
 	//WVPデータを更新
 	InstancingTransformationMatrix* mappedBase = nullptr;
@@ -1208,7 +1038,7 @@ void GameEngine::DrawPoint_(std::list<Vector3> points, PrimitiveManager::Primiti
 	commandList_->IASetVertexBuffers(0, 1, &PrimitiveManager::GetInstance()->GetVertexBufferView());	//VBVを設定
 	commandList_->IASetIndexBuffer(&PrimitiveManager::GetInstance()->GetIndexBufferView());	//IBVを設定
 
-	Camera* camera = Object::GetDefaultCamera();
+	shared_ptr<Camera> camera = Object::GetDefaultCamera();
 
 	//WVPデータを更新
 	InstancingTransformationMatrix* mappedBase = nullptr;
@@ -1284,7 +1114,7 @@ void GameEngine::DrawAABB_(std::list<AABB> aabbs, PrimitiveManager::PrimitiveRes
 	commandList_->IASetVertexBuffers(0, 1, &PrimitiveManager::GetInstance()->GetVertexBufferView());	//VBVを設定
 	commandList_->IASetIndexBuffer(&PrimitiveManager::GetInstance()->GetIndexBufferView());	//IBVを設定
 
-	Camera* camera = Object::GetDefaultCamera();
+	shared_ptr<Camera> camera = Object::GetDefaultCamera();
 
 	//WVPデータを更新
 	InstancingTransformationMatrix* mappedBase = nullptr;

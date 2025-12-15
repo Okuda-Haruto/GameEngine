@@ -12,55 +12,54 @@
 #include <Sprite/Sprite.h>
 #include <ParticleEmitter/ParticleEmitter.h>
 
+using namespace std;
+
 class SampleScene
 {
 private:
-	WindowsAPI* winApp_ = nullptr;
+
+	shared_ptr<Input> input_;
 
 	// 3Dモデル
 	std::array<bool, 7>isObjectDraw_{ TRUE ,TRUE ,TRUE ,TRUE ,TRUE ,TRUE ,TRUE };
-	std::array<Object*, 7> object_{ nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr };
+	std::array<unique_ptr<Object>, 7> object_;
 	// 3Dモデルデータ
 	std::array<SRT, 7> objectTransform_;
 
 	Emitter emitter_;
 	AccelerationField accelerationField_;
-	ParticleEmitter* particleEmitter_ = nullptr;
+	unique_ptr<ParticleEmitter> particleEmitter_ = nullptr;
 
 	//2Dモデル
 	std::array<bool, 2> isSpriteDraw_ = { true,false };
-	std::array<Sprite*,2> sprite_;
+	std::array<unique_ptr<Sprite>,2> sprite_;
 
-	//Grid* grid_ = nullptr;
-
-	Audio* audio_ = nullptr;
-
-	//AxisIndicator* axis_ = nullptr;
+	unique_ptr<Audio> audio_ = nullptr;
 	
 	// カメラ
 	SRT cameraTransform_{};
-	Camera* defaultCamera_ = nullptr;
+	shared_ptr<Camera> defaultCamera_ = nullptr;
 
 	//デバッグカメラ
-	DebugCamera* debugCamera_ = nullptr;
+	shared_ptr<DebugCamera> debugCamera_ = nullptr;
 	//デバッグカメラを使用するか
 	bool isUseDebugCamera_ = true;
 
 	//光源
 	DirectionalLightElement directionalLightElement_;
-	DirectionalLight* directionalLight_ = nullptr;
+	shared_ptr<DirectionalLight> directionalLight_ = nullptr;
 	UINT reflection = REFLECTION_HalfLambert;
 	float shininess_ = 40.0f;
 
 	PointLightElement pointLightElement_;
-	PointLight* pointLight_ = nullptr;
+	shared_ptr<PointLight> pointLight_ = nullptr;
 
 	SpotLightElement spotLightElement_;
-	SpotLight* spotLight_ = nullptr;
+	shared_ptr<SpotLight> spotLight_ = nullptr;
 
 
 	//インプット
-	Input* input = nullptr;
+	unique_ptr<Input> input;
 
 
 	bool isDisplayUI = true;

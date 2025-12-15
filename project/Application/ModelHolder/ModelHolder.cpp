@@ -1,19 +1,17 @@
 #include "ModelHolder.h"
 #include <ModelManager/ModelManager.h>
 
-
-ModelHolder* ModelHolder::instance = nullptr;
+unique_ptr<ModelHolder> ModelHolder::instance;
 
 ModelHolder* ModelHolder::GetInstance() {
-	if (instance == nullptr) {
-		instance = new ModelHolder;
+	if (!instance) {
+		instance = make_unique<ModelHolder>();
 	}
-	return instance;
+	return instance.get();
 }
 
 void ModelHolder::Finalize() {
-	delete instance;
-	instance = nullptr;
+	instance.reset();
 }
 
 void ModelHolder::Initialize() {
@@ -57,6 +55,6 @@ void ModelHolder::Initialize() {
 	
 }
 
-Model* ModelHolder::GetModel(ModelIndex model) {
+shared_ptr<Model> ModelHolder::GetModel(ModelIndex model) {
 	return ModelManager::GetInstance()->GetModel(filePathes_[int32_t(model)].directoryPath_, filePathes_[int32_t(model)].fileName_);
 }

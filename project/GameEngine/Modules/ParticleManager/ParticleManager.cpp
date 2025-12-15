@@ -4,20 +4,19 @@
 #include "GameEngine.h"
 #include "Collision.h"
 
-ParticleManager* ParticleManager::instance = nullptr;
+unique_ptr<ParticleManager> ParticleManager::instance;
 
 ParticleManager* ParticleManager::GetInstance() {
-	if (instance == nullptr) {
-		instance = new ParticleManager;
+	if (!instance) {
+		instance = make_unique<ParticleManager>();
 	}
-	return instance;
+	return instance.get();
 }
 
 void ParticleManager::Finalize() {
 	particleGroups.clear();
 
-	delete instance;
-	instance = nullptr;
+	instance.reset();
 }
 
 void ParticleManager::Initialize(DirectXCommon* dxCommon, SRVManager* srvManager) {

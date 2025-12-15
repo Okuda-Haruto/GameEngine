@@ -8,27 +8,13 @@
 #include <cmath>
 
 SampleScene::~SampleScene() {
-	//解放
-	for (Object* object : object_) {
-		delete object;
-	}
-	for (Sprite* sprite : sprite_) {
-		delete sprite;
-	}
-	//delete effect_;
-	//delete grid_;
-	delete audio_;
-	//delete axis_;
-	delete debugCamera_;
-	delete directionalLight_;
-	delete pointLight_;
-	delete spotLight_;
-	delete input;
+
 }
 
 void SampleScene::Initialize() {
 
-	winApp_ = GameEngine::GetWindowsAPI();
+	input_ = make_shared<Input>();
+	input_->Initialize(GameEngine::GetWindowsAPI());
 
 	ModelManager::GetInstance()->LoadModel("resources/DebugResources/plane", "plane.obj");
 	ModelManager::GetInstance()->LoadModel("resources/DebugResources/sphere", "sphere.obj");
@@ -39,32 +25,32 @@ void SampleScene::Initialize() {
 	ModelManager::GetInstance()->LoadModel("resources/DebugResources/teapot", "teapot.obj");
 
 	//3Dオブジェクト
-	object_[0] = new Object;
+	object_[0] = make_unique<Object>();
 	object_[0]->Initialize(ModelManager::GetInstance()->GetModel("resources/Cylinder", "Cylinder.obj"));
-	object_[1] = new Object;
+	object_[1] = make_unique<Object>();
 	object_[1]->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/sphere", "sphere.obj"));
-	object_[2] = new Object;
+	object_[2] = make_unique<Object>();
 	object_[2]->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/multiMesh", "multiMesh.obj"));
-	object_[3] = new Object;
+	object_[3] = make_unique<Object>();
 	object_[3]->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/multiMaterial", "multiMaterial.obj"));
-	object_[4] = new Object;
+	object_[4] = make_unique<Object>();
 	object_[4]->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/terrain", "terrain.obj"));
-	object_[5] = new Object;
+	object_[5] = make_unique<Object>();
 	object_[5]->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/suzanne", "suzanne.obj"));
-	object_[6] = new Object;
+	object_[6] = make_unique<Object>();
 	object_[6]->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/teapot", "teapot.obj"));
 
 	//2Dスプライト
-	sprite_[0] = new Sprite;
+	sprite_[0] = make_unique<Sprite>();
 	sprite_[0]->Initialize("resources/DebugResources/uvChecker.png");
 	sprite_[0]->SetPosition(Vector2{100.0f,100.0f});
-	sprite_[1] = new Sprite;
+	sprite_[1] = make_unique<Sprite>();
 	sprite_[1]->Initialize("resources/DebugResources/monsterBall.png");
 	sprite_[1]->SetPosition(Vector2{ 50,50 });
 
 	//エフェクト
 	ParticleManager::GetInstance()->CreateParticleGroup("particle", "resources/DebugResources/circle.png");
-	particleEmitter_ = new ParticleEmitter("particle");
+	particleEmitter_ = make_unique<ParticleEmitter>("particle");
 	emitter_.transform.scale = { 1.0f,1.0f,1.0f };
 	emitter_.transform.translate = {0.0f,0.0f,0.0f};
 	emitter_.count = 2;
@@ -81,16 +67,16 @@ void SampleScene::Initialize() {
 
 
 	//音源
-	audio_ = new Audio;
+	audio_ = make_unique<Audio>();
 	audio_->Initialize("resources/DebugResources/TestAudio_koukaonLabo.mp3",false);
 
 	//デバッグカメラ
-	debugCamera_ = new DebugCamera();
-	debugCamera_->Initialize();
+	debugCamera_ = make_shared<DebugCamera>();
+	debugCamera_->Initialize(input_);
 
 	//カメラ
 	defaultCamera_ = Object::GetDefaultCamera();
-	defaultCamera_->setDebugCamera(debugCamera_);
+	defaultCamera_->SetDebugCamera(debugCamera_);
 
 	cameraTransform_ = {
 		{ 0.0f, 0.0f, 0.0f },
@@ -98,23 +84,9 @@ void SampleScene::Initialize() {
 		{ 2.0f, 2.0f, -18.0f }
 	};
 
-	//for (Object* object : object_) {
-	//	object->SetCamera(camera_);
-	//}
-	//effect_->SetCamera(camera_);
-
-	//テクスチャ
-	
-	//spriteData_.material.textureIndex = GameEngine::TextureLoad("resources/Debugresources/uvChecker.png");
-	
-	//grid_ = new Grid;
-	//grid_->Initialize(camera_);
-
-	//axis_ = new AxisIndicator;
-	//axis_->Initialize(camera_);
 
 	//光源
-	directionalLight_ = new DirectionalLight;
+	directionalLight_ = make_shared<DirectionalLight>();
 	directionalLight_->Initialize(GameEngine::GetDirectXCommon());
 	directionalLightElement_ = {
 		{1.0f,1.0f,1.0f,1.0f},
@@ -123,7 +95,7 @@ void SampleScene::Initialize() {
 	};
 	directionalLight_->SetDirectionalLightElement(directionalLightElement_);
 
-	pointLight_ = new PointLight;
+	pointLight_ = make_shared<PointLight>();
 	pointLight_->Initialize(GameEngine::GetDirectXCommon());
 	pointLightElement_ = {
 		{1.0f,1.0f,1.0f,1.0f},
@@ -134,7 +106,7 @@ void SampleScene::Initialize() {
 	};
 	pointLight_->SetPointLightElement(pointLightElement_);
 
-	spotLight_ = new SpotLight;
+	spotLight_ = make_shared<SpotLight>();
 	spotLight_->Initialize(GameEngine::GetDirectXCommon());
 	spotLightElement_ = {
 		{ 1.0f,1.0f,1.0f,1.0f },
@@ -148,7 +120,7 @@ void SampleScene::Initialize() {
 	};
 	spotLight_->SetSpotLightElement(spotLightElement_);
 
-	for (Object* object : object_) {
+	for (unique_ptr<Object>& object : object_) {
 		object->SetDirectionalLight(directionalLight_);
 		object->SetPointLight(pointLight_);
 		object->SetSpotLight(spotLight_);
@@ -160,52 +132,54 @@ void SampleScene::Initialize() {
 		object_[i]->SetTransform(objectTransform_[i]);
 	}
 
-	input = new Input;
-	input->Initialize(winApp_);	//元々GameEngineでまとめて管理していたので一時的に呼び出せるようにした
+	input = make_unique<Input>();
+	input->Initialize(GameEngine::GetWindowsAPI());	//元々GameEngineでまとめて管理していたので一時的に呼び出せるようにした
 }
 
 void SampleScene::Update() {
 	//入力処理
 	input->Update();
+	Keybord keybord = input->GetKeyBord();
+	Pad pad = input->GetPad(0);
 
-	if (input->PushKey(DIK_UP) || input->PushPadButton(PAD_BUTTON_UP)) {
+	if (keybord.hold[DIK_UP] || pad.Button[PAD_BUTTON_UP].hold) {
 		for (INT i = 0; i < INT(objectTransform_.size());i++) {
 			objectTransform_[i].translate.y += 0.1f;
 		}
 	}
-	if (input->PushKey(DIK_DOWN) || input->PushPadButton(PAD_BUTTON_DOWN)) {
+	if (keybord.hold[DIK_DOWN] || pad.Button[PAD_BUTTON_DOWN].hold) {
 		for (INT i = 0; i < INT(objectTransform_.size()); i++) {
 			objectTransform_[i].translate.y -= 0.1f;
 		}
 	}
-	if (input->PushKey(DIK_RIGHT) || input->PushPadButton(PAD_BUTTON_RIGHT)) {
+	if (keybord.hold[DIK_RIGHT] || pad.Button[PAD_BUTTON_RIGHT].hold) {
 		for (INT i = 0; i < INT(objectTransform_.size()); i++) {
 			objectTransform_[i].translate.x += 0.1f;
 		}
 	}
-	if (input->PushKey(DIK_LEFT) || input->PushPadButton(PAD_BUTTON_LEFT)) {
+	if (keybord.hold[DIK_LEFT] || pad.Button[PAD_BUTTON_LEFT].hold) {
 		for (INT i = 0; i < INT(objectTransform_.size()); i++) {
 			objectTransform_[i].translate.x -= 0.1f;
 		}
 	}
-	if (input->PushKey(DIK_R) || input->TriggerPadButton(PAD_BUTTON_BACK)) {
+	if (keybord.hold[DIK_R] || pad.Button[PAD_BUTTON_BACK].trigger) {
 		for (INT i = 0; i < INT(objectTransform_.size()); i++) {
 			objectTransform_[i].translate = {};
 			objectTransform_[i].rotate = {};
 			objectTransform_[i].translate.x = i * 3 - 9.0f;
 		}
 	}
-	if (input->TriggerPadButton(PAD_BUTTON_START)) {
+	if (pad.Button[PAD_BUTTON_START].trigger) {
 		if (isDisplayUI) {
 			isDisplayUI = false;
 		} else {
 			isDisplayUI = true;
 		}
 	}
-	if (input->PushKey(DIK_P) || input->TriggerPadButton(PAD_BUTTON_RT)) {
+	if (keybord.hold[DIK_P] || pad.Button[PAD_BUTTON_RT].trigger) {
 		audio_->SoundPlayWave();
 	}
-	if (input->PushKey(DIK_L) || input->TriggerPadButton(PAD_BUTTON_LT)) {
+	if (keybord.hold[DIK_L] || pad.Button[PAD_BUTTON_LT].trigger) {
 		switch (reflection)
 		{
 		case 0:
@@ -221,25 +195,25 @@ void SampleScene::Update() {
 			break;
 		}
 	}
-	if (input->PadRightStick().magnitude > 0.001) {
+	if (pad.RightStick.magnitude > 0.001) {
 		Vector3 sphericalCoordinates = debugCamera_->GetSphericalCoordinates();
-		sphericalCoordinates.y += input->PadRightStick().vector.x * input->PadRightStick().magnitude * 0.1f;
+		sphericalCoordinates.y += pad.RightStick.vector.x * pad.RightStick.magnitude * 0.1f;
 		if (sphericalCoordinates.y > std::numbers::pi_v<float> *2) {
 			sphericalCoordinates.y -= std::numbers::pi_v<float> *2;
 		} else if (sphericalCoordinates.y < -std::numbers::pi_v<float> *2) {
 			sphericalCoordinates.y += std::numbers::pi_v<float> *2;
 		}
-		sphericalCoordinates.z += input->PadRightStick().vector.y * input->PadRightStick().magnitude * 0.1f;
+		sphericalCoordinates.z += pad.RightStick.vector.y * pad.RightStick.magnitude * 0.1f;
 		sphericalCoordinates.z = std::max(std::min(sphericalCoordinates.z, std::numbers::pi_v<float>), 0.0f);
 		debugCamera_->SetSphericalCoordinates(sphericalCoordinates);
 	}
-	if (input->PushPadButton(PAD_BUTTON_LB)) {
+	if (pad.Button[PAD_BUTTON_LB].hold) {
 		Vector3 sphericalCoordinates = debugCamera_->GetSphericalCoordinates();
 		sphericalCoordinates.x -= 0.1f;
 		sphericalCoordinates.x = std::min(sphericalCoordinates.x, 0.0f);
 		debugCamera_->SetSphericalCoordinates(sphericalCoordinates);
 	}
-	if (input->PushPadButton(PAD_BUTTON_RB)) {
+	if (pad.Button[PAD_BUTTON_RB].hold) {
 		Vector3 sphericalCoordinates = debugCamera_->GetSphericalCoordinates();
 		sphericalCoordinates.x += 0.1f;
 		debugCamera_->SetSphericalCoordinates(sphericalCoordinates);
@@ -318,7 +292,7 @@ void SampleScene::Update() {
 				bool is_selected = (current_item == items[n]);
 				if (ImGui::Selectable(items[n], is_selected)) {
 					reflection = n;
-					for (Object* object : object_) {
+					for (unique_ptr<Object>& object : object_) {
 						object->SetReflection(reflection);
 					}
 				}
@@ -326,7 +300,7 @@ void SampleScene::Update() {
 			ImGui::EndCombo();
 		}
 		ImGui::DragFloat("light Shininess", &shininess_);
-		for (Object* object : object_) {
+		for (unique_ptr<Object>& object : object_) {
 			object->SetShininess(shininess_);
 		}
 

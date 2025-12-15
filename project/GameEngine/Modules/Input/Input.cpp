@@ -26,6 +26,15 @@ void Input::Initialize(WindowsAPI* winApp) {
 	//排他制御レベルのセット
 	hr = keyboardDevice_->SetCooperativeLevel(winApp_->GetHwnd(), DISCL_FOREGROUND | DISCL_NONEXCLUSIVE | DISCL_NOWINKEY);
 	assert(SUCCEEDED(hr));
+
+	//マウスデバイスの生成
+	hr = directInput->CreateDevice(GUID_SysMouse, &mouseDevice_, NULL);
+	assert(SUCCEEDED(hr));
+	//入力データ形式のセット
+	hr = mouseDevice_->SetDataFormat(&c_dfDIMouse);	//標準形式
+	assert(SUCCEEDED(hr));
+	//排他制御レベルのセット
+	hr = mouseDevice_->SetCooperativeLevel(winApp_->GetHwnd(), DISCL_FOREGROUND | DISCL_NONEXCLUSIVE | DISCL_NOWINKEY);
 }
 
 void Input::Update() {
@@ -38,109 +47,129 @@ void Input::Update() {
 	//全キーの入力情報を取得する
 	keyboardDevice_->GetDeviceState(sizeof(BYTE) * 256, keys_);
 
-	//パッド入力
-	//前frame処理
-	memcpy(&prePad_, &pad_, sizeof(XINPUT_STATE));
-	ZeroMemory(&pad_, sizeof(XINPUT_STATE));
-
-	//パッド入力を入手
-	dwResult_ = XInputGetState(0, &pad_);
-
-	//接続されているか
-	if (dwResult_ == ERROR_SUCCESS) {
-		//接続されている
-		padState_.isConnected = true;
-
-		//スティックの傾きを得る
-		//デッドゾーンチェック
-		float LX = pad_.Gamepad.sThumbLX;
-		float LY = pad_.Gamepad.sThumbLY;
-
-		float magnitude = sqrtf(powf(LX, 2) + powf(LY, 2));
-
-		float normalizedLX = LX / magnitude;
-		float normalizedLY = LY / magnitude;
-
-		float normalizedMagnitude = 0;
-
-		if (magnitude > XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
-			if (magnitude > 32767) {
-				magnitude = 32767;
-			}
-			magnitude -= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE;
-
-			normalizedMagnitude = magnitude / (32767 - XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE);
-		} else {
-			magnitude = 0.0f;
-			normalizedMagnitude = 0.0f;
-		}
-
-		padState_.LeftStick = {
-			normalizedMagnitude,
-			{ normalizedLX, normalizedLY}
-		};
-
-		//Rスティックも
-		float RX = pad_.Gamepad.sThumbRX;
-		float RY = pad_.Gamepad.sThumbRY;
-
-		magnitude = sqrtf(powf(RX, 2) + powf(RY, 2));
-
-		float normalizedRX = RX / magnitude;
-		float normalizedRY = RY / magnitude;
-
-		normalizedMagnitude = 0;
-
-		if (magnitude > XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) {
-			if (magnitude > 32767) {
-				magnitude = 32767;
-			}
-			magnitude -= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE;
-
-			normalizedMagnitude = magnitude / (32767 - XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE);
-		} else {
-			magnitude = 0.0f;
-			normalizedMagnitude = 0.0f;
-		}
-
-		padState_.RightStick = {
-			normalizedMagnitude,
-			{ normalizedRX, normalizedRY}
-		};
-
-		//ボタンの入力変換
-		for (int i = 0; i <= 16; i++) {
-			int hold = 0x0001 << i;
-			if (i != PAD_BUTTON_LT && i != PAD_BUTTON_RT) {
-				padState_.Button[i].hold = pad_.Gamepad.wButtons & hold;
-				padState_.Button[i].idle = ~(pad_.Gamepad.wButtons & hold);
-				padState_.Button[i].trigger = (pad_.Gamepad.wButtons & hold) & ~(prePad_.Gamepad.wButtons & hold);
-				padState_.Button[i].release = ~(pad_.Gamepad.wButtons & hold) & (prePad_.Gamepad.wButtons & hold);
-			} else {
-				if (i == PAD_BUTTON_LT) {
-					padState_.Button[i].hold = pad_.Gamepad.bLeftTrigger >= 0x80;
-					padState_.Button[i].idle = !(pad_.Gamepad.bLeftTrigger >= 0x80);
-					padState_.Button[i].trigger = (pad_.Gamepad.bLeftTrigger >= 0x80) && !(prePad_.Gamepad.bLeftTrigger >= 0x80);
-					padState_.Button[i].release = !(pad_.Gamepad.bLeftTrigger >= 0x80) && (prePad_.Gamepad.bLeftTrigger >= 0x80);
-				} else {
-					padState_.Button[i].hold = pad_.Gamepad.bRightTrigger >= 0x80;
-					padState_.Button[i].idle = !(pad_.Gamepad.bRightTrigger >= 0x80);
-					padState_.Button[i].trigger = (pad_.Gamepad.bRightTrigger >= 0x80) && !(prePad_.Gamepad.bRightTrigger >= 0x80);
-					padState_.Button[i].release = !(pad_.Gamepad.bRightTrigger >= 0x80) && (prePad_.Gamepad.bRightTrigger >= 0x80);
-				}
-			}
-		}
-	} else {
-		//接続されていない
-		padState_.isConnected = false;
+	for (int i = 0; i < 256; i++) {
+		keybord_.hold[i] = keys_[i];
+		keybord_.idle[i] = ~keys_[i];
+		keybord_.trigger[i] = keys_[i] & ~preKeys_[i];
+		keybord_.release[i] = ~keys_[i] & preKeys_[i];
 	}
 
-}
+	//前frame処理
+	memcpy(&preMouseState_, &mouseState_, sizeof(DIMOUSESTATE));
+	//マウス情報を入手
+	mouseDevice_->Acquire();
+	//マウス入力
+	mouseDevice_->GetDeviceState(sizeof(DIMOUSESTATE), &mouseState_);
 
-bool Input::PushPadButton(PAD_BUTTON button) {
-	return padState_.Button[button].hold;
-}
+	//マウス座標
+	POINT p;
+	GetCursorPos(&p);
+	//スクリーン上からウィンドウ上へ
+	ScreenToClient(winApp_->GetHwnd(), &p);
 
-bool Input::TriggerPadButton(PAD_BUTTON button) {
-	return padState_.Button[button].trigger;
+	mouse_.Position = { float(p.x),float(p.y) };
+	mouse_.Movement = { float(mouseState_.lX),float(mouseState_.lY),float(mouseState_.lZ) };
+	for (int i = 0; i < 3; i++) {
+		mouse_.click[i] = mouseState_.rgbButtons[i];
+	}
+
+	//パッド入力
+	for (auto i = 0; i < 4; i++) {
+		//前frame処理
+		memcpy(&prePadState_, &padState_, sizeof(XINPUT_STATE));
+		ZeroMemory(&padState_, sizeof(XINPUT_STATE));
+
+		//パッド入力を入手
+		dwResult_[i] = XInputGetState(0, &padState_[i]);
+
+		//接続されているか
+		if (dwResult_[i] == ERROR_SUCCESS) {
+			//接続されている
+			pad_[i].isConnected = true;
+
+			//スティックの傾きを得る
+			//デッドゾーンチェック
+			float LX = padState_[i].Gamepad.sThumbLX;
+			float LY = padState_[i].Gamepad.sThumbLY;
+
+			float magnitude = sqrtf(powf(LX, 2) + powf(LY, 2));
+
+			float normalizedLX = LX / magnitude;
+			float normalizedLY = LY / magnitude;
+
+			float normalizedMagnitude = 0;
+
+			if (magnitude > XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
+				if (magnitude > 32767) {
+					magnitude = 32767;
+				}
+				magnitude -= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE;
+
+				normalizedMagnitude = magnitude / (32767 - XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE);
+			} else {
+				magnitude = 0.0f;
+				normalizedMagnitude = 0.0f;
+			}
+
+			pad_[i].LeftStick = {
+				normalizedMagnitude,
+				{ normalizedLX, normalizedLY}
+			};
+
+			//Rスティックも
+			float RX = padState_[i].Gamepad.sThumbRX;
+			float RY = padState_[i].Gamepad.sThumbRY;
+
+			magnitude = sqrtf(powf(RX, 2) + powf(RY, 2));
+
+			float normalizedRX = RX / magnitude;
+			float normalizedRY = RY / magnitude;
+
+			normalizedMagnitude = 0;
+
+			if (magnitude > XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) {
+				if (magnitude > 32767) {
+					magnitude = 32767;
+				}
+				magnitude -= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE;
+
+				normalizedMagnitude = magnitude / (32767 - XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE);
+			} else {
+				magnitude = 0.0f;
+				normalizedMagnitude = 0.0f;
+			}
+
+			pad_[i].RightStick = {
+				normalizedMagnitude,
+				{ normalizedRX, normalizedRY}
+			};
+
+			//ボタンの入力変換
+			for (int j = 0; j <= 16; j++) {
+				int hold = 0x0001 << j;
+				if (j != PAD_BUTTON_LT && j != PAD_BUTTON_RT) {
+					pad_[i].Button[j].hold = padState_[i].Gamepad.wButtons & hold;
+					pad_[i].Button[j].idle = ~(padState_[i].Gamepad.wButtons & hold);
+					pad_[i].Button[j].trigger = (padState_[i].Gamepad.wButtons & hold) & ~(prePadState_[i].Gamepad.wButtons & hold);
+					pad_[i].Button[j].release = ~(padState_[i].Gamepad.wButtons & hold) & (prePadState_[i].Gamepad.wButtons & hold);
+				} else {
+					if (j == PAD_BUTTON_LT) {
+						pad_[i].Button[j].hold = padState_[i].Gamepad.bLeftTrigger >= 0x80;
+						pad_[i].Button[j].idle = !(padState_[i].Gamepad.bLeftTrigger >= 0x80);
+						pad_[i].Button[j].trigger = (padState_[i].Gamepad.bLeftTrigger >= 0x80) && !(prePadState_[i].Gamepad.bLeftTrigger >= 0x80);
+						pad_[i].Button[j].release = !(padState_[i].Gamepad.bLeftTrigger >= 0x80) && (prePadState_[i].Gamepad.bLeftTrigger >= 0x80);
+					} else {
+						pad_[i].Button[j].hold = padState_[i].Gamepad.bRightTrigger >= 0x80;
+						pad_[i].Button[j].idle = !(padState_[i].Gamepad.bRightTrigger >= 0x80);
+						pad_[i].Button[j].trigger = (padState_[i].Gamepad.bRightTrigger >= 0x80) && !(prePadState_[i].Gamepad.bRightTrigger >= 0x80);
+						pad_[i].Button[j].release = !(padState_[i].Gamepad.bRightTrigger >= 0x80) && (prePadState_[i].Gamepad.bRightTrigger >= 0x80);
+					}
+				}
+			}
+		} else {
+			//接続されていない
+			pad_[i].isConnected = false;
+		}
+	}
+
 }

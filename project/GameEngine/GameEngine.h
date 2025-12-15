@@ -38,6 +38,8 @@
 #include <array>
 #include <list>
 
+using namespace std;
+
 class GameEngine {
 private:
 
@@ -50,18 +52,18 @@ private:
 	//リソースチェック
 	D3DResourceLeakChecker leakCheck_;
 #endif
-	WindowsAPI* winApp_ = nullptr;
+	unique_ptr<WindowsAPI> winApp_;
 
-	DirectXCommon* dxCommon_ = nullptr;
+	unique_ptr<DirectXCommon> dxCommon_;
 
-	SRVManager* srvManager_ = nullptr;
+	unique_ptr<SRVManager> srvManager_;
 
-	ImGuiManager* imguiManager_ = nullptr;
+	unique_ptr<ImGuiManager> imguiManager_;
 
 	uint32_t StructuredBufferIndex_;
 
-	ID3D12Device* device_ = nullptr;
-	ID3D12GraphicsCommandList* commandList_ = nullptr;
+	ID3D12Device* device_;
+	ID3D12GraphicsCommandList* commandList_;
 
 	//RootSignature
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> rootSignature_;
@@ -159,44 +161,16 @@ private:
 	//インスタンスデータ
 	std::array<std::array<InstancingTransformationMatrix*, PrimitiveManager::kMaxNumPrimitive>, PrimitiveManager::SHAPE_count> primitiveData_;
 #pragma endregion
-
+	
 	//XAudio2インスタンス
 	Microsoft::WRL::ComPtr<IXAudio2> xAudio2_;
-	//オーディオ宛先
-	IXAudio2MasteringVoice* masterVoice_ = nullptr;
-
-	//DirectInput
-	IDirectInput8* directInput_ = nullptr;
-	//キーボードデバイス
-	IDirectInputDevice8* keyboardDevice_ = nullptr;
-	//マウスデバイス
-	IDirectInputDevice8* mouseDevice_ = nullptr;
+	//オーディオ宛先	生ポインタ以外はほぼ使えない
+	IXAudio2MasteringVoice* masterVoice_;
 
 	std::mt19937 randomEngine_;
 
-#pragma region 入力関係
-
-	//キー入力
-	BYTE keys_[256]{};
-	BYTE preKeys_[256]{};
-
-	//マウス入力
-	DIMOUSESTATE preMouse_;
-	DIMOUSESTATE mouse_;
-
-	//パッド入力
-	XINPUT_STATE pad_[4];
-	DWORD dwResult_[4];
-	XINPUT_STATE prePad_[4];
-#pragma endregion
-
 	//テクスチャデータ
 	std::vector<TextureData> textureData_;
-
-	//コンストラクタ
-	GameEngine();
-	// デストラクタ
-	~GameEngine();
 
 	void Intialize_(const wchar_t* WindowName, int32_t kWindowWidth = 1280, int32_t kWindowHeight = 720);
 
@@ -213,14 +187,9 @@ private:
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> RootSignature_() { return rootSignature_; }
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> InstancingRootSignature_() { return instancingRootSignature_; }
 
-	ID3D12PipelineState* TrianglePSO_() { return trianglePipelineState_.Get(); }
-	ID3D12PipelineState* InstancingTrianglePSO_() { return particlePipelineState_.Get(); }
-	ID3D12PipelineState* ParticlePSO_() { return particlePipelineState_.Get(); }
-	ID3D12PipelineState* LinePSO_() { return linePipelineState_.Get(); }
-
-	void DrawObject_3D_(Object* object, DirectionalLight* directionalLight, PointLight* pointLight, SpotLight* spotLight);
-	void DrawObject_2D_(Object* object, DirectionalLight* directionalLight);
-	void DrawInstancingObject_3D_(std::list<Object*> objects, DirectionalLight* directionalLight, PointLight* pointLight, SpotLight* spotLight);
+	void DrawObject_3D_(Object* object, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight);
+	void DrawObject_2D_(Object* object, shared_ptr<DirectionalLight> directionalLight);
+	void DrawInstancingObject_3D_(std::list<Object*> objects, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight);
 	void DrawParticle_(ParticleGroup particleGroup);
 	/*void DrawSprite_3D_();
 	void DrawInstancingSprite_3D_();
@@ -239,22 +208,28 @@ private:
 	void DrawPoint_(std::list<Vector3> points, PrimitiveManager::PrimitiveResource primitiveResource);
 	void DrawAABB_(std::list<AABB> aabbs, PrimitiveManager::PrimitiveResource primitiveResource);
 
-	Keybord GetKeybord_();
-	Mouse GetMouse_();
-	Pad GetPad_(int usePadNum = 0);
-
-	WindowsAPI* GetWindowsAPI_() { return winApp_; }
+	WindowsAPI* GetWindowsAPI_() { return winApp_.get(); }
 
 	// インスタンス生成
-	static GameEngine* getInstance();
+	static GameEngine* GetInstance();
+
+	static unique_ptr<GameEngine> instance;
+
+	void Finalize_();
 
 public:
 
-	// コピー、代入を禁止する
-	GameEngine(const GameEngine*) = delete;
-	GameEngine* operator=(const GameEngine*) = delete;
+	GameEngine() = default;
+	~GameEngine() = default;
+	GameEngine(GameEngine&) = delete;
+	GameEngine& operator=(GameEngine&) = delete;
 
-	static void Delete() { delete getInstance(); }
+
+	// コピー、代入を禁止する
+	GameEngine(const unique_ptr<GameEngine>) = delete;
+	unique_ptr<GameEngine> operator=(const unique_ptr<GameEngine>) = delete;
+
+	static void Finalize();
 
 	/// <summary>
 	/// 初期化
@@ -262,42 +237,33 @@ public:
 	/// <param name="WindowName">ウィンドウ名 (例:L"LE2A_00_ミョウジ_ナマエ")</param>
 	/// <param name="kWindowWidth">ウィンドウの幅 (例:1280)</param>
 	/// <param name="kWindowHeight">ウィンドウの高さ (例:720)</param>
-	static void Intialize(const wchar_t* WindowName, int32_t kWindowWidth = 1280, int32_t kWindowHeight = 720) { getInstance()->Intialize_(WindowName, kWindowWidth, kWindowHeight); }
+	static void Intialize(const wchar_t* WindowName, int32_t kWindowWidth = 1280, int32_t kWindowHeight = 720) { GetInstance()->Intialize_(WindowName, kWindowWidth, kWindowHeight); }
 
-	static float randomFloat(float minFloat, float maxFloat) { return getInstance()->randomFloat_(minFloat, maxFloat); }
-	static int32_t randomInt(int32_t minInt, int32_t maxInt) { return getInstance()->randomInt_(minInt, maxInt); }
+	static float randomFloat(float minFloat, float maxFloat) { return GetInstance()->randomFloat_(minFloat, maxFloat); }
+	static int32_t randomInt(int32_t minInt, int32_t maxInt) { return GetInstance()->randomInt_(minInt, maxInt); }
 
 	/// <summary>
 	/// フレームの開始
 	/// </summary>
 	/// <returns>Windowsのメッセージがあるか</returns>
 	[[nodiscard]]
-	static bool StartFlame() { return getInstance()->StartFlame_(); }
+	static bool StartFlame() { return GetInstance()->StartFlame_(); }
 
 	/// <summary>
 	/// ウィンドウ状態
 	/// </summary>
 	/// <returns>ウィンドウを閉じているか</returns>
 	[[nodiscard]]
-	static bool WindowState() { return getInstance()->WindowState_(); }
+	static bool WindowState() { return GetInstance()->WindowState_(); }
 
 	//描画前処理
-	static void PreDraw() { getInstance()->PreDraw_(); }
+	static void PreDraw() { GetInstance()->PreDraw_(); }
 
 	//描画後処理
-	static void PostDraw() { getInstance()->PostDraw_(); }
+	static void PostDraw() { GetInstance()->PostDraw_(); }
 
-	static Microsoft::WRL::ComPtr <ID3D12RootSignature> RootSignature() { return getInstance()->RootSignature_(); }
-	static Microsoft::WRL::ComPtr <ID3D12RootSignature> InstancingRootSignature() { return getInstance()->InstancingRootSignature_(); }
-
-	[[nodiscard]]
-	static ID3D12PipelineState* TrianglePSO() { return getInstance()->TrianglePSO_(); }
-
-	[[nodiscard]]
-	static ID3D12PipelineState* ParticlePSO() { return getInstance()->ParticlePSO_(); }
-
-	[[nodiscard]]
-	static ID3D12PipelineState* LinePSO() { return getInstance()->LinePSO_(); }
+	static Microsoft::WRL::ComPtr <ID3D12RootSignature> RootSignature() { return GetInstance()->RootSignature_(); }
+	static Microsoft::WRL::ComPtr <ID3D12RootSignature> InstancingRootSignature() { return GetInstance()->InstancingRootSignature_(); }
 
 	//ウィンドウ幅
 	[[nodiscard]]
@@ -309,38 +275,23 @@ public:
 
 	//デバイス
 	[[nodiscard]]
-	static Microsoft::WRL::ComPtr<ID3D12Device> GetDevice() { return getInstance()->GetDevice_(); }
+	static Microsoft::WRL::ComPtr<ID3D12Device> GetDevice() { return GetInstance()->GetDevice_(); }
 
 
-	static void DrawObject_3D(Object* object, DirectionalLight* directionalLight, PointLight* pointLight, SpotLight* spotLight) { return getInstance()->DrawObject_3D_(object, directionalLight, pointLight, spotLight); }
-	static void DrawObject_2D(Object* object, DirectionalLight* directionalLight) { return getInstance()->DrawObject_2D_(object, directionalLight); }
-	static void DrawInstancingObject_3D(std::list<Object*> objects, DirectionalLight* directionalLight, PointLight* pointLight, SpotLight* spotLight) { return getInstance()->DrawInstancingObject_3D_(objects, directionalLight, pointLight, spotLight); }
-	static void DrawParticle(ParticleGroup particleGroup) { return getInstance()->DrawParticle_(particleGroup); }
+	static void DrawObject_3D(Object* object, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight) { return GetInstance()->DrawObject_3D_(object, directionalLight, pointLight, spotLight); }
+	static void DrawObject_2D(Object* object, shared_ptr<DirectionalLight> directionalLight) { return GetInstance()->DrawObject_2D_(object, directionalLight); }
+	static void DrawInstancingObject_3D(std::list<Object*> objects, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight) { return GetInstance()->DrawInstancingObject_3D_(objects, directionalLight, pointLight, spotLight); }
+	static void DrawParticle(ParticleGroup particleGroup) { return GetInstance()->DrawParticle_(particleGroup); }
 	
-	static void DrawSprite_2D(Sprite* sprite) { return getInstance()->DrawSprite_2D_(sprite); }
-	static void DrawInstancingSprite_2D(std::list<Sprite*> sprits) { return getInstance()->DrawInstancingSprite_2D_(sprits); }
+	static void DrawSprite_2D(Sprite* sprite) { return GetInstance()->DrawSprite_2D_(sprite); }
+	static void DrawInstancingSprite_2D(std::list<Sprite*> sprits) { return GetInstance()->DrawInstancingSprite_2D_(sprits); }
 
-	static void DrawLine(std::list<Line> lines, PrimitiveManager::PrimitiveResource primitiveResource) { return getInstance()->DrawLine_(lines, primitiveResource); }
-	static void DrawPoint(std::list<Vector3> points, PrimitiveManager::PrimitiveResource primitiveResource) { return getInstance()->DrawPoint_(points, primitiveResource); }
-	static void DrawAABB(std::list<AABB> aabbs, PrimitiveManager::PrimitiveResource primitiveResource) { return getInstance()->DrawAABB_(aabbs, primitiveResource); }
-	
-	//キーボード入力
-	[[nodiscard]]
-	static Keybord GetKeybord() { return getInstance()->GetKeybord_(); }
-
-	//マウス入力
-	[[nodiscard]]
-	static Mouse GetMouse() { return getInstance()->GetMouse_(); }
-
-	/// <summary>
-	/// パッド入力
-	/// </summary>
-	/// <param name="usePadNum">参照するパッドの番号。1つ目なら0を入力</param>
-	[[nodiscard]]
-	static Pad GetPad(int usePadNum = 0) { return getInstance()->GetPad_(usePadNum); }
+	static void DrawLine(std::list<Line> lines, PrimitiveManager::PrimitiveResource primitiveResource) { return GetInstance()->DrawLine_(lines, primitiveResource); }
+	static void DrawPoint(std::list<Vector3> points, PrimitiveManager::PrimitiveResource primitiveResource) { return GetInstance()->DrawPoint_(points, primitiveResource); }
+	static void DrawAABB(std::list<AABB> aabbs, PrimitiveManager::PrimitiveResource primitiveResource) { return GetInstance()->DrawAABB_(aabbs, primitiveResource); }
 
 	[[nodiscard]]
-	static WindowsAPI* GetWindowsAPI() { return getInstance()->GetWindowsAPI_(); }
+	static WindowsAPI* GetWindowsAPI() { return GetInstance()->GetWindowsAPI_(); }
 
-	static DirectXCommon* GetDirectXCommon() { return getInstance()->dxCommon_; }
+	static DirectXCommon* GetDirectXCommon() { return GetInstance()->dxCommon_.get(); }
 };

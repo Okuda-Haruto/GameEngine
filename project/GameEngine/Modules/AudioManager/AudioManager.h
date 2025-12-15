@@ -21,15 +21,12 @@
 #include <vector>
 #include <unordered_map>
 
+using namespace std;
+
 //音声
 class AudioManager {
 private:
-	static AudioManager* instance;
-
-	AudioManager() = default;
-	~AudioManager() = default;
-	AudioManager(AudioManager&) = delete;
-	AudioManager& operator=(AudioManager&) = delete;
+	static unique_ptr<AudioManager> instance;
 
 	//XAudio2インスタンス
 	Microsoft::WRL::ComPtr<IXAudio2> xAudio2_;
@@ -53,6 +50,11 @@ private:
 	std::unordered_map<std::wstring, AudioData> audioData_;
 
 public:
+
+	AudioManager() = default;
+	~AudioManager() = default;
+	AudioManager(AudioManager&) = delete;
+	AudioManager& operator=(AudioManager&) = delete;
 
 	//シングルトンインスタンスの取得
 	static AudioManager* GetInstance();
