@@ -3,13 +3,13 @@
 #include <LoadObjFile.h>
 #include <SpriteManager/SpriteManager.h>
 
-PrimitiveManager* PrimitiveManager::instance = nullptr;
+unique_ptr<PrimitiveManager> PrimitiveManager::instance;
 
 PrimitiveManager* PrimitiveManager::GetInstance() {
-	if (instance == nullptr) {
-		instance = new PrimitiveManager;
+	if (!instance) {
+		instance = make_unique<PrimitiveManager>();
 	}
-	return instance;
+	return instance.get();
 }
 
 void PrimitiveManager::Initialize(DirectXCommon* dxCommon, SRVManager* srvManager) {
@@ -197,8 +197,7 @@ void PrimitiveManager::Initialize(DirectXCommon* dxCommon, SRVManager* srvManage
 }
 
 void PrimitiveManager::Finalize() {
-	delete instance;
-	instance = nullptr;
+	instance.reset();
 }
 
 void PrimitiveManager::Draw() {

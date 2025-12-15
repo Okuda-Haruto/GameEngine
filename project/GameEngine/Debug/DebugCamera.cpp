@@ -13,9 +13,11 @@ DebugCamera::DebugCamera() {
 	kWindowHeight_ = GameEngine::GetWindowHeight();
 }
 
-void DebugCamera::Initialize() {
+void DebugCamera::Initialize(shared_ptr<Input> input) {
 
-	ChangeCameraMode(new CameraModeSphericalCoordinates);
+	input_ = input;
+
+	ChangeCameraMode(make_unique<CameraModeSphericalCoordinates>());
 
 	rotateMatrix_ = MakeIdentity4x4();
 	//正面状態
@@ -33,7 +35,7 @@ void DebugCamera::Update() {
 void DebugCamera::Reset() {
 	//正面状態
 	sphericalCoordinates_ = { -10.0f,0.0f,std::numbers::pi_v<float> / 4 * 3 };
-	cameraMode_->Initialize();
+	cameraMode_->Initialize(input_);
 }
 
 void DebugCamera::UpdateCamera(Camera* camera) {
@@ -42,16 +44,17 @@ void DebugCamera::UpdateCamera(Camera* camera) {
 	camera->SetViewMatrix(viewMatrix_);
 };
 
-void BaseCameraMode::Initialize() {}
+void BaseCameraMode::Initialize(shared_ptr<Input> input) {}
 void BaseCameraMode::Update(DebugCamera* debugCamera) {}
 
-void CameraModePlayerCamera::Initialize() {
+void CameraModePlayerCamera::Initialize(shared_ptr<Input> input) {
 	centerPoint_ = {0,10,-10};
+	input_ = input;
 }
 
 void CameraModePlayerCamera::Update(DebugCamera* debugCamera) {
-	Keybord key = GameEngine::GetKeybord();
-	Mouse mouse = GameEngine::GetMouse();
+	Keybord key = input_->GetKeyBord();
+	Mouse mouse = input_->GetMouse();
 
 	Matrix4x4 rotateMatrix = debugCamera->GetRotateMatrix();
 	Vector3 sphericalCoordinates = debugCamera->GetSphericalCoordinates();
@@ -125,13 +128,14 @@ void CameraModePlayerCamera::Update(DebugCamera* debugCamera) {
 	debugCamera->SetViewMatrix(viewMatrix);
 }
 
-void CameraModeSphericalCoordinates::Initialize() {
+void CameraModeSphericalCoordinates::Initialize(shared_ptr<Input> input) {
 	centerPoint_ = { 0,0,0 };
+	input_ = input;
 }
 
 void CameraModeSphericalCoordinates::Update(DebugCamera* debugCamera) {
-	Keybord key = GameEngine::GetKeybord();
-	Mouse mouse = GameEngine::GetMouse();
+	Keybord key = input_->GetKeyBord();
+	Mouse mouse = input_->GetMouse();
 
 	Matrix4x4 rotateMatrix = debugCamera->GetRotateMatrix();
 	Vector3 sphericalCoordinates = debugCamera->GetSphericalCoordinates();
@@ -191,22 +195,22 @@ void CameraModeSphericalCoordinates::Update(DebugCamera* debugCamera) {
 	debugCamera->SetViewMatrix(viewMatrix);
 }
 
-void DebugCamera::ChangeCameraMode(BaseCameraMode* newCameraMode) {
-	delete cameraMode_;
-	cameraMode_ = newCameraMode;
+void DebugCamera::ChangeCameraMode(unique_ptr<BaseCameraMode> newCameraMode) {
+	cameraMode_.reset();
+	cameraMode_ = move(newCameraMode);
 	//正面状態
 	sphericalCoordinates_ = { -10.0f,0.0f,std::numbers::pi_v<float> / 4 * 3 };
-	newCameraMode->Initialize();
+	newCameraMode->Initialize(input_);
 }
 
 void DebugCamera::ChangeCameraMode(DebugCameraMode debugCameraMode) {
 	switch (debugCameraMode)
 	{
 	case DebugCameraMode::PlayerCamera:
-		ChangeCameraMode(new CameraModePlayerCamera);
+		ChangeCameraMode(make_unique<CameraModePlayerCamera>());
 		break;
 	case DebugCameraMode::SphericalCoordinates:
-		ChangeCameraMode(new CameraModeSphericalCoordinates);
+		ChangeCameraMode(make_unique<CameraModeSphericalCoordinates>());
 		break;
 	default:
 		break;

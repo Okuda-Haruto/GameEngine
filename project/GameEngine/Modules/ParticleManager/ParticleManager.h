@@ -12,6 +12,8 @@
 #include <InstancingTransformationMatrix.h>
 #include <Camera/Camera.h>
 
+using namespace std;
+
 struct ParticleGroup {
 	std::string TextureFilePath;
 	uint32_t textureIndex = 0;// テクスチャ番号
@@ -26,12 +28,8 @@ struct ParticleGroup {
 
 class ParticleManager {
 private:
-	static ParticleManager* instance;
 
-	ParticleManager() = default;
-	~ParticleManager() = default;
-	ParticleManager(ParticleManager&) = delete;
-	ParticleManager& operator=(ParticleManager&) = delete;
+	static unique_ptr<ParticleManager> instance;
 
 	DirectXCommon* dxCommon_ = nullptr;
 
@@ -50,13 +48,19 @@ private:
 	//インデックスデータ
 	uint32_t* indexData_ = nullptr;
 
-	Camera* camera_;
+	shared_ptr<Camera> camera_;
 
 	std::unordered_map<std::string, ParticleGroup> particleGroups;
 
 	//メタデータ
 	DirectX::TexMetadata metadata_;
 public:
+
+	ParticleManager() = default;
+	~ParticleManager() = default;
+	ParticleManager(ParticleManager&) = delete;
+	ParticleManager& operator=(ParticleManager&) = delete;
+
 	//シングルトンインスタンスの取得
 	static ParticleManager* GetInstance();
 
@@ -77,7 +81,7 @@ public:
 	void SetEmitter(const std::string name, Emitter emitter);
 	void SetField(const std::string name, AccelerationField accelerationField);
 
-	void SetCamera(Camera* camera) { camera_ = camera; }
+	void SetCamera(shared_ptr<Camera> camera) { camera_ = camera; }
 
 	std::unordered_map<std::string, ParticleGroup> GetParticleGroups() { return particleGroups; }
 

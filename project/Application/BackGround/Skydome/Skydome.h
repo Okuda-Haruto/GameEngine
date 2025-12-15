@@ -4,6 +4,8 @@
 #include <Camera/Camera.h>
 #include <ModelHolder/ModelHolder.h>
 
+using namespace std;
+
 class Skydome
 {
 private:
@@ -16,5 +18,5 @@ public:
 	//描画
 	void Draw();
 
-	void SetCamera(Camera* camera) { object_->SetCamera(camera); }
+	void SetCamera(shared_ptr<Camera> camera) { object_->SetCamera(camera); }
 };

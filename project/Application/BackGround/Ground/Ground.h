@@ -4,6 +4,8 @@
 #include <Camera/Camera.h>
 #include <ModelHolder/ModelHolder.h>
 
+using namespace std;
+
 class Ground
 {
 private:
@@ -16,8 +18,8 @@ public:
 	//描画
 	void Draw();
 
-	void SetCamera(Camera* camera) { object_->SetCamera(camera); }
+	void SetCamera(shared_ptr<Camera> camera) { object_->SetCamera(camera); }
 
-	void SetDirectionalLight(DirectionalLight* directionalLight) { object_->SetDirectionalLight(directionalLight); }
-	void SetPointLight(PointLight* pointLight) { object_->SetPointLight(pointLight); }
+	void SetDirectionalLight(shared_ptr<DirectionalLight> directionalLight) { object_->SetDirectionalLight(directionalLight); }
+	void SetPointLight(shared_ptr<PointLight> pointLight) { object_->SetPointLight(pointLight); }
 };

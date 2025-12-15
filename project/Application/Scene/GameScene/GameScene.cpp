@@ -5,24 +5,15 @@
 #include "../TitleScene/TitleScene.h"
 
 GameScene::~GameScene() {
-	for (PlayerBullet* bullet : playerBullet_) {
-		delete bullet;
-		bullet = nullptr;
-	}
 	playerBullet_.clear();
-	for (BossBullet* bullet : bossBullet_) {
-		delete bullet;
-		bullet = nullptr;
-	}
 	bossBullet_.clear();
-
-	for (Sprite* sprite : sprite_) {
-		delete sprite;
-	}
 	ParticleManager::GetInstance()->Reset();
 }
 
-void GameScene::Initialize() {
+void GameScene::Initialize(shared_ptr<Input> input) {
+
+	input_ = input;
+
 	//パーティクル
 	ParticleManager::GetInstance()->CreateParticleGroup("particle_1", "resources/Particle/Sand.png");
 	particle_ = std::make_unique<ParticleEmitter>("particle_1");
@@ -138,7 +129,7 @@ void GameScene::Initialize() {
 
 	//メインカメラ
 	gameCamera_ = std::make_unique<GameCamera>();
-	gameCamera_->Initialize();
+	gameCamera_->Initialize(input_);
 	gameCamera_->SetOffset(Vector3{ 0.0f,6.0f,-60.0f });
 	gameCamera_->SetRotate(Vector3{ std::numbers::pi_v<float> / 180 * 10,0.0f,0.0f });
 	PlayerBullet::SetCamera(gameCamera_->GetCamera());
@@ -150,8 +141,8 @@ void GameScene::Initialize() {
 	directionalLightElement_.direction = Normalize(Vector3{ 0.0f,-1.0f,1.0f });
 	directionalLightElement_.intensity = 1.0f;
 	directionalLight_->SetDirectionalLightElement(directionalLightElement_);
-	PlayerBullet::SetDirectionalLight(directionalLight_.get());
-	BossBullet::SetDirectionalLight(directionalLight_.get());
+	PlayerBullet::SetDirectionalLight(directionalLight_);
+	BossBullet::SetDirectionalLight(directionalLight_);
 
 	pointLight_ = std::make_unique<PointLight>();
 	pointLight_->Initialize(GameEngine::GetDirectXCommon());
@@ -161,17 +152,17 @@ void GameScene::Initialize() {
 	pointLightElement_.position = {};
 	pointLightElement_.decay = 1.0f;
 	pointLight_->SetPointLightElement(pointLightElement_);
-	PlayerBullet::SetPointLight(pointLight_.get());
-	BossBullet::SetPointLight(pointLight_.get());
+	PlayerBullet::SetPointLight(pointLight_);
+	BossBullet::SetPointLight(pointLight_);
 
 	//プレイヤー
 	player_ = std::make_unique<Player>();
-	player_->Initialize(this,gameCamera_.get(), particle_4.get());
+	player_->Initialize(this,gameCamera_.get(), input_, particle_4.get());
 	gameCamera_->SetPlayer(player_->GetTransform());
 	player_->SetCameraTransform(gameCamera_->GetTransform());
 	player_->SetCamera(gameCamera_->GetCamera());
-	player_->SetDirectionalLight(directionalLight_.get());
-	player_->SetPointLight(pointLight_.get());
+	player_->SetDirectionalLight(directionalLight_);
+	player_->SetPointLight(pointLight_);
 
 	//ボス
 	boss_ = std::make_unique<Boss>();
@@ -179,12 +170,12 @@ void GameScene::Initialize() {
 	gameCamera_->SetTarget(boss_->GetTransform());
 	player_->SetBossTransform(boss_->GetTransform());
 	boss_->SetCamera(gameCamera_->GetCamera());
-	boss_->SetDirectionalLight(directionalLight_.get());
-	boss_->SetPointLight(pointLight_.get());
+	boss_->SetDirectionalLight(directionalLight_);
+	boss_->SetPointLight(pointLight_);
 
 	cylinder_ = std::make_unique<Object>();
 	cylinder_->Initialize(ModelHolder::GetInstance()->GetModel(ModelIndex::Cylinder));
-	cylinder_->SetDirectionalLight(directionalLight_.get());
+	cylinder_->SetDirectionalLight(directionalLight_);
 	cylinderTransform_.scale = { 0.0005f, 0.0005f, 0.0005f };
 	cylinderTransform_.rotate.x = std::numbers::pi_v<float> / 180 * 9;
 	cylinderTransform_.rotate.y = std::numbers::pi_v<float> / 180 * -15;
@@ -193,26 +184,26 @@ void GameScene::Initialize() {
 
 	hat_ = std::make_unique<Object>();
 	hat_->Initialize(ModelHolder::GetInstance()->GetModel(ModelIndex::Hat));
-	hat_->SetDirectionalLight(directionalLight_.get());
+	hat_->SetDirectionalLight(directionalLight_);
 	hatTransform_.scale = { 0.0003f,0.0003f,0.0003f };
 	hatTransform_.rotate.x = std::numbers::pi_v<float> / 180 * -25;
 	hatTransform_.translate = { -0.0038f,0.0018f,0.01f };
 	hat_->SetTransform(hatTransform_);
 	animationTime_ = 0.0f;
 
-	sprite_[0] = new Sprite;
+	sprite_[0] = make_unique<Sprite>();
 	sprite_[0]->Initialize("resources/Sprite/LT.png");
 	sprite_[0]->SetPosition(Vector2{ 200,720 - 84 });
 	sprite_[0]->SetSize(Vector2{ 64,64 });
-	sprite_[1] = new Sprite;
+	sprite_[1] = make_unique<Sprite>();
 	sprite_[1]->Initialize("resources/Sprite/RT.png");
 	sprite_[1]->SetPosition(Vector2{ 270,720 - 84 });
 	sprite_[1]->SetSize(Vector2{ 64,64 });
-	sprite_[2] = new Sprite;
+	sprite_[2] = make_unique<Sprite>();
 	sprite_[2]->Initialize("resources/Sprite/B.png");
 	sprite_[2]->SetPosition(Vector2{ 340,720 - 84 });
 	sprite_[2]->SetSize(Vector2{ 64,64 });
-	sprite_[3] = new Sprite;
+	sprite_[3] = make_unique<Sprite>();
 	sprite_[3]->Initialize("resources/Sprite/Reload_UI.png");
 	sprite_[3]->SetPosition(Vector2{ 410,720 - 84 });
 	sprite_[3]->SetSize(Vector2{ 64,64 });
@@ -224,11 +215,11 @@ void GameScene::Initialize() {
 	ground_ = std::make_unique<Ground>();
 	ground_->Initialize();
 	ground_->SetCamera(gameCamera_->GetCamera());
-	ground_->SetDirectionalLight(directionalLight_.get());
-	ground_->SetPointLight(pointLight_.get());
+	ground_->SetDirectionalLight(directionalLight_);
+	ground_->SetPointLight(pointLight_);
 
 	fence_ = std::make_unique<Fence>();
-	fence_->Initialize(gameCamera_->GetCamera(),directionalLight_.get(),pointLight_.get());
+	fence_->Initialize(gameCamera_->GetCamera(),directionalLight_,pointLight_);
 
 	fadeSprite_ = std::make_unique<Sprite>();
 	fadeSprite_->Initialize("resources/DebugResources/white2x2.png");
@@ -240,7 +231,7 @@ void GameScene::Initialize() {
 }
 
 void GameScene::Update() {
-	Keybord key = GameEngine::GetKeybord();
+	Keybord key = input_->GetKeyBord();
 
 	if (animationTime_ < kMaxAnimationTime) {
 		animationTime_ += 1.0f / 60.0f;
@@ -281,11 +272,11 @@ void GameScene::Update() {
 		pointLight_->SetPointLightElement(pointLightElement_);
 	}
 
-	for (PlayerBullet* bullet : playerBullet_) {
+	for (auto& bullet : playerBullet_) {
 		bullet->Update();
 	}
 
-	for (BossBullet* bullet : bossBullet_) {
+	for (auto& bullet : bossBullet_) {
 		bullet->Update();
 	}
 
@@ -293,23 +284,12 @@ void GameScene::Update() {
 
 	Collision();
 
-	// デスフラグの立った弾の削除
-	playerBullet_.remove_if([](PlayerBullet* bullet) {
-		if (bullet->IsDead()) {
-			delete bullet;
-			bullet = nullptr;
-			return true;
-		}
-		return false;
-	});
+	std::erase_if(playerBullet_, [](const auto& bullet) {
+		return bullet->IsDead();
+		});
 
-	bossBullet_.remove_if([](BossBullet* bullet) {
-		if (bullet->IsDead()) {
-			delete bullet;
-			bullet = nullptr;
-			return true;
-		}
-		return false;
+	std::erase_if(bossBullet_, [](const auto& bullet) {
+		return bullet->IsDead();
 		});
 
 
@@ -328,7 +308,7 @@ void GameScene::Update() {
 	hatTransform_.rotate.z = std::numbers::pi_v<float> / 180 * (-15 + 15 * cosf(std::numbers::pi_v<float> *2 * (animationTime_ / kMaxAnimationTime)));
 	hat_->SetTransform(hatTransform_);
 
-	for (Sprite* sprite : sprite_) {
+	for (auto& sprite : sprite_) {
 		sprite->Update();
 	}
 
@@ -381,11 +361,11 @@ void GameScene::Draw() {
 	editor_3->Draw();
 	editor_4->Draw();
 
-	for (PlayerBullet* bullet : playerBullet_) {
+	for (auto& bullet : playerBullet_) {
 		bullet->Draw();
 	}
 
-	for (BossBullet* bullet : bossBullet_) {
+	for (auto& bullet : bossBullet_) {
 		bullet->Draw();
 	}
 
@@ -403,7 +383,7 @@ void GameScene::Draw() {
 	}
 	cylinder_->Draw2D();
 
-	for (Sprite* sprite : sprite_) {
+	for (auto& sprite : sprite_) {
 		sprite->Draw2D();
 	}
 
@@ -420,16 +400,6 @@ void GameScene::Draw() {
 }
 
 void GameScene::Collision() {
-	std::list<BaseBullet*> bulletList;
-	for (std::list<PlayerBullet*>::iterator iterator = playerBullet_.begin();
-		iterator != playerBullet_.end(); iterator++) {
-		bulletList.push_back(*iterator);
-	}
-	for (std::list<BossBullet*>::iterator iterator = bossBullet_.begin();
-		iterator != bossBullet_.end(); iterator++) {
-		bulletList.push_back(*iterator);
-	}
-
 	std::list<BaseCharacter*> characterList;
 	characterList.push_back(player_.get());
 	characterList.push_back(boss_.get());
@@ -437,11 +407,11 @@ void GameScene::Collision() {
 	std::list<Collider*> collider;
 	collider.push_back(player_.get());
 	collider.push_back(boss_.get());
-	for (BaseBullet* bullet : playerBullet_) {
-		collider.push_back(bullet);
+	for (auto& bullet : playerBullet_) {
+		collider.push_back(bullet.get());
 	}
-	for (BaseBullet* bullet : bossBullet_) {
-		collider.push_back(bullet);
+	for (auto& bullet : bossBullet_) {
+		collider.push_back(bullet.get());
 	}
 
 	for (std::list<Collider*>::iterator iteratorA = collider.begin();
@@ -513,9 +483,9 @@ void GameScene::Collision() {
 }
 
 void GameScene::AddPlayerBullet(Vector3 translate, Vector3 rotate) {
-	PlayerBullet* newBullet = new PlayerBullet;
+	unique_ptr<PlayerBullet> newBullet = make_unique<PlayerBullet>();
 	newBullet->Initialize(translate, rotate);
-	playerBullet_.push_back(newBullet);
+	playerBullet_.push_back(move(newBullet));
 
 	pointLightElement_.intensity = 1.0f;
 
@@ -523,7 +493,7 @@ void GameScene::AddPlayerBullet(Vector3 translate, Vector3 rotate) {
 }
 
 void GameScene::AddBossBullet(Vector3 translate, Vector3 rotate) {
-	BossBullet* newBullet = new BossBullet;
+	unique_ptr<BossBullet> newBullet = make_unique<BossBullet>();
 	newBullet->Initialize(translate, rotate);
-	bossBullet_.push_back(newBullet);
+	bossBullet_.push_back(move(newBullet));
 }

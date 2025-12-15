@@ -5,6 +5,8 @@
 #include "GameCamera/GameCamera.h"
 #include "ParticleEmitter/ParticleEmitter.h"
 
+using namespace std;
+
 class GameScene;
 
 class BossAction {
@@ -51,10 +53,10 @@ public:
 
 	SRT* GetTransform() { return targetTransform_.get(); }
 
-	void SetCamera(Camera* camera) { object_->SetCamera(camera); }
+	void SetCamera(shared_ptr<Camera> camera) { object_->SetCamera(camera); }
 
-	void SetDirectionalLight(DirectionalLight* directionalLight) { object_->SetDirectionalLight(directionalLight); }
-	void SetPointLight(PointLight* pointLight) { object_->SetPointLight(pointLight); }
+	void SetDirectionalLight(shared_ptr<DirectionalLight> directionalLight) { object_->SetDirectionalLight(directionalLight); }
+	void SetPointLight(shared_ptr<PointLight> pointLight) { object_->SetPointLight(pointLight); }
 
 	bool IsDead() { return HP_ <= 0; }
 };

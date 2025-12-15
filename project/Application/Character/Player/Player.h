@@ -5,11 +5,15 @@
 #include "GameCamera/GameCamera.h"
 #include "ParticleEmitter/ParticleEmitter.h"
 
+using namespace std;
+
 class GameScene;
 
 class Player : public BaseCharacter
 {
 private:
+	shared_ptr<Input> input_;
+
 	float angle;
 	Vector3 move_;
 	const float deadZone = 0.7f;
@@ -74,7 +78,7 @@ public:
 	~Player();
 
 	//初期化
-	void Initialize(GameScene* gameScene, GameCamera* gameCamera, ParticleEmitter* particle1);
+	void Initialize(GameScene* gameScene, GameCamera* gameCamera, shared_ptr<Input> input, ParticleEmitter* particle1);
 	//更新
 	void Update();
 	//描画
@@ -87,10 +91,10 @@ public:
 
 	void SetCameraTransform(const SRT* transform) { cameraTransform_ = transform; }
 
-	void SetCamera(Camera* camera) { object_->SetCamera(camera); }
+	void SetCamera(shared_ptr<Camera> camera) { object_->SetCamera(camera); }
 
-	void SetDirectionalLight(DirectionalLight* directionalLight) { object_->SetDirectionalLight(directionalLight); }
-	void SetPointLight(PointLight* pointLight) { object_->SetPointLight(pointLight); }
+	void SetDirectionalLight(shared_ptr<DirectionalLight> directionalLight) { object_->SetDirectionalLight(directionalLight); }
+	void SetPointLight(shared_ptr<PointLight> pointLight) { object_->SetPointLight(pointLight); }
 
 	bool GetIsTargeted() { return isTargeted_; }
 	bool IsDead() { return HP_ <= 0; }

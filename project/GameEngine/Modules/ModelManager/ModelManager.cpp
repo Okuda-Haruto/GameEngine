@@ -2,24 +2,22 @@
 #include <algorithm>
 #include "ConvertString.h"
 
-ModelManager* ModelManager::instance = nullptr;
+unique_ptr<ModelManager> ModelManager::instance;
 
 ModelManager* ModelManager::GetInstance() {
-	if (instance == nullptr) {
-		instance = new ModelManager;
+	if (!instance) {
+		instance = make_unique<ModelManager>();
 	}
-	return instance;
+	return instance.get();
 }
 
 void ModelManager::Finalize() {
 	for (auto& data : modelDatas) {
-		delete data.second;
-		data.second = nullptr;
+		data.second.reset();
 	}
 	modelDatas.clear();
 
-	delete instance;
-	instance = nullptr;
+	instance.reset();
 }
 
 void ModelManager::Initialize(DirectXCommon* dxCommon) {
@@ -33,14 +31,14 @@ void ModelManager::LoadModel(const std::string& directoryPath, const std::string
 		return;
 	}
 
-	Model*& model = modelDatas[directoryPath + "/" + filename];
+	shared_ptr<Model>& model = modelDatas[directoryPath + "/" + filename];
 
-	model = new Model;
+	model = make_shared<Model>();
 	model->Initialize(directoryPath, filename, dxCommon_);
 }
 
 //モデルの入手
-Model* ModelManager::GetModel(const std::string& directoryPath, const std::string& filename) {
+shared_ptr<Model> ModelManager::GetModel(const std::string& directoryPath, const std::string& filename) {
 	
 	if (modelDatas.contains(directoryPath + "/" + filename)) {
 		return modelDatas[directoryPath + "/" + filename];

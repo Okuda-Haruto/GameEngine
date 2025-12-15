@@ -4,19 +4,21 @@
 #include <Camera/Camera.h>
 #include <ModelHolder/ModelHolder.h>
 
+using namespace std;
+
 class Fence
 {
 private:
 	//地面モデル
-	std::list<Object*> objects_;
+	std::list<unique_ptr<Object>> objects_;
 	const int size = 160;
 	SRT transform_{};
-	DirectionalLight* directionalLight_ = nullptr;
-	PointLight* pointLight_ = nullptr;
+	shared_ptr<DirectionalLight> directionalLight_;
+	shared_ptr<PointLight> pointLight_;
 public:
 	~Fence();
 	//初期化
-	void Initialize(Camera* camera, DirectionalLight* directionalLight, PointLight* pointLight);
+	void Initialize(shared_ptr<Camera> camera, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight);
 	//描画
 	void Draw();
 };

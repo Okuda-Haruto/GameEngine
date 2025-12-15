@@ -5,14 +5,16 @@
 #include <numbers>
 #include "Math/Lerp.h"
 #include "Scene/GameScene/GameScene.h"
+#include "Input/Input.h"
 
 Player::~Player() {
 
 }
 
-void Player::Initialize(GameScene* gameScene, GameCamera* gameCamera, ParticleEmitter* particle1) {
+void Player::Initialize(GameScene* gameScene, GameCamera* gameCamera, shared_ptr<Input> input, ParticleEmitter* particle1) {
 	gameScene_ = gameScene;
 	gameCamera_ = gameCamera;
+	input_ = input;
 	particle_1 = particle1;
 	//パーティクル
 	ParticleManager::GetInstance()->CreateParticleGroup("particle_5", "resources/Particle/Sand.png");
@@ -60,8 +62,8 @@ void Player::Initialize(GameScene* gameScene, GameCamera* gameCamera, ParticleEm
 }
 
 void Player::Update() {
-	Pad pad = GameEngine::GetPad();
-	Keybord keys = GameEngine::GetKeybord();
+	Pad pad = input_->GetPad(0);
+	Keybord keys = input_->GetKeyBord();
 
 	move_ = {};
 	isMove = false;
@@ -291,7 +293,7 @@ void Player::Update() {
 
 		if (keys.hold[DIK_LSHIFT] || keys.hold[DIK_RSHIFT] || pad.Button[PAD_BUTTON_LT].hold) {
 			isTargeted_ = true;
-		} else if (keys.release[DIK_LSHIFT] || keys.release[DIK_RSHIFT] || pad.Button[PAD_BUTTON_LT].release) {
+		} else {
 			isTargeted_ = false;
 		}
 

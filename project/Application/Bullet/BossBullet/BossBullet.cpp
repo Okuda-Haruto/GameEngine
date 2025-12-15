@@ -2,9 +2,9 @@
 #include "Operation/Operation.h"
 #include <numbers>
 
-Camera* BossBullet::camera_ = nullptr;
-DirectionalLight* BossBullet::directionalLight_ = nullptr;
-PointLight* BossBullet::pointLight_ = nullptr;
+shared_ptr<Camera> BossBullet::camera_ = nullptr;
+shared_ptr<DirectionalLight> BossBullet::directionalLight_ = nullptr;
+shared_ptr<PointLight> BossBullet::pointLight_ = nullptr;
 
 void BossBullet::Initialize(Vector3 translate, Vector3 rotate) {
 	object_ = std::make_unique<Object>();

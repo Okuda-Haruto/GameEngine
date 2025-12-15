@@ -3,14 +3,10 @@
 #include <numbers>
 
 Fence::~Fence() {
-	for (Object* object : objects_) {
-		delete object;
-		object = nullptr;
-	}
-	objects_.clear();
+
 }
 
-void Fence::Initialize(Camera* camera, DirectionalLight* directionalLight, PointLight* pointLight){
+void Fence::Initialize(shared_ptr<Camera> camera, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight){
 	directionalLight_ = directionalLight;
 	pointLight_ = pointLight;
 
@@ -19,7 +15,7 @@ void Fence::Initialize(Camera* camera, DirectionalLight* directionalLight, Point
 	//モデルの生成
 	for (int i = 0; i < size; i++) {
 		
-		Object* object = new Object;
+		unique_ptr<Object> object = make_unique<Object>();
 		object->Initialize(ModelHolder::GetInstance()->GetModel(ModelIndex::Fence));
 
 		switch (i / (size / 4))
@@ -51,12 +47,12 @@ void Fence::Initialize(Camera* camera, DirectionalLight* directionalLight, Point
 		object->SetCamera(camera);
 		object->SetDirectionalLight(directionalLight_);
 
-		objects_.push_back(object);
+		objects_.push_back(move(object));
 	}
 }
 
 void Fence::Draw() {
-	for (Object* object : objects_) {
+	for (const unique_ptr<Object>& object : objects_) {
 		object->Draw3D();
 	}
 	//GameEngine::DrawInstancingObject_3D(objects_, directionalLight_,pointLight_,nullptr);

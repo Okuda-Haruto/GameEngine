@@ -8,7 +8,9 @@ TitleScene::~TitleScene() {
 
 }
 
-void TitleScene::Initialize() {
+void TitleScene::Initialize(shared_ptr<Input> input) {
+	input_ = input;
+
 	directionalLight_ = std::make_unique<DirectionalLight>();
 	directionalLight_->Initialize(GameEngine::GetDirectXCommon());
 	directionalLightElement_.color = Vector4{ 1.0f,1.0f,1.0f,1.0f };
@@ -22,13 +24,13 @@ void TitleScene::Initialize() {
 
 	skydome_ = std::make_unique<Skydome>();
 	skydome_->Initialize();
-	skydome_->SetCamera(camera_.get());
+	skydome_->SetCamera(camera_);
 	ground_ = std::make_unique<Ground>();
 	ground_->Initialize();
-	ground_->SetDirectionalLight(directionalLight_.get());
-	ground_->SetCamera(camera_.get());
+	ground_->SetDirectionalLight(directionalLight_);
+	ground_->SetCamera(camera_);
 	fence_ = std::make_unique<Fence>();
-	fence_->Initialize(camera_.get(), directionalLight_.get(), nullptr);;
+	fence_->Initialize(camera_, directionalLight_, nullptr);;
 
 
 	titleSprite_ = std::make_unique<Sprite>();
@@ -50,8 +52,8 @@ void TitleScene::Initialize() {
 }
 
 void TitleScene::Update() {
-	Keybord key = GameEngine::GetKeybord();
-	Pad pad = GameEngine::GetPad();
+	Keybord key = input_->GetKeyBord();
+	Pad pad = input_->GetPad(0);
 
 	animationTime += 1.0f / 60.0f;
 	if (animationTime > 60.0f)animationTime -= 60.0f;

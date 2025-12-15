@@ -2,20 +2,18 @@
 #include <algorithm>
 #include "ConvertString.h"
 
-TextureManager* TextureManager::instance = nullptr;
-
 uint32_t TextureManager::kSRVIndexTop = 1;
+unique_ptr<TextureManager> TextureManager::instance;
 
 TextureManager* TextureManager::GetInstance() {
-	if (instance == nullptr) {
-		instance = new TextureManager;
+	if (!instance) {
+		instance = make_unique<TextureManager>();
 	}
-	return instance;
+	return instance.get();
 }
 
 void TextureManager::Finalize() {
-	delete instance;
-	instance = nullptr;
+	instance.reset();
 }
 
 void TextureManager::Initialize(DirectXCommon* dxCommon, SRVManager* srvManager) {

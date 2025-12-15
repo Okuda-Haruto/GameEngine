@@ -2,15 +2,13 @@
 #include <GameEngine.h>
 #include <LoadObjFile.h>
 
-Camera* Object::DefaultCamera = nullptr;
+shared_ptr<Camera> Object::DefaultCamera;
 
 Object::~Object() {
-	for (int i = 0; i < parts_.size(); i++) {
-		delete parts_[i].transform;
-	}
+
 }
 
-void Object::Initialize(Model* model) {
+void Object::Initialize(shared_ptr<Model> model) {
 
 	model_ = model;
 
@@ -21,12 +19,12 @@ void Object::Initialize(Model* model) {
 		//初期値としてモデルのテスクチャを得る
 		parts_[i].textureIndex = model_->GetTextureIndex(i);
 
-		parts_[i].material = new Material;
+		parts_[i].material = make_shared<Material>();
 		parts_[i].material->color = { 1.0f,1.0f,1.0f,1.0f };
 		parts_[i].material->reflection = REFLECTION_HalfLambert;
 		parts_[i].material->shininess = 40.0f;
 
-		parts_[i].transform = new SRT;
+		parts_[i].transform = make_shared<SRT>();
 		*parts_[i].transform = {};
 		parts_[i].transform->scale = { 1.0f,1.0f,1.0f };
 
@@ -43,11 +41,11 @@ void Object::Initialize(Model* model) {
 }
 
 void Object::Draw3D() {
-	GameEngine::DrawObject_3D(this, directionalLight_, pointLight_, spotLight_);
+	GameEngine::DrawObject_3D(this, directionalLight_.lock(), pointLight_.lock(), spotLight_.lock());
 }
 
 void Object::Draw2D() {
-	GameEngine::DrawObject_2D(this, directionalLight_);
+	GameEngine::DrawObject_2D(this, directionalLight_.lock());
 }
 
 void Object::SetReflection(UINT reflection) {

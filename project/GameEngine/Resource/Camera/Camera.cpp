@@ -38,8 +38,8 @@ void Camera::Update(SRT transform) {
 }
 
 void Camera::Update() {
-	assert(debugCamera_ != nullptr);
-	debugCamera_->UpdateCamera(this);
+	assert(debugCamera_.lock() != nullptr);
+	debugCamera_.lock()->UpdateCamera(this);
 
 	Matrix4x4 worldMatrix = Inverse(viewMatrix_);
 

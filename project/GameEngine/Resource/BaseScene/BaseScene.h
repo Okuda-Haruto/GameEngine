@@ -2,6 +2,7 @@
 #include "ModelHolder/ModelHolder.h"
 #include "SpriteManager/SpriteManager.h"
 #include <memory>
+#include <Input/Input.h>
 
 class SceneManager;
 
@@ -22,7 +23,7 @@ protected:
 public:
 	virtual ~BaseScene() = default;
 
-	virtual void Initialize() {}
+	virtual void Initialize(shared_ptr<Input> input) {}
 	virtual void Finalize() {}
 	virtual void Update() {}
 	virtual void Draw() {}

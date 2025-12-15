@@ -1,19 +1,22 @@
 #pragma once
 #include <Camera/Camera.h>
 #include <memory>
+#include <Input/Input.h>
+
+using namespace std;
 
 class GameCamera
 {
 private:
 	//カメラ
-	Camera* camera_;
+	shared_ptr<Camera> camera_;
 
 	const float kMaxShiftTime = 0.5f;
 	float shiftTime_ = 0.0f;
 
 	float shakeTime_ = 0.0f;
 
-	std::unique_ptr<SRT> transform_;
+	shared_ptr<SRT> transform_;
 	SRT lockonTransform_;
 	SRT normalTransform_;
 
@@ -28,9 +31,11 @@ private:
 	Vector3 offset_;
 
 	bool isTargeted_ = false;
+
+	shared_ptr<Input> input_;
 public:
 	//初期化
-	void Initialize();
+	void Initialize(shared_ptr<Input> input);
 	//更新
 	void Update();
 
@@ -47,7 +52,7 @@ public:
 
 	void SetShakeTime(float shakeTime) { shakeTime_ = shakeTime; }
 
-	Camera* GetCamera() { return camera_; }
+	shared_ptr<Camera> GetCamera() { return camera_; }
 
 	void SetIsTargeted(bool isTargeted) { isTargeted_ = isTargeted; }
 	void SetMoveVelocity(float velocity) { if(fabsf(velocity) > 0.5f)velocity_ = velocity; }

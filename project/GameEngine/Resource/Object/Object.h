@@ -11,6 +11,8 @@
 #include <PointLight/PointLight.h>
 #include <SpotLight/SpotLight.h>
 
+using namespace std;
+
 enum REFLECTION {
 	REFLECTION_None,
 	REFLECTION_Lambert,
@@ -20,38 +22,38 @@ enum REFLECTION {
 class Object {
 private:
 	// モデル
-	Model* model_ = nullptr;
+	std::shared_ptr<Model> model_ = nullptr;
 	// パーツ(offset)
 	std::vector<Parts> parts_;
 	// SRT
 	SRT transform_;
 
 	//カメラ
-	Camera* camera_ = nullptr;
+	shared_ptr<Camera> camera_;
 
-	DirectionalLight* directionalLight_;
-	PointLight* pointLight_;
-	SpotLight* spotLight_;
+	weak_ptr<DirectionalLight> directionalLight_;
+	weak_ptr<PointLight> pointLight_;
+	weak_ptr<SpotLight> spotLight_;
 
 	//デフォルトカメラ
-	static Camera* DefaultCamera;
+	static shared_ptr<Camera> DefaultCamera;
 public:
 
 	~Object();
 
 	//初期化
-	void Initialize(Model* model);
+	void Initialize(shared_ptr<Model> model);
 	//描画
 	void Draw3D();
 	void Draw2D();
 
-	static Camera* GetDefaultCamera() { return DefaultCamera; }
-	static void SetDefaultCamera(Camera* defaultCamera) { DefaultCamera = defaultCamera; }
+	static shared_ptr<Camera> GetDefaultCamera() { return DefaultCamera; }
+	static void SetDefaultCamera(shared_ptr<Camera> defaultCamera) { DefaultCamera = defaultCamera; }
 	//デフォルトカメラ消去
-	static void FinalizeDefaultCamera() { delete DefaultCamera; }
+	static void FinalizeDefaultCamera() { DefaultCamera.reset(); }
 
-	Camera* GetCamera() { return camera_; }
-	void SetCamera(Camera* camera) { camera_ = camera; }
+	shared_ptr<Camera> GetCamera() { return camera_; }
+	void SetCamera(shared_ptr<Camera> camera) { camera_ = camera; }
 
 	std::vector<Parts> GetParts() { return parts_; }
 	void SetParts(Parts parts,UINT index) { parts_[index] = parts; }
@@ -65,9 +67,9 @@ public:
 	//鏡面反射(大きいほどつるつるになる。例:40.0f)
 	void SetShininess(float shininess);
 
-	void SetDirectionalLight(DirectionalLight* directionalLight) { directionalLight_ = directionalLight; }
-	void SetPointLight(PointLight* pointLight) { pointLight_ = pointLight; }
-	void SetSpotLight(SpotLight* spotLight) { spotLight_ = spotLight; }
+	void SetDirectionalLight(const shared_ptr<DirectionalLight>& directionalLight) { directionalLight_ = directionalLight; }
+	void SetPointLight(const shared_ptr<PointLight>& pointLight) { pointLight_ = pointLight; }
+	void SetSpotLight(const shared_ptr<SpotLight>& spotLight) { spotLight_ = spotLight; }
 	
 	//頂点バッファビュー
 	D3D12_VERTEX_BUFFER_VIEW& GetVBV() { return model_->GetVBV(); }

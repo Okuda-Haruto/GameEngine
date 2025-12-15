@@ -1,17 +1,20 @@
 #pragma once
 #include "DirectXCommon/DirectXCommon.h"
 
+using namespace std;
+
 class SpriteManager {
 private:
-	static SpriteManager* instance;
+	static unique_ptr<SpriteManager> instance;
+
+	DirectXCommon* dxCommon_ = nullptr;
+public:
 
 	SpriteManager() = default;
 	~SpriteManager() = default;
 	SpriteManager(SpriteManager&) = delete;
 	SpriteManager& operator=(SpriteManager&) = delete;
 
-	DirectXCommon* dxCommon_ = nullptr;
-public:
 	//シングルトンインスタンスの取得
 	static SpriteManager* GetInstance();
 
