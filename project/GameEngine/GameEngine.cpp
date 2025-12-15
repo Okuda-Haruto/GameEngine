@@ -595,7 +595,7 @@ void GameEngine::DrawInstancingObject_3D_(std::list<Object*> objects, shared_ptr
 	if (instancingObjectIndex > kMaxInstanceIndex)return;
 
 	std::list<Object*>::iterator objectIterator = objects.begin();
-	shared_ptr<Camera> camera = (*objectIterator)->GetCamera();
+	Camera* camera = (*objectIterator)->GetCamera().get();
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList_->SetGraphicsRootSignature(instancingRootSignature_.Get());
@@ -734,7 +734,7 @@ void GameEngine::DrawParticle_(ParticleGroup particleGroup) {
 	commandList_->IASetVertexBuffers(0, 1, &ParticleManager::GetInstance()->GetVertexBufferView());	//VBVを設定
 	commandList_->IASetIndexBuffer(&ParticleManager::GetInstance()->GetIndexBufferView());	//IBVを設定
 
-	shared_ptr<Camera> camera = Object::GetDefaultCamera();
+	Camera* camera = Object::GetDefaultCamera().get();
 
 	//WVPデータを更新
 	InstancingTransformationMatrix* mappedBase = nullptr;
@@ -955,7 +955,7 @@ void GameEngine::DrawLine_(std::list<Line> lines, PrimitiveManager::PrimitiveRes
 	commandList_->IASetVertexBuffers(0, 1, &PrimitiveManager::GetInstance()->GetVertexBufferView());	//VBVを設定
 	commandList_->IASetIndexBuffer(&PrimitiveManager::GetInstance()->GetIndexBufferView());	//IBVを設定
 
-	shared_ptr<Camera> camera = Object::GetDefaultCamera();
+	Camera* camera = Object::GetDefaultCamera().get();
 
 	//WVPデータを更新
 	InstancingTransformationMatrix* mappedBase = nullptr;
@@ -1038,7 +1038,7 @@ void GameEngine::DrawPoint_(std::list<Vector3> points, PrimitiveManager::Primiti
 	commandList_->IASetVertexBuffers(0, 1, &PrimitiveManager::GetInstance()->GetVertexBufferView());	//VBVを設定
 	commandList_->IASetIndexBuffer(&PrimitiveManager::GetInstance()->GetIndexBufferView());	//IBVを設定
 
-	shared_ptr<Camera> camera = Object::GetDefaultCamera();
+	Camera* camera = Object::GetDefaultCamera().get();
 
 	//WVPデータを更新
 	InstancingTransformationMatrix* mappedBase = nullptr;
@@ -1114,7 +1114,7 @@ void GameEngine::DrawAABB_(std::list<AABB> aabbs, PrimitiveManager::PrimitiveRes
 	commandList_->IASetVertexBuffers(0, 1, &PrimitiveManager::GetInstance()->GetVertexBufferView());	//VBVを設定
 	commandList_->IASetIndexBuffer(&PrimitiveManager::GetInstance()->GetIndexBufferView());	//IBVを設定
 
-	shared_ptr<Camera> camera = Object::GetDefaultCamera();
+	Camera* camera = Object::GetDefaultCamera().get();
 
 	//WVPデータを更新
 	InstancingTransformationMatrix* mappedBase = nullptr;

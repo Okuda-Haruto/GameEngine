@@ -4,6 +4,10 @@
 #include <Matrix4x4.h>
 #include <numbers>
 
+GameCamera::~GameCamera(){
+
+}
+
 void GameCamera::Initialize(shared_ptr<Input> input) {
 	camera_ = make_shared<Camera>();
 	camera_= Object::GetDefaultCamera();
