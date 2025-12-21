@@ -101,6 +101,8 @@ void GameEngine::Intialize_(const wchar_t* WindowName, int32_t kWindowWidth, int
 
 	imguiManager_ = make_unique<ImGuiManager>();
 	imguiManager_->Initialize(dxCommon_.get(), winApp_.get(), srvManager_.get());
+
+	dxCommon_->DepthBufferInitialize(srvManager_.get());
 	
 	TextureManager::GetInstance()->Initialize(dxCommon_.get(), srvManager_.get());
 	ModelManager::GetInstance()->Initialize(dxCommon_.get());
@@ -154,8 +156,6 @@ void GameEngine::Intialize_(const wchar_t* WindowName, int32_t kWindowWidth, int
 	//乱数シード初期化
 	std::random_device seedGenerator;
 	randomEngine_.seed(seedGenerator());
-
-	StructuredBufferIndex_ = srvManager_->Allocate();
 
 	//初期化
 	for (int i = 0; i < kMaxIndex; i++) {

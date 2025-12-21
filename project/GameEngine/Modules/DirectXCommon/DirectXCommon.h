@@ -12,6 +12,8 @@
 
 #include <WindowsAPI/WindowsAPI.h>
 
+class SRVManager;
+
 //DirectX基盤
 class DirectXCommon {
 private:
@@ -43,6 +45,7 @@ private:
 
 	//DepthStencilTexture
 	Microsoft::WRL::ComPtr<ID3D12Resource> depthStencilResource_;
+	uint32_t depthBufferIndex_;
 
 	//デスクリプタサイズ
 	uint32_t descriptorSizeRTV_;
@@ -114,6 +117,9 @@ public:
 
 	UINT SwapChainBufferCount() { return swapChainDesc_.BufferCount; }
 	DXGI_FORMAT GetRTVFormat() { return rtvDesc_.Format; }
+
+	//SRVManagerはDirectXCommonの後に初期化しないといけないので分ける
+	void DepthBufferInitialize(SRVManager* srvManager);
 
 private:
 	//ログファイルの生成

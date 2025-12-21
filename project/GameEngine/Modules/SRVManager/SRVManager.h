@@ -38,7 +38,9 @@ public:
 	//SRV生成(テクスチャ用)
 	void CreateSRVforTexture2D(uint32_t srvIndex, ID3D12Resource* pResource, DXGI_FORMAT Format, UINT MipLevels);
 	//SRV生成(Structured Buffer用)
-	D3D12_GPU_DESCRIPTOR_HANDLE CreateSRVforStructuredBuffer(uint32_t srvIndex, ID3D12Resource* pResource, UINT numElement, UINT structureByteStride);
+	void CreateSRVforStructuredBuffer(uint32_t srvIndex, ID3D12Resource* pResource, UINT numElement, UINT structureByteStride);
+	//SRV生成(深度バッファ用)
+	void CreateSRVforDepthBuffer(uint32_t srvIndex, ID3D12Resource* pResource);
 
 	//ヒープをセット
 	void PreDraw();
