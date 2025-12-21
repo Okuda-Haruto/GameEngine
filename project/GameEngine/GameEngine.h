@@ -60,8 +60,6 @@ private:
 
 	unique_ptr<ImGuiManager> imguiManager_;
 
-	uint32_t StructuredBufferIndex_;
-
 	ID3D12Device* device_;
 	ID3D12GraphicsCommandList* commandList_;
 

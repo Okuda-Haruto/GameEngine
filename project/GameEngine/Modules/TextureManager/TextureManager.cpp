@@ -21,7 +21,7 @@ void TextureManager::Initialize(DirectXCommon* dxCommon, SRVManager* srvManager)
 	srvManager_ = srvManager;
 
 	//テクスチャ初期値としてwhite2x2を読み込む
-	white2x2 = TextureManager::GetInstance()->GetSrvIndex("resources/DebugResources/white2x2.png");
+	white2x2 = GetSrvIndex("resources/DebugResources/white2x2.png");
 }
 
 //テクスチャファイルの読み込み

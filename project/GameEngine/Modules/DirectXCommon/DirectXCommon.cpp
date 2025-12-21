@@ -3,6 +3,7 @@
 #include <thread>
 #include <ConvertString.h>
 #include "DirectXTex/d3dx12.h"
+#include "SRVManager/SRVManager.h"
 
 #pragma comment(lib,"d3d12.lib")
 #pragma comment(lib,"dxgi.lib")
@@ -74,6 +75,13 @@ void DirectXCommon::PreDraw() {
 	//これから書き込むバックバッファのインデックスを取得
 	UINT backBafferIndex = swapChain_->GetCurrentBackBufferIndex();
 
+	CD3DX12_RESOURCE_BARRIER SRVToDepth = CD3DX12_RESOURCE_BARRIER::Transition(
+		depthStencilResource_.Get(),
+		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+		D3D12_RESOURCE_STATE_DEPTH_WRITE
+	);
+	commandList_->ResourceBarrier(1, &SRVToDepth);
+
 	//TransitionBarrierの設定
 	//今回のバリアはTransition
 	barrier_.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
@@ -114,6 +122,13 @@ void DirectXCommon::PostDraw() {
 	//TransitionBarrierを張る
 	commandList_->ResourceBarrier(1, &barrier_);
 
+	CD3DX12_RESOURCE_BARRIER depthToSRV = CD3DX12_RESOURCE_BARRIER::Transition(
+		depthStencilResource_.Get(),
+		D3D12_RESOURCE_STATE_DEPTH_WRITE,
+		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
+	);
+	commandList_->ResourceBarrier(1, &depthToSRV);
+
 	//コマンドリストの内容を確定させる。すべてのコマンドを詰んでからCloseすること
 	HRESULT hr = commandList_->Close();
 	assert(SUCCEEDED(hr));
@@ -147,6 +162,7 @@ void DirectXCommon::PostDraw() {
 	assert(SUCCEEDED(hr));
 	hr = commandList_->Reset(commandAllocator_.Get(), nullptr);
 	assert(SUCCEEDED(hr));
+
 }
 
 //RootSignature作成
@@ -448,6 +464,57 @@ void DirectXCommon::UploadTextureData(ID3D12Resource* texture, const DirectX::Sc
 	intermediateResource.Reset();
 }
 
+void DirectXCommon::DepthBufferInitialize(SRVManager* srvManager) {
+	depthBufferIndex_ = srvManager->Allocate();
+
+	//Tetureへの転送後は利用できるよう、D3D12_RESOURCE_STATE_COPY_DESTからD3D12_RESOURCE_STATE_GENERIC_READへResourceStateを変更する
+	D3D12_RESOURCE_BARRIER barrier{};
+	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	barrier.Transition.pResource = depthStencilResource_.Get();
+	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_DEPTH_WRITE;
+	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	commandList_->ResourceBarrier(1, &barrier);
+
+	//コマンドリストの内容を確定させる。すべてのコマンドを詰んでからCloseすること
+	HRESULT hr = commandList_->Close();
+	assert(SUCCEEDED(hr));
+
+	//GPUにコマンドリストの実行を行わせる
+	ID3D12CommandList* commandLists[] = { commandList_.Get() };
+	commandQueue_->ExecuteCommandLists(1, commandLists);
+
+	//GPUとOSに画面の交換を行うよう通知する
+	swapChain_->Present(1, 0);
+
+	//Fenceの値を更新
+	fenceValue_++;
+	//GPUがここまでたどり着いたときに、Fenceの値を指定した値に代入するようにSignalを送る
+	commandQueue_->Signal(fence_.Get(), fenceValue_);
+
+	//Fenceの値が指定したSignal値に辿り着いているか確認する
+	//GetCompletedValueの初期値はFence作成時に渡した初期値
+	if (fence_->GetCompletedValue() < fenceValue_) {
+		//指定したSignalに辿り着いていないので、辿り着くまで待つようにイベントを設定する
+		fence_->SetEventOnCompletion(fenceValue_, fenceEvent_);
+		//イベントを待つ
+		WaitForSingleObject(fenceEvent_, INFINITE);
+	}
+
+	//次のフレーム用のコマンドリストを準備
+	hr = commandAllocator_->Reset();
+	assert(SUCCEEDED(hr));
+	hr = commandList_->Reset(commandAllocator_.Get(), nullptr);
+	assert(SUCCEEDED(hr));
+
+	srvManager->CreateSRVforDepthBuffer(depthBufferIndex_, depthStencilResource_.Get());
+}
+
+
+
+
+
 //ログファイルの生成
 void DirectXCommon::LogInitilaize() {
 	//ログファイルの生成
@@ -562,7 +629,8 @@ void DirectXCommon::CreateDepthStencilTextureResource() {
 	resourceDesc.Height = winApp_->kClientHeight_;	//Textureの高さ
 	resourceDesc.MipLevels = 1;	//mipmapの数
 	resourceDesc.DepthOrArraySize = 1;	//奥行き or 配列Textureの配列数
-	resourceDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;	//DepthStencilとして利用可能なフォーマット
+	//resourceDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;	//DepthStencilとして利用可能なフォーマット
+	resourceDesc.Format = DXGI_FORMAT_R24G8_TYPELESS;	//SRVでも使えるようにTYPELESSにする
 	resourceDesc.SampleDesc.Count = 1;	//サンプリングカウント。1固定
 	resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;	//2次元
 	resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;	//DepthStencilとして使う通知
