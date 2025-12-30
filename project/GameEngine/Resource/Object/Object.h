@@ -13,12 +13,6 @@
 
 using namespace std;
 
-enum REFLECTION {
-	REFLECTION_None,
-	REFLECTION_Lambert,
-	REFLECTION_HalfLambert,
-};
-
 class Object {
 private:
 	// モデル

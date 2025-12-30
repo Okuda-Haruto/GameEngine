@@ -9,5 +9,5 @@ void Skydome::Initialize() {
 }
 
 void Skydome::Draw() {
-	object_->Draw3D();
+	object_->Draw2D();
 }

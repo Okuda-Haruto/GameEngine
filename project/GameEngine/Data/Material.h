@@ -3,6 +3,12 @@
 #include "Matrix4x4.h"
 #include <format>
 
+enum REFLECTION {
+	REFLECTION_None,		//反射しない
+	REFLECTION_Lambert,		//ランバート反射。現実と同じ反射だがあまり使うのはお勧めしない
+	REFLECTION_HalfLambert,	//ハーフランバート反射。現実に見た目が似るように工夫された反射
+};
+
 struct Material {
 	Vector4 color;						//色
 	int32_t reflection;					//反射方法
