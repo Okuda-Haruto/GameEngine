@@ -42,9 +42,10 @@ void GameEngine::Finalize_() {
 	}
 	xAudio2_.Reset();
 
-	trianglePipelineState_.Reset();
-	noDepthTrianglePipelineState_.Reset();
-	instancingTrianglePipelineState_.Reset();
+	object3DPipelineState_.Reset();
+	object2DPipelineState_.Reset();
+	noDepthObjectPipelineState_.Reset();
+	instancingObjectPipelineState_.Reset();
 	particlePipelineState_.Reset();
 	spritePipelineState_.Reset();
 	linePipelineState_.Reset();
@@ -120,29 +121,45 @@ void GameEngine::Intialize_(const wchar_t* WindowName, int32_t kWindowWidth, int
 
 
 	//RootSignature作成
-	rootSignature_ = dxCommon_->TriangleRootSignatureInitialvalue();
-	instancingRootSignature_ = dxCommon_->InstancingRootSignatureInitialvalue();
+	objectRootSignature_ = dxCommon_->ObjectRootSignatureInitialvalue();
+	spriteRootSignature_ = dxCommon_->SpriteRootSignatureInitialvalue();
+	instancingObjectRootSignature_ = dxCommon_->InstancingObjectRootSignatureInitialvalue();
+	particleRootSignature_ = dxCommon_->ParticleRootSignatureInitialvalue();
 
 	//Shaderをコンパイルする
-	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob = dxCommon_->CompileShader(L"./resources/Shader/Object3D.VS.hlsl", L"vs_6_0");
-	assert(vertexShaderBlob != nullptr);
-	Microsoft::WRL::ComPtr<IDxcBlob> pixelShaderBlob = dxCommon_->CompileShader(L"./resources/Shader/OBject3D.PS.hlsl", L"ps_6_0");
-	assert(pixelShaderBlob != nullptr);
-	Microsoft::WRL::ComPtr<IDxcBlob> instancingVertexShaderBlob = dxCommon_->CompileShader(L"./resources/Shader/InstanceObject3D.VS.hlsl", L"vs_6_0");
-	assert(vertexShaderBlob != nullptr);
+	Microsoft::WRL::ComPtr<IDxcBlob> Object3DVertexShaderBlob = dxCommon_->CompileShader(L"./resources/Shader/Object3D.VS.hlsl", L"vs_6_0");
+	assert(Object3DVertexShaderBlob != nullptr);
+	Microsoft::WRL::ComPtr<IDxcBlob> Object3DPixelShaderBlob = dxCommon_->CompileShader(L"./resources/Shader/OBject3D.PS.hlsl", L"ps_6_0");
+	assert(Object3DPixelShaderBlob != nullptr);
+	Microsoft::WRL::ComPtr<IDxcBlob> Object2DVertexShaderBlob = dxCommon_->CompileShader(L"./resources/Shader/Object2D.VS.hlsl", L"vs_6_0");
+	assert(Object2DVertexShaderBlob != nullptr);
+	Microsoft::WRL::ComPtr<IDxcBlob> Object2DPixelShaderBlob = dxCommon_->CompileShader(L"./resources/Shader/OBject2D.PS.hlsl", L"ps_6_0");
+	assert(Object2DPixelShaderBlob != nullptr);
+	Microsoft::WRL::ComPtr<IDxcBlob> instancingObjectVertexShaderBlob = dxCommon_->CompileShader(L"./resources/Shader/InstanceObject3D.VS.hlsl", L"vs_6_0");
+	assert(instancingObjectVertexShaderBlob != nullptr);
+	Microsoft::WRL::ComPtr<IDxcBlob> instancingObjectPixelShaderBlob = dxCommon_->CompileShader(L"./resources/Shader/InstanceObject3D.PS.hlsl", L"ps_6_0");
+	assert(instancingObjectPixelShaderBlob != nullptr);
+	Microsoft::WRL::ComPtr<IDxcBlob> instancingLinePixelShaderBlob = dxCommon_->CompileShader(L"./resources/Shader/InstanceLine.PS.hlsl", L"ps_6_0");
+	assert(instancingLinePixelShaderBlob != nullptr);
+	Microsoft::WRL::ComPtr<IDxcBlob> Sprite2DVertexShaderBlob = dxCommon_->CompileShader(L"./resources/Shader/Sprite2D.VS.hlsl", L"vs_6_0");
+	assert(Sprite2DVertexShaderBlob != nullptr);
+	Microsoft::WRL::ComPtr<IDxcBlob> Sprite2DPixelShaderBlob = dxCommon_->CompileShader(L"./resources/Shader/Sprite2D.PS.hlsl", L"ps_6_0");
+	assert(Sprite2DPixelShaderBlob != nullptr);
 	Microsoft::WRL::ComPtr<IDxcBlob> particleVSBlob = dxCommon_->CompileShader(L"./resources/Shader/Particle.VS.hlsl", L"vs_6_0");
-	assert(vertexShaderBlob != nullptr);
+	assert(particleVSBlob != nullptr);
 	Microsoft::WRL::ComPtr<IDxcBlob> particlePSBlob = dxCommon_->CompileShader(L"./resources/Shader/Particle.PS.hlsl", L"ps_6_0");
-	assert(pixelShaderBlob != nullptr);
+	assert(particlePSBlob != nullptr);
 
 	//PSOを生成
-	trianglePipelineState_ = TrianglePipelineStateInitialvalue(device_, rootSignature_, vertexShaderBlob.Get(), pixelShaderBlob.Get());
-	noDepthTrianglePipelineState_ = NoDepthTrianglePipelineStateInitialvalue(device_, rootSignature_, vertexShaderBlob.Get(), pixelShaderBlob.Get());
-	instancingTrianglePipelineState_ = InstancingTrianglePipelineStateInitialvalue(device_, instancingRootSignature_, particleVSBlob.Get(), particlePSBlob.Get());
-	particlePipelineState_ = NoDepthAddBlendTrianglePipelineStateInitialvalue(device_, instancingRootSignature_, particleVSBlob.Get(), particlePSBlob.Get());
-	spritePipelineState_ = SpritePipelineStateInitialvalue(device_, rootSignature_, vertexShaderBlob.Get(), pixelShaderBlob.Get());
-	linePipelineState_ = LinePipelineStateInitialvalue(device_, instancingRootSignature_, particleVSBlob.Get(), particlePSBlob.Get());
-	noDepthLinePipelineState_ = NoDepthLinePipelineStateInitialvalue(device_, instancingRootSignature_, particleVSBlob.Get(), particlePSBlob.Get());
+	object3DPipelineState_ = TrianglePipelineStateInitialvalue(device_, objectRootSignature_, Object3DVertexShaderBlob.Get(), Object3DPixelShaderBlob.Get());
+	object2DPipelineState_ = TrianglePipelineStateInitialvalue(device_, objectRootSignature_, Object2DVertexShaderBlob.Get(), Object2DPixelShaderBlob.Get());
+	noDepthObjectPipelineState_ = NoDepthTrianglePipelineStateInitialvalue(device_, objectRootSignature_, Object3DVertexShaderBlob.Get(), Object3DPixelShaderBlob.Get());
+	instancingObjectPipelineState_ = InstancingTrianglePipelineStateInitialvalue(device_, instancingObjectRootSignature_, instancingObjectVertexShaderBlob.Get(), instancingObjectPixelShaderBlob.Get());
+	particlePipelineState_ = NoDepthInstancingTrianglePipelineStateInitialvalue(device_, particleRootSignature_, particleVSBlob.Get(), particlePSBlob.Get());
+	particleAddbrendPipelineState_ = NoDepthAddBlendInstancingTrianglePipelineStateInitialvalue(device_, particleRootSignature_, particleVSBlob.Get(), particlePSBlob.Get());
+	spritePipelineState_ = SpritePipelineStateInitialvalue(device_, spriteRootSignature_, Sprite2DVertexShaderBlob.Get(), Sprite2DPixelShaderBlob.Get());
+	linePipelineState_ = LinePipelineStateInitialvalue(device_, instancingObjectRootSignature_, instancingObjectVertexShaderBlob.Get(), instancingLinePixelShaderBlob.Get());
+	noDepthLinePipelineState_ = NoDepthLinePipelineStateInitialvalue(device_, instancingObjectRootSignature_, instancingObjectVertexShaderBlob.Get(), instancingLinePixelShaderBlob.Get());
 	//XAudioエンジンのインスタンスを生成
 	hr = XAudio2Create(&xAudio2_, 0, XAUDIO2_DEFAULT_PROCESSOR);
 	assert(SUCCEEDED(hr));
@@ -191,6 +208,7 @@ void GameEngine::Intialize_(const wchar_t* WindowName, int32_t kWindowWidth, int
 		primitiveResource_[i] = dxCommon_->CreateBufferResources(sizeof(InstancingTransformationMatrix) * PrimitiveManager::kMaxNumPrimitive);
 	}
 
+	fogResource_ = dxCommon_->CreateBufferResources(sizeof(Fog));
 }
 
 /*void GameEngine::LoadText(Text* text, LONG fontSize, LONG fontWeight, std::wstring str, const std::string& filePath, const std::string& fontName) {
@@ -431,8 +449,8 @@ void GameEngine::DrawObject_3D_(Object* object, shared_ptr<DirectionalLight> dir
 	std::vector<Offset> offsets = object->GetOffsets();
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-	commandList_->SetGraphicsRootSignature(rootSignature_.Get());
-	commandList_->SetPipelineState(trianglePipelineState_.Get());	//PSOを設定
+	commandList_->SetGraphicsRootSignature(objectRootSignature_.Get());
+	commandList_->SetPipelineState(object3DPipelineState_.Get());	//PSOを設定
 
 	commandList_->IASetVertexBuffers(0, 1, &object->GetVBV());	//VBVを設定
 	commandList_->IASetIndexBuffer(&object->GetIBV());	//IBVを設定
@@ -519,8 +537,8 @@ void GameEngine::DrawObject_2D_(Object* object, shared_ptr<DirectionalLight> dir
 	Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(kWindowWidth_) / float(kWindowHeight_), 0.01f, 1.0f);
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-	commandList_->SetGraphicsRootSignature(rootSignature_.Get());
-	commandList_->SetPipelineState(trianglePipelineState_.Get());	//PSOを設定
+	commandList_->SetGraphicsRootSignature(objectRootSignature_.Get());
+	commandList_->SetPipelineState(object2DPipelineState_.Get());	//PSOを設定
 
 	commandList_->IASetVertexBuffers(0, 1, &object->GetVBV());	//VBVを設定
 	commandList_->IASetIndexBuffer(&object->GetIBV());	//IBVを設定
@@ -598,8 +616,8 @@ void GameEngine::DrawInstancingObject_3D_(std::list<Object*> objects, shared_ptr
 	Camera* camera = (*objectIterator)->GetCamera().get();
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-	commandList_->SetGraphicsRootSignature(instancingRootSignature_.Get());
-	commandList_->SetPipelineState(instancingTrianglePipelineState_.Get());	//PSOを設定
+	commandList_->SetGraphicsRootSignature(instancingObjectRootSignature_.Get());
+	commandList_->SetPipelineState(instancingObjectPipelineState_.Get());	//PSOを設定
 
 	commandList_->IASetVertexBuffers(0, 1, &(*objectIterator)->GetVBV());	//VBVを設定
 	commandList_->IASetIndexBuffer(&(*objectIterator)->GetIBV());	//IBVを設定
@@ -725,7 +743,7 @@ void GameEngine::DrawParticle_(ParticleGroup particleGroup) {
 	if (particleIndex > kMaxInstanceIndex)return;
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-	commandList_->SetGraphicsRootSignature(instancingRootSignature_.Get());
+	commandList_->SetGraphicsRootSignature(particleRootSignature_.Get());
 	commandList_->SetPipelineState(particlePipelineState_.Get());	//PSOを設定
 
 	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
@@ -795,13 +813,23 @@ void GameEngine::DrawParticle_(ParticleGroup particleGroup) {
 
 	particleMaterialResource_[particleIndex]->Unmap(0, nullptr);
 
+	fogResource_->Map(0, nullptr, reinterpret_cast<void**>(&fogData_));
+
+	fogData_->windowSize = { float(winApp_->kClientWidth_),float(winApp_->kClientHeight_) };
+
+	fogResource_->Unmap(0, nullptr);
+
 	//マテリアルCBufferの場所を設定
 	commandList_->SetGraphicsRootConstantBufferView(0, particleMaterialResource_[particleIndex]->GetGPUVirtualAddress());
+
+	commandList_->SetGraphicsRootConstantBufferView(3, fogResource_->GetGPUVirtualAddress());
 
 	//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
 	commandList_->SetGraphicsRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(particleGroup.textureIndex));
 
 	commandList_->SetGraphicsRootDescriptorTable(1, srvManager_->GetGPUDescriptorHandle(particleGroup.instancingIndex));
+
+	dxCommon_->SetDepthTexture(4);
 
 	//描画(DrawCall)
 	commandList_->DrawIndexedInstanced(6, numInstance, 0, 0, 0);
@@ -843,7 +871,7 @@ void GameEngine::DrawSprite_2D_(Sprite* sprite) {
 	spriteMaterialResource_[spriteIndex]->Unmap(0, nullptr);
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-	commandList_->SetGraphicsRootSignature(rootSignature_.Get());
+	commandList_->SetGraphicsRootSignature(spriteRootSignature_.Get());
 	commandList_->SetPipelineState(spritePipelineState_.Get());	//PSOを設定
 	commandList_->IASetVertexBuffers(0, 1, &sprite->GetVBV());	//VBVを設定
 	commandList_->IASetIndexBuffer(&sprite->GetIBV());	//IBVを設定
@@ -872,8 +900,8 @@ void GameEngine::DrawInstancingSprite_2D_(std::list<Sprite*> sprits) {
 	Matrix4x4 projectionMatrix = MakeOrthographicMatrix(0.0f, 0.0f, float(kWindowWidth_), float(kWindowHeight_), 0.0f, 100.0f);
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-	commandList_->SetGraphicsRootSignature(instancingRootSignature_.Get());
-	commandList_->SetPipelineState(instancingTrianglePipelineState_.Get());	//PSOを設定
+	commandList_->SetGraphicsRootSignature(instancingObjectRootSignature_.Get());
+	commandList_->SetPipelineState(instancingObjectPipelineState_.Get());	//PSOを設定
 
 	commandList_->IASetVertexBuffers(0, 1, &startSprite->GetVBV());	//VBVを設定
 	commandList_->IASetIndexBuffer(&startSprite->GetIBV());	//IBVを設定
@@ -946,7 +974,7 @@ void GameEngine::DrawInstancingSprite_2D_(std::list<Sprite*> sprits) {
 
 void GameEngine::DrawLine_(std::list<Line> lines, PrimitiveManager::PrimitiveResource primitiveResource) {
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-	commandList_->SetGraphicsRootSignature(instancingRootSignature_.Get());
+	commandList_->SetGraphicsRootSignature(instancingObjectRootSignature_.Get());
 	commandList_->SetPipelineState(noDepthLinePipelineState_.Get());	//PSOを設定
 
 	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
@@ -956,6 +984,9 @@ void GameEngine::DrawLine_(std::list<Line> lines, PrimitiveManager::PrimitiveRes
 	commandList_->IASetIndexBuffer(&PrimitiveManager::GetInstance()->GetIndexBufferView());	//IBVを設定
 
 	Camera* camera = Object::GetDefaultCamera().get();
+
+	//カメラのワールド座標をCBufferに送る
+	commandList_->SetGraphicsRootConstantBufferView(4, camera->CameraResource()->GetGPUVirtualAddress());
 
 	//WVPデータを更新
 	InstancingTransformationMatrix* mappedBase = nullptr;
@@ -1029,7 +1060,7 @@ void GameEngine::DrawLine_(std::list<Line> lines, PrimitiveManager::PrimitiveRes
 
 void GameEngine::DrawPoint_(std::list<Vector3> points, PrimitiveManager::PrimitiveResource primitiveResource) {
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-	commandList_->SetGraphicsRootSignature(instancingRootSignature_.Get());
+	commandList_->SetGraphicsRootSignature(instancingObjectRootSignature_.Get());
 	commandList_->SetPipelineState(noDepthLinePipelineState_.Get());	//PSOを設定
 
 	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
@@ -1039,6 +1070,9 @@ void GameEngine::DrawPoint_(std::list<Vector3> points, PrimitiveManager::Primiti
 	commandList_->IASetIndexBuffer(&PrimitiveManager::GetInstance()->GetIndexBufferView());	//IBVを設定
 
 	Camera* camera = Object::GetDefaultCamera().get();
+
+	//カメラのワールド座標をCBufferに送る
+	commandList_->SetGraphicsRootConstantBufferView(4, camera->CameraResource()->GetGPUVirtualAddress());
 
 	//WVPデータを更新
 	InstancingTransformationMatrix* mappedBase = nullptr;
@@ -1105,7 +1139,7 @@ void GameEngine::DrawPoint_(std::list<Vector3> points, PrimitiveManager::Primiti
 
 void GameEngine::DrawAABB_(std::list<AABB> aabbs, PrimitiveManager::PrimitiveResource primitiveResource) {
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-	commandList_->SetGraphicsRootSignature(instancingRootSignature_.Get());
+	commandList_->SetGraphicsRootSignature(instancingObjectRootSignature_.Get());
 	commandList_->SetPipelineState(noDepthLinePipelineState_.Get());	//PSOを設定
 
 	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
@@ -1115,6 +1149,9 @@ void GameEngine::DrawAABB_(std::list<AABB> aabbs, PrimitiveManager::PrimitiveRes
 	commandList_->IASetIndexBuffer(&PrimitiveManager::GetInstance()->GetIndexBufferView());	//IBVを設定
 
 	Camera* camera = Object::GetDefaultCamera().get();
+
+	//カメラのワールド座標をCBufferに送る
+	commandList_->SetGraphicsRootConstantBufferView(4, camera->CameraResource()->GetGPUVirtualAddress());
 
 	//WVPデータを更新
 	InstancingTransformationMatrix* mappedBase = nullptr;

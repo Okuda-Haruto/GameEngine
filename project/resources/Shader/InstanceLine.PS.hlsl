@@ -1,15 +1,40 @@
-#include "Particle.hlsli"
+#include "InstanceObject3d.hlsli"
 
-struct Fog
+struct DirectionalLight
 {
-    float2 windowSize;
-    float nearClip;
-    float FarClip;
-    float fogStart;
-    float fogEnd;
     float4 color;
+    float3 direction;
+    float intensity;
 };
 
+struct PointLight
+{
+    float4 color;
+    float3 position;
+    float intensity;
+    float radius;
+    float decay;
+};
+
+struct SpotLight
+{
+    float4 color;
+    float3 position;
+    float intensity;
+    float3 direction;
+    float distance;
+    float decay;
+    float cosAngle;
+    float cosFalloutStart;
+};
+
+
+struct Camera
+{
+    float3 WorldPosition;
+    float nearDist;
+    float farDist;
+};
 
 struct Material
 {
@@ -23,7 +48,10 @@ struct Material
 };
 
 ConstantBuffer<Material> gMaterial : register(b0);
-ConstantBuffer<Fog> gFog : register(b1);
+ConstantBuffer<DirectionalLight> gDirectionalLight : register(b1);
+ConstantBuffer<Camera> gCamera : register(b2);
+ConstantBuffer<PointLight> gPointLight : register(b3);
+ConstantBuffer<SpotLight> gSpotLight : register(b4);
 
 struct PixelShaderOutput
 {
@@ -31,7 +59,6 @@ struct PixelShaderOutput
 };
 
 Texture2D<float4> gTexture : register(t0);
-Texture2D<float4> gDepthTexture : register(t1);
 SamplerState gSampler : register(s0);
 
 PixelShaderOutput main(VertexShaderOutput input)
@@ -45,19 +72,6 @@ PixelShaderOutput main(VertexShaderOutput input)
     {
         discard;
     }
-    
-    float2 screenUV = input.position.xy / gFog.windowSize;
-    float depth = gDepthTexture.Sample(gSampler, screenUV.xy).r;
-    
-    if (input.position.z > depth)
-    {
-        discard;
-    }
-    
-    float diff = depth - input.position.z;
-    float fade = saturate(diff * 10000.0f);
-    
-    output.color.a = output.color.a * fade;
     
     return output;
 }

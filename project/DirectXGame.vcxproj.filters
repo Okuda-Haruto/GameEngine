@@ -16,6 +16,27 @@
     <FxCompile Include="resources\Shader\Particle.VS.hlsl">
       <Filter>GameEngine\Shader</Filter>
     </FxCompile>
+    <FxCompile Include="resources\Shader\Fog.PS.hlsl">
+      <Filter>GameEngine\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="resources\Shader\Object2d.VS.hlsl">
+      <Filter>GameEngine\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="resources\Shader\Object2d.PS.hlsl">
+      <Filter>GameEngine\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="resources\Shader\Sprite2d.VS.hlsl">
+      <Filter>GameEngine\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="resources\Shader\Sprite2d.PS.hlsl">
+      <Filter>GameEngine\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="resources\Shader\InstanceObject3d.PS.hlsl">
+      <Filter>GameEngine\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="resources\Shader\InstanceLine.PS.hlsl">
+      <Filter>GameEngine\Shader</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -468,6 +489,9 @@
     <ClInclude Include="Application\GameManager\GameManager.h">
       <Filter>Application\GameManager</Filter>
     </ClInclude>
+    <ClInclude Include="GameEngine\Data\Fog.h">
+      <Filter>GameEngine\Data</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -475,6 +499,12 @@
       <Filter>GameEngine\Shader</Filter>
     </None>
     <None Include="resources\Shader\Particle.hlsli">
+      <Filter>GameEngine\Shader</Filter>
+    </None>
+    <None Include="resources\Shader\Sprite2d.hlsli">
+      <Filter>GameEngine\Shader</Filter>
+    </None>
+    <None Include="resources\Shader\InstanceObject3d.hlsli">
       <Filter>GameEngine\Shader</Filter>
     </None>
   </ItemGroup>

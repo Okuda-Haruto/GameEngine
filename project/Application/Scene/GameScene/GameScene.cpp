@@ -33,7 +33,7 @@ void GameScene::Initialize(shared_ptr<Input> input) {
 	emitter_.angleRange = { 0.0f,0.1f,0.1f };	//方向範囲
 	emitter_.speedBase = 0.7f;	//基礎速度
 	emitter_.speedRange = 0.4f;	//速度範囲
-	emitter_.beforeColor = { 1.0f,1.0f,1.0f,68.0f / 256.0f };
+	emitter_.beforeColor = { 1.0f,1.0f,1.0f,1.0f };
 	emitter_.afterColor = { 1.0f,1.0f,1.0f,0.0f };
 	editor_->SetEmitter(emitter_);
 	AccelerationField field_;
@@ -62,8 +62,8 @@ void GameScene::Initialize(shared_ptr<Input> input) {
 	emitter_2.angleRange = { 0.1f,0.1f,0.1f };	//方向範囲
 	emitter_2.speedBase = 0.1f;	//基礎速度
 	emitter_2.speedRange = 0.05f;	//速度範囲
-	emitter_2.beforeColor = { 0.1f,0.1f,0.1f,1.0f };
-	emitter_2.afterColor = { 0.0f,0.0f,0.0f,0.0f };
+	emitter_2.beforeColor = { 240.0f / 256.0f,240.0f / 256.0f,240.0f / 256.0f,1.0f };
+	emitter_2.afterColor =  {  40.0f / 256.0f, 40.0f / 256.0f, 40.0f / 256.0f,0.0f };
 	editor_2->SetEmitter(emitter_2);
 	AccelerationField field_2;
 	field_2.area.min = { 0.0f,0.0f,0.0f };
@@ -91,7 +91,7 @@ void GameScene::Initialize(shared_ptr<Input> input) {
 	emitter_3.speedBase = 0.3f;	//基礎速度
 	emitter_3.speedRange = 0.1f;	//速度範囲
 	emitter_3.beforeColor = { 1.0f,0.8f,0.6f,1.0f };
-	emitter_3.afterColor = { 1.0f,0.0f,0.0f,0.0f };
+	emitter_3.afterColor = { 1.0f,0.2f,0.2f,0.0f };
 	editor_3->SetEmitter(emitter_3);
 	AccelerationField field_3;
 	field_3.area.min = { 0.0f,0.0f,0.0f };
@@ -118,8 +118,8 @@ void GameScene::Initialize(shared_ptr<Input> input) {
 	emitter_4.angleRange = { 0.2f,0.2f,0.2f };	//方向範囲
 	emitter_4.speedBase = 0.2f;	//基礎速度
 	emitter_4.speedRange = 0.1f;	//速度範囲
-	emitter_4.beforeColor = { 0.4f,0.4f,0.4f,0.4f };
-	emitter_4.afterColor = { 0.0f,0.0f,0.0f,0.0f };
+	emitter_4.beforeColor = { 1.0f,1.0f,1.0f,1.0f };
+	emitter_4.afterColor = { 1.0f,1.0f,1.0f,0.0f };
 	editor_4->SetEmitter(emitter_4);
 	AccelerationField field_4;
 	field_4.area.min = { 0.0f,0.0f,0.0f };
@@ -356,11 +356,6 @@ void GameScene::Draw() {
 	//プレイヤー
 	boss_->Draw();
 
-	editor_->Draw();
-	editor_2->Draw();
-	editor_3->Draw();
-	editor_4->Draw();
-
 	for (auto& bullet : playerBullet_) {
 		bullet->Draw();
 	}
@@ -370,6 +365,15 @@ void GameScene::Draw() {
 	}
 
 	player_->Draw();
+
+
+
+	editor_->Draw();
+	editor_2->Draw();
+	editor_3->Draw();
+	editor_4->Draw();
+
+
 
 	int32_t remainingRounds = player_->GetRemainingRounds();
 	std::vector<Parts> parts = cylinder_->GetParts();

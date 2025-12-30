@@ -45,6 +45,8 @@ private:
 
 	//DepthStencilTexture
 	Microsoft::WRL::ComPtr<ID3D12Resource> depthStencilResource_;
+	//深度描画用リソース
+	Microsoft::WRL::ComPtr<ID3D12Resource> depthWriteTextureResource_;
 	uint32_t depthBufferIndex_;
 
 	//デスクリプタサイズ
@@ -63,6 +65,9 @@ private:
 
 	//DSV
 	D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc_{};
+
+	//SRVManager
+	SRVManager* srvManager_ = nullptr;
 
 	//フェンス
 	Microsoft::WRL::ComPtr <ID3D12Fence> fence_;
@@ -97,8 +102,11 @@ public:
 	void PostDraw();
 
 	//RootSignature作成
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> TriangleRootSignatureInitialvalue();
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> InstancingRootSignatureInitialvalue();
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> ObjectRootSignatureInitialvalue();
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> SpriteRootSignatureInitialvalue();
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> InstancingObjectRootSignatureInitialvalue();
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> ParticleRootSignatureInitialvalue();
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> FogRootSignatureInitialvalue();
 
 	//シェーダーのコンパイル
 	Microsoft::WRL::ComPtr<IDxcBlob> CompileShader(const std::wstring& filePath,const wchar_t* profile);
@@ -120,6 +128,8 @@ public:
 
 	//SRVManagerはDirectXCommonの後に初期化しないといけないので分ける
 	void DepthBufferInitialize(SRVManager* srvManager);
+	//深度バッファSRVをセット
+	void SetDepthTexture(UINT RootParameterIndex);
 
 private:
 	//ログファイルの生成
@@ -138,6 +148,8 @@ private:
 	void swapChainInitialize();
 	//深度バッファの生成
 	void CreateDepthStencilTextureResource();
+	//深度描画テクスチャの生成
+	void CreateDepthWriteTextureResource();
 	//各種デスクリプタヒープの生成
 	void descriptorHeapInitialize();
 	//レンダーターゲットビューの初期値
@@ -163,4 +175,7 @@ private:
 	void UpdateFixFPS();
 	//記録時間(FPS固定用)
 	std::chrono::steady_clock::time_point reference_;
+
+	//コマンドキュー実行
+	void ExecuteCommandQueue();
 };

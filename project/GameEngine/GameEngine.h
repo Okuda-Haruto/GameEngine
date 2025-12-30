@@ -17,6 +17,7 @@
 #include "Object/Object.h"
 #include "Sprite/Sprite.h"
 #include "TransformationMatrix.h"
+#include "Fog.h"
 
 #include "Text.h"
 #include <Audio/Audio.h>
@@ -64,17 +65,21 @@ private:
 	ID3D12GraphicsCommandList* commandList_;
 
 	//RootSignature
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> rootSignature_;
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> instancingRootSignature_;
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> objectRootSignature_;
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> instancingObjectRootSignature_;
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> spriteRootSignature_;
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> particleRootSignature_;
 
 	//Windowのメッセージ
 	MSG msg_{};
 
 	//PSO
-	Microsoft::WRL::ComPtr <ID3D12PipelineState> trianglePipelineState_ = nullptr;
-	Microsoft::WRL::ComPtr <ID3D12PipelineState> noDepthTrianglePipelineState_ = nullptr;
-	Microsoft::WRL::ComPtr <ID3D12PipelineState> instancingTrianglePipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> object3DPipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> object2DPipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> noDepthObjectPipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> instancingObjectPipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> particlePipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> particleAddbrendPipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> spritePipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> linePipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> noDepthLinePipelineState_ = nullptr;
@@ -159,6 +164,9 @@ private:
 	//インスタンスデータ
 	std::array<std::array<InstancingTransformationMatrix*, PrimitiveManager::kMaxNumPrimitive>, PrimitiveManager::SHAPE_count> primitiveData_;
 #pragma endregion
+
+	Microsoft::WRL::ComPtr<ID3D12Resource> fogResource_;
+	Fog* fogData_;
 	
 	//XAudio2インスタンス
 	Microsoft::WRL::ComPtr<IXAudio2> xAudio2_;
@@ -181,9 +189,6 @@ private:
 	void PostDraw_();
 
 	Microsoft::WRL::ComPtr<ID3D12Device> GetDevice_() { return dxCommon_->GetDevice(); }
-
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> RootSignature_() { return rootSignature_; }
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> InstancingRootSignature_() { return instancingRootSignature_; }
 
 	void DrawObject_3D_(Object* object, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight);
 	void DrawObject_2D_(Object* object, shared_ptr<DirectionalLight> directionalLight);
@@ -259,9 +264,6 @@ public:
 
 	//描画後処理
 	static void PostDraw() { GetInstance()->PostDraw_(); }
-
-	static Microsoft::WRL::ComPtr <ID3D12RootSignature> RootSignature() { return GetInstance()->RootSignature_(); }
-	static Microsoft::WRL::ComPtr <ID3D12RootSignature> InstancingRootSignature() { return GetInstance()->InstancingRootSignature_(); }
 
 	//ウィンドウ幅
 	[[nodiscard]]
