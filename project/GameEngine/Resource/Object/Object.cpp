@@ -44,8 +44,16 @@ void Object::Draw3D() {
 	GameEngine::DrawObject_3D(this, directionalLight_.lock(), pointLight_.lock(), spotLight_.lock());
 }
 
+void Object::Draw3D(uint32_t index) {
+	GameEngine::DrawParts_3D(this, index, directionalLight_.lock(), pointLight_.lock(), spotLight_.lock());
+}
+
 void Object::Draw2D() {
 	GameEngine::DrawObject_2D(this, directionalLight_.lock());
+}
+
+void Object::Draw2D(uint32_t index) {
+	GameEngine::DrawParts_2D(this, index, directionalLight_.lock());
 }
 
 void Object::SetReflection(UINT reflection) {

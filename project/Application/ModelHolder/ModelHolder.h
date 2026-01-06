@@ -7,6 +7,8 @@ enum class ModelIndex {
 	Skydome,
 	Ground,
 	Fence,
+	BackGround,
+	Tumbleweed,
 	Player,
 	Boss,
 	Bullet,

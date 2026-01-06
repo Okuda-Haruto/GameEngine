@@ -6,10 +6,7 @@
 #include <cassert>
 
 Audio::~Audio() {
-	for (IXAudio2SourceVoice* sourceVoice : sourceVoiceList) {
-		DeleteSourceVoice(sourceVoice);
-	}
-	sourceVoiceList.clear();
+	SoundEndWave();
 }
 
 void Audio::Initialize(std::string path, float volume) {
@@ -21,7 +18,7 @@ void Audio::SetVolume(float volume) {
 
 	volume_ = volume;
 	for (IXAudio2SourceVoice* sourceVoice : sourceVoiceList) {
-		sourceVoice->SetVolume(volume_);
+		sourceVoice->SetVolume(volume_, XAUDIO2_COMMIT_NOW);
 	}
 
 }
@@ -37,7 +34,7 @@ void Audio::SoundPlayWave() {
 
 	newSourceVoice = AudioManager::GetInstance()->CreateSourceVoice(path_);
 
-	newSourceVoice->GetVolume(&volume_);
+	newSourceVoice->SetVolume(volume_, XAUDIO2_COMMIT_NOW);
 
 	//波形データの再生
 	hr = newSourceVoice->Start();
@@ -68,6 +65,13 @@ void Audio::SoundEndWave() {
 	}
 	sourceVoiceList.clear();
 
+}
+
+bool Audio::IsSoundPlayingWave() {
+	//終了しているか判定
+	IsPlaying();
+
+	return !sourceVoiceList.empty();
 }
 
 void Audio::IsPlaying() {

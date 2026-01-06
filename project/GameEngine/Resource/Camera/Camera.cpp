@@ -19,8 +19,10 @@ void Camera::Initialize(DirectXCommon* dxCommon) {
 	cameraResource_->Map(0, nullptr, reinterpret_cast<void**>(&cameraData_));
 
 	cameraData_->worldPosition = Vector3{ 0.0f,0.0f,0.0f };
-	cameraData_->nearDist = 250.0f;
+	cameraData_->nearDist = 7.0f;
 	cameraData_->farDist = 300.0f;
+	cameraData_->nearTransparentDist = 2.0f;
+	cameraData_->farTransparentDist = 50.0f;
 
 	cameraResource_->Unmap(0, nullptr);
 }

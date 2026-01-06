@@ -191,7 +191,9 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12Device> GetDevice_() { return dxCommon_->GetDevice(); }
 
 	void DrawObject_3D_(Object* object, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight);
+	void DrawParts_3D_(Object* object, uint32_t partsIndex, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight);
 	void DrawObject_2D_(Object* object, shared_ptr<DirectionalLight> directionalLight);
+	void DrawParts_2D_(Object* object, uint32_t partsIndex, shared_ptr<DirectionalLight> directionalLight);
 	void DrawInstancingObject_3D_(std::list<Object*> objects, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight);
 	void DrawParticle_(ParticleGroup particleGroup);
 	/*void DrawSprite_3D_();
@@ -279,7 +281,9 @@ public:
 
 
 	static void DrawObject_3D(Object* object, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight) { return GetInstance()->DrawObject_3D_(object, directionalLight, pointLight, spotLight); }
+	static void DrawParts_3D(Object* object, uint32_t partsIndex, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight) { return GetInstance()->DrawParts_3D_(object, partsIndex, directionalLight, pointLight, spotLight); }
 	static void DrawObject_2D(Object* object, shared_ptr<DirectionalLight> directionalLight) { return GetInstance()->DrawObject_2D_(object, directionalLight); }
+	static void DrawParts_2D(Object* object, uint32_t partsIndex, shared_ptr<DirectionalLight> directionalLight) { return GetInstance()->DrawParts_2D_(object, partsIndex, directionalLight); }
 	static void DrawInstancingObject_3D(std::list<Object*> objects, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight) { return GetInstance()->DrawInstancingObject_3D_(objects, directionalLight, pointLight, spotLight); }
 	static void DrawParticle(ParticleGroup particleGroup) { return GetInstance()->DrawParticle_(particleGroup); }
 	

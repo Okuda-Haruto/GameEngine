@@ -34,6 +34,8 @@ struct Camera
     float3 WorldPosition;
     float nearDist;
     float farDist;
+    float nearTransparentDist;
+    float farTransparentDist;
 };
 
 struct Material
@@ -311,9 +313,18 @@ PixelShaderOutput main(VertexShaderOutput input)
     float3 diff = input.worldPosition - gCamera.WorldPosition;
 
     float dist = length(diff);
+    
+    float near = saturate((gCamera.nearDist - dist) / gCamera.nearTransparentDist);
+    float far = saturate((dist - gCamera.farDist) / gCamera.farTransparentDist);
 
-    output.color.a = 1.0f - saturate((dist - gCamera.nearDist) / (gCamera.farDist - gCamera.nearDist));
-
+    output.color.a *= 1.0f - max(near, far);
+    
+    if (output.color.a == 0.0)
+    {
+        discard;
+    }
+    
+    
     if (gMaterial.reflection <= 0 || gMaterial.reflection > 2)
         return output;
         

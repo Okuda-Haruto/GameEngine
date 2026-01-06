@@ -41,6 +41,10 @@ void TitleScene::Initialize(shared_ptr<Input> input) {
 	pless_B_Start_Sprite_->Initialize("resources/Title/Pless_B_Start.png");
 	pless_B_Start_Sprite_->SetAnchorPoint(Vector2{ 0.5f,0.5f });
 	pless_B_Start_Sprite_->SetPosition(Vector2{ 640.0f,500.0f });
+	credit_Sprite_ = std::make_unique<Sprite>();
+	credit_Sprite_->Initialize("resources/Title/Credit.png");
+	credit_Sprite_->SetAnchorPoint(Vector2{ 1.0f,1.0f });
+	credit_Sprite_->SetPosition(Vector2{ 1280 - 10,720.0f - 10 });
 
 	fadeSprite_ = std::make_unique<Sprite>();
 	fadeSprite_->Initialize("resources/DebugResources/white2x2.png");
@@ -54,6 +58,13 @@ void TitleScene::Initialize(shared_ptr<Input> input) {
 void TitleScene::Update() {
 	Keybord key = input_->GetKeyBord();
 	Pad pad = input_->GetPad(0);
+
+	if (!AudioHolder::GetInstance()->GetAudio(AudioIndex::Title_BGM).lock()->IsSoundPlayingWave()) {
+		AudioHolder::GetInstance()->GetAudio(AudioIndex::Title_BGM).lock()->SoundPlayWave();
+	}
+	if (AudioHolder::GetInstance()->GetAudio(AudioIndex::Battle_BGM).lock()->IsSoundPlayingWave()) {
+		AudioHolder::GetInstance()->GetAudio(AudioIndex::Battle_BGM).lock()->SoundEndWave();
+	}
 
 	animationTime += 1.0f / 60.0f;
 	if (animationTime > 60.0f)animationTime -= 60.0f;
@@ -86,6 +97,7 @@ void TitleScene::Update() {
 	fadeSprite_->SetColor({ 0.0f,0.0f,0.0f,a });
 	fadeSprite_->Update();
 	titleSprite_->Update();
+	credit_Sprite_->Update();
 	pless_B_Start_Sprite_->Update();
 	SRT transform = {
 		{0,0,0},
@@ -102,6 +114,7 @@ void TitleScene::Draw() {
 
 	titleSprite_->Draw2D();
 	pless_B_Start_Sprite_->Draw2D();
+	credit_Sprite_->Draw2D();
 	if (fade_ != Fade::None) {
 		fadeSprite_->Draw2D();
 	}

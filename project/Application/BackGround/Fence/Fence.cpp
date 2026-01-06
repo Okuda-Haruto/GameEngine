@@ -46,6 +46,7 @@ void Fence::Initialize(shared_ptr<Camera> camera, shared_ptr<DirectionalLight> d
 		object->SetTransform(transform);
 		object->SetCamera(camera);
 		object->SetDirectionalLight(directionalLight_);
+		object->SetShininess(0);
 
 		objects_.push_back(move(object));
 	}

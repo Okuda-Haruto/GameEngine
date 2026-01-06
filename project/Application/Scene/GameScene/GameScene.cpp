@@ -3,11 +3,16 @@
 #include <numbers>
 #include <SceneManager/SceneManager.h>
 #include "../TitleScene/TitleScene.h"
+#include <cmath>
 
 GameScene::~GameScene() {
 	playerBullet_.clear();
 	bossBullet_.clear();
 	ParticleManager::GetInstance()->Reset();
+
+#ifdef USE_IMGUI
+	SaveBackGround("resources/CSV/BackGround.csv");
+#endif
 }
 
 void GameScene::Initialize(shared_ptr<Input> input) {
@@ -28,9 +33,9 @@ void GameScene::Initialize(shared_ptr<Input> input) {
 	emitter_.transform.scale = { 10.0f,10.0f,10.0f };
 	emitter_.transform.translate = { 50.0f,0.0f,0.0f };
 	emitter_.spawnRange.min = { -5.0f,-0.5f,-50.0f };
-	emitter_.spawnRange.max = { 5.0f,10.0f,50.0f };
+	emitter_.spawnRange.max = { 5.0f,0.5f,50.0f };
 	emitter_.angleBase = { -1.0f,0.0f,0.0f };
-	emitter_.angleRange = { 0.0f,0.1f,0.1f };	//方向範囲
+	emitter_.angleRange = { 0.0f,0.0f,0.1f };	//方向範囲
 	emitter_.speedBase = 0.7f;	//基礎速度
 	emitter_.speedRange = 0.4f;	//速度範囲
 	emitter_.beforeColor = { 1.0f,1.0f,1.0f,1.0f };
@@ -100,7 +105,7 @@ void GameScene::Initialize(shared_ptr<Input> input) {
 	editor_3->SetField(field_3);
 
 	//パーティクル
-	ParticleManager::GetInstance()->CreateParticleGroup("particle_4", "resources/Particle/Sand.png");
+	ParticleManager::GetInstance()->CreateParticleGroup("particle_4", "resources/Particle/sand.png");
 	particle_4 = std::make_unique<ParticleEmitter>("particle_4");
 	editor_4 = std::make_unique<ParticleEditor>();
 	editor_4->Initialize(particle_4.get());
@@ -110,7 +115,7 @@ void GameScene::Initialize(shared_ptr<Input> input) {
 	emitter_4.lifeTime = 0.2f;
 	emitter_4.frequency = 0.0f;
 	emitter_4.frequencyTime = 0.0f;
-	emitter_4.transform.scale = { 2.0f,2.0f,2.0f };
+	emitter_4.transform.scale = { 3.0f,3.0f,3.0f };
 	emitter_4.transform.translate = { 0.0f,0.0f,0.0f };
 	emitter_4.spawnRange.min = { 0.0f,0.0f,0.0f };
 	emitter_4.spawnRange.max = { 0.0f,0.0f,0.0f };
@@ -193,19 +198,19 @@ void GameScene::Initialize(shared_ptr<Input> input) {
 
 	sprite_[0] = make_unique<Sprite>();
 	sprite_[0]->Initialize("resources/Sprite/LT.png");
-	sprite_[0]->SetPosition(Vector2{ 200,720 - 84 });
+	sprite_[0]->SetPosition(Vector2{ 990,720 - 84 });
 	sprite_[0]->SetSize(Vector2{ 64,64 });
 	sprite_[1] = make_unique<Sprite>();
 	sprite_[1]->Initialize("resources/Sprite/RT.png");
-	sprite_[1]->SetPosition(Vector2{ 270,720 - 84 });
+	sprite_[1]->SetPosition(Vector2{ 1060,720 - 84 });
 	sprite_[1]->SetSize(Vector2{ 64,64 });
 	sprite_[2] = make_unique<Sprite>();
 	sprite_[2]->Initialize("resources/Sprite/B.png");
-	sprite_[2]->SetPosition(Vector2{ 340,720 - 84 });
+	sprite_[2]->SetPosition(Vector2{ 1130,720 - 84 });
 	sprite_[2]->SetSize(Vector2{ 64,64 });
 	sprite_[3] = make_unique<Sprite>();
 	sprite_[3]->Initialize("resources/Sprite/Reload_UI.png");
-	sprite_[3]->SetPosition(Vector2{ 410,720 - 84 });
+	sprite_[3]->SetPosition(Vector2{ 1200,720 - 84 });
 	sprite_[3]->SetSize(Vector2{ 64,64 });
 
 	//背景
@@ -217,6 +222,25 @@ void GameScene::Initialize(shared_ptr<Input> input) {
 	ground_->SetCamera(gameCamera_->GetCamera());
 	ground_->SetDirectionalLight(directionalLight_);
 	ground_->SetPointLight(pointLight_);
+	backGrouds_ = LoadBackGround("resources/CSV/BackGround.csv");
+	tumbleweed_ = std::make_unique<Tumbleweed>();
+	tumbleweed_->Initialize(gameCamera_->GetCamera(),directionalLight_,pointLight_,particle_4.get());
+
+	/*for (int i = 0; i < 64; i++) {	//大岩で囲むために一番最初に使う奴
+		std::unique_ptr<BackGround> newBG = std::make_unique<BackGround>();
+		newBG->Initialize(7);
+		SRT transform = {
+			{1,1,1},
+			{0,i * std::numbers::pi_v<float> * 2 / 64,0},
+			{0,0,0}
+		};
+		Matrix4x4 rotateMatrix = MakeRotateYMatrix(transform.rotate.y);
+		transform.translate = Vector3{ 0,0,256 } * rotateMatrix;
+		newBG->SetTransform(transform);
+		newBG->SetDirectionalLight(directionalLight_);
+		newBG->SetPointLight(pointLight_);
+		backGrouds_.push_back(move(newBG));
+	}*/
 
 	fence_ = std::make_unique<Fence>();
 	fence_->Initialize(gameCamera_->GetCamera(),directionalLight_,pointLight_);
@@ -232,6 +256,14 @@ void GameScene::Initialize(shared_ptr<Input> input) {
 
 void GameScene::Update() {
 	Keybord key = input_->GetKeyBord();
+
+	if (!AudioHolder::GetInstance()->GetAudio(AudioIndex::Battle_BGM).lock()->IsSoundPlayingWave()) {
+		AudioHolder::GetInstance()->GetAudio(AudioIndex::Battle_BGM).lock()->SoundPlayWave();
+	}
+	if (AudioHolder::GetInstance()->GetAudio(AudioIndex::Title_BGM).lock()->IsSoundPlayingWave()) {
+		AudioHolder::GetInstance()->GetAudio(AudioIndex::Title_BGM).lock()->SoundEndWave();
+	}
+
 
 	if (animationTime_ < kMaxAnimationTime) {
 		animationTime_ += 1.0f / 60.0f;
@@ -312,6 +344,8 @@ void GameScene::Update() {
 		sprite->Update();
 	}
 
+	tumbleweed_->Update();
+
 	editor_->Update();
 	editor_2->Update();
 	editor_3->Update();
@@ -344,6 +378,35 @@ void GameScene::Update() {
 	ImGui::Text("LShift：注目");
 	ImGui::Text("攻撃と回避をしていないならリロード");
 	ImGui::End();
+
+	ImGui::Begin("背景オブジェクト");
+	static int cursor = 0;
+	ImGui::SliderInt("オブジェクト番号", &cursor, 0, int(backGrouds_.size() - 1));
+	SRT transform = { {1,1,1},{0,0,0},{0,0,0} };
+	if (ImGui::Button("追加")) {
+
+		std::unique_ptr<BackGround> newBG = std::make_unique<BackGround>();
+		newBG->Initialize(0);
+		newBG->SetTransform(transform);
+		newBG->SetDirectionalLight(directionalLight_);
+		newBG->SetPointLight(pointLight_);
+		backGrouds_.push_back(move(newBG));
+
+		cursor = int(backGrouds_.size() - 1);
+	}
+	int index = int(backGrouds_[cursor]->GetIndex());
+	transform = backGrouds_[cursor]->GetTransform();
+	transform.rotate = transform.rotate / std::numbers::pi_v<float> * 180;
+
+	ImGui::SliderInt("使用するモデル番号", &index, 0, 7);
+	ImGui::DragFloat3("Scale", &transform.scale.x,0.1f);
+	ImGui::DragFloat3("Rotate", &transform.rotate.x, 1.0f);
+	ImGui::DragFloat3("Translate", &transform.translate.x, 0.1f);
+
+	transform.rotate = transform.rotate * std::numbers::pi_v<float> / 180;
+	backGrouds_[cursor]->SetIndex(index);
+	backGrouds_[cursor]->SetTransform(transform);
+	ImGui::End();
 #endif
 }
 
@@ -351,7 +414,6 @@ void GameScene::Draw() {
 	//背景
 	skydome_->Draw();
 	ground_->Draw();
-	fence_->Draw();
 
 	//プレイヤー
 	boss_->Draw();
@@ -365,6 +427,14 @@ void GameScene::Draw() {
 	}
 
 	player_->Draw();
+
+	for (auto& BG : backGrouds_) {
+		BG->Draw();
+	}
+
+	tumbleweed_->Draw();
+
+	fence_->Draw();
 
 
 
@@ -433,10 +503,13 @@ void GameScene::Collision() {
 				
 				if ((*iteratorA)->GetInvincible() || (*iteratorB)->GetInvincible())continue;
 
-				if (Length((*iteratorA)->GetSphare().center - (*iteratorB)->GetSphare().center) <=
-					((*iteratorA)->GetSphare().radius + (*iteratorB)->GetSphare().radius)) {
-					(*iteratorA)->IsCollision();
-					(*iteratorB)->IsCollision();
+				//どちらかがキャラクターの場合
+				if (idA & 0b100 || idB & 0b100) {
+					if (Length((*iteratorA)->GetSphare().center - (*iteratorB)->GetSphare().center) <=
+						((*iteratorA)->GetSphare().radius + (*iteratorB)->GetSphare().radius)) {
+						(*iteratorA)->IsCollision();
+						(*iteratorB)->IsCollision();
+					}
 				}
 			//プレイヤー側とアイテムの場合
 			} else if (idA & 0b01 && idB & 0b00) {
@@ -494,10 +567,148 @@ void GameScene::AddPlayerBullet(Vector3 translate, Vector3 rotate) {
 	pointLightElement_.intensity = 1.0f;
 
 	particle_2->Emit();
+
+	AudioHolder::GetInstance()->GetAudio(AudioIndex::Shot_SE).lock()->SoundPlayWave();
 }
 
 void GameScene::AddBossBullet(Vector3 translate, Vector3 rotate) {
 	unique_ptr<BossBullet> newBullet = make_unique<BossBullet>();
 	newBullet->Initialize(translate, rotate);
 	bossBullet_.push_back(move(newBullet));
+
+	AudioHolder::GetInstance()->GetAudio(AudioIndex::Shot_SE).lock()->SoundPlayWave();
+}
+
+std::vector<std::unique_ptr<BackGround>> GameScene::LoadBackGround(std::string csvfile) {
+	// ファイルを開く
+	std::ifstream file;
+	file.open(csvfile);
+	assert(file.is_open());
+
+	// ファイルの内容を文字列ストリームにコピー
+	std::stringstream LoadEnemyCommands_;
+	LoadEnemyCommands_ << file.rdbuf();
+
+	// ファイルを閉じる
+	file.close();
+
+	std::vector<std::unique_ptr<BackGround>> backGrouds;
+
+	// 1行分の文字列を入れる変数
+	std::string line;
+
+	// コマンド実行ループ
+	while (getline(LoadEnemyCommands_, line)) {
+		// 1行分の文字列をストリームに変換して解析しやすくする
+		std::istringstream line_stream(line);
+
+		std::string word;
+		//,区切りで行の先頭文字列を取得
+		getline(line_stream, word, ':');
+
+		// "//"から始まる行はコメント
+		if (word.find("//") == 0) {
+			// 無視する
+			continue;
+		}
+
+		// OBJECTコマンド
+		if (word.find("OBJECT") == 0) {
+
+			std::unique_ptr<BackGround> newBG = std::make_unique<BackGround>();
+			SRT transform;
+
+			//Index
+			getline(line_stream, word, ',');
+			int index = (uint32_t)std::atoi(word.c_str());
+
+			while (line_stream && (line_stream.peek() == ',' || line_stream.peek() == '{')) { //','と'{'をスキップ
+				line_stream.ignore();
+			}
+
+			//Scale
+			getline(line_stream, word, ',');
+			float x = (float)std::atof(word.c_str());
+			getline(line_stream, word, ',');
+			float y = (float)std::atof(word.c_str());
+			getline(line_stream, word, '}');
+			float z = (float)std::atof(word.c_str());
+
+			transform.scale = { x, y, z };
+
+			while (line_stream && line_stream.peek() == '}') { //'}'をスキップ
+				line_stream.ignore();
+			}
+
+			while (line_stream && (line_stream.peek() == ',' || line_stream.peek() == '{')) { //','と'{'をスキップ
+				line_stream.ignore();
+			}
+
+			//Rotate
+			getline(line_stream, word, ',');
+			x = (float)std::atof(word.c_str());
+			getline(line_stream, word, ',');
+			y = (float)std::atof(word.c_str());
+			getline(line_stream, word, '}');
+			z = (float)std::atof(word.c_str());
+
+			//わかりにくいので度数法で書くこと
+			transform.rotate = { x * std::numbers::pi_v<float> / 180, y * std::numbers::pi_v<float> / 180, z * std::numbers::pi_v<float> / 180 };
+
+			while (line_stream && line_stream.peek() == '}') { //'}'をスキップ
+				line_stream.ignore();
+			}
+
+			while (line_stream && (line_stream.peek() == ',' || line_stream.peek() == '{')) { //','と'{'をスキップ
+				line_stream.ignore();
+			}
+
+			//Translate
+			getline(line_stream, word, ',');
+			x = (float)std::atof(word.c_str());
+			getline(line_stream, word, ',');
+			y = (float)std::atof(word.c_str());
+			getline(line_stream, word, '}');
+			z = (float)std::atof(word.c_str());
+
+			while (line_stream && line_stream.peek() == '}') { //'}'をスキップ
+				line_stream.ignore();
+			}
+
+			transform.translate = { x, y, z };
+
+			newBG->Initialize(index);
+			newBG->SetTransform(transform);
+			newBG->SetDirectionalLight(directionalLight_);
+			newBG->SetPointLight(pointLight_);
+
+			backGrouds.push_back(move(newBG));
+		}
+	}
+
+	return backGrouds;
+}
+
+void GameScene::SaveBackGround(std::string csvfile) {
+	// ファイルを開く
+	std::ofstream file;
+	file.open(csvfile);	//上書きモード
+	assert(file.is_open());
+
+	file << "//コマンド:パーツ番号,{Scale},{Rotate},{Translate}\n\n";
+
+	for (int i = 0; i < backGrouds_.size(); i++) {
+
+		uint32_t index = backGrouds_[i]->GetIndex();
+		SRT Transform = backGrouds_[i]->GetTransform();
+
+		file << "OBJECT:" << index << 
+			",{" << Transform.scale.x << "," << Transform.scale.y << "," << Transform.scale.z <<
+			"},{" << Transform.rotate.x / std::numbers::pi_v<float> * 180 << "," << Transform.rotate.y / std::numbers::pi_v<float> * 180 << "," << Transform.rotate.z / std::numbers::pi_v<float> * 180 <<
+			"},{" << Transform.translate.x << "," << Transform.translate.y << "," << Transform.translate.z << "},\n";
+
+	}
+
+	// ファイルを閉じる
+	file.close();
 }

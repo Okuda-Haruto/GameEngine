@@ -106,6 +106,38 @@ void GameCamera::Update() {
 		camera_->Update(*transform_);
 	}
 
+	if (fabsf(lockonTransform_.rotate.x - normalTransform_.rotate.x) > std::numbers::pi_v<float>) {
+		if (lockonTransform_.rotate.x >= normalTransform_.rotate.x) {
+			if (lockonTransform_.rotate.x > std::numbers::pi_v<float> *2) {
+				lockonTransform_.rotate.x -= std::numbers::pi_v<float> *2;
+			} else {
+				normalTransform_.rotate.x += std::numbers::pi_v<float> *2;
+			}
+		} else {
+			if (normalTransform_.rotate.x > std::numbers::pi_v<float> *2) {
+				normalTransform_.rotate.x -= std::numbers::pi_v<float> *2;
+			} else {
+				lockonTransform_.rotate.x += std::numbers::pi_v<float> *2;
+			}
+		}
+	}
+
+	if (fabsf(lockonTransform_.rotate.y - normalTransform_.rotate.y) > std::numbers::pi_v<float>) {
+		if (lockonTransform_.rotate.y >= normalTransform_.rotate.y) {
+			if (lockonTransform_.rotate.y > std::numbers::pi_v<float> *2) {
+				lockonTransform_.rotate.y -= std::numbers::pi_v<float> *2;
+			} else {
+				normalTransform_.rotate.y += std::numbers::pi_v<float> *2;
+			}
+		} else {
+			if (normalTransform_.rotate.y > std::numbers::pi_v<float> *2) {
+				normalTransform_.rotate.y -= std::numbers::pi_v<float> *2;
+			} else {
+				lockonTransform_.rotate.y += std::numbers::pi_v<float> *2;
+			}
+		}
+	}
+
 	transform_->translate = lockonTransform_.translate * (1.0f - powf(1.0f - shiftTime_ / kMaxShiftTime, 2)) + normalTransform_.translate * (1.0f - (1.0f - powf(1.0f - shiftTime_ / kMaxShiftTime, 2)));
 	if (shakeTime_ > 0.0f) {
 		transform_->translate.x += GameEngine::randomFloat(-shakeTime_, shakeTime_);

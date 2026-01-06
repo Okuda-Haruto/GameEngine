@@ -211,6 +211,15 @@
     <ClCompile Include="Application\GameManager\GameManager.cpp">
       <Filter>Application\GameManager</Filter>
     </ClCompile>
+    <ClCompile Include="Application\BackGround\BackGround\BackGround.cpp">
+      <Filter>Application\BackGround\BackGround</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\BackGround\Tumbleweed\Tumbleweed.cpp">
+      <Filter>Application\BackGround\Tumbleweed</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\AudioHolder\AudioHolder.cpp">
+      <Filter>Application\AudioHolder</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\BackGround\Ground\Ground.h">
@@ -492,6 +501,15 @@
     <ClInclude Include="GameEngine\Data\Fog.h">
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
+    <ClInclude Include="Application\BackGround\BackGround\BackGround.h">
+      <Filter>Application\BackGround\BackGround</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\BackGround\Tumbleweed\Tumbleweed.h">
+      <Filter>Application\BackGround\Tumbleweed</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\AudioHolder\AudioHolder.h">
+      <Filter>Application\AudioHolder</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -709,6 +727,15 @@
     </Filter>
     <Filter Include="GameEngine\Factory\AbstractSceneFactory">
       <UniqueIdentifier>{6694e463-239f-49ff-a797-bf37f828eaaf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\BackGround\BackGround">
+      <UniqueIdentifier>{8624c25a-ddc0-4d79-a292-407c297b5444}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\BackGround\Tumbleweed">
+      <UniqueIdentifier>{91e1ebee-a127-41cc-85db-cc128ecbde71}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\AudioHolder">
+      <UniqueIdentifier>{9109b9b0-8079-4a1c-93f9-cf2a372a3552}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

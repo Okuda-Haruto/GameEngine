@@ -11,7 +11,7 @@ private:
 	//カメラ
 	shared_ptr<Camera> camera_;
 
-	const float kMaxShiftTime = 0.5f;
+	const float kMaxShiftTime = 0.25f;
 	float shiftTime_ = 0.0f;
 
 	float shakeTime_ = 0.0f;

@@ -39,7 +39,6 @@ public:
 	/// 初期化
 	/// </summary>
 	/// <param name="filename">.wavファイル名 (例:resources/Audio.wav)</param>
-	/// <param name="isLoop">ループ再生するか</param>
 	void Initialize(std::string path, float volume);
 
 	/// <summary>
@@ -54,6 +53,9 @@ public:
 	void SoundStopWave();
 	//音声データの終了
 	void SoundEndWave();
+
+	//再生しているか
+	bool IsSoundPlayingWave();
 private:
 	void IsPlaying();
 
