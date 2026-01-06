@@ -171,7 +171,7 @@ void GameScene::Initialize(shared_ptr<Input> input) {
 
 	//ボス
 	boss_ = std::make_unique<Boss>();
-	boss_->Initialize(this,gameCamera_.get(), particle_3.get(), player_.get(), 30.0f);
+	boss_->Initialize(this,gameCamera_.get(), particle_3.get(), player_.get(), 60.0f);
 	gameCamera_->SetTarget(boss_->GetTransform());
 	player_->SetBossTransform(boss_->GetTransform());
 	boss_->SetCamera(gameCamera_->GetCamera());
@@ -252,6 +252,8 @@ void GameScene::Initialize(shared_ptr<Input> input) {
 
 	fade_ = Fade::FadeIn;
 	fadeTime_ = 0.0f;
+
+	isClear_ = false;
 }
 
 void GameScene::Update() {
@@ -280,49 +282,59 @@ void GameScene::Update() {
 		fade_ = Fade::None;
 	}
 	if (fade_ == Fade::FadeOut && fadeTime_ >= kMaxFadeTime) {
-		SceneManager::GetInstance()->ChangeScene("Title");
+		if (isClear_) {
+			SceneManager::GetInstance()->ChangeScene("Clear");
+		} else {
+			SceneManager::GetInstance()->ChangeScene("GameOver");
+		}
 	}
 
 	if (fade_ == Fade::None) {
 		player_->Update();
 	}
+	if (!isClear_) {
+		gameCamera_->SetMoveVelocity(player_->GetMove().x);
+		gameCamera_->SetIsTargeted(player_->GetIsTargeted());
+		gameCamera_->Update();
 
-	gameCamera_->SetMoveVelocity(player_->GetMove().x);
-	gameCamera_->SetIsTargeted(player_->GetIsTargeted());
-	gameCamera_->Update();
+		if (boss_->IsDead() && fade_ == Fade::None) {
+			isClear_ = true;
+			fade_ = Fade::FadeOut;
+			fadeTime_ = 0.0f;
+		}
+		if (player_->IsDead() && fade_ == Fade::None) {
+			isClear_ = false;
+			fade_ = Fade::FadeOut;
+			fadeTime_ = 0.0f;
+		}
+		if (pointLightElement_.intensity > 0.0f) {
+			pointLightElement_.intensity -= 0.05f;
+			if (pointLightElement_.intensity < 0.0f)pointLightElement_.intensity = 0.0f;
+			Matrix4x4 rotateMatrix = MakeRotateYMatrix(player_->GetTransform()->rotate.y);
+			pointLightElement_.position = player_->GetTransform()->translate + rotateMatrix * Vector3(0.0f, 0.0f, 1.0f);
+			pointLight_->SetPointLightElement(pointLightElement_);
+		}
 
-	if ((player_->IsDead() || boss_->IsDead()) && fade_ == Fade::None) {
-		fade_ = Fade::FadeOut;
-		fadeTime_ = 0.0f;
+		for (auto& bullet : playerBullet_) {
+			bullet->Update();
+		}
+
+		for (auto& bullet : bossBullet_) {
+			bullet->Update();
+		}
+
+		boss_->Update();
+
+		Collision();
+
+		std::erase_if(playerBullet_, [](const auto& bullet) {
+			return bullet->IsDead();
+			});
+
+		std::erase_if(bossBullet_, [](const auto& bullet) {
+			return bullet->IsDead();
+			});
 	}
-
-	if (pointLightElement_.intensity > 0.0f) {
-		pointLightElement_.intensity -= 0.05f;
-		if (pointLightElement_.intensity < 0.0f)pointLightElement_.intensity = 0.0f;
-		Matrix4x4 rotateMatrix = MakeRotateYMatrix(player_->GetTransform()->rotate.y);
-		pointLightElement_.position = player_->GetTransform()->translate + rotateMatrix * Vector3(0.0f, 0.0f, 1.0f);
-		pointLight_->SetPointLightElement(pointLightElement_);
-	}
-
-	for (auto& bullet : playerBullet_) {
-		bullet->Update();
-	}
-
-	for (auto& bullet : bossBullet_) {
-		bullet->Update();
-	}
-
-	boss_->Update();
-
-	Collision();
-
-	std::erase_if(playerBullet_, [](const auto& bullet) {
-		return bullet->IsDead();
-		});
-
-	std::erase_if(bossBullet_, [](const auto& bullet) {
-		return bullet->IsDead();
-		});
 
 
 

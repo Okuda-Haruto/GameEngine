@@ -66,6 +66,8 @@ private:
 	DirectionalLightElement directionalLightElement_;
 	shared_ptr<PointLight> pointLight_;
 	PointLightElement pointLightElement_;
+
+	bool isClear_ = false;
 public:
 
 	~GameScene();
