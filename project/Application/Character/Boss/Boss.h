@@ -68,6 +68,48 @@ public:
 	void Finalize() override;
 };
 
+class BossAction_Jump : public BossAction {
+private:
+	//行動に要する総時間
+	const float kMaxActionTime_ = 1.7f;
+	float actionTime_ = 0.0f;
+
+	//ジャンプ後の待ち時間
+	const float kMaxLandingTime_ = 0.2f;
+	float landingTime_ = 0.0f;
+
+	//滞空時間
+	const float kMaxJumpingTime_ = 1.0f;
+	float jumpingTime_ = 0.0f;
+
+	//狙って構えるまでの時間
+	const float kMaxTargetedCooltime_ = 0.5f;
+	float targetedCooltime_ = 0.0f;
+
+	Vector3 startPosition_{};
+	Vector3 nextPosition_{};
+
+public:
+	void Initialize(Boss* boss) override;
+	void Update() override;
+	void Finalize() override;
+};
+
+class BossAction_Move : public BossAction {
+private:
+	//走り出すまでの時間
+	const float kMaxTargetedCooltime_ = 0.5f;
+	float targetedCooltime_ = 0.0f;
+
+	Vector3 move_{};
+	const float speed_ = 1.8f;
+
+public:
+	void Initialize(Boss* boss) override;
+	void Update() override;
+	void Finalize() override;
+};
+
 class Boss : public BaseCharacter
 {
 private:
@@ -75,8 +117,6 @@ private:
 	float angle;
 
 	std::unique_ptr<SRT> targetTransform_;
-
-	Vector4 color_;
 
 	float maxHP_;
 	float HP_;
@@ -88,6 +128,8 @@ private:
 	Player* player_ = nullptr;
 
 	std::unique_ptr<BossAction> action_;
+
+	std::array<int, 4> weights_;
 
 public:
 
@@ -105,6 +147,7 @@ public:
 	SRT* GetTransform() { return targetTransform_.get(); }
 	GameScene* GetGameScene() { return gameScene_; }
 	Player* GetPlayer() { return player_; }
+	GameCamera* GetGameCamera() { return gameCamera_; }
 
 	void SetCamera(shared_ptr<Camera> camera) { object_->SetCamera(camera); }
 

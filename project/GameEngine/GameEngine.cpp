@@ -359,7 +359,7 @@ float GameEngine::randomFloat_(float minFloat, float maxFloat) {
 	return distribution(randomEngine_);
 }
 int32_t GameEngine::randomInt_(int32_t minInt, int32_t maxInt) {
-	assert(minInt > maxInt);
+	assert(minInt <= maxInt);
 	float minFloat = float(minInt);
 	float maxFloat = float(maxInt);
 	std::uniform_real_distribution<float> distribution(minFloat, maxFloat);
