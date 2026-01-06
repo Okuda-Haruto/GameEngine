@@ -26,6 +26,7 @@ private:
 	std::unique_ptr<Skydome> skydome_;
 	std::unique_ptr<Ground> ground_;
 	std::unique_ptr<Fence> fence_;
+	std::unique_ptr<Object> player_;
 
 	std::unique_ptr<Sprite>titleSprite_;
 	std::unique_ptr<Sprite>pless_B_Start_Sprite_;

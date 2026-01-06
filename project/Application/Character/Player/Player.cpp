@@ -376,7 +376,7 @@ void Player::Draw() {
 	particle_2->Draw();
 	if (HP_ > 0.0f) {
 		if (invincibleTime_ > 0.0f) {
-			object_->SetColor(Vector4{ 0.5f,0.5f,0.5f,1.0f });
+			object_->SetColor(Vector4{ 0.3f,0.3f,0.3f,1.0f });
 		} else {
 			object_->SetColor(Vector4{ 1.0f,1.0f,1.0f,1.0f });
 		}

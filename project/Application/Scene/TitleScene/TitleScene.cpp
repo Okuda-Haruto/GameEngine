@@ -30,7 +30,16 @@ void TitleScene::Initialize(shared_ptr<Input> input) {
 	ground_->SetDirectionalLight(directionalLight_);
 	ground_->SetCamera(camera_);
 	fence_ = std::make_unique<Fence>();
-	fence_->Initialize(camera_, directionalLight_, nullptr);;
+	fence_->Initialize(camera_, directionalLight_, nullptr);
+	player_ = std::make_unique<Object>();
+	player_->Initialize(ModelHolder::GetInstance()->GetModel(ModelIndex::Player));
+	player_->SetDirectionalLight(directionalLight_);
+	player_->SetCamera(camera_);
+	SRT PlayerTransform{};
+	PlayerTransform.scale = { 1,1,1 };
+	PlayerTransform.rotate = { 0,std::numbers::pi_v<float>,0 };
+	PlayerTransform.translate = { 0,1,1.5f };
+	player_->SetTransform(PlayerTransform);
 
 
 	titleSprite_ = std::make_unique<Sprite>();
@@ -111,6 +120,7 @@ void TitleScene::Draw() {
 	skydome_->Draw();
 	ground_->Draw();
 	fence_->Draw();
+	player_->Draw3D();
 
 	titleSprite_->Draw2D();
 	pless_B_Start_Sprite_->Draw2D();
