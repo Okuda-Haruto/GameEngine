@@ -28,6 +28,14 @@ void ModelHolder::Initialize() {
 	filePath.directoryPath_ = "resources/BackGround/Fence";
 	filePath.fileName_ = "Fence.obj";
 	filePathes_.push_back(filePath);
+	//背景オブジェクト
+	filePath.directoryPath_ = "resources/BackGround/BackGround";
+	filePath.fileName_ = "BackGround.obj";
+	filePathes_.push_back(filePath);
+	//タンブルウィード
+	filePath.directoryPath_ = "resources/BackGround/Tumbleweed";
+	filePath.fileName_ = "Tumbleweed.obj";
+	filePathes_.push_back(filePath);
 	//プレイヤー
 	filePath.directoryPath_ = "resources/Caracter/Player";
 	filePath.fileName_ = "Player.obj";

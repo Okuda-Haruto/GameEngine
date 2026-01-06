@@ -38,7 +38,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Application\AudioHolder\AudioHolder.cpp" />
+    <ClCompile Include="Application\BackGround\BackGround\BackGround.cpp" />
     <ClCompile Include="Application\BackGround\Fence\Fence.cpp" />
+    <ClCompile Include="Application\BackGround\Tumbleweed\Tumbleweed.cpp" />
     <ClCompile Include="Application\Bullet\BaseBullet.cpp" />
     <ClCompile Include="Application\Bullet\BossBullet\BossBullet.cpp" />
     <ClCompile Include="Application\Bullet\PlayerBullet\PlayerBullet.cpp" />
@@ -116,7 +119,10 @@
     <ClCompile Include="GameEngine\Modules\ParticleManager\ParticleManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Application\AudioHolder\AudioHolder.h" />
+    <ClInclude Include="Application\BackGround\BackGround\BackGround.h" />
     <ClInclude Include="Application\BackGround\Fence\Fence.h" />
+    <ClInclude Include="Application\BackGround\Tumbleweed\Tumbleweed.h" />
     <ClInclude Include="Application\Bullet\BaseBullet.h" />
     <ClInclude Include="Application\Bullet\BossBullet\BossBullet.h" />
     <ClInclude Include="Application\Bullet\PlayerBullet\PlayerBullet.h" />

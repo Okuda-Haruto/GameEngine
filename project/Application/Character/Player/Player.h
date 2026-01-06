@@ -18,7 +18,8 @@ private:
 	Vector3 move_;
 	const float deadZone = 0.7f;
 	bool isMove = false;
-	const float speed = 0.6f;
+	const float kMaxSpeed = 0.6f;
+	const float speed = 0.06f;
 
 	std::unique_ptr<SRT> targetTransform_;
 	SRT* bossTransform_ = nullptr;
@@ -53,7 +54,7 @@ private:
 	float reloadTime_;
 
 	//発射間隔
-	const float kMaxShotCooltime = 0.25f;
+	const float kMaxShotCooltime = 0.5f;
 	float shotCooltime_ = 0.0f;
 	
 	//気絶時間
@@ -63,6 +64,10 @@ private:
 	//無敵時間
 	const float kMaxInvincibleTime_ = 0.5f;
 	float invincibleTime_ = 0.0f;
+
+	//停止時間
+	const float kMaxStopTime_ = 1.2f;
+	float stopTime_ = 0.0f;
 
 	GameScene* gameScene_ = nullptr;
 	GameCamera* gameCamera_ = nullptr;

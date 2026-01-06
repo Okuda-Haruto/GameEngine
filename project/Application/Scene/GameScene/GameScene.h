@@ -4,13 +4,17 @@
 #include "BackGround/Skydome/Skydome.h"
 #include "BackGround/Ground/Ground.h"
 #include "BackGround/Fence/Fence.h"
+#include "BackGround/BackGround/BackGround.h"
+#include "BackGround/Tumbleweed/Tumbleweed.h"
 #include "Bullet/PlayerBullet/PlayerBullet.h"
 #include "Bullet/BossBullet/BossBullet.h"
 #include "Character/Player/Player.h"
 #include "Character/Boss/Boss.h"
 #include "Sprite/Sprite.h"
 #include "Editor/ParticleEditor/ParticleEditor.h"
+#include "AudioHolder/AudioHolder.h"
 #include <array>
+#include <fstream>
 
 using namespace std;
 
@@ -26,6 +30,8 @@ private:
 	std::unique_ptr<Skydome> skydome_;
 	std::unique_ptr<Ground> ground_;
 	std::unique_ptr<Fence> fence_;
+	std::vector<std::unique_ptr<BackGround>> backGrouds_;
+	std::unique_ptr<Tumbleweed> tumbleweed_;
 	//キャラクター
 	std::unique_ptr<Player> player_;
 	std::unique_ptr<Boss> boss_;
@@ -75,5 +81,8 @@ public:
 
 	void AddPlayerBullet(Vector3 translate, Vector3 rotate);
 	void AddBossBullet(Vector3 translate, Vector3 rotate);
+
+	std::vector<std::unique_ptr<BackGround>> LoadBackGround(std::string csvfile);
+	void SaveBackGround(std::string csvfile);
 };
 

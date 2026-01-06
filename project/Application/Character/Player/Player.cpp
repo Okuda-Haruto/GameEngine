@@ -49,6 +49,9 @@ void Player::Initialize(GameScene* gameScene, GameCamera* gameCamera, shared_ptr
 	dodgeCoolTime = 0.0f;
 	dodgeActiveTime = kMaxDodgeActiveTime;
 	shotCooltime_ = 0.0f;
+	stopTime_ = 0.0f;
+
+	velocity_ = {};
 
 	HP_ = kMaxHP;
 	remainingRounds_ = kMaxRemainingRounds;
@@ -129,16 +132,39 @@ void Player::Update() {
 			angle = std::atan2(diff.x, diff.z);
 		}
 
+		acceleration_ = {};
 		//回避中は移動させないこと
 		if (isMove && dodgeActiveTime >= kMaxDodgeActiveTime) {
 			//移動量に速さを反映
-			velocity_ = Normalize(move_) * speed;
+			acceleration_ = Normalize(move_) * speed;
 
 			Matrix4x4 rotateMatrix = MakeRotateYMatrix(cameraTransform_->rotate.y);
-			velocity_ = rotateMatrix * velocity_;
+			acceleration_ = rotateMatrix * acceleration_;
 
 			if (isTargeted_) {
-				velocity_ /= 3.0f;
+				acceleration_ /= 4.0f;
+			}
+
+			velocity_ += acceleration_;
+		}
+
+		if (Length(velocity_) > 0.0f) {
+			if (Length(acceleration_) <= 0.0f) {
+				velocity_ = velocity_ * 0.8f;
+				if (Length(velocity_) < 0.01f) {
+					velocity_ = {};
+				}
+			}
+		}
+
+		if(Length(velocity_) > 0.0f){
+
+			if (Length(velocity_) > kMaxSpeed) {
+				velocity_ = Normalize(velocity_) * kMaxSpeed;
+			}
+
+			if (isTargeted_ && Length(velocity_) > kMaxSpeed / 2) {
+				velocity_ = Normalize(velocity_) * kMaxSpeed / 2;
 			}
 
 			//移動
@@ -228,6 +254,7 @@ void Player::Update() {
 				transform_.translate.z = std::clamp(transform_.translate.z, -59.0f, 59.0f);
 				stunTime = kMaxHitFenceStunTime;
 				dodgeActiveTime = kMaxDodgeActiveTime;
+				AudioHolder::GetInstance()->GetAudio(AudioIndex::Fence_Collision_SE).lock()->SoundPlayWave();
 			}
 
 			emitter_.transform.translate = transform_.translate;
@@ -266,6 +293,7 @@ void Player::Update() {
 				} else {
 					dodgeAngle_ = DODGE_ANGLE::FRONT;
 				}
+				AudioHolder::GetInstance()->GetAudio(AudioIndex::Dodge_SE).lock()->SoundPlayWave();
 			}
 		}
 
@@ -273,16 +301,26 @@ void Player::Update() {
 
 #pragma region 攻撃行動
 
+		if (Length(velocity_) <= 0.0f) {
+			stopTime_ += 1.0f / 60.0f;
+			if (stopTime_ > kMaxStopTime_) {
+				stopTime_ = kMaxStopTime_;
+			}
+		} else {
+			stopTime_ = 0.0f;
+		}
+
 		if (shotCooltime_ < kMaxShotCooltime) {
 			shotCooltime_ += 1.0f / 60.0f;
 		}
 		if (keys.hold[DIK_Z] || keys.hold[DIK_X] || pad.Button[PAD_BUTTON_RT].hold && dodgeActiveTime >= kMaxDodgeActiveTime) {
 			if (remainingRounds_ > 0.0f) {
-				if (shotCooltime_ >= kMaxShotCooltime) {
+				if (shotCooltime_ >= kMaxShotCooltime * Lerp<float>(1.0f, 0.2f, stopTime_ / kMaxStopTime_)) {
 					gameScene_->AddPlayerBullet(transform_.translate, transform_.rotate);
 					shotCooltime_ = 0.0f;
 					remainingRounds_--;
 					gameCamera_->SetShakeTime(0.1f);
+					velocity_ = {};
 				}
 			}
 		}
@@ -303,8 +341,10 @@ void Player::Update() {
 
 		//動いていない場合
 		if (shotCooltime_ != 0.0f && dodgeCoolTime != 0.0f) {
-			if (reloadTime_ >= kMaxReloadTime) {
+			if (reloadTime_ >= kMaxReloadTime * Lerp<float>(1.0f, 0.1f, stopTime_ / kMaxStopTime_) && remainingRounds_ != kMaxRemainingRounds) {
 				remainingRounds_ = kMaxRemainingRounds;
+				reloadTime_ = 0.0f;
+				AudioHolder::GetInstance()->GetAudio(AudioIndex::Reload_SE).lock()->SoundPlayWave();
 			} else {
 				reloadTime_ += 1.0f / 60.0f;
 			}
@@ -336,7 +376,7 @@ void Player::Draw() {
 	particle_2->Draw();
 	if (HP_ > 0.0f) {
 		if (invincibleTime_ > 0.0f) {
-			object_->SetColor(Vector4{ 1.0f,1.0f,1.0f,0.5f });
+			object_->SetColor(Vector4{ 0.5f,0.5f,0.5f,1.0f });
 		} else {
 			object_->SetColor(Vector4{ 1.0f,1.0f,1.0f,1.0f });
 		}
@@ -350,5 +390,6 @@ void Player::IsCollision() {
 		gameCamera_->SetShakeTime(0.3f);
 		invincibleTime_ = kMaxInvincibleTime_;
 		SetInvincible(true);
+		AudioHolder::GetInstance()->GetAudio(AudioIndex::Player_Damage_SE).lock()->SoundPlayWave();
 	}
 }

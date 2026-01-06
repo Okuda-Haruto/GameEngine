@@ -39,7 +39,9 @@ public:
 	void Initialize(shared_ptr<Model> model);
 	//描画
 	void Draw3D();
+	void Draw3D(uint32_t index);
 	void Draw2D();
+	void Draw2D(uint32_t index);
 
 	static shared_ptr<Camera> GetDefaultCamera() { return DefaultCamera; }
 	static void SetDefaultCamera(shared_ptr<Camera> defaultCamera) { DefaultCamera = defaultCamera; }
@@ -50,7 +52,7 @@ public:
 	void SetCamera(shared_ptr<Camera> camera) { camera_ = camera; }
 
 	std::vector<Parts> GetParts() { return parts_; }
-	void SetParts(Parts parts,UINT index) { parts_[index] = parts; }
+	void SetParts(Parts parts, uint32_t index) { parts_[index] = parts; }
 	SRT GetTransform() { return transform_; }
 	void SetTransform(SRT transform) { transform_ = transform; }
 

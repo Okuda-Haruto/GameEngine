@@ -5,6 +5,7 @@
 
 #include <SceneManager/SceneManager.h>
 #include "ModelHolder/ModelHolder.h"
+#include "AudioHolder/AudioHolder.h"
 
 using namespace std;
 

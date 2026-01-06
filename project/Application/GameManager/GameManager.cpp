@@ -3,11 +3,13 @@
 
 GameManager::~GameManager() {
 	ModelHolder::GetInstance()->Finalize();
+	AudioHolder::GetInstance()->Finalize();
 	SceneManager::GetInstance()->Finalize();
 }
 
 void GameManager::Initialize() {
 	ModelHolder::GetInstance()->Initialize();
+	AudioHolder::GetInstance()->Initialize();
 
 	input_ = make_shared<Input>();
 	input_.get()->Initialize(GameEngine::GetWindowsAPI());

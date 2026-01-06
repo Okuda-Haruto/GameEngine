@@ -525,6 +525,89 @@ void GameEngine::DrawObject_3D_(Object* object, shared_ptr<DirectionalLight> dir
 	}
 }
 
+void GameEngine::DrawParts_3D_(Object* object, uint32_t partsIndex, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight) {
+	//上限に達していたら描画しない
+	if (objectIndex >= kMaxIndex)return;
+
+	std::vector<Parts> parts = object->GetParts();
+	std::vector<Offset> offsets = object->GetOffsets();
+
+	//パーツのサイズを超えた位置を指定したらエラーを出す
+	assert(partsIndex < parts.size());
+
+	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
+	commandList_->SetGraphicsRootSignature(objectRootSignature_.Get());
+	commandList_->SetPipelineState(object3DPipelineState_.Get());	//PSOを設定
+
+	commandList_->IASetVertexBuffers(0, 1, &object->GetVBV());	//VBVを設定
+	commandList_->IASetIndexBuffer(&object->GetIBV());	//IBVを設定
+
+	//カメラのワールド座標をCBufferに送る
+	commandList_->SetGraphicsRootConstantBufferView(4, object->GetCamera()->CameraResource()->GetGPUVirtualAddress());
+
+	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
+	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	//オブジェクトのワールド座標
+	Matrix4x4 worldMatrix = MakeQuaternionMatrix(object->GetTransform().scale, object->GetTransform().rotate, object->GetTransform().translate);
+
+	//WVPデータを更新
+	objectWvpResource_[objectIndex]->Map(0, nullptr, reinterpret_cast<void**>(&objectWvpData_[objectIndex]));
+
+	Matrix4x4 partsMatrix = MakeQuaternionMatrix(parts[partsIndex].transform->scale, parts[partsIndex].transform->rotate, parts[partsIndex].transform->translate);
+	if (parts[partsIndex].parent) {
+		//親を持つPartsのローカル座標
+		Matrix4x4 parentMatrix = MakeQuaternionMatrix(parts[partsIndex].parent->scale, parts[partsIndex].parent->rotate, parts[partsIndex].parent->translate);
+		partsMatrix = partsMatrix * parentMatrix;
+	} else {
+		//ワールド座標を親に持つPartsのローカル座標
+		partsMatrix = partsMatrix * worldMatrix;
+	}
+
+	objectWvpData_[objectIndex]->World = partsMatrix;
+	objectWvpData_[objectIndex]->WorldInverseTranspose = Transpose(Inverse(partsMatrix));
+	Matrix4x4 worldViewProjectionMatrix = partsMatrix * object->GetCamera()->GetViewMatrix() * object->GetCamera()->GetProjectionMatrix();
+	objectWvpData_[objectIndex]->WVP = worldViewProjectionMatrix;
+
+	objectWvpResource_[objectIndex]->Unmap(0, nullptr);
+
+	parts[partsIndex].material->uvTransform = MakeQuaternionMatrix(parts[partsIndex].UVtransform.scale, parts[partsIndex].UVtransform.rotate, parts[partsIndex].UVtransform.translate);
+	parts[partsIndex].material->enableDirectionalLighting = directionalLight != nullptr;
+	parts[partsIndex].material->enablePointLighting = pointLight != nullptr;
+	parts[partsIndex].material->enableSpotLighting = spotLight != nullptr;
+
+	//マテリアルデータを更新
+	objectMaterialResource_[objectIndex]->Map(0, nullptr, reinterpret_cast<void**>(&objectMaterialData_[objectIndex]));
+
+	*objectMaterialData_[objectIndex] = *parts[partsIndex].material;
+
+	objectMaterialResource_[objectIndex]->Unmap(0, nullptr);
+
+	//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
+	commandList_->SetGraphicsRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(parts[partsIndex].textureIndex));
+
+	//ライティングが必要な場合CBufferに送る
+	if (parts[partsIndex].material->reflection != 0 && directionalLight != nullptr) {
+		commandList_->SetGraphicsRootConstantBufferView(3, directionalLight->DirectionalLightElementResource()->GetGPUVirtualAddress());	//DirectionalLighting
+	}
+	if (parts[partsIndex].material->reflection != 0 && pointLight != nullptr) {
+		commandList_->SetGraphicsRootConstantBufferView(5, pointLight->PointLightElementResource()->GetGPUVirtualAddress());	//PointLighting
+	}
+	if (parts[partsIndex].material->reflection != 0 && spotLight != nullptr) {
+		commandList_->SetGraphicsRootConstantBufferView(6, spotLight->SpotLightElementResource()->GetGPUVirtualAddress());	//SpotLighting
+	}
+
+	//マテリアルCBufferの場所を設定
+	commandList_->SetGraphicsRootConstantBufferView(0, objectMaterialResource_[objectIndex]->GetGPUVirtualAddress());
+	//wvp用のCBufferの場所を設定
+	commandList_->SetGraphicsRootConstantBufferView(1, objectWvpResource_[objectIndex]->GetGPUVirtualAddress());
+
+	//描画(DrawCall)
+	commandList_->DrawIndexedInstanced(offsets[partsIndex].indexCount, 1, 0, offsets[partsIndex].vertexStart, 0);
+
+	objectIndex++;
+}
+
 void GameEngine::DrawObject_2D_(Object* object, shared_ptr<DirectionalLight> directionalLight) {
 
 	//上限に達していたら描画しない
@@ -605,6 +688,87 @@ void GameEngine::DrawObject_2D_(Object* object, shared_ptr<DirectionalLight> dir
 
 		objectIndex++;
 	}
+}
+
+void GameEngine::DrawParts_2D_(Object* object, uint32_t partsIndex, shared_ptr<DirectionalLight> directionalLight) {
+
+	//上限に達していたら描画しない
+	if (objectIndex >= kMaxIndex)return;
+
+	std::vector<Parts> parts = object->GetParts();
+	std::vector<Offset> offsets = object->GetOffsets();
+
+	//パーツのサイズを超えた位置を指定したらエラーを出す
+	assert(partsIndex < parts.size());
+
+	Matrix4x4 viewMatrix = MakeIdentity4x4();
+	Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(kWindowWidth_) / float(kWindowHeight_), 0.01f, 1.0f);
+
+	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
+	commandList_->SetGraphicsRootSignature(objectRootSignature_.Get());
+	commandList_->SetPipelineState(object2DPipelineState_.Get());	//PSOを設定
+
+	commandList_->IASetVertexBuffers(0, 1, &object->GetVBV());	//VBVを設定
+	commandList_->IASetIndexBuffer(&object->GetIBV());	//IBVを設定
+
+	//カメラのワールド座標をCBufferに送る
+	commandList_->SetGraphicsRootConstantBufferView(4, object->GetCamera()->CameraResource()->GetGPUVirtualAddress());
+
+	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
+	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	//オブジェクトのワールド座標
+	Matrix4x4 worldMatrix = MakeQuaternionMatrix(object->GetTransform().scale, object->GetTransform().rotate, object->GetTransform().translate);
+
+	//WVPデータを更新
+	objectWvpResource_[objectIndex]->Map(0, nullptr, reinterpret_cast<void**>(&objectWvpData_[objectIndex]));
+
+	Matrix4x4 partsMatrix = MakeQuaternionMatrix(parts[partsIndex].transform->scale, parts[partsIndex].transform->rotate, parts[partsIndex].transform->translate);
+	if (parts[partsIndex].parent) {
+		//親を持つPartsのローカル座標
+		Matrix4x4 parentMatrix = MakeQuaternionMatrix(parts[partsIndex].parent->scale, parts[partsIndex].parent->rotate, parts[partsIndex].parent->translate);
+		partsMatrix = partsMatrix * parentMatrix;
+	} else {
+		//ワールド座標を親に持つPartsのローカル座標
+		partsMatrix = partsMatrix * worldMatrix;
+	}
+
+	objectWvpData_[objectIndex]->World = partsMatrix;
+	objectWvpData_[objectIndex]->WorldInverseTranspose = Transpose(Inverse(partsMatrix));
+	Matrix4x4 worldViewProjectionMatrix = partsMatrix * viewMatrix * projectionMatrix;
+	objectWvpData_[objectIndex]->WVP = worldViewProjectionMatrix;
+
+	objectWvpResource_[objectIndex]->Unmap(0, nullptr);
+
+	parts[partsIndex].material->uvTransform = MakeQuaternionMatrix(parts[partsIndex].UVtransform.scale, parts[partsIndex].UVtransform.rotate, parts[partsIndex].UVtransform.translate);
+	parts[partsIndex].material->enableDirectionalLighting = directionalLight != nullptr;
+	parts[partsIndex].material->enablePointLighting = false;
+	parts[partsIndex].material->enableSpotLighting = false;
+
+	//マテリアルデータを更新
+	objectMaterialResource_[objectIndex]->Map(0, nullptr, reinterpret_cast<void**>(&objectMaterialData_[objectIndex]));
+
+	*objectMaterialData_[objectIndex] = *parts[partsIndex].material;
+
+	objectMaterialResource_[objectIndex]->Unmap(0, nullptr);
+
+	//ライティングが必要な場合CBufferに送る
+	if (parts[partsIndex].material->reflection != 0 && directionalLight != nullptr) {
+		commandList_->SetGraphicsRootConstantBufferView(3, directionalLight->DirectionalLightElementResource()->GetGPUVirtualAddress());	//DirectionalLighting
+	}
+
+	//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
+	commandList_->SetGraphicsRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(parts[partsIndex].textureIndex));
+
+	//マテリアルCBufferの場所を設定
+	commandList_->SetGraphicsRootConstantBufferView(0, objectMaterialResource_[objectIndex]->GetGPUVirtualAddress());
+	//wvp用のCBufferの場所を設定
+	commandList_->SetGraphicsRootConstantBufferView(1, objectWvpResource_[objectIndex]->GetGPUVirtualAddress());
+
+	//描画(DrawCall)
+	commandList_->DrawIndexedInstanced(offsets[partsIndex].indexCount, 1, 0, offsets[partsIndex].vertexStart, 0);
+
+	objectIndex++;
 }
 
 void GameEngine::DrawInstancingObject_3D_(std::list<Object*> objects, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight) {
@@ -801,15 +965,15 @@ void GameEngine::DrawParticle_(ParticleGroup particleGroup) {
 	particleGroup.instancingResource->Unmap(0, nullptr);
 
 	//マテリアルデータを更新
-	particleMaterialResource_[particleIndex]->Map(0, nullptr, reinterpret_cast<void**>(&primitiveMaterialData_[particleIndex]));
+	particleMaterialResource_[particleIndex]->Map(0, nullptr, reinterpret_cast<void**>(&particleMaterialData_[particleIndex]));
 
-	primitiveMaterialData_[particleIndex]->uvTransform = MakeIdentity4x4();
-	primitiveMaterialData_[particleIndex]->enableDirectionalLighting = false;
-	primitiveMaterialData_[particleIndex]->enablePointLighting = false;
-	primitiveMaterialData_[particleIndex]->enableSpotLighting = false;
-	primitiveMaterialData_[particleIndex]->reflection = 0;
-	primitiveMaterialData_[particleIndex]->shininess = 0;
-	primitiveMaterialData_[particleIndex]->color = {1.0f,1.0f,1.0f,1.0f};
+	particleMaterialData_[particleIndex]->uvTransform = MakeIdentity4x4();
+	particleMaterialData_[particleIndex]->enableDirectionalLighting = false;
+	particleMaterialData_[particleIndex]->enablePointLighting = false;
+	particleMaterialData_[particleIndex]->enableSpotLighting = false;
+	particleMaterialData_[particleIndex]->reflection = 0;
+	particleMaterialData_[particleIndex]->shininess = 0;
+	particleMaterialData_[particleIndex]->color = {1.0f,1.0f,1.0f,1.0f};
 
 	particleMaterialResource_[particleIndex]->Unmap(0, nullptr);
 

@@ -11,6 +11,7 @@ protected:
 	std::unique_ptr<Object> object_;
 	SRT transform_;
 	Vector3 velocity_;
+	Vector3 acceleration_;
 
 public:
 	//初期化
