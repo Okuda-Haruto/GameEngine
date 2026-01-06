@@ -220,6 +220,12 @@
     <ClCompile Include="Application\AudioHolder\AudioHolder.cpp">
       <Filter>Application\AudioHolder</Filter>
     </ClCompile>
+    <ClCompile Include="Application\Scene\GameOverScene\GameOverScene.cpp">
+      <Filter>Application\Scene\GameOverScene</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Scene\ClearScene\ClearScene.cpp">
+      <Filter>Application\Scene\ClearScene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\BackGround\Ground\Ground.h">
@@ -510,6 +516,12 @@
     <ClInclude Include="Application\AudioHolder\AudioHolder.h">
       <Filter>Application\AudioHolder</Filter>
     </ClInclude>
+    <ClInclude Include="Application\Scene\GameOverScene\GameOverScene.h">
+      <Filter>Application\Scene\GameOverScene</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Scene\ClearScene\ClearScene.h">
+      <Filter>Application\Scene\ClearScene</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -736,6 +748,12 @@
     </Filter>
     <Filter Include="Application\AudioHolder">
       <UniqueIdentifier>{9109b9b0-8079-4a1c-93f9-cf2a372a3552}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Scene\GameOverScene">
+      <UniqueIdentifier>{647967ab-9b90-451b-8865-0c18f3c86b9d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Scene\ClearScene">
+      <UniqueIdentifier>{dcb14910-851c-4676-a048-59fe4e93f94c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
