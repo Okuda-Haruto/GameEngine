@@ -4,6 +4,7 @@
 #include <Vector4.h>
 #include <Matrix3x3.h>
 #include <Matrix4x4.h>
+#include <assimp/matrix4x4.h>
 #include <vector>
 
 #pragma region Vector2
@@ -146,6 +147,9 @@ Matrix4x4 MakePerspectiveFovMatrix(float fovY, float aspectRatio, float nearClip
 Matrix4x4 MakeOrthographicMatrix(float left, float top, float right, float bottom, float nearClip, float farClip);
 //ビューポート変換行列
 Matrix4x4 MakeViewportMatrix(float left, float top, float width, float height, float minDepth, float maxDepth);
+
+//aiMatrix変換(GLTF用)
+Matrix4x4 aiMatrix4x4ToMatrix4x4(aiMatrix4x4 matrix);
 
 Matrix4x4 operator+(const Matrix4x4& m1, const Matrix4x4& m2);
 Matrix4x4 operator-(const Matrix4x4& m1, const Matrix4x4& m2);

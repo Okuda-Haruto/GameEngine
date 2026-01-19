@@ -555,6 +555,16 @@ Matrix4x4 MakeViewportMatrix(float left, float top, float width, float height, f
 	return returnMatrix;
 }
 
+//aiMatrix変換(GLTF用)
+Matrix4x4 aiMatrix4x4ToMatrix4x4(aiMatrix4x4 matrix) {
+	Matrix4x4 returnMatrix;
+	returnMatrix.m[0][0] = matrix.a1; returnMatrix.m[0][1] = matrix.a2; returnMatrix.m[0][2] = matrix.a3; returnMatrix.m[0][3] = matrix.a4;
+	returnMatrix.m[1][0] = matrix.b1; returnMatrix.m[1][1] = matrix.b2; returnMatrix.m[1][2] = matrix.b3; returnMatrix.m[1][3] = matrix.b4;
+	returnMatrix.m[2][0] = matrix.c1; returnMatrix.m[2][1] = matrix.c2; returnMatrix.m[2][2] = matrix.c3; returnMatrix.m[2][3] = matrix.c4;
+	returnMatrix.m[3][0] = matrix.d1; returnMatrix.m[3][1] = matrix.d2; returnMatrix.m[3][2] = matrix.d3; returnMatrix.m[3][3] = matrix.d4;
+	return returnMatrix;
+}
+
 Matrix4x4 operator+(const Matrix4x4& m1, const Matrix4x4& m2) { return Add(m1, m2); }
 Matrix4x4 operator-(const Matrix4x4& m1, const Matrix4x4& m2) { return Subtract(m1, m2); }
 Matrix4x4 operator*(const Matrix4x4& m1, const Matrix4x4& m2) { return Multiply(m1, m2); }

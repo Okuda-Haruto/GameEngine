@@ -4,7 +4,7 @@
 #include <ModelData.h>
 #include <d3d12.h>
 #include <string>
-#include <VertexData.h>
+#include <ObjectVertexData.h>
 #include <Offset.h>
 #include <DirectXCommon/DirectXCommon.h>
 #include <TextureManager/TextureManager.h>
@@ -20,7 +20,7 @@ private:
 	//頂点バッファビュー
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView_{};
 	//頂点リソースデータ
-	VertexData* vertexData_ = nullptr;
+	ObjectVertexData* vertexData_ = nullptr;
 
 	//インデックスリソース
 	Microsoft::WRL::ComPtr<ID3D12Resource> indexResource_;
@@ -29,15 +29,16 @@ private:
 	//インデックスデータ
 	uint32_t* indexData_ = nullptr;
 
-	//オフセット
-	std::vector<Offset> offsets_;
-	//テクスチャ
-	std::vector<UINT> textureIndex_;
+	//モデルデータ
+	ModelData modelData_;
+
+	DirectXCommon* dxCommon_ = nullptr;
 public:
 	~Model();
 
 	//初期値
 	void Initialize(const std::string& directoryPath, const std::string& filename, DirectXCommon* dxCommon);
+
 	//頂点バッファビュー
 	D3D12_VERTEX_BUFFER_VIEW& GetVBV() { return vertexBufferView_; }
 	//インデックスバッファビュー
@@ -45,7 +46,21 @@ public:
 	//頂点の数
 	UINT GetVertexIndex() { return vertexIndex_; }
 	//オフセット
-	std::vector<Offset> GetOffsets() { return offsets_; }
+	std::vector<Offset> GetOffsets() { return modelData_.offset; }
 	//テクスチャ番号
-	UINT GetTextureIndex(UINT offsetNum) { if (textureIndex_.empty()) return TextureManager::GetInstance()->GetWhite2x2(); return textureIndex_[offsetNum]; }
+	UINT GetTextureIndex(UINT offsetNum) { if (modelData_.textureIndex.empty()) return TextureManager::GetInstance()->GetWhite2x2(); return modelData_.textureIndex[offsetNum]; }
+	//ボーン
+	std::vector<Bone> GetBones() { return modelData_.bones; }
+	//ボーンアニメーション
+	void BoneAnimation(std::vector<Bone>& bones, float time, UINT animationIndex);
+	//アニメーションが終了しているか
+	bool IsEndAnimation(float time, UINT index) { return time * modelData_.animations[index].FPS >= modelData_.animations[index].duration; }
+	//アニメーションデータ
+	AnimationData GetAnimationData(UINT index) { return modelData_.animations[index]; }
+
+	DirectXCommon* GetDirectXCommon() { return dxCommon_; }
+private:
+
+	//階層構造の行列変換
+	Matrix4x4 SetWorldMatrix(std::shared_ptr<Node> node, Bone bone);
 };

@@ -63,7 +63,9 @@
     <ClCompile Include="GameEngine\Debug\Log.cpp" />
     <ClCompile Include="GameEngine\Editor\ParticleEditor\ParticleEditor.cpp" />
     <ClCompile Include="GameEngine\LoadFile\LoadGLTFFile.cpp" />
+    <ClCompile Include="GameEngine\Math\LerpKeyFrame\LerpKeyFrame.cpp" />
     <ClCompile Include="GameEngine\Math\Operation\Operation.cpp" />
+    <ClCompile Include="GameEngine\Modules\Animation\Animation.cpp" />
     <ClCompile Include="GameEngine\Modules\AudioManager\AudioManager.cpp" />
     <ClCompile Include="GameEngine\Modules\ConvertString\ConvertString.cpp" />
     <ClCompile Include="GameEngine\Modules\DirectXCommon\DirectXCommon.cpp" />
@@ -83,11 +85,6 @@
     <ClCompile Include="GameEngine\Resource\BaseScene\BaseScene.cpp" />
     <ClCompile Include="GameEngine\Resource\Camera\Camera.cpp" />
     <ClCompile Include="GameEngine\Resource\DirectionalLight\DirectionalLight.cpp" />
-    <ClCompile Include="GameEngine\Resource\Effect.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="GameEngine\Resource\Model\Model.cpp" />
     <ClCompile Include="GameEngine\Resource\Object\Object.cpp" />
     <ClCompile Include="GameEngine\Resource\ParticleEmitter\ParticleEmitter.cpp" />
@@ -99,20 +96,9 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="GameEngine\Resource\Object_2D.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="GameEngine\Resource\Object_3D.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="GameEngine\Modules\Input\Input.cpp" />
     <ClCompile Include="Application\Scene\GameScene\GameScene.cpp" />
     <ClCompile Include="Application\BackGround\Ground\Ground.cpp" />
-    <ClCompile Include="GameEngine\Math\Lerp.cpp" />
     <ClCompile Include="main.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Development|x64'">MaxSpeed</Optimization>
     </ClCompile>
@@ -140,22 +126,29 @@
     <ClInclude Include="Application\Scene\ClearScene\ClearScene.h" />
     <ClInclude Include="Application\Scene\GameOverScene\GameOverScene.h" />
     <ClInclude Include="Application\Scene\TitleScene\TitleScene.h" />
+    <ClInclude Include="GameEngine\Data\AnimationData.h" />
+    <ClInclude Include="GameEngine\Data\Bone.h" />
     <ClInclude Include="GameEngine\Data\CameraForGPU.h" />
     <ClInclude Include="GameEngine\Data\Emitter.h" />
     <ClInclude Include="GameEngine\Data\Field.h" />
     <ClInclude Include="GameEngine\Data\Fog.h" />
+    <ClInclude Include="GameEngine\Data\InstancingTransformationMatrix.h" />
+    <ClInclude Include="GameEngine\Data\KeyFrame.h" />
     <ClInclude Include="GameEngine\Data\MaterialData.h" />
     <ClInclude Include="GameEngine\Data\Node.h" />
     <ClInclude Include="GameEngine\Data\Offset.h" />
     <ClInclude Include="GameEngine\Data\Particle.h" />
-    <ClInclude Include="GameEngine\Data\InstancingTransformationMatrix.h" />
+    <ClInclude Include="GameEngine\Data\BoneMatrix.h" />
     <ClInclude Include="GameEngine\Data\Parts.h" />
     <ClInclude Include="GameEngine\Data\PointLightElement.h" />
     <ClInclude Include="GameEngine\Data\SpotLightElement.h" />
+    <ClInclude Include="GameEngine\Data\TransformationMatrix.h" />
+    <ClInclude Include="GameEngine\Data\VertexData.h" />
     <ClInclude Include="GameEngine\Debug\ImGuiManager\ImGuiManager.h" />
     <ClInclude Include="GameEngine\Editor\ParticleEditor\ParticleEditor.h" />
     <ClInclude Include="GameEngine\Factory\AbstractSceneFactory\AbstractSceneFactory.h" />
     <ClInclude Include="GameEngine\LoadFile\LoadGLTFFile.h" />
+    <ClInclude Include="GameEngine\Math\LerpKeyFrame\LerpKeyFrame.h" />
     <ClInclude Include="GameEngine\Math\Operation\Operation.h" />
     <ClInclude Include="GameEngine\Math\Shape\AABB.h" />
     <ClInclude Include="GameEngine\Data\ChunkHeader.h" />
@@ -171,13 +164,14 @@
     <ClInclude Include="GameEngine\Math\Shape\Sphere.h" />
     <ClInclude Include="GameEngine\Data\SRT.h" />
     <ClInclude Include="GameEngine\Data\TextureData.h" />
-    <ClInclude Include="GameEngine\Data\TransformationMatrix.h" />
     <ClInclude Include="GameEngine\Math\Shape\Triangle.h" />
-    <ClInclude Include="GameEngine\Data\VertexData.h" />
+    <ClInclude Include="GameEngine\Data\ObjectVertexData.h" />
     <ClInclude Include="GameEngine\Debug\D3DResourceLeakChecker.h" />
     <ClInclude Include="GameEngine\Debug\DebugCamera.h" />
     <ClInclude Include="GameEngine\Debug\ExportDump.h" />
     <ClInclude Include="GameEngine\Debug\Log.h" />
+    <ClInclude Include="GameEngine\Math\UINT4.h" />
+    <ClInclude Include="GameEngine\Modules\Animation\Animation.h" />
     <ClInclude Include="GameEngine\Modules\AudioManager\AudioManager.h" />
     <ClInclude Include="GameEngine\Modules\ConvertString\ConvertString.h" />
     <ClInclude Include="GameEngine\Modules\DirectXCommon\DirectXCommon.h" />
@@ -202,11 +196,6 @@
     <ClInclude Include="GameEngine\Resource\BaseScene\BaseScene.h" />
     <ClInclude Include="GameEngine\Resource\Camera\Camera.h" />
     <ClInclude Include="GameEngine\Resource\DirectionalLight\DirectionalLight.h" />
-    <ClInclude Include="GameEngine\Resource\Effect.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClInclude>
     <ClInclude Include="GameEngine\Resource\Model\Model.h" />
     <ClInclude Include="GameEngine\Resource\Object\Object.h" />
     <ClInclude Include="GameEngine\Resource\ParticleEmitter\ParticleEmitter.h" />
@@ -214,16 +203,6 @@
     <ClInclude Include="GameEngine\Resource\SpotLight\SpotLight.h" />
     <ClInclude Include="GameEngine\Resource\Sprite\Sprite.h" />
     <ClInclude Include="GameEngine\Resource\Text.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="GameEngine\Resource\Object_2D.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="GameEngine\Resource\Object_3D.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>

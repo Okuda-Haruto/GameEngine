@@ -76,9 +76,6 @@
     <ClCompile Include="GameEngine\Math\Collision.cpp">
       <Filter>GameEngine\Math\Collision</Filter>
     </ClCompile>
-    <ClCompile Include="GameEngine\Math\Lerp.cpp">
-      <Filter>GameEngine\Math\Lerp</Filter>
-    </ClCompile>
     <ClCompile Include="GameEngine\Debug\D3DResourceLeakChecker.cpp">
       <Filter>GameEngine\Debug\ResourceLeakChecker</Filter>
     </ClCompile>
@@ -140,15 +137,6 @@
       <Filter>GameEngine\Resource\Sprite</Filter>
     </ClCompile>
     <ClCompile Include="GameEngine\Resource\Text.cpp">
-      <Filter>GameEngine\Resource</Filter>
-    </ClCompile>
-    <ClCompile Include="GameEngine\Resource\Effect.cpp">
-      <Filter>GameEngine\Resource</Filter>
-    </ClCompile>
-    <ClCompile Include="GameEngine\Resource\Object_2D.cpp">
-      <Filter>GameEngine\Resource</Filter>
-    </ClCompile>
-    <ClCompile Include="GameEngine\Resource\Object_3D.cpp">
       <Filter>GameEngine\Resource</Filter>
     </ClCompile>
     <ClCompile Include="Application\Scene\GameScene\GameScene.cpp">
@@ -225,6 +213,12 @@
     </ClCompile>
     <ClCompile Include="Application\Scene\ClearScene\ClearScene.cpp">
       <Filter>Application\Scene\ClearScene</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEngine\Math\LerpKeyFrame\LerpKeyFrame.cpp">
+      <Filter>GameEngine\Math\LerpKeyFrame</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEngine\Modules\Animation\Animation.cpp">
+      <Filter>GameEngine\Modules\Animation</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -363,15 +357,6 @@
     <ClInclude Include="GameEngine\Resource\Text.h">
       <Filter>GameEngine\Resource</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\Resource\Effect.h">
-      <Filter>GameEngine\Resource</Filter>
-    </ClInclude>
-    <ClInclude Include="GameEngine\Resource\Object_2D.h">
-      <Filter>GameEngine\Resource</Filter>
-    </ClInclude>
-    <ClInclude Include="GameEngine\Resource\Object_3D.h">
-      <Filter>GameEngine\Resource</Filter>
-    </ClInclude>
     <ClInclude Include="GameEngine\Data\CameraForGPU.h">
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
@@ -405,7 +390,7 @@
     <ClInclude Include="GameEngine\Data\Particle.h">
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\Data\InstancingTransformationMatrix.h">
+    <ClInclude Include="GameEngine\Data\BoneMatrix.h">
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\Data\Parts.h">
@@ -429,10 +414,7 @@
     <ClInclude Include="GameEngine\Data\TextureData.h">
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\Data\TransformationMatrix.h">
-      <Filter>GameEngine\Data</Filter>
-    </ClInclude>
-    <ClInclude Include="GameEngine\Data\VertexData.h">
+    <ClInclude Include="GameEngine\Data\ObjectVertexData.h">
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
     <ClInclude Include="Application\Scene\TitleScene\TitleScene.h">
@@ -521,6 +503,33 @@
     </ClInclude>
     <ClInclude Include="Application\Scene\ClearScene\ClearScene.h">
       <Filter>Application\Scene\ClearScene</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Data\AnimationData.h">
+      <Filter>GameEngine\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Data\KeyFrame.h">
+      <Filter>GameEngine\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Math\LerpKeyFrame\LerpKeyFrame.h">
+      <Filter>GameEngine\Math\LerpKeyFrame</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Data\Bone.h">
+      <Filter>GameEngine\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Modules\Animation\Animation.h">
+      <Filter>GameEngine\Modules\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Math\UINT4.h">
+      <Filter>GameEngine\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Data\VertexData.h">
+      <Filter>GameEngine\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Data\TransformationMatrix.h">
+      <Filter>GameEngine\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Data\InstancingTransformationMatrix.h">
+      <Filter>GameEngine\Data</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -754,6 +763,12 @@
     </Filter>
     <Filter Include="Application\Scene\ClearScene">
       <UniqueIdentifier>{dcb14910-851c-4676-a048-59fe4e93f94c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\Math\LerpKeyFrame">
+      <UniqueIdentifier>{d0437533-3446-42b8-8627-69f276b7c584}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\Modules\Animation">
+      <UniqueIdentifier>{2c4cc0fb-6e3d-40e2-ab0e-b89fb46ab728}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

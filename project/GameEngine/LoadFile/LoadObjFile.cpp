@@ -75,7 +75,7 @@ ModelData LoadObjFile(const std::string& directoryPath, const std::string& filen
 			normal.x *= -1.0f;
 			normals.push_back(normal);
 		} else if (identifier == "f") {	//面
-			VertexData triangle[3];
+			ObjectVertexData triangle[3]{};
 			//面は三角形限定。その他は未定義
 			for (int32_t faceVertex = 0; faceVertex < 3; ++faceVertex) {
 				std::string vertexDefinition;

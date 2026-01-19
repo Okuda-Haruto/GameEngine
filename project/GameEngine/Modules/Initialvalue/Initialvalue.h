@@ -27,13 +27,13 @@ Microsoft::WRL::ComPtr <ID3D12PipelineState> InstancingTrianglePipelineStateInit
 	IDxcBlob* pixelShaderBlob);
 
 //PSOを生成する
-Microsoft::WRL::ComPtr <ID3D12PipelineState> NoDepthInstancingTrianglePipelineStateInitialvalue(ID3D12Device* device,
+Microsoft::WRL::ComPtr <ID3D12PipelineState> ParticlePipelineStateInitialvalue(ID3D12Device* device,
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> rootSignature,
 	IDxcBlob* vertexShaderBlob,
 	IDxcBlob* pixelShaderBlob);
 
 //PSOを生成する
-Microsoft::WRL::ComPtr <ID3D12PipelineState> NoDepthAddBlendInstancingTrianglePipelineStateInitialvalue(ID3D12Device* device,
+Microsoft::WRL::ComPtr <ID3D12PipelineState> AddBlendParticlePipelineStateInitialvalue(ID3D12Device* device,
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> rootSignature,
 	IDxcBlob* vertexShaderBlob,
 	IDxcBlob* pixelShaderBlob);

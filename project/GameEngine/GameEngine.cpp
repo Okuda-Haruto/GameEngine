@@ -23,6 +23,7 @@
 
 #include "Log.h"
 #include "Initialvalue.h"
+#include "Animation/Animation.h"
 
 int32_t GameEngine::kWindowWidth_;
 int32_t GameEngine::kWindowHeight_;
@@ -155,11 +156,11 @@ void GameEngine::Intialize_(const wchar_t* WindowName, int32_t kWindowWidth, int
 	object2DPipelineState_ = TrianglePipelineStateInitialvalue(device_, objectRootSignature_, Object2DVertexShaderBlob.Get(), Object2DPixelShaderBlob.Get());
 	noDepthObjectPipelineState_ = NoDepthTrianglePipelineStateInitialvalue(device_, objectRootSignature_, Object3DVertexShaderBlob.Get(), Object3DPixelShaderBlob.Get());
 	instancingObjectPipelineState_ = InstancingTrianglePipelineStateInitialvalue(device_, instancingObjectRootSignature_, instancingObjectVertexShaderBlob.Get(), instancingObjectPixelShaderBlob.Get());
-	particlePipelineState_ = NoDepthInstancingTrianglePipelineStateInitialvalue(device_, particleRootSignature_, particleVSBlob.Get(), particlePSBlob.Get());
-	particleAddbrendPipelineState_ = NoDepthAddBlendInstancingTrianglePipelineStateInitialvalue(device_, particleRootSignature_, particleVSBlob.Get(), particlePSBlob.Get());
+	particlePipelineState_ = ParticlePipelineStateInitialvalue(device_, particleRootSignature_, particleVSBlob.Get(), particlePSBlob.Get());
+	particleAddbrendPipelineState_ = AddBlendParticlePipelineStateInitialvalue(device_, particleRootSignature_, particleVSBlob.Get(), particlePSBlob.Get());
 	spritePipelineState_ = SpritePipelineStateInitialvalue(device_, spriteRootSignature_, Sprite2DVertexShaderBlob.Get(), Sprite2DPixelShaderBlob.Get());
-	linePipelineState_ = LinePipelineStateInitialvalue(device_, instancingObjectRootSignature_, instancingObjectVertexShaderBlob.Get(), instancingLinePixelShaderBlob.Get());
-	noDepthLinePipelineState_ = NoDepthLinePipelineStateInitialvalue(device_, instancingObjectRootSignature_, instancingObjectVertexShaderBlob.Get(), instancingLinePixelShaderBlob.Get());
+	linePipelineState_ = LinePipelineStateInitialvalue(device_, instancingObjectRootSignature_, particleVSBlob.Get(), instancingLinePixelShaderBlob.Get());
+	noDepthLinePipelineState_ = NoDepthLinePipelineStateInitialvalue(device_, instancingObjectRootSignature_, particleVSBlob.Get(), instancingLinePixelShaderBlob.Get());
 	//XAudioエンジンのインスタンスを生成
 	hr = XAudio2Create(&xAudio2_, 0, XAUDIO2_DEFAULT_PROCESSOR);
 	assert(SUCCEEDED(hr));
@@ -185,8 +186,9 @@ void GameEngine::Intialize_(const wchar_t* WindowName, int32_t kWindowWidth, int
 	for (int i = 0; i < kMaxInstanceIndex; i++) {
 		instancingObjectMaterialResource_[i] = dxCommon_->CreateBufferResources(sizeof(Material));
 		instancingObjectResource_[i] = dxCommon_->CreateBufferResources(sizeof(InstancingTransformationMatrix) * kMaxNumInstance);
+		instancingObjectBoneResource_[i] = dxCommon_->CreateBufferResources(sizeof(BoneMatrix));
 		uint32_t index = srvManager_->Allocate();
-		// SRV を作成（NumElements と stride は一致させる）
+		//SRVを作成
 		srvManager_->CreateSRVforStructuredBuffer(index, instancingObjectResource_[i].Get(), kMaxNumInstance, sizeof(InstancingTransformationMatrix));
 		if (i == 0)startInstancingObjectIndex = index;
 	}
@@ -198,7 +200,7 @@ void GameEngine::Intialize_(const wchar_t* WindowName, int32_t kWindowWidth, int
 		instancingSpriteMaterialResource_[i] = dxCommon_->CreateBufferResources(sizeof(Material));
 		instancingSpriteResource_[i] = dxCommon_->CreateBufferResources(sizeof(InstancingTransformationMatrix) * kMaxNumInstance);
 		uint32_t index = srvManager_->Allocate();
-		// SRV を作成（NumElements と stride は一致させる）
+		//SRVを作成
 		srvManager_->CreateSRVforStructuredBuffer(index, instancingSpriteResource_[i].Get(), kMaxNumInstance, sizeof(InstancingTransformationMatrix));
 		if (i == 0)startInstancingSpriteIndex = index;
 	}
@@ -440,7 +442,7 @@ void GameEngine::PostDraw_() {
 	dxCommon_->PostDraw();
 }
 
-void GameEngine::DrawObject_3D_(Object* object, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight) {
+void GameEngine::DrawObject_3D_(Object* object, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight, UINT animationIndex, float time) {
 
 	//上限に達していたら描画しない
 	if (objectIndex >= kMaxIndex)return;
@@ -484,6 +486,11 @@ void GameEngine::DrawObject_3D_(Object* object, shared_ptr<DirectionalLight> dir
 		objectWvpData_[objectIndex]->WorldInverseTranspose = Transpose(Inverse(partsMatrix));
 		Matrix4x4 worldViewProjectionMatrix = partsMatrix * object->GetCamera()->GetViewMatrix() * object->GetCamera()->GetProjectionMatrix();
 		objectWvpData_[objectIndex]->WVP = worldViewProjectionMatrix;
+
+		std::vector<Bone> bones = object->GetBones();
+		for (int i = 0; i < bones.size(); i++) {
+			objectWvpData_[objectIndex]->boneMatrix[i] = bones[i].worldMatrix;
+		}
 
 		objectWvpResource_[objectIndex]->Unmap(0, nullptr);
 
@@ -568,6 +575,11 @@ void GameEngine::DrawParts_3D_(Object* object, uint32_t partsIndex, shared_ptr<D
 	objectWvpData_[objectIndex]->WorldInverseTranspose = Transpose(Inverse(partsMatrix));
 	Matrix4x4 worldViewProjectionMatrix = partsMatrix * object->GetCamera()->GetViewMatrix() * object->GetCamera()->GetProjectionMatrix();
 	objectWvpData_[objectIndex]->WVP = worldViewProjectionMatrix;
+
+	std::vector<Bone> bones = object->GetBones();
+	for (int i = 0; i < bones.size(); i++) {
+		objectWvpData_[objectIndex]->boneMatrix[i] = bones[i].worldMatrix;
+	}
 
 	objectWvpResource_[objectIndex]->Unmap(0, nullptr);
 
@@ -656,6 +668,11 @@ void GameEngine::DrawObject_2D_(Object* object, shared_ptr<DirectionalLight> dir
 		Matrix4x4 worldViewProjectionMatrix = partsMatrix * viewMatrix * projectionMatrix;
 		objectWvpData_[objectIndex]->WVP = worldViewProjectionMatrix;
 
+		std::vector<Bone> bones = object->GetBones();
+		for (int i = 0; i < bones.size(); i++) {
+			objectWvpData_[objectIndex]->boneMatrix[i] = bones[i].worldMatrix;
+		}
+
 		objectWvpResource_[objectIndex]->Unmap(0, nullptr);
 
 		parts[i].material->uvTransform = MakeQuaternionMatrix(parts[i].UVtransform.scale, parts[i].UVtransform.rotate, parts[i].UVtransform.translate);
@@ -738,6 +755,11 @@ void GameEngine::DrawParts_2D_(Object* object, uint32_t partsIndex, shared_ptr<D
 	Matrix4x4 worldViewProjectionMatrix = partsMatrix * viewMatrix * projectionMatrix;
 	objectWvpData_[objectIndex]->WVP = worldViewProjectionMatrix;
 
+	std::vector<Bone> bones = object->GetBones();
+	for (int i = 0; i < bones.size(); i++) {
+		objectWvpData_[objectIndex]->boneMatrix[i] = bones[i].worldMatrix;
+	}
+
 	objectWvpResource_[objectIndex]->Unmap(0, nullptr);
 
 	parts[partsIndex].material->uvTransform = MakeQuaternionMatrix(parts[partsIndex].UVtransform.scale, parts[partsIndex].UVtransform.rotate, parts[partsIndex].UVtransform.translate);
@@ -816,6 +838,15 @@ void GameEngine::DrawInstancingObject_3D_(std::list<Object*> objects, shared_ptr
 		++numInstance;
 		++objectIterator;
 	}
+
+	//インスタシング描画とボーンアニメーションの両立は構造体の大きさ故に難しい
+	instancingObjectBoneResource_[instancingObjectIndex]->Map(0, nullptr, reinterpret_cast<void**>(&instancingObjectBoneData_));
+	std::vector<Bone> bones = (*objectIterator)->GetBones();
+	for (int i = 0; i < bones.size(); i++) {
+		instancingObjectBoneData_[instancingObjectIndex]->matrix[i] = bones[i].worldMatrix;
+	}
+	instancingObjectBoneResource_[instancingObjectIndex]->Unmap(0, nullptr);
+	commandList_->SetGraphicsRootConstantBufferView(7, instancingObjectBoneResource_[instancingObjectIndex]->GetGPUVirtualAddress());
 	
 	//パーツごとにインスタシング描画
 	for (uint32_t i = 0; i < numParts; i++) {

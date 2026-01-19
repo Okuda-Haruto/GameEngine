@@ -21,7 +21,7 @@ void SampleScene::Initialize() {
 	ModelManager::GetInstance()->LoadModel("resources/DebugResources/multiMesh", "multiMesh.obj");
 	ModelManager::GetInstance()->LoadModel("resources/DebugResources/multiMaterial", "multiMaterial.obj");
 	ModelManager::GetInstance()->LoadModel("resources/DebugResources/terrain", "terrain.obj");
-	ModelManager::GetInstance()->LoadModel("resources/DebugResources/suzanne", "suzanne.obj");
+	ModelManager::GetInstance()->LoadModel("resources/DebugResources/gltf", "suzanne.gltf");
 	ModelManager::GetInstance()->LoadModel("resources/DebugResources/teapot", "teapot.obj");
 
 	//3Dオブジェクト
@@ -36,7 +36,9 @@ void SampleScene::Initialize() {
 	object_[4] = make_unique<Object>();
 	object_[4]->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/terrain", "terrain.obj"));
 	object_[5] = make_unique<Object>();
-	object_[5]->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/suzanne", "suzanne.obj"));
+	object_[5]->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/gltf", "suzanne.gltf"));
+	object_[5]->SetIsUseAnimation(true);
+	object_[5]->SetIsLoopAnimation(true);
 	object_[6] = make_unique<Object>();
 	object_[6]->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/teapot", "teapot.obj"));
 
@@ -132,15 +134,15 @@ void SampleScene::Initialize() {
 		object_[i]->SetTransform(objectTransform_[i]);
 	}
 
-	input = make_unique<Input>();
-	input->Initialize(GameEngine::GetWindowsAPI());	//元々GameEngineでまとめて管理していたので一時的に呼び出せるようにした
 }
 
 void SampleScene::Update() {
 	//入力処理
-	input->Update();
-	Keybord keybord = input->GetKeyBord();
-	Pad pad = input->GetPad(0);
+	input_->Update();
+	Keybord keybord = input_->GetKeyBord();
+	Pad pad = input_->GetPad(0);
+
+	object_[5]->Update();
 
 	if (keybord.hold[DIK_UP] || pad.Button[PAD_BUTTON_UP].hold) {
 		for (INT i = 0; i < INT(objectTransform_.size());i++) {
@@ -463,12 +465,22 @@ void SampleScene::Update() {
 		ImGui::DragFloat3("AABB max", &aabb.max.x, 0.01f);
 		PrimitiveManager::GetInstance()->AddAABB(aabb);
 
+		if (ImGui::Button("アニメーションリセット")) {
+			object_[5]->ResetTimer();
+		}
+
 		ImGui::End();
 	}
 
 	directionalLight_->SetDirectionalLightElement(directionalLightElement_);
 	pointLight_->SetPointLightElement(pointLightElement_);
 	spotLight_->SetSpotLightElement(spotLightElement_);
+
+	for (INT i = 0; i < object_.size(); i++) {
+		if (isObjectDraw_[i]) {
+			object_[i]->Update();
+		}
+	}
 #endif
 
 

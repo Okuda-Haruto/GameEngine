@@ -7,6 +7,10 @@
 #include <assimp/postprocess.h>
 
 //.gltfファイルからModelDataを構築する
-ModelData LoadModelFile(const std::string& directoryPath, const std::string& filename);
+ModelData LoadGLTFFile(const std::string& directoryPath, const std::string& filename);
 
-Node ReadNode(aiNode* node);
+std::shared_ptr<Node> ReadNode(aiNode* node);
+
+std::shared_ptr<Node>& FindNode(std::shared_ptr<Node>& node, const std::string& name);
+
+void SetVertexWeight(UINT4& ids, Vector4& weights, UINT id, float weight);

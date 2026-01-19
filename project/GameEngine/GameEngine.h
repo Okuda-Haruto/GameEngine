@@ -17,6 +17,8 @@
 #include "Object/Object.h"
 #include "Sprite/Sprite.h"
 #include "TransformationMatrix.h"
+#include "InstancingTransformationMatrix.h"
+#include "BoneMatrix.h"
 #include "Fog.h"
 
 #include "Text.h"
@@ -102,6 +104,10 @@ private:
 	std::array <Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxIndex > objectWvpResource_;
 	//WVPデータ
 	std::array <TransformationMatrix*, kMaxIndex> objectWvpData_;
+	//ボーン用リソース
+	std::array <Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxIndex > objectBoneResource_;
+	//ボーンデータ
+	std::array < std::array <Matrix4x4*, kMaxNumInstance>, kMaxIndex> objectBoneData_;
 #pragma endregion
 
 #pragma region instancingObject
@@ -111,6 +117,10 @@ private:
 	std::array <Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxInstanceIndex > instancingObjectMaterialResource_;
 	//マテリアルデータ
 	std::array <Material*, kMaxInstanceIndex> instancingObjectMaterialData_;
+	//ボーンリソース
+	std::array <Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxInstanceIndex > instancingObjectBoneResource_;
+	//ボーンデータ
+	std::array <BoneMatrix*, kMaxInstanceIndex> instancingObjectBoneData_;
 	//インスタンス用リソース
 	std::array <Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxInstanceIndex > instancingObjectResource_;
 	//インスタンスデータ
@@ -190,7 +200,7 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D12Device> GetDevice_() { return dxCommon_->GetDevice(); }
 
-	void DrawObject_3D_(Object* object, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight);
+	void DrawObject_3D_(Object* object, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight, UINT animationIndex, float time);
 	void DrawParts_3D_(Object* object, uint32_t partsIndex, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight);
 	void DrawObject_2D_(Object* object, shared_ptr<DirectionalLight> directionalLight);
 	void DrawParts_2D_(Object* object, uint32_t partsIndex, shared_ptr<DirectionalLight> directionalLight);
@@ -280,7 +290,7 @@ public:
 	static Microsoft::WRL::ComPtr<ID3D12Device> GetDevice() { return GetInstance()->GetDevice_(); }
 
 
-	static void DrawObject_3D(Object* object, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight) { return GetInstance()->DrawObject_3D_(object, directionalLight, pointLight, spotLight); }
+	static void DrawObject_3D(Object* object, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight, UINT animationIndex = 0, float time = 0.0f) { return GetInstance()->DrawObject_3D_(object, directionalLight, pointLight, spotLight, animationIndex, time); }
 	static void DrawParts_3D(Object* object, uint32_t partsIndex, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight) { return GetInstance()->DrawParts_3D_(object, partsIndex, directionalLight, pointLight, spotLight); }
 	static void DrawObject_2D(Object* object, shared_ptr<DirectionalLight> directionalLight) { return GetInstance()->DrawObject_2D_(object, directionalLight); }
 	static void DrawParts_2D(Object* object, uint32_t partsIndex, shared_ptr<DirectionalLight> directionalLight) { return GetInstance()->DrawParts_2D_(object, partsIndex, directionalLight); }
