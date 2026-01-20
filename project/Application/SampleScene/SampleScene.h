@@ -2,7 +2,6 @@
 #include <GameEngine.h>
 #include <Line.h>
 #include <array>
-#include <Effect.h>
 #include <Input/Input.h>
 #include <PointLight/PointLight.h>
 #include <SpotLight/SpotLight.h>
