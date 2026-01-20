@@ -501,8 +501,8 @@ void GameScene::Collision() {
 
 				//どちらかがキャラクターの場合
 				if (idA & 0b100 || idB & 0b100) {
-					if (Length((*iteratorA)->GetSphare().center - (*iteratorB)->GetSphare().center) <=
-						((*iteratorA)->GetSphare().radius + (*iteratorB)->GetSphare().radius)) {
+					if (Length((*iteratorA)->GetSphere().center - (*iteratorB)->GetSphere().center) <=
+						((*iteratorA)->GetSphere().radius + (*iteratorB)->GetSphere().radius)) {
 						(*iteratorA)->IsCollision();
 						(*iteratorB)->IsCollision();
 					}
@@ -511,15 +511,15 @@ void GameScene::Collision() {
 			} else if (idA & 0b01 && idB & 0b00) {
 				//プレイヤーがアイテムを取得
 				if (idA == CollisionID_Player_Character && idB == CollisionID_Item_Bullet) {
-					if (Length((*iteratorA)->GetSphare().center - (*iteratorB)->GetSphare().center) <=
-						((*iteratorA)->GetSphare().radius + (*iteratorB)->GetSphare().radius)) {
+					if (Length((*iteratorA)->GetSphere().center - (*iteratorB)->GetSphere().center) <=
+						((*iteratorA)->GetSphere().radius + (*iteratorB)->GetSphere().radius)) {
 						(*iteratorB)->IsCollision();
 					}
 				}
 				//プレイヤー弾がボックスを破壊
 				if (idA == CollisionID_Player_Bullet && idB == CollisionID_Item_Character) {
-					if (Length((*iteratorA)->GetSphare().center - (*iteratorB)->GetSphare().center) <=
-						((*iteratorA)->GetSphare().radius + (*iteratorB)->GetSphare().radius)) {
+					if (Length((*iteratorA)->GetSphere().center - (*iteratorB)->GetSphere().center) <=
+						((*iteratorA)->GetSphere().radius + (*iteratorB)->GetSphere().radius)) {
 						(*iteratorA)->IsCollision();
 						(*iteratorB)->IsCollision();
 					}
@@ -527,15 +527,15 @@ void GameScene::Collision() {
 			} else if (idA & 0b00 && idB & 0b01) {
 				//プレイヤーがアイテムを取得
 				if (idA == CollisionID_Item_Bullet && idB == CollisionID_Player_Character) {
-					if (Length((*iteratorA)->GetSphare().center - (*iteratorB)->GetSphare().center) <=
-						((*iteratorA)->GetSphare().radius + (*iteratorB)->GetSphare().radius)) {
+					if (Length((*iteratorA)->GetSphere().center - (*iteratorB)->GetSphere().center) <=
+						((*iteratorA)->GetSphere().radius + (*iteratorB)->GetSphere().radius)) {
 						(*iteratorA)->IsCollision();
 					}
 				}
 				//プレイヤー弾がボックスを破壊
 				if (idA == CollisionID_Item_Character && idB == CollisionID_Player_Bullet) {
-					if (Length((*iteratorA)->GetSphare().center - (*iteratorB)->GetSphare().center) <=
-						((*iteratorA)->GetSphare().radius + (*iteratorB)->GetSphare().radius)) {
+					if (Length((*iteratorA)->GetSphere().center - (*iteratorB)->GetSphere().center) <=
+						((*iteratorA)->GetSphere().radius + (*iteratorB)->GetSphere().radius)) {
 						(*iteratorA)->IsCollision();
 						(*iteratorB)->IsCollision();
 					}
@@ -545,8 +545,8 @@ void GameScene::Collision() {
 			//キャラクター同士の場合
 			if (idA & 0b100 && idB & 0b100) {
 
-				if (Length((*iteratorA)->GetSphare().center - (*iteratorB)->GetSphare().center) <=
-					((*iteratorA)->GetSphare().radius + (*iteratorB)->GetSphare().radius)) {
+				if (Length((*iteratorA)->GetSphere().center - (*iteratorB)->GetSphere().center) <=
+					((*iteratorA)->GetSphere().radius + (*iteratorB)->GetSphere().radius)) {
 					
 				}
 			}

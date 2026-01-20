@@ -1,8 +1,6 @@
 #pragma once
 #include "Audio/Audio.h"
 
-using namespace std;
-
 enum class AudioIndex {
 	Battle_BGM,
 	Title_BGM,
@@ -14,11 +12,11 @@ enum class AudioIndex {
 	Fence_Collision_SE,
 };
 
-//使用するモデルを保持
+//使用する音源を保持
 class AudioHolder {
 private:
 
-	static unique_ptr<AudioHolder> instance;
+	static std::unique_ptr<AudioHolder> instance;
 
 	struct FilePath {
 		std::string directoryPath_;

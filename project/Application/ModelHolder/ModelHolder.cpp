@@ -37,11 +37,11 @@ void ModelHolder::Initialize() {
 	filePath.fileName_ = "Tumbleweed.obj";
 	filePathes_.push_back(filePath);
 	//プレイヤー
-	filePath.directoryPath_ = "resources/Caracter/Player";
+	filePath.directoryPath_ = "resources/Character/Player";
 	filePath.fileName_ = "Player.obj";
 	filePathes_.push_back(filePath);
 	//ボス
-	filePath.directoryPath_ = "resources/Caracter/Boss";
+	filePath.directoryPath_ = "resources/Character/Boss";
 	filePath.fileName_ = "Boss.obj";
 	filePathes_.push_back(filePath);
 	//弾丸

@@ -46,10 +46,10 @@ void TitleScene::Initialize(shared_ptr<Input> input) {
 	titleSprite_->Initialize("resources/Title/GunKid_Title.png");
 	titleSprite_->SetAnchorPoint(Vector2{ 0.5f,0.5f });
 	titleSprite_->SetPosition(Vector2{ 640.0f,200.0f });
-	pless_B_Start_Sprite_ = std::make_unique<Sprite>();
-	pless_B_Start_Sprite_->Initialize("resources/Title/Pless_B_Start.png");
-	pless_B_Start_Sprite_->SetAnchorPoint(Vector2{ 0.5f,0.5f });
-	pless_B_Start_Sprite_->SetPosition(Vector2{ 640.0f,500.0f });
+	press_B_Start_Sprite_ = std::make_unique<Sprite>();
+	press_B_Start_Sprite_->Initialize("resources/Title/Press_B_Start.png");
+	press_B_Start_Sprite_->SetAnchorPoint(Vector2{ 0.5f,0.5f });
+	press_B_Start_Sprite_->SetPosition(Vector2{ 640.0f,500.0f });
 	credit_Sprite_ = std::make_unique<Sprite>();
 	credit_Sprite_->Initialize("resources/Title/Credit.png");
 	credit_Sprite_->SetAnchorPoint(Vector2{ 1.0f,1.0f });
@@ -101,13 +101,13 @@ void TitleScene::Update() {
 		a = fadeTime_ / kMaxFadeTime;
 	}
 
-	pless_B_Start_Sprite_->SetPosition(Vector2{ 640.0f,500.0f + 15.0f * cosf(std::numbers::pi_v<float> / 2 * animationTime)});
+	press_B_Start_Sprite_->SetPosition(Vector2{ 640.0f,500.0f + 15.0f * cosf(std::numbers::pi_v<float> / 2 * animationTime)});
 
 	fadeSprite_->SetColor({ 0.0f,0.0f,0.0f,a });
 	fadeSprite_->Update();
 	titleSprite_->Update();
 	credit_Sprite_->Update();
-	pless_B_Start_Sprite_->Update();
+	press_B_Start_Sprite_->Update();
 	SRT transform = {
 		{0,0,0},
 		{0,0,0},
@@ -123,7 +123,7 @@ void TitleScene::Draw() {
 	player_->Draw3D();
 
 	titleSprite_->Draw2D();
-	pless_B_Start_Sprite_->Draw2D();
+	press_B_Start_Sprite_->Draw2D();
 	credit_Sprite_->Draw2D();
 	if (fade_ != Fade::None) {
 		fadeSprite_->Draw2D();
