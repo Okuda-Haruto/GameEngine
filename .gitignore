@@ -16,9 +16,9 @@
 # Mono auto generated filesmono_crash.*
 
 # Build results
-#[Dd]ebug/
+[Dd]ebug/
 [Dd]ebugPublic/
-#[Rr]elease/
+[Rr]elease/
 [Rr]eleases/
 x64/
 x86/
@@ -362,3 +362,4 @@ MigrationBackup/
 !project/externals/assimp/lib/Debug/*.pdb
 
 generated/
+**/imgui.ini
