@@ -226,22 +226,6 @@ void GameScene::Initialize(shared_ptr<Input> input) {
 	tumbleweed_ = std::make_unique<Tumbleweed>();
 	tumbleweed_->Initialize(gameCamera_->GetCamera(),directionalLight_,pointLight_,particle_4.get());
 
-	/*for (int i = 0; i < 64; i++) {	//大岩で囲むために一番最初に使う奴
-		std::unique_ptr<BackGround> newBG = std::make_unique<BackGround>();
-		newBG->Initialize(7);
-		SRT transform = {
-			{1,1,1},
-			{0,i * std::numbers::pi_v<float> * 2 / 64,0},
-			{0,0,0}
-		};
-		Matrix4x4 rotateMatrix = MakeRotateYMatrix(transform.rotate.y);
-		transform.translate = Vector3{ 0,0,256 } * rotateMatrix;
-		newBG->SetTransform(transform);
-		newBG->SetDirectionalLight(directionalLight_);
-		newBG->SetPointLight(pointLight_);
-		backGrouds_.push_back(move(newBG));
-	}*/
-
 	fence_ = std::make_unique<Fence>();
 	fence_->Initialize(gameCamera_->GetCamera(),directionalLight_,pointLight_);
 
