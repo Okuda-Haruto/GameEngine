@@ -56,5 +56,4 @@ void Fence::Draw() {
 	for (const unique_ptr<Object>& object : objects_) {
 		object->Draw3D();
 	}
-	//GameEngine::DrawInstancingObject_3D(objects_, directionalLight_,pointLight_,nullptr);
 }
