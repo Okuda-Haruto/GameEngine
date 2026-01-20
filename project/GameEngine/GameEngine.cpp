@@ -74,7 +74,7 @@ void GameEngine::Finalize() {
 	}
 }
 
-void GameEngine::Intialize_(const wchar_t* WindowName, int32_t kWindowWidth, int32_t kWindowHeight) {
+void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, int32_t kWindowHeight) {
 
 	HRESULT hr;
 
@@ -156,7 +156,7 @@ void GameEngine::Intialize_(const wchar_t* WindowName, int32_t kWindowWidth, int
 	noDepthObjectPipelineState_ = NoDepthTrianglePipelineStateInitialvalue(device_, objectRootSignature_, Object3DVertexShaderBlob.Get(), Object3DPixelShaderBlob.Get());
 	instancingObjectPipelineState_ = InstancingTrianglePipelineStateInitialvalue(device_, instancingObjectRootSignature_, instancingObjectVertexShaderBlob.Get(), instancingObjectPixelShaderBlob.Get());
 	particlePipelineState_ = NoDepthInstancingTrianglePipelineStateInitialvalue(device_, particleRootSignature_, particleVSBlob.Get(), particlePSBlob.Get());
-	particleAddbrendPipelineState_ = NoDepthAddBlendInstancingTrianglePipelineStateInitialvalue(device_, particleRootSignature_, particleVSBlob.Get(), particlePSBlob.Get());
+	particleAddBlendPipelineState_ = NoDepthAddBlendInstancingTrianglePipelineStateInitialvalue(device_, particleRootSignature_, particleVSBlob.Get(), particlePSBlob.Get());
 	spritePipelineState_ = SpritePipelineStateInitialvalue(device_, spriteRootSignature_, Sprite2DVertexShaderBlob.Get(), Sprite2DPixelShaderBlob.Get());
 	linePipelineState_ = LinePipelineStateInitialvalue(device_, instancingObjectRootSignature_, instancingObjectVertexShaderBlob.Get(), instancingLinePixelShaderBlob.Get());
 	noDepthLinePipelineState_ = NoDepthLinePipelineStateInitialvalue(device_, instancingObjectRootSignature_, instancingObjectVertexShaderBlob.Get(), instancingLinePixelShaderBlob.Get());
@@ -188,7 +188,7 @@ void GameEngine::Intialize_(const wchar_t* WindowName, int32_t kWindowWidth, int
 		uint32_t index = srvManager_->Allocate();
 		// SRV を作成（NumElements と stride は一致させる）
 		srvManager_->CreateSRVforStructuredBuffer(index, instancingObjectResource_[i].Get(), kMaxNumInstance, sizeof(InstancingTransformationMatrix));
-		if (i == 0)startInstancingObjectIndex = index;
+		if (i == 0)startInstancingObjectIndex_ = index;
 	}
 	for (int i = 0; i < kMaxInstanceIndex; i++) {
 		particleMaterialResource_[i] = dxCommon_->CreateBufferResources(sizeof(Material));
@@ -200,7 +200,7 @@ void GameEngine::Intialize_(const wchar_t* WindowName, int32_t kWindowWidth, int
 		uint32_t index = srvManager_->Allocate();
 		// SRV を作成（NumElements と stride は一致させる）
 		srvManager_->CreateSRVforStructuredBuffer(index, instancingSpriteResource_[i].Get(), kMaxNumInstance, sizeof(InstancingTransformationMatrix));
-		if (i == 0)startInstancingSpriteIndex = index;
+		if (i == 0)startInstancingSpriteIndex_ = index;
 	}
 
 	for (int i = 0; i < PrimitiveManager::SHAPE_count; i++) {
@@ -278,11 +278,11 @@ bool GameEngine::WindowState_() {
 void GameEngine::PreDraw_() {
 
 	//Index初期化
-	objectIndex = 0;
-	instancingObjectIndex = 0;
-	particleIndex = 0;
-	spriteIndex = 0;
-	instancingSpriteIndex = 0;
+	objectIndex_ = 0;
+	instancingObjectIndex_ = 0;
+	particleIndex_ = 0;
+	spriteIndex_ = 0;
+	instancingSpriteIndex_ = 0;
 
 	imguiManager_->End();
 
@@ -302,7 +302,7 @@ void GameEngine::PostDraw_() {
 void GameEngine::DrawObject_3D_(Object* object, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight) {
 
 	//上限に達していたら描画しない
-	if (objectIndex >= kMaxIndex)return;
+	if (objectIndex_ >= kMaxIndex)return;
 
 	std::vector<Parts> parts = object->GetParts();
 	std::vector<Offset> offsets = object->GetOffsets();
@@ -327,7 +327,7 @@ void GameEngine::DrawObject_3D_(Object* object, shared_ptr<DirectionalLight> dir
 	for (int i = 0; i < parts.size();i++) {
 
 		//WVPデータを更新
-		objectWvpResource_[objectIndex]->Map(0, nullptr, reinterpret_cast<void**>(&objectWvpData_[objectIndex]));
+		objectWvpResource_[objectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&objectWvpData_[objectIndex_]));
 
 		Matrix4x4 partsMatrix = MakeQuaternionMatrix(parts[i].transform->scale, parts[i].transform->rotate, parts[i].transform->translate);
 		if (parts[i].parent) {
@@ -339,12 +339,12 @@ void GameEngine::DrawObject_3D_(Object* object, shared_ptr<DirectionalLight> dir
 			partsMatrix = partsMatrix * worldMatrix;
 		}
 
-		objectWvpData_[objectIndex]->World = partsMatrix;
-		objectWvpData_[objectIndex]->WorldInverseTranspose = Transpose(Inverse(partsMatrix));
+		objectWvpData_[objectIndex_]->World = partsMatrix;
+		objectWvpData_[objectIndex_]->WorldInverseTranspose = Transpose(Inverse(partsMatrix));
 		Matrix4x4 worldViewProjectionMatrix = partsMatrix * object->GetCamera()->GetViewMatrix() * object->GetCamera()->GetProjectionMatrix();
-		objectWvpData_[objectIndex]->WVP = worldViewProjectionMatrix;
+		objectWvpData_[objectIndex_]->WVP = worldViewProjectionMatrix;
 
-		objectWvpResource_[objectIndex]->Unmap(0, nullptr);
+		objectWvpResource_[objectIndex_]->Unmap(0, nullptr);
 
 		parts[i].material->uvTransform = MakeQuaternionMatrix(parts[i].UVtransform.scale, parts[i].UVtransform.rotate, parts[i].UVtransform.translate);
 		parts[i].material->enableDirectionalLighting = directionalLight != nullptr;
@@ -352,11 +352,11 @@ void GameEngine::DrawObject_3D_(Object* object, shared_ptr<DirectionalLight> dir
 		parts[i].material->enableSpotLighting = spotLight != nullptr;
 
 		//マテリアルデータを更新
-		objectMaterialResource_[objectIndex]->Map(0, nullptr, reinterpret_cast<void**>(&objectMaterialData_[objectIndex]));
+		objectMaterialResource_[objectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&objectMaterialData_[objectIndex_]));
 
-		*objectMaterialData_[objectIndex] = *parts[i].material;
+		*objectMaterialData_[objectIndex_] = *parts[i].material;
 
-		objectMaterialResource_[objectIndex]->Unmap(0, nullptr);
+		objectMaterialResource_[objectIndex_]->Unmap(0, nullptr);
 
 		//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
 		commandList_->SetGraphicsRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(parts[i].textureIndex));
@@ -373,20 +373,20 @@ void GameEngine::DrawObject_3D_(Object* object, shared_ptr<DirectionalLight> dir
 		}
 
 		//マテリアルCBufferの場所を設定
-		commandList_->SetGraphicsRootConstantBufferView(0, objectMaterialResource_[objectIndex]->GetGPUVirtualAddress());
+		commandList_->SetGraphicsRootConstantBufferView(0, objectMaterialResource_[objectIndex_]->GetGPUVirtualAddress());
 		//wvp用のCBufferの場所を設定
-		commandList_->SetGraphicsRootConstantBufferView(1, objectWvpResource_[objectIndex]->GetGPUVirtualAddress());
+		commandList_->SetGraphicsRootConstantBufferView(1, objectWvpResource_[objectIndex_]->GetGPUVirtualAddress());
 
 		//描画(DrawCall)
 		commandList_->DrawIndexedInstanced(offsets[i].indexCount, 1, 0, offsets[i].vertexStart, 0);
 
-		objectIndex++;
+		objectIndex_++;
 	}
 }
 
 void GameEngine::DrawParts_3D_(Object* object, uint32_t partsIndex, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight) {
 	//上限に達していたら描画しない
-	if (objectIndex >= kMaxIndex)return;
+	if (objectIndex_ >= kMaxIndex)return;
 
 	std::vector<Parts> parts = object->GetParts();
 	std::vector<Offset> offsets = object->GetOffsets();
@@ -411,7 +411,7 @@ void GameEngine::DrawParts_3D_(Object* object, uint32_t partsIndex, shared_ptr<D
 	Matrix4x4 worldMatrix = MakeQuaternionMatrix(object->GetTransform().scale, object->GetTransform().rotate, object->GetTransform().translate);
 
 	//WVPデータを更新
-	objectWvpResource_[objectIndex]->Map(0, nullptr, reinterpret_cast<void**>(&objectWvpData_[objectIndex]));
+	objectWvpResource_[objectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&objectWvpData_[objectIndex_]));
 
 	Matrix4x4 partsMatrix = MakeQuaternionMatrix(parts[partsIndex].transform->scale, parts[partsIndex].transform->rotate, parts[partsIndex].transform->translate);
 	if (parts[partsIndex].parent) {
@@ -423,12 +423,12 @@ void GameEngine::DrawParts_3D_(Object* object, uint32_t partsIndex, shared_ptr<D
 		partsMatrix = partsMatrix * worldMatrix;
 	}
 
-	objectWvpData_[objectIndex]->World = partsMatrix;
-	objectWvpData_[objectIndex]->WorldInverseTranspose = Transpose(Inverse(partsMatrix));
+	objectWvpData_[objectIndex_]->World = partsMatrix;
+	objectWvpData_[objectIndex_]->WorldInverseTranspose = Transpose(Inverse(partsMatrix));
 	Matrix4x4 worldViewProjectionMatrix = partsMatrix * object->GetCamera()->GetViewMatrix() * object->GetCamera()->GetProjectionMatrix();
-	objectWvpData_[objectIndex]->WVP = worldViewProjectionMatrix;
+	objectWvpData_[objectIndex_]->WVP = worldViewProjectionMatrix;
 
-	objectWvpResource_[objectIndex]->Unmap(0, nullptr);
+	objectWvpResource_[objectIndex_]->Unmap(0, nullptr);
 
 	parts[partsIndex].material->uvTransform = MakeQuaternionMatrix(parts[partsIndex].UVtransform.scale, parts[partsIndex].UVtransform.rotate, parts[partsIndex].UVtransform.translate);
 	parts[partsIndex].material->enableDirectionalLighting = directionalLight != nullptr;
@@ -436,11 +436,11 @@ void GameEngine::DrawParts_3D_(Object* object, uint32_t partsIndex, shared_ptr<D
 	parts[partsIndex].material->enableSpotLighting = spotLight != nullptr;
 
 	//マテリアルデータを更新
-	objectMaterialResource_[objectIndex]->Map(0, nullptr, reinterpret_cast<void**>(&objectMaterialData_[objectIndex]));
+	objectMaterialResource_[objectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&objectMaterialData_[objectIndex_]));
 
-	*objectMaterialData_[objectIndex] = *parts[partsIndex].material;
+	*objectMaterialData_[objectIndex_] = *parts[partsIndex].material;
 
-	objectMaterialResource_[objectIndex]->Unmap(0, nullptr);
+	objectMaterialResource_[objectIndex_]->Unmap(0, nullptr);
 
 	//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
 	commandList_->SetGraphicsRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(parts[partsIndex].textureIndex));
@@ -457,20 +457,20 @@ void GameEngine::DrawParts_3D_(Object* object, uint32_t partsIndex, shared_ptr<D
 	}
 
 	//マテリアルCBufferの場所を設定
-	commandList_->SetGraphicsRootConstantBufferView(0, objectMaterialResource_[objectIndex]->GetGPUVirtualAddress());
+	commandList_->SetGraphicsRootConstantBufferView(0, objectMaterialResource_[objectIndex_]->GetGPUVirtualAddress());
 	//wvp用のCBufferの場所を設定
-	commandList_->SetGraphicsRootConstantBufferView(1, objectWvpResource_[objectIndex]->GetGPUVirtualAddress());
+	commandList_->SetGraphicsRootConstantBufferView(1, objectWvpResource_[objectIndex_]->GetGPUVirtualAddress());
 
 	//描画(DrawCall)
 	commandList_->DrawIndexedInstanced(offsets[partsIndex].indexCount, 1, 0, offsets[partsIndex].vertexStart, 0);
 
-	objectIndex++;
+	objectIndex_++;
 }
 
 void GameEngine::DrawObject_2D_(Object* object, shared_ptr<DirectionalLight> directionalLight) {
 
 	//上限に達していたら描画しない
-	if (objectIndex >= kMaxIndex)return;
+	if (objectIndex_ >= kMaxIndex)return;
 
 	std::vector<Parts> parts = object->GetParts();
 	std::vector<Offset> offsets = object->GetOffsets();
@@ -498,7 +498,7 @@ void GameEngine::DrawObject_2D_(Object* object, shared_ptr<DirectionalLight> dir
 	for (int i = 0; i < parts.size(); i++) {
 
 		//WVPデータを更新
-		objectWvpResource_[objectIndex]->Map(0, nullptr, reinterpret_cast<void**>(&objectWvpData_[objectIndex]));
+		objectWvpResource_[objectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&objectWvpData_[objectIndex_]));
 
 		Matrix4x4 partsMatrix = MakeQuaternionMatrix(parts[i].transform->scale, parts[i].transform->rotate, parts[i].transform->translate);
 		if (parts[i].parent) {
@@ -510,12 +510,12 @@ void GameEngine::DrawObject_2D_(Object* object, shared_ptr<DirectionalLight> dir
 			partsMatrix = partsMatrix * worldMatrix;
 		}
 
-		objectWvpData_[objectIndex]->World = partsMatrix;
-		objectWvpData_[objectIndex]->WorldInverseTranspose = Transpose(Inverse(partsMatrix));
+		objectWvpData_[objectIndex_]->World = partsMatrix;
+		objectWvpData_[objectIndex_]->WorldInverseTranspose = Transpose(Inverse(partsMatrix));
 		Matrix4x4 worldViewProjectionMatrix = partsMatrix * viewMatrix * projectionMatrix;
-		objectWvpData_[objectIndex]->WVP = worldViewProjectionMatrix;
+		objectWvpData_[objectIndex_]->WVP = worldViewProjectionMatrix;
 
-		objectWvpResource_[objectIndex]->Unmap(0, nullptr);
+		objectWvpResource_[objectIndex_]->Unmap(0, nullptr);
 
 		parts[i].material->uvTransform = MakeQuaternionMatrix(parts[i].UVtransform.scale, parts[i].UVtransform.rotate, parts[i].UVtransform.translate);
 		parts[i].material->enableDirectionalLighting = directionalLight != nullptr;
@@ -523,11 +523,11 @@ void GameEngine::DrawObject_2D_(Object* object, shared_ptr<DirectionalLight> dir
 		parts[i].material->enableSpotLighting = false;
 
 		//マテリアルデータを更新
-		objectMaterialResource_[objectIndex]->Map(0, nullptr, reinterpret_cast<void**>(&objectMaterialData_[objectIndex]));
+		objectMaterialResource_[objectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&objectMaterialData_[objectIndex_]));
 
-		*objectMaterialData_[objectIndex] = *parts[i].material;
+		*objectMaterialData_[objectIndex_] = *parts[i].material;
 
-		objectMaterialResource_[objectIndex]->Unmap(0, nullptr);
+		objectMaterialResource_[objectIndex_]->Unmap(0, nullptr);
 
 		//ライティングが必要な場合CBufferに送る
 		if (parts[i].material->reflection != 0 && directionalLight != nullptr) {
@@ -538,21 +538,21 @@ void GameEngine::DrawObject_2D_(Object* object, shared_ptr<DirectionalLight> dir
 		commandList_->SetGraphicsRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(parts[i].textureIndex));
 
 		//マテリアルCBufferの場所を設定
-		commandList_->SetGraphicsRootConstantBufferView(0, objectMaterialResource_[objectIndex]->GetGPUVirtualAddress());
+		commandList_->SetGraphicsRootConstantBufferView(0, objectMaterialResource_[objectIndex_]->GetGPUVirtualAddress());
 		//wvp用のCBufferの場所を設定
-		commandList_->SetGraphicsRootConstantBufferView(1, objectWvpResource_[objectIndex]->GetGPUVirtualAddress());
+		commandList_->SetGraphicsRootConstantBufferView(1, objectWvpResource_[objectIndex_]->GetGPUVirtualAddress());
 
 		//描画(DrawCall)
 		commandList_->DrawIndexedInstanced(offsets[i].indexCount, 1, 0, offsets[i].vertexStart, 0);
 
-		objectIndex++;
+		objectIndex_++;
 	}
 }
 
 void GameEngine::DrawParts_2D_(Object* object, uint32_t partsIndex, shared_ptr<DirectionalLight> directionalLight) {
 
 	//上限に達していたら描画しない
-	if (objectIndex >= kMaxIndex)return;
+	if (objectIndex_ >= kMaxIndex)return;
 
 	std::vector<Parts> parts = object->GetParts();
 	std::vector<Offset> offsets = object->GetOffsets();
@@ -580,7 +580,7 @@ void GameEngine::DrawParts_2D_(Object* object, uint32_t partsIndex, shared_ptr<D
 	Matrix4x4 worldMatrix = MakeQuaternionMatrix(object->GetTransform().scale, object->GetTransform().rotate, object->GetTransform().translate);
 
 	//WVPデータを更新
-	objectWvpResource_[objectIndex]->Map(0, nullptr, reinterpret_cast<void**>(&objectWvpData_[objectIndex]));
+	objectWvpResource_[objectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&objectWvpData_[objectIndex_]));
 
 	Matrix4x4 partsMatrix = MakeQuaternionMatrix(parts[partsIndex].transform->scale, parts[partsIndex].transform->rotate, parts[partsIndex].transform->translate);
 	if (parts[partsIndex].parent) {
@@ -592,12 +592,12 @@ void GameEngine::DrawParts_2D_(Object* object, uint32_t partsIndex, shared_ptr<D
 		partsMatrix = partsMatrix * worldMatrix;
 	}
 
-	objectWvpData_[objectIndex]->World = partsMatrix;
-	objectWvpData_[objectIndex]->WorldInverseTranspose = Transpose(Inverse(partsMatrix));
+	objectWvpData_[objectIndex_]->World = partsMatrix;
+	objectWvpData_[objectIndex_]->WorldInverseTranspose = Transpose(Inverse(partsMatrix));
 	Matrix4x4 worldViewProjectionMatrix = partsMatrix * viewMatrix * projectionMatrix;
-	objectWvpData_[objectIndex]->WVP = worldViewProjectionMatrix;
+	objectWvpData_[objectIndex_]->WVP = worldViewProjectionMatrix;
 
-	objectWvpResource_[objectIndex]->Unmap(0, nullptr);
+	objectWvpResource_[objectIndex_]->Unmap(0, nullptr);
 
 	parts[partsIndex].material->uvTransform = MakeQuaternionMatrix(parts[partsIndex].UVtransform.scale, parts[partsIndex].UVtransform.rotate, parts[partsIndex].UVtransform.translate);
 	parts[partsIndex].material->enableDirectionalLighting = directionalLight != nullptr;
@@ -605,11 +605,11 @@ void GameEngine::DrawParts_2D_(Object* object, uint32_t partsIndex, shared_ptr<D
 	parts[partsIndex].material->enableSpotLighting = false;
 
 	//マテリアルデータを更新
-	objectMaterialResource_[objectIndex]->Map(0, nullptr, reinterpret_cast<void**>(&objectMaterialData_[objectIndex]));
+	objectMaterialResource_[objectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&objectMaterialData_[objectIndex_]));
 
-	*objectMaterialData_[objectIndex] = *parts[partsIndex].material;
+	*objectMaterialData_[objectIndex_] = *parts[partsIndex].material;
 
-	objectMaterialResource_[objectIndex]->Unmap(0, nullptr);
+	objectMaterialResource_[objectIndex_]->Unmap(0, nullptr);
 
 	//ライティングが必要な場合CBufferに送る
 	if (parts[partsIndex].material->reflection != 0 && directionalLight != nullptr) {
@@ -620,20 +620,20 @@ void GameEngine::DrawParts_2D_(Object* object, uint32_t partsIndex, shared_ptr<D
 	commandList_->SetGraphicsRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(parts[partsIndex].textureIndex));
 
 	//マテリアルCBufferの場所を設定
-	commandList_->SetGraphicsRootConstantBufferView(0, objectMaterialResource_[objectIndex]->GetGPUVirtualAddress());
+	commandList_->SetGraphicsRootConstantBufferView(0, objectMaterialResource_[objectIndex_]->GetGPUVirtualAddress());
 	//wvp用のCBufferの場所を設定
-	commandList_->SetGraphicsRootConstantBufferView(1, objectWvpResource_[objectIndex]->GetGPUVirtualAddress());
+	commandList_->SetGraphicsRootConstantBufferView(1, objectWvpResource_[objectIndex_]->GetGPUVirtualAddress());
 
 	//描画(DrawCall)
 	commandList_->DrawIndexedInstanced(offsets[partsIndex].indexCount, 1, 0, offsets[partsIndex].vertexStart, 0);
 
-	objectIndex++;
+	objectIndex_++;
 }
 
 void GameEngine::DrawInstancingObject_3D_(std::list<Object*> objects, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight) {
 	
 	//上限に達していたら描画しない
-	if (instancingObjectIndex > kMaxInstanceIndex)return;
+	if (instancingObjectIndex_ > kMaxInstanceIndex)return;
 
 	std::list<Object*>::iterator objectIterator = objects.begin();
 	Camera* camera = (*objectIterator)->GetCamera().get();
@@ -681,14 +681,14 @@ void GameEngine::DrawInstancingObject_3D_(std::list<Object*> objects, shared_ptr
 
 		//WVPデータを更新
 		InstancingTransformationMatrix* mappedBase = nullptr;
-		instancingObjectResource_[instancingObjectIndex]->Map(0, nullptr, reinterpret_cast<void**>(&mappedBase));
+		instancingObjectResource_[instancingObjectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&mappedBase));
 		// mappedBase が nullptr でないかチェック
 		if (mappedBase == nullptr) {
 			assert(0);
 		}
 		// 各要素ポインタを mappedBase に初期化
 		for (uint32_t j = 0; j < kMaxNumInstance; ++j) {
-			instancingObjectData_[instancingObjectIndex][j] = mappedBase + j;
+			instancingObjectData_[instancingObjectIndex_][j] = mappedBase + j;
 		}
 
 		numInstance = 0;
@@ -709,16 +709,16 @@ void GameEngine::DrawInstancingObject_3D_(std::list<Object*> objects, shared_ptr
 				partsMatrix = partsMatrix * worldMatries[numInstance];
 			}
 
-			instancingObjectData_[instancingObjectIndex][numInstance]->World = partsMatrix;
-			instancingObjectData_[instancingObjectIndex][numInstance]->WorldInverseTranspose = Transpose(Inverse(partsMatrix));
+			instancingObjectData_[instancingObjectIndex_][numInstance]->World = partsMatrix;
+			instancingObjectData_[instancingObjectIndex_][numInstance]->WorldInverseTranspose = Transpose(Inverse(partsMatrix));
 			Matrix4x4 worldViewProjectionMatrix = partsMatrix * camera->GetViewMatrix() * camera->GetProjectionMatrix();
-			instancingObjectData_[instancingObjectIndex][numInstance]->WVP = worldViewProjectionMatrix;
-			instancingObjectData_[instancingObjectIndex][numInstance]->color = parts[numInstance][i].material->color;
+			instancingObjectData_[instancingObjectIndex_][numInstance]->WVP = worldViewProjectionMatrix;
+			instancingObjectData_[instancingObjectIndex_][numInstance]->color = parts[numInstance][i].material->color;
 
 			++numInstance;
 		}
 
-		instancingObjectResource_[instancingObjectIndex]->Unmap(0, nullptr);
+		instancingObjectResource_[instancingObjectIndex_]->Unmap(0, nullptr);
 
 		//インスタシング描画の都合上マテリアルは先頭のもの全てに適応
 		parts[0][i].material->uvTransform = MakeQuaternionMatrix(parts[0][i].UVtransform.scale, parts[0][i].UVtransform.rotate, parts[0][i].UVtransform.translate);
@@ -728,11 +728,11 @@ void GameEngine::DrawInstancingObject_3D_(std::list<Object*> objects, shared_ptr
 		parts[0][i].material->color = Vector4{ 1.0f,1.0f,1.0f,1.0f };
 
 		//マテリアルデータを更新
-		objectMaterialResource_[instancingObjectIndex]->Map(0, nullptr, reinterpret_cast<void**>(&objectMaterialData_[instancingObjectIndex]));
+		objectMaterialResource_[instancingObjectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&objectMaterialData_[instancingObjectIndex_]));
 
-		*objectMaterialData_[instancingObjectIndex] = *parts[0][i].material;
+		*objectMaterialData_[instancingObjectIndex_] = *parts[0][i].material;
 
-		objectMaterialResource_[instancingObjectIndex]->Unmap(0, nullptr);
+		objectMaterialResource_[instancingObjectIndex_]->Unmap(0, nullptr);
 
 		//ライティングが必要な場合CBufferに送る
 		if (parts[0][i].material->reflection != 0 && directionalLight != nullptr) {
@@ -748,22 +748,22 @@ void GameEngine::DrawInstancingObject_3D_(std::list<Object*> objects, shared_ptr
 		//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
 		commandList_->SetGraphicsRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(parts[0][i].textureIndex));
 
-		commandList_->SetGraphicsRootDescriptorTable(1, srvManager_->GetGPUDescriptorHandle(startInstancingObjectIndex + instancingObjectIndex));
+		commandList_->SetGraphicsRootDescriptorTable(1, srvManager_->GetGPUDescriptorHandle(startInstancingObjectIndex_ + instancingObjectIndex_));
 
 		//マテリアルCBufferの場所を設定
-		commandList_->SetGraphicsRootConstantBufferView(0, objectMaterialResource_[instancingObjectIndex]->GetGPUVirtualAddress());
+		commandList_->SetGraphicsRootConstantBufferView(0, objectMaterialResource_[instancingObjectIndex_]->GetGPUVirtualAddress());
 		
 		//描画(DrawCall)
 		commandList_->DrawIndexedInstanced(offsets[i].indexCount, numInstance, 0, offsets[i].vertexStart, 0);
 
-		instancingObjectIndex++;
+		instancingObjectIndex_++;
 	}
 }
 
 void GameEngine::DrawParticle_(ParticleGroup particleGroup) {
 
 	//上限に達していたら描画しない
-	if (particleIndex > kMaxInstanceIndex)return;
+	if (particleIndex_ > kMaxInstanceIndex)return;
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList_->SetGraphicsRootSignature(particleRootSignature_.Get());
@@ -786,7 +786,7 @@ void GameEngine::DrawParticle_(ParticleGroup particleGroup) {
 	}
 	// 各要素ポインタを mappedBase に初期化
 	for (uint32_t j = 0; j < kMaxNumInstance; ++j) {
-		particleData_[particleIndex][j] = mappedBase + j;
+		particleData_[particleIndex_][j] = mappedBase + j;
 	}
 
 	uint32_t numInstance = 0;
@@ -811,11 +811,11 @@ void GameEngine::DrawParticle_(ParticleGroup particleGroup) {
 			worldMatrix.m[2][i] *= (*particleIterator).transform.scale.z;
 		}
 
-		particleData_[particleIndex][numInstance]->World = worldMatrix;
-		particleData_[particleIndex][numInstance]->WorldInverseTranspose = Transpose(Inverse(worldMatrix));
+		particleData_[particleIndex_][numInstance]->World = worldMatrix;
+		particleData_[particleIndex_][numInstance]->WorldInverseTranspose = Transpose(Inverse(worldMatrix));
 		Matrix4x4 worldViewProjectionMatrix = worldMatrix * camera->GetViewMatrix() * camera->GetProjectionMatrix();
-		particleData_[particleIndex][numInstance]->WVP = worldViewProjectionMatrix;
-		particleData_[particleIndex][numInstance]->color = (*particleIterator).color;
+		particleData_[particleIndex_][numInstance]->WVP = worldViewProjectionMatrix;
+		particleData_[particleIndex_][numInstance]->color = (*particleIterator).color;
 
 		++numInstance;
 		++particleIterator;
@@ -824,17 +824,17 @@ void GameEngine::DrawParticle_(ParticleGroup particleGroup) {
 	particleGroup.instancingResource->Unmap(0, nullptr);
 
 	//マテリアルデータを更新
-	particleMaterialResource_[particleIndex]->Map(0, nullptr, reinterpret_cast<void**>(&particleMaterialData_[particleIndex]));
+	particleMaterialResource_[particleIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&particleMaterialData_[particleIndex_]));
 
-	particleMaterialData_[particleIndex]->uvTransform = MakeIdentity4x4();
-	particleMaterialData_[particleIndex]->enableDirectionalLighting = false;
-	particleMaterialData_[particleIndex]->enablePointLighting = false;
-	particleMaterialData_[particleIndex]->enableSpotLighting = false;
-	particleMaterialData_[particleIndex]->reflection = 0;
-	particleMaterialData_[particleIndex]->shininess = 0;
-	particleMaterialData_[particleIndex]->color = {1.0f,1.0f,1.0f,1.0f};
+	particleMaterialData_[particleIndex_]->uvTransform = MakeIdentity4x4();
+	particleMaterialData_[particleIndex_]->enableDirectionalLighting = false;
+	particleMaterialData_[particleIndex_]->enablePointLighting = false;
+	particleMaterialData_[particleIndex_]->enableSpotLighting = false;
+	particleMaterialData_[particleIndex_]->reflection = 0;
+	particleMaterialData_[particleIndex_]->shininess = 0;
+	particleMaterialData_[particleIndex_]->color = {1.0f,1.0f,1.0f,1.0f};
 
-	particleMaterialResource_[particleIndex]->Unmap(0, nullptr);
+	particleMaterialResource_[particleIndex_]->Unmap(0, nullptr);
 
 	fogResource_->Map(0, nullptr, reinterpret_cast<void**>(&fogData_));
 
@@ -843,7 +843,7 @@ void GameEngine::DrawParticle_(ParticleGroup particleGroup) {
 	fogResource_->Unmap(0, nullptr);
 
 	//マテリアルCBufferの場所を設定
-	commandList_->SetGraphicsRootConstantBufferView(0, particleMaterialResource_[particleIndex]->GetGPUVirtualAddress());
+	commandList_->SetGraphicsRootConstantBufferView(0, particleMaterialResource_[particleIndex_]->GetGPUVirtualAddress());
 
 	commandList_->SetGraphicsRootConstantBufferView(3, fogResource_->GetGPUVirtualAddress());
 
@@ -857,41 +857,41 @@ void GameEngine::DrawParticle_(ParticleGroup particleGroup) {
 	//描画(DrawCall)
 	commandList_->DrawIndexedInstanced(6, numInstance, 0, 0, 0);
 
-	particleIndex++;
+	particleIndex_++;
 }
 
 void GameEngine::DrawSprite_2D_(Sprite* sprite) {
 
 	//上限に達していたら描画しない
-	if (spriteIndex > kMaxIndex)return;
+	if (spriteIndex_ > kMaxIndex)return;
 
 	Matrix4x4 viewMatrix = MakeIdentity4x4();
 	Matrix4x4 projectionMatrix = MakeOrthographicMatrix(0.0f, 0.0f, float(kWindowWidth_), float(kWindowHeight_), 0.0f, 100.0f);
 
 	//WVPデータを更新
-	spriteWvpResource_[spriteIndex]->Map(0, nullptr, reinterpret_cast<void**>(&spriteWvpData_[spriteIndex]));
+	spriteWvpResource_[spriteIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&spriteWvpData_[spriteIndex_]));
 
 	Matrix4x4 worldMatrix = MakeQuaternionMatrix(sprite->GetTransform().scale, sprite->GetTransform().rotate, sprite->GetTransform().translate);
-	spriteWvpData_[spriteIndex]->World = worldMatrix;
-	spriteWvpData_[spriteIndex]->WorldInverseTranspose = Transpose(Inverse(worldMatrix));
+	spriteWvpData_[spriteIndex_]->World = worldMatrix;
+	spriteWvpData_[spriteIndex_]->WorldInverseTranspose = Transpose(Inverse(worldMatrix));
 
 	Matrix4x4 worldViewProjectionMatrix = worldMatrix * viewMatrix * projectionMatrix;
-	spriteWvpData_[spriteIndex]->WVP = worldViewProjectionMatrix;
+	spriteWvpData_[spriteIndex_]->WVP = worldViewProjectionMatrix;
 
-	spriteWvpResource_[spriteIndex]->Unmap(0, nullptr);
+	spriteWvpResource_[spriteIndex_]->Unmap(0, nullptr);
 
 	//マテリアルデータを更新
-	spriteMaterialResource_[spriteIndex]->Map(0, nullptr, reinterpret_cast<void**>(&spriteMaterialData_[spriteIndex]));
+	spriteMaterialResource_[spriteIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&spriteMaterialData_[spriteIndex_]));
 
-	spriteMaterialData_[spriteIndex]->color = sprite->GetColor();
-	spriteMaterialData_[spriteIndex]->uvTransform = MakeQuaternionMatrix(sprite->GetUVTransform().scale, sprite->GetUVTransform().rotate, sprite->GetUVTransform().translate);
-	spriteMaterialData_[spriteIndex]->reflection = 0;
-	spriteMaterialData_[spriteIndex]->enableDirectionalLighting = false;
-	spriteMaterialData_[spriteIndex]->enablePointLighting = false;
-	spriteMaterialData_[spriteIndex]->enableSpotLighting = false;
-	spriteMaterialData_[spriteIndex]->shininess = 0.0f;
+	spriteMaterialData_[spriteIndex_]->color = sprite->GetColor();
+	spriteMaterialData_[spriteIndex_]->uvTransform = MakeQuaternionMatrix(sprite->GetUVTransform().scale, sprite->GetUVTransform().rotate, sprite->GetUVTransform().translate);
+	spriteMaterialData_[spriteIndex_]->reflection = 0;
+	spriteMaterialData_[spriteIndex_]->enableDirectionalLighting = false;
+	spriteMaterialData_[spriteIndex_]->enablePointLighting = false;
+	spriteMaterialData_[spriteIndex_]->enableSpotLighting = false;
+	spriteMaterialData_[spriteIndex_]->shininess = 0.0f;
 
-	spriteMaterialResource_[spriteIndex]->Unmap(0, nullptr);
+	spriteMaterialResource_[spriteIndex_]->Unmap(0, nullptr);
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList_->SetGraphicsRootSignature(spriteRootSignature_.Get());
@@ -900,21 +900,21 @@ void GameEngine::DrawSprite_2D_(Sprite* sprite) {
 	commandList_->IASetIndexBuffer(&sprite->GetIBV());	//IBVを設定
 	commandList_->SetGraphicsRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(sprite->GetTextureIndex()));
 	//マテリアルCBufferの場所を設定
-	commandList_->SetGraphicsRootConstantBufferView(0, spriteMaterialResource_[spriteIndex]->GetGPUVirtualAddress());
+	commandList_->SetGraphicsRootConstantBufferView(0, spriteMaterialResource_[spriteIndex_]->GetGPUVirtualAddress());
 	//TransformationMatrixCBufferの場所を設定
-	commandList_->SetGraphicsRootConstantBufferView(1, spriteWvpResource_[spriteIndex]->GetGPUVirtualAddress());
+	commandList_->SetGraphicsRootConstantBufferView(1, spriteWvpResource_[spriteIndex_]->GetGPUVirtualAddress());
 	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
 	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	//ドローコール
 	commandList_->DrawIndexedInstanced(6, 1, 0, 0, 0);
 
-	spriteIndex++;
+	spriteIndex_++;
 }
 
 void GameEngine::DrawInstancingSprite_2D_(std::list<Sprite*> sprits) {
 
 	//上限に達していたら描画しない
-	if (instancingSpriteIndex > kMaxInstanceIndex)return;
+	if (instancingSpriteIndex_ > kMaxInstanceIndex)return;
 
 	std::list<Sprite*>::iterator SpriteIterator = sprits.begin();
 	Sprite* startSprite = (*SpriteIterator);
@@ -934,14 +934,14 @@ void GameEngine::DrawInstancingSprite_2D_(std::list<Sprite*> sprits) {
 
 	//WVPデータを更新
 	InstancingTransformationMatrix* mappedBase = nullptr;
-	instancingSpriteResource_[instancingSpriteIndex]->Map(0, nullptr, reinterpret_cast<void**>(&mappedBase));
+	instancingSpriteResource_[instancingSpriteIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&mappedBase));
 	// mappedBase が nullptr でないかチェック
 	if (mappedBase == nullptr) {
 		assert(0);
 	}
 	// 各要素ポインタを mappedBase に初期化
 	for (uint32_t j = 0; j < kMaxNumInstance; ++j) {
-		instancingSpriteData_[instancingSpriteIndex][j] = mappedBase + j;
+		instancingSpriteData_[instancingSpriteIndex_][j] = mappedBase + j;
 	}
 
 	uint32_t numInstance = 0;
@@ -952,12 +952,12 @@ void GameEngine::DrawInstancingSprite_2D_(std::list<Sprite*> sprits) {
 		if (numInstance >= kMaxNumInstance)break;
 
 		Matrix4x4 worldMatrix = MakeQuaternionMatrix((*SpriteIterator)->GetTransform().translate, (*SpriteIterator)->GetTransform().rotate, (*SpriteIterator)->GetTransform().translate);
-		instancingSpriteData_[instancingSpriteIndex][numInstance]->World = worldMatrix;
-		instancingSpriteData_[instancingSpriteIndex][numInstance]->WorldInverseTranspose = Transpose(Inverse(worldMatrix));
+		instancingSpriteData_[instancingSpriteIndex_][numInstance]->World = worldMatrix;
+		instancingSpriteData_[instancingSpriteIndex_][numInstance]->WorldInverseTranspose = Transpose(Inverse(worldMatrix));
 		Matrix4x4 worldViewProjectionMatrix = worldMatrix * viewMatrix * projectionMatrix;
-		instancingSpriteData_[instancingSpriteIndex][numInstance]->WVP = worldViewProjectionMatrix;
+		instancingSpriteData_[instancingSpriteIndex_][numInstance]->WVP = worldViewProjectionMatrix;
 
-		instancingSpriteResource_[instancingSpriteIndex]->Unmap(0, nullptr);
+		instancingSpriteResource_[instancingSpriteIndex_]->Unmap(0, nullptr);
 
 		++numInstance;
 		++SpriteIterator;
@@ -975,24 +975,24 @@ void GameEngine::DrawInstancingSprite_2D_(std::list<Sprite*> sprits) {
 	material.color = Vector4{ 1.0f,1.0f,1.0f,1.0f };
 
 	//マテリアルデータを更新
-	spriteMaterialResource_[instancingSpriteIndex]->Map(0, nullptr, reinterpret_cast<void**>(&spriteMaterialData_[instancingSpriteIndex]));
+	spriteMaterialResource_[instancingSpriteIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&spriteMaterialData_[instancingSpriteIndex_]));
 
-	*spriteMaterialData_[instancingSpriteIndex] = material;
+	*spriteMaterialData_[instancingSpriteIndex_] = material;
 
-	spriteMaterialResource_[instancingSpriteIndex]->Unmap(0, nullptr);
+	spriteMaterialResource_[instancingSpriteIndex_]->Unmap(0, nullptr);
 
 	//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
 	commandList_->SetGraphicsRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(startSprite->GetTextureIndex()));
 
-	commandList_->SetGraphicsRootDescriptorTable(1, srvManager_->GetGPUDescriptorHandle(startInstancingSpriteIndex + instancingSpriteIndex));
+	commandList_->SetGraphicsRootDescriptorTable(1, srvManager_->GetGPUDescriptorHandle(startInstancingSpriteIndex_ + instancingSpriteIndex_));
 
 	//マテリアルCBufferの場所を設定
-	commandList_->SetGraphicsRootConstantBufferView(0, spriteMaterialResource_[instancingSpriteIndex]->GetGPUVirtualAddress());
+	commandList_->SetGraphicsRootConstantBufferView(0, spriteMaterialResource_[instancingSpriteIndex_]->GetGPUVirtualAddress());
 
 	//描画(DrawCall)
 	commandList_->DrawIndexedInstanced(6, numInstance, 0, 0, 0);
 
-	instancingSpriteIndex++;
+	instancingSpriteIndex_++;
 }
 
 void GameEngine::DrawLine_(std::list<Line> lines, PrimitiveManager::PrimitiveResource primitiveResource) {

@@ -5,7 +5,7 @@
 
 struct TextureData {
 	//テクスチャへのパス
-	std::string tetxureFilePaths;
+	std::string textureFilePaths;
 	//テクスチャのリソース
 	Microsoft::WRL::ComPtr <ID3D12Resource> textureResource;
 };
