@@ -139,18 +139,6 @@
     <ClCompile Include="GameEngine\Resource\Sprite\Sprite.cpp">
       <Filter>GameEngine\Resource\Sprite</Filter>
     </ClCompile>
-    <ClCompile Include="GameEngine\Resource\Text.cpp">
-      <Filter>GameEngine\Resource</Filter>
-    </ClCompile>
-    <ClCompile Include="GameEngine\Resource\Effect.cpp">
-      <Filter>GameEngine\Resource</Filter>
-    </ClCompile>
-    <ClCompile Include="GameEngine\Resource\Object_2D.cpp">
-      <Filter>GameEngine\Resource</Filter>
-    </ClCompile>
-    <ClCompile Include="GameEngine\Resource\Object_3D.cpp">
-      <Filter>GameEngine\Resource</Filter>
-    </ClCompile>
     <ClCompile Include="Application\Scene\GameScene\GameScene.cpp">
       <Filter>Application\Scene\GameScene</Filter>
     </ClCompile>
@@ -359,18 +347,6 @@
     </ClInclude>
     <ClInclude Include="GameEngine\Resource\Sprite\Sprite.h">
       <Filter>GameEngine\Resource\Sprite</Filter>
-    </ClInclude>
-    <ClInclude Include="GameEngine\Resource\Text.h">
-      <Filter>GameEngine\Resource</Filter>
-    </ClInclude>
-    <ClInclude Include="GameEngine\Resource\Effect.h">
-      <Filter>GameEngine\Resource</Filter>
-    </ClInclude>
-    <ClInclude Include="GameEngine\Resource\Object_2D.h">
-      <Filter>GameEngine\Resource</Filter>
-    </ClInclude>
-    <ClInclude Include="GameEngine\Resource\Object_3D.h">
-      <Filter>GameEngine\Resource</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\Data\CameraForGPU.h">
       <Filter>GameEngine\Data</Filter>

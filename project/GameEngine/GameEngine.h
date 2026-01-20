@@ -196,16 +196,7 @@ private:
 	void DrawParts_2D_(Object* object, uint32_t partsIndex, shared_ptr<DirectionalLight> directionalLight);
 	void DrawInstancingObject_3D_(std::list<Object*> objects, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight);
 	void DrawParticle_(ParticleGroup particleGroup);
-	/*void DrawSprite_3D_();
-	void DrawInstancingSprite_3D_();
-	void DrawBillbord_3D_();
-	void DrawInstancingBillbord_3D_();
-	void DrawLine_3D_();
-	void DrawInstancingLine_3D_();
-	void DrawAxisIndicator_3D_();
-	void DrawGrid_3D_();
-	void DrawObject_2D_();
-	void DrawInstancingObject_2D_();*/
+
 	void DrawSprite_2D_(Sprite* sprite);
 	void DrawInstancingSprite_2D_(std::list<Sprite*> sprits);
 
