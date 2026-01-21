@@ -100,14 +100,14 @@ private:
 	std::array <Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxIndex > objectMaterialResource_;
 	//マテリアルデータ
 	std::array <Material*, kMaxIndex> objectMaterialData_;
+	//ボーンリソース
+	std::array <Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxIndex > objectBoneResource_;
+	//ボーンデータ
+	std::array <BoneMatrix*, kMaxIndex> objectBoneData_;
 	//WVP用リソース
 	std::array <Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxIndex > objectWvpResource_;
 	//WVPデータ
 	std::array <TransformationMatrix*, kMaxIndex> objectWvpData_;
-	//ボーン用リソース
-	std::array <Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxIndex > objectBoneResource_;
-	//ボーンデータ
-	std::array < std::array <Matrix4x4*, kMaxNumInstance>, kMaxIndex> objectBoneData_;
 #pragma endregion
 
 #pragma region instancingObject

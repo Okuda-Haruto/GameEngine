@@ -494,11 +494,11 @@ void SampleScene::Draw() {
 
 	//axis_->Draw(GameEngine::GetCommandList());
 
-	for (INT i = 0; i < object_.size(); i++) {
-		if (isObjectDraw_[i]) {
-			object_[i]->Draw3D();
-		}
-	}
+	//for (INT i = 0; i < object_.size(); i++) {
+		//if (isObjectDraw_[i]) {
+			object_[5]->Draw3D();
+		//}
+	//}
 
 	particleEmitter_->Draw();
 

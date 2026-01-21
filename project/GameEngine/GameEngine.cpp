@@ -179,6 +179,7 @@ void GameEngine::Intialize_(const wchar_t* WindowName, int32_t kWindowWidth, int
 	for (int i = 0; i < kMaxIndex; i++) {
 		objectMaterialResource_[i] = dxCommon_->CreateBufferResources(sizeof(Material));
 		objectWvpResource_[i] = dxCommon_->CreateBufferResources(sizeof(TransformationMatrix));
+		objectBoneResource_[i] = dxCommon_->CreateBufferResources(sizeof(BoneMatrix));
 		spriteMaterialResource_[i] = dxCommon_->CreateBufferResources(sizeof(Material));
 		spriteWvpResource_[i] = dxCommon_->CreateBufferResources(sizeof(TransformationMatrix));
 	}
@@ -487,12 +488,18 @@ void GameEngine::DrawObject_3D_(Object* object, shared_ptr<DirectionalLight> dir
 		Matrix4x4 worldViewProjectionMatrix = partsMatrix * object->GetCamera()->GetViewMatrix() * object->GetCamera()->GetProjectionMatrix();
 		objectWvpData_[objectIndex]->WVP = worldViewProjectionMatrix;
 
+		objectWvpResource_[objectIndex]->Unmap(0, nullptr);
+
+		//ボーンデータ
+		objectBoneResource_[objectIndex]->Map(0, nullptr, reinterpret_cast<void**>(&objectBoneData_[objectIndex]));
+
 		std::vector<Bone> bones = object->GetBones();
 		for (int i = 0; i < bones.size(); i++) {
-			objectWvpData_[objectIndex]->boneMatrix[i] = bones[i].worldMatrix;
+			if (i > 128)break;
+			objectBoneData_[objectIndex]->matrix[i] = bones[i].worldMatrix;
 		}
 
-		objectWvpResource_[objectIndex]->Unmap(0, nullptr);
+		objectBoneResource_[objectIndex]->Unmap(0,nullptr);
 
 		parts[i].material->uvTransform = MakeQuaternionMatrix(parts[i].UVtransform.scale, parts[i].UVtransform.rotate, parts[i].UVtransform.translate);
 		parts[i].material->enableDirectionalLighting = directionalLight != nullptr;
@@ -524,6 +531,8 @@ void GameEngine::DrawObject_3D_(Object* object, shared_ptr<DirectionalLight> dir
 		commandList_->SetGraphicsRootConstantBufferView(0, objectMaterialResource_[objectIndex]->GetGPUVirtualAddress());
 		//wvp用のCBufferの場所を設定
 		commandList_->SetGraphicsRootConstantBufferView(1, objectWvpResource_[objectIndex]->GetGPUVirtualAddress());
+		//ボーンCBufferの場所を設定
+		commandList_->SetGraphicsRootConstantBufferView(7, objectBoneResource_[objectIndex]->GetGPUVirtualAddress());
 
 		//描画(DrawCall)
 		commandList_->DrawIndexedInstanced(offsets[i].indexCount, 1, 0, offsets[i].vertexStart, 0);
@@ -576,12 +585,18 @@ void GameEngine::DrawParts_3D_(Object* object, uint32_t partsIndex, shared_ptr<D
 	Matrix4x4 worldViewProjectionMatrix = partsMatrix * object->GetCamera()->GetViewMatrix() * object->GetCamera()->GetProjectionMatrix();
 	objectWvpData_[objectIndex]->WVP = worldViewProjectionMatrix;
 
+	objectWvpResource_[objectIndex]->Unmap(0, nullptr);
+
+	//ボーンデータ
+	objectBoneResource_[objectIndex]->Map(0, nullptr, reinterpret_cast<void**>(&objectBoneData_[objectIndex]));
+
 	std::vector<Bone> bones = object->GetBones();
 	for (int i = 0; i < bones.size(); i++) {
-		objectWvpData_[objectIndex]->boneMatrix[i] = bones[i].worldMatrix;
+		if (i > 128)break;
+		objectBoneData_[objectIndex]->matrix[i] = bones[i].worldMatrix;
 	}
 
-	objectWvpResource_[objectIndex]->Unmap(0, nullptr);
+	objectBoneResource_[objectIndex]->Unmap(0, nullptr);
 
 	parts[partsIndex].material->uvTransform = MakeQuaternionMatrix(parts[partsIndex].UVtransform.scale, parts[partsIndex].UVtransform.rotate, parts[partsIndex].UVtransform.translate);
 	parts[partsIndex].material->enableDirectionalLighting = directionalLight != nullptr;
@@ -613,6 +628,8 @@ void GameEngine::DrawParts_3D_(Object* object, uint32_t partsIndex, shared_ptr<D
 	commandList_->SetGraphicsRootConstantBufferView(0, objectMaterialResource_[objectIndex]->GetGPUVirtualAddress());
 	//wvp用のCBufferの場所を設定
 	commandList_->SetGraphicsRootConstantBufferView(1, objectWvpResource_[objectIndex]->GetGPUVirtualAddress());
+	//ボーンCBufferの場所を設定
+	commandList_->SetGraphicsRootConstantBufferView(7, objectBoneResource_[objectIndex]->GetGPUVirtualAddress());
 
 	//描画(DrawCall)
 	commandList_->DrawIndexedInstanced(offsets[partsIndex].indexCount, 1, 0, offsets[partsIndex].vertexStart, 0);
@@ -668,12 +685,18 @@ void GameEngine::DrawObject_2D_(Object* object, shared_ptr<DirectionalLight> dir
 		Matrix4x4 worldViewProjectionMatrix = partsMatrix * viewMatrix * projectionMatrix;
 		objectWvpData_[objectIndex]->WVP = worldViewProjectionMatrix;
 
+		objectWvpResource_[objectIndex]->Unmap(0, nullptr);
+
+		//ボーンデータ
+		objectBoneResource_[objectIndex]->Map(0, nullptr, reinterpret_cast<void**>(&objectBoneData_[objectIndex]));
+
 		std::vector<Bone> bones = object->GetBones();
 		for (int i = 0; i < bones.size(); i++) {
-			objectWvpData_[objectIndex]->boneMatrix[i] = bones[i].worldMatrix;
+			if (i > 128)break;
+			objectBoneData_[objectIndex]->matrix[i] = bones[i].worldMatrix;
 		}
 
-		objectWvpResource_[objectIndex]->Unmap(0, nullptr);
+		objectBoneResource_[objectIndex]->Unmap(0, nullptr);
 
 		parts[i].material->uvTransform = MakeQuaternionMatrix(parts[i].UVtransform.scale, parts[i].UVtransform.rotate, parts[i].UVtransform.translate);
 		parts[i].material->enableDirectionalLighting = directionalLight != nullptr;
@@ -699,6 +722,8 @@ void GameEngine::DrawObject_2D_(Object* object, shared_ptr<DirectionalLight> dir
 		commandList_->SetGraphicsRootConstantBufferView(0, objectMaterialResource_[objectIndex]->GetGPUVirtualAddress());
 		//wvp用のCBufferの場所を設定
 		commandList_->SetGraphicsRootConstantBufferView(1, objectWvpResource_[objectIndex]->GetGPUVirtualAddress());
+		//ボーンCBufferの場所を設定
+		commandList_->SetGraphicsRootConstantBufferView(7, objectBoneResource_[objectIndex]->GetGPUVirtualAddress());
 
 		//描画(DrawCall)
 		commandList_->DrawIndexedInstanced(offsets[i].indexCount, 1, 0, offsets[i].vertexStart, 0);
@@ -755,12 +780,18 @@ void GameEngine::DrawParts_2D_(Object* object, uint32_t partsIndex, shared_ptr<D
 	Matrix4x4 worldViewProjectionMatrix = partsMatrix * viewMatrix * projectionMatrix;
 	objectWvpData_[objectIndex]->WVP = worldViewProjectionMatrix;
 
+	objectWvpResource_[objectIndex]->Unmap(0, nullptr);
+
+	//ボーンデータ
+	objectBoneResource_[objectIndex]->Map(0, nullptr, reinterpret_cast<void**>(&objectBoneData_[objectIndex]));
+
 	std::vector<Bone> bones = object->GetBones();
 	for (int i = 0; i < bones.size(); i++) {
-		objectWvpData_[objectIndex]->boneMatrix[i] = bones[i].worldMatrix;
+		if (i > 128)break;
+		objectBoneData_[objectIndex]->matrix[i] = bones[i].worldMatrix;
 	}
 
-	objectWvpResource_[objectIndex]->Unmap(0, nullptr);
+	objectBoneResource_[objectIndex]->Unmap(0, nullptr);
 
 	parts[partsIndex].material->uvTransform = MakeQuaternionMatrix(parts[partsIndex].UVtransform.scale, parts[partsIndex].UVtransform.rotate, parts[partsIndex].UVtransform.translate);
 	parts[partsIndex].material->enableDirectionalLighting = directionalLight != nullptr;
@@ -786,6 +817,8 @@ void GameEngine::DrawParts_2D_(Object* object, uint32_t partsIndex, shared_ptr<D
 	commandList_->SetGraphicsRootConstantBufferView(0, objectMaterialResource_[objectIndex]->GetGPUVirtualAddress());
 	//wvp用のCBufferの場所を設定
 	commandList_->SetGraphicsRootConstantBufferView(1, objectWvpResource_[objectIndex]->GetGPUVirtualAddress());
+	//ボーンCBufferの場所を設定
+	commandList_->SetGraphicsRootConstantBufferView(7, objectBoneResource_[objectIndex]->GetGPUVirtualAddress());
 
 	//描画(DrawCall)
 	commandList_->DrawIndexedInstanced(offsets[partsIndex].indexCount, 1, 0, offsets[partsIndex].vertexStart, 0);

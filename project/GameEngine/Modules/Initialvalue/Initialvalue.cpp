@@ -294,17 +294,17 @@ Microsoft::WRL::ComPtr <ID3D12PipelineState> InstancingTrianglePipelineStateInit
 	inputElementDescs[2].SemanticIndex = 0;
 	inputElementDescs[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;
 	inputElementDescs[2].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
-	inputElementDescs[3].SemanticName = "COLOR";	//PixelShaderで使うから必要
+	inputElementDescs[3].SemanticName = "BONE_ID";
 	inputElementDescs[3].SemanticIndex = 0;
-	inputElementDescs[3].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	inputElementDescs[3].Format = DXGI_FORMAT_R32G32B32A32_UINT;
 	inputElementDescs[3].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
-	inputElementDescs[4].SemanticName = "BONE_ID";
+	inputElementDescs[4].SemanticName = "WEIGHT";
 	inputElementDescs[4].SemanticIndex = 0;
-	inputElementDescs[4].Format = DXGI_FORMAT_R32G32B32A32_UINT;
+	inputElementDescs[4].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 	inputElementDescs[4].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
-	inputElementDescs[5].SemanticName = "WEIGHT";
+	inputElementDescs[5].SemanticName = "COLOR";	//PixelShaderで使うから必要
 	inputElementDescs[5].SemanticIndex = 0;
-	inputElementDescs[5].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	inputElementDescs[5].Format = DXGI_FORMAT_R32G32B32_FLOAT;
 	inputElementDescs[5].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
 	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
 	inputLayoutDesc.pInputElementDescs = inputElementDescs;
@@ -389,7 +389,7 @@ Microsoft::WRL::ComPtr <ID3D12PipelineState> ParticlePipelineStateInitialvalue(I
 	inputElementDescs[2].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
 	inputElementDescs[3].SemanticName = "COLOR";	//PixelShaderで使うから必要
 	inputElementDescs[3].SemanticIndex = 0;
-	inputElementDescs[3].Format = DXGI_FORMAT_R32G32B32_UINT;
+	inputElementDescs[3].Format = DXGI_FORMAT_R32G32B32_FLOAT;
 	inputElementDescs[3].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
 	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
 	inputLayoutDesc.pInputElementDescs = inputElementDescs;
@@ -471,7 +471,7 @@ Microsoft::WRL::ComPtr <ID3D12PipelineState> AddBlendParticlePipelineStateInitia
 	inputElementDescs[2].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
 	inputElementDescs[3].SemanticName = "COLOR";	//PixelShaderで使うから必要
 	inputElementDescs[3].SemanticIndex = 0;
-	inputElementDescs[3].Format = DXGI_FORMAT_R32G32B32_UINT;
+	inputElementDescs[3].Format = DXGI_FORMAT_R32G32B32_FLOAT;
 	inputElementDescs[3].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
 	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
 	inputLayoutDesc.pInputElementDescs = inputElementDescs;
@@ -631,7 +631,7 @@ Microsoft::WRL::ComPtr <ID3D12PipelineState> LinePipelineStateInitialvalue(ID3D1
 	inputElementDescs[2].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
 	inputElementDescs[3].SemanticName = "COLOR";	//PixelShaderで使うから必要
 	inputElementDescs[3].SemanticIndex = 0;
-	inputElementDescs[3].Format = DXGI_FORMAT_R32G32B32_UINT;
+	inputElementDescs[3].Format = DXGI_FORMAT_R32G32B32_FLOAT;
 	inputElementDescs[3].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
 	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
 	inputLayoutDesc.pInputElementDescs = inputElementDescs;
@@ -719,7 +719,7 @@ Microsoft::WRL::ComPtr <ID3D12PipelineState> NoDepthLinePipelineStateInitialvalu
 	inputElementDescs[2].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
 	inputElementDescs[3].SemanticName = "COLOR";	//PixelShaderで使うから必要
 	inputElementDescs[3].SemanticIndex = 0;
-	inputElementDescs[3].Format = DXGI_FORMAT_R32G32B32_UINT;
+	inputElementDescs[3].Format = DXGI_FORMAT_R32G32B32_FLOAT;
 	inputElementDescs[3].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
 	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
 	inputLayoutDesc.pInputElementDescs = inputElementDescs;

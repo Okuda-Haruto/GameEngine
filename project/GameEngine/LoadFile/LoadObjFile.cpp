@@ -106,7 +106,9 @@ ModelData LoadObjFile(const std::string& directoryPath, const std::string& filen
 				} else {
 					normal = {};
 				}
-				triangle[faceVertex] = { position,texcoord,normal };
+				triangle[faceVertex].position = position;
+				triangle[faceVertex].texcoord = texcoord;
+				triangle[faceVertex].normal = normal;
 			}
 			//頂点を逆順に登録することで、周り順を逆にする
 			modelData.vertices.push_back(triangle[2]);
