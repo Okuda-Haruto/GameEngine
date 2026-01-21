@@ -114,6 +114,7 @@ ModelData LoadObjFile(const std::string& directoryPath, const std::string& filen
 			modelData.vertices.push_back(triangle[2]);
 			modelData.vertices.push_back(triangle[1]);
 			modelData.vertices.push_back(triangle[0]);
+
 		} else if (identifier == "usemtl") {
 			//使用するMaterialの名前を取得する
 			std::string materialFilename;
@@ -145,6 +146,11 @@ ModelData LoadObjFile(const std::string& directoryPath, const std::string& filen
 	offset.indexCount = offset.vertexCount;
 
 	modelData.offset.push_back(offset);
+
+	//3角形2つを組合わせ4角形にする
+	for (uint32_t i = 0; i < modelData.vertices.size(); i++) {
+		modelData.indexes.push_back(i);
+	}
 
 	return modelData;
 }

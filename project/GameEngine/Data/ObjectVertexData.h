@@ -7,9 +7,7 @@
 struct ObjectVertexData {
 	Vector4 position;
 	Vector2 texcoord;
-	float _pad0[2];
 	Vector3 normal;
-	float _pad1;
 	UINT4 boneID;
 	Vector4 boneWeight;
 };

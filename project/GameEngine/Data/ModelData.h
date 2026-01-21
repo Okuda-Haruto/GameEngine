@@ -10,6 +10,7 @@
 
 struct ModelData {
 	std::vector<ObjectVertexData> vertices;
+	std::vector<uint32_t> indexes;
 	std::vector<Offset> offset;
 	std::vector<UINT> textureIndex;
 	std::vector<AnimationData> animations;

@@ -14,7 +14,7 @@ ModelData LoadGLTFFile(const std::string& directoryPath, const std::string& file
 
 	Assimp::Importer importer;
 	std::string filePath = directoryPath + "/" + filename;
-	const aiScene* scene = importer.ReadFile(filePath.c_str(), aiProcess_FlipWindingOrder | aiProcess_FlipUVs);
+	const aiScene* scene = importer.ReadFile(filePath.c_str(), aiProcess_FlipWindingOrder | aiProcess_FlipUVs | aiProcess_JoinIdenticalVertices | aiProcess_Triangulate);
 	assert(scene->HasMeshes());	//メッシュがないのは対応しない
 
 	//Meshの解析
@@ -26,26 +26,33 @@ ModelData LoadGLTFFile(const std::string& directoryPath, const std::string& file
 		//オフセット開始地点
 		Offset offset;
 		offset.vertexStart = UINT(modelData.vertices.size());
+		offset.indexStart = UINT(modelData.indexes.size());
+
+		//Vertexの解析
+		for (uint32_t vertexIndex = 0; vertexIndex < mesh->mNumVertices; ++vertexIndex) {
+			aiVector3D& position = mesh->mVertices[vertexIndex];
+			aiVector3D& normal = mesh->mNormals[vertexIndex];
+			aiVector3D& texcoord = mesh->mTextureCoords[0][vertexIndex];
+
+			ObjectVertexData vertexData{};
+			vertexData.position = { position.x,position.y,position.z,1.0f };
+			vertexData.normal = { normal.x,normal.y,normal.z };
+			vertexData.texcoord = { texcoord.x,texcoord.y };
+			// aiProcess_MakeLeftHandedはz*=-1.0fで右手->左手に変換するので手動で対処
+			vertexData.position.x *= -1.0f;
+			vertexData.normal.x *= -1.0f;
+			modelData.vertices.push_back(vertexData);
+		}
 
 		//Faceの中身の解析
 		for (uint32_t faceIndex = 0; faceIndex < mesh->mNumFaces; ++faceIndex) {
 			aiFace& face = mesh->mFaces[faceIndex];
 			assert(face.mNumIndices == 3);	//三角形のみサポート
 
-			//Vertexの解析
+			//Indexの解析
 			for (uint32_t element = 0; element < face.mNumIndices; ++element) {
-				uint32_t vertexIndex = face.mIndices[element];
-				aiVector3D& position = mesh->mVertices[vertexIndex];
-				aiVector3D& normal = mesh->mNormals[vertexIndex];
-				aiVector3D& texcoord = mesh->mTextureCoords[0][vertexIndex];
-				ObjectVertexData vertex{};
-				vertex.position = { position.x,position.y,position.z,1.0f };
-				vertex.normal = { normal.x,normal.y,normal.z };
-				vertex.texcoord = { texcoord.x,texcoord.y };
-				// aiProcess_MakeLeftHandedはz*=-1.0fで右手->左手に変換するので手動で対処
-				vertex.position.x *= -1.0f;
-				vertex.normal.x *= -1.0f;
-				modelData.vertices.push_back(vertex);
+				uint32_t index = face.mIndices[element];
+				modelData.indexes.push_back(index);
 			}
 		}
 
@@ -58,19 +65,18 @@ ModelData LoadGLTFFile(const std::string& directoryPath, const std::string& file
 			//Weightの解析
 			for (uint32_t weightIndex = 0; weightIndex < boneData->mNumWeights; ++weightIndex) {
 				aiVertexWeight weight = boneData->mWeights[weightIndex];
-				/*SetVertexWeight(
+				SetVertexWeight(
 					modelData.vertices[weight.mVertexId].boneID,
 					modelData.vertices[weight.mVertexId].boneWeight,
 					boneIndex,
-					weight.mWeight);*///
+					weight.mWeight);
 			}
 			modelData.bones.push_back(bone);
 		}
 
 		//オフセット記録
 		offset.vertexCount = UINT(modelData.vertices.size()) - offset.vertexStart;
-		offset.indexStart = offset.vertexStart;
-		offset.indexCount = offset.vertexCount;
+		offset.indexCount = UINT(modelData.indexes.size()) - offset.indexStart;
 		modelData.offset.push_back(offset);
 	}
 
@@ -114,9 +120,9 @@ ModelData LoadGLTFFile(const std::string& directoryPath, const std::string& file
 			//Rotationのキーフレームの解析
 			for (uint32_t rotationKeyIndex = 0; rotationKeyIndex < channel->mNumRotationKeys; ++rotationKeyIndex) {
 				aiQuatKey rotationKey = channel->mRotationKeys[rotationKeyIndex];
-				KeyFrame transformKeyFrame;
+				QuaternionKeyFlame transformKeyFrame;
 				transformKeyFrame.time = rotationKey.mTime;
-				transformKeyFrame.vector = Vector3{ rotationKey.mValue.x,rotationKey.mValue.y,rotationKey.mValue.z };
+				transformKeyFrame.quaternion = Quaternion{ rotationKey.mValue.x,rotationKey.mValue.y,rotationKey.mValue.z,rotationKey.mValue.w };
 
 				node->rotateKeyFrame.push_back(transformKeyFrame);
 			}

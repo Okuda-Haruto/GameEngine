@@ -22,41 +22,38 @@ void Model::Initialize(const std::string& directoryPath, const std::string& file
 	}
 
 	//頂点リソースを作る
-	vertexResource_ = dxCommon_->CreateBufferResources(sizeof(VertexData) * modelData_.vertices.size());
+	vertexResource_ = dxCommon_->CreateBufferResources(sizeof(ObjectVertexData) * modelData_.vertices.size());
 
 	//頂点バッファビューを作成する
 	//リソースの先頭のアドレスから使う
 	vertexBufferView_.BufferLocation = vertexResource_->GetGPUVirtualAddress();
 	//使用するリソースのサイズは頂点のサイズ
-	vertexBufferView_.SizeInBytes = UINT(sizeof(VertexData) * modelData_.vertices.size());
+	vertexBufferView_.SizeInBytes = UINT(sizeof(ObjectVertexData) * modelData_.vertices.size());
 	//1頂点あたりのサイズ
-	vertexBufferView_.StrideInBytes = sizeof(VertexData);
+	vertexBufferView_.StrideInBytes = sizeof(ObjectVertexData);
 
 	//頂点リソースにデータを書き込む
 	vertexResource_->Map(0, nullptr, reinterpret_cast<void**>(&vertexData_));	//書き込むためのアドレスを取得
 
-	std::memcpy(vertexData_, modelData_.vertices.data(), sizeof(VertexData) * modelData_.vertices.size());	//頂点データにリソースにコピー
+	std::memcpy(vertexData_, modelData_.vertices.data(), sizeof(ObjectVertexData) * modelData_.vertices.size());	//頂点データにリソースにコピー
 
 	vertexResource_->Unmap(0, nullptr);
 
 	//Sprite用のインデックスリソースを作る
-	indexResource_ = dxCommon_->CreateBufferResources(sizeof(uint32_t) * modelData_.vertices.size());
+	indexResource_ = dxCommon_->CreateBufferResources(sizeof(uint32_t) * modelData_.indexes.size());
 
 	//インデックスバッファビューを作成する
 	//リソースの先頭のアドレスから使う
 	indexBufferView_.BufferLocation = indexResource_->GetGPUVirtualAddress();
-	//使用するリソースのサイズはインデックスは3つサイズ
-	indexBufferView_.SizeInBytes = UINT(sizeof(uint32_t) * modelData_.vertices.size());
+	//使用するリソースのサイズはインデックスのサイズ
+	indexBufferView_.SizeInBytes = UINT(sizeof(uint32_t) * modelData_.indexes.size());
 	//インデックスはuint32_tとする
 	indexBufferView_.Format = DXGI_FORMAT_R32_UINT;
 
 	//インデックスデータを書き込む
 	indexResource_->Map(0, nullptr, reinterpret_cast<void**>(&indexData_));
 
-	//3角形2つを組合わせ4角形にする
-	for (int i = 0; i < modelData_.vertices.size(); i++) {
-		indexData_[i] = i;
-	}
+	std::memcpy(indexData_, modelData_.indexes.data(), sizeof(uint32_t) * modelData_.indexes.size());	//インデックスデータにリソースにコピー
 
 	indexResource_->Unmap(0, nullptr);
 
@@ -77,8 +74,8 @@ void Model::BoneAnimation(std::vector<Bone>& bones,float time, UINT animationInd
 
 	//ローカル座標
 	for (int i = 0; i < modelData_.bones.size();i++) {
-		SRT animationTransform = GetAnimationTransform(bones[i].node, modelData_.animations[animationIndex], time);
-		bones[i].localMatrix = MakeAffineMatrix(animationTransform.scale, animationTransform.rotate, animationTransform.translate);
+		QuaternionTransform animationTransform = GetAnimationTransform(bones[i].node, modelData_.animations[animationIndex], time);
+		bones[i].localMatrix = MakeQuaternionMatrix(animationTransform.scale, animationTransform.rotate, animationTransform.translate);
 	}
 
 	//ワールド座標

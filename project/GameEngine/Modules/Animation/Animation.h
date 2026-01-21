@@ -1,7 +1,7 @@
 #pragma once
 #include "Node.h"
 #include "AnimationData.h"
-#include "SRT.h"
+#include "QuaternionTransform.h"
 #include <memory>
 
-SRT GetAnimationTransform(std::weak_ptr<Node> node, AnimationData animationData, float time);
+QuaternionTransform GetAnimationTransform(std::weak_ptr<Node> node, AnimationData animationData, float time);

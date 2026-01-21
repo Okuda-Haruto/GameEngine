@@ -21,12 +21,12 @@ void SampleScene::Initialize() {
 	ModelManager::GetInstance()->LoadModel("resources/DebugResources/multiMesh", "multiMesh.obj");
 	ModelManager::GetInstance()->LoadModel("resources/DebugResources/multiMaterial", "multiMaterial.obj");
 	ModelManager::GetInstance()->LoadModel("resources/DebugResources/terrain", "terrain.obj");
-	ModelManager::GetInstance()->LoadModel("resources/DebugResources/gltf", "suzanne.gltf");
+	ModelManager::GetInstance()->LoadModel("resources/DebugResources/gltf", "box.gltf");
 	ModelManager::GetInstance()->LoadModel("resources/DebugResources/teapot", "teapot.obj");
 
 	//3Dオブジェクト
 	object_[0] = make_unique<Object>();
-	object_[0]->Initialize(ModelManager::GetInstance()->GetModel("resources/Cylinder", "Cylinder.obj"));
+	object_[0]->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/plane", "plane.obj"));
 	object_[1] = make_unique<Object>();
 	object_[1]->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/sphere", "sphere.obj"));
 	object_[2] = make_unique<Object>();
@@ -36,7 +36,7 @@ void SampleScene::Initialize() {
 	object_[4] = make_unique<Object>();
 	object_[4]->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/terrain", "terrain.obj"));
 	object_[5] = make_unique<Object>();
-	object_[5]->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/gltf", "suzanne.gltf"));
+	object_[5]->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/gltf", "box.gltf"));
 	object_[5]->SetIsUseAnimation(true);
 	object_[5]->SetIsLoopAnimation(true);
 	object_[6] = make_unique<Object>();
@@ -494,11 +494,11 @@ void SampleScene::Draw() {
 
 	//axis_->Draw(GameEngine::GetCommandList());
 
-	//for (INT i = 0; i < object_.size(); i++) {
-		//if (isObjectDraw_[i]) {
-			object_[5]->Draw3D();
-		//}
-	//}
+	for (INT i = 0; i < object_.size(); i++) {
+		if (isObjectDraw_[i]) {
+			object_[i]->Draw3D();
+		}
+	}
 
 	particleEmitter_->Draw();
 

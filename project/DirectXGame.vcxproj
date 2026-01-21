@@ -141,6 +141,7 @@
     <ClInclude Include="GameEngine\Data\BoneMatrix.h" />
     <ClInclude Include="GameEngine\Data\Parts.h" />
     <ClInclude Include="GameEngine\Data\PointLightElement.h" />
+    <ClInclude Include="GameEngine\Data\QuaternionKeyFlame.h" />
     <ClInclude Include="GameEngine\Data\SpotLightElement.h" />
     <ClInclude Include="GameEngine\Data\TransformationMatrix.h" />
     <ClInclude Include="GameEngine\Data\VertexData.h" />
@@ -150,6 +151,8 @@
     <ClInclude Include="GameEngine\LoadFile\LoadGLTFFile.h" />
     <ClInclude Include="GameEngine\Math\LerpKeyFrame\LerpKeyFrame.h" />
     <ClInclude Include="GameEngine\Math\Operation\Operation.h" />
+    <ClInclude Include="GameEngine\Math\Quaternion.h" />
+    <ClInclude Include="GameEngine\Math\QuaternionTransform.h" />
     <ClInclude Include="GameEngine\Math\Shape\AABB.h" />
     <ClInclude Include="GameEngine\Data\ChunkHeader.h" />
     <ClInclude Include="GameEngine\Data\DirectionalLightElement.h" />

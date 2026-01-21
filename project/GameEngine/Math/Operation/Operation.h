@@ -2,6 +2,7 @@
 #include <Vector2.h>
 #include <Vector3.h>
 #include <Vector4.h>
+#include <Quaternion.h>
 #include <Matrix3x3.h>
 #include <Matrix4x4.h>
 #include <assimp/matrix4x4.h>
@@ -98,6 +99,52 @@ Vector4 operator+(const Vector4& v);
 
 #pragma endregion
 
+#pragma region Quaternion
+
+//加算
+Quaternion Add(const Quaternion& q0, const Quaternion& q1);
+
+//減算
+Quaternion Subtract(const Quaternion& q0, const Quaternion& q1);
+
+//スカラー倍
+Quaternion Multiply(const float& f, const Quaternion& q);
+
+//乗算
+Quaternion Multiply(const Quaternion& lhs, const Quaternion& rhs);
+
+//単位クオータニオン
+Quaternion IdentityQuaternion();
+
+Quaternion Conjugate(const Quaternion& quaternion);
+
+float Norm(const Quaternion& quaternion);
+
+Quaternion Normalize(const Quaternion& quaternion);
+
+Quaternion Inverse(const Quaternion& quaternion);
+
+//任意軸回転を表すQuaternionの生成
+Quaternion MakeRotateAxisAngleQuaternion(const Vector3& axis, float angle);
+//ベクトルをQuaternionで回転させた結果のベクトルを求める
+Vector3 RotateVector(const Vector3& vector, const Quaternion& quaternion);
+
+//内積
+float Dot(const Quaternion& q0, const Quaternion& q1);
+
+//球面線形補間
+Quaternion Slerp(const Quaternion& q0, const Quaternion& q1, float t);
+
+Quaternion operator+(const Quaternion& q1, const Quaternion& q2);
+Quaternion operator-(const Quaternion& q1, const Quaternion& q2);
+Quaternion operator*(float s, const Quaternion& q);
+Quaternion operator*(const Quaternion& q, float s);
+Quaternion operator/(const Quaternion& q, float s);
+Quaternion operator-(const Quaternion& q);
+Quaternion operator+(const Quaternion& q);
+
+#pragma endregion
+
 #pragma region Matrix4x4
 
 //行列の加法
@@ -130,11 +177,13 @@ Matrix4x4 MakeRotateZMatrix(float radian);
 Matrix4x4 MakeRotateMatrix(Vector3 rotate);
 //任意軸回転行列
 Matrix4x4 MakeRotateAxisAngle(const Vector3& axis, float angle);
+//Quaternionからの回転行列
+Matrix4x4 MakeRotateMatrix(const Quaternion& quaternion);
 
 //3次元アフィン変換行列
 Matrix4x4 MakeAffineMatrix(Vector3 scale, Vector3 rotate, Vector3 translate);
 //クォータニオン行列
-Matrix4x4 MakeQuaternionMatrix(Vector3 scale, Vector3 rotate, Vector3 translate);
+Matrix4x4 MakeQuaternionMatrix(Vector3 scale, Quaternion rotate, Vector3 translate);
 
 //内積行列
 Matrix4x4 DotMatrix(const Vector3& v1, const Vector3& v2);
