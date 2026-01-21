@@ -58,11 +58,11 @@ ModelData LoadGLTFFile(const std::string& directoryPath, const std::string& file
 			//Weightの解析
 			for (uint32_t weightIndex = 0; weightIndex < boneData->mNumWeights; ++weightIndex) {
 				aiVertexWeight weight = boneData->mWeights[weightIndex];
-				SetVertexWeight(
+				/*SetVertexWeight(
 					modelData.vertices[weight.mVertexId].boneID,
 					modelData.vertices[weight.mVertexId].boneWeight,
 					boneIndex,
-					weight.mWeight);
+					weight.mWeight);*///
 			}
 			modelData.bones.push_back(bone);
 		}

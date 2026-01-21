@@ -532,7 +532,7 @@ void GameEngine::DrawObject_3D_(Object* object, shared_ptr<DirectionalLight> dir
 		//wvp用のCBufferの場所を設定
 		commandList_->SetGraphicsRootConstantBufferView(1, objectWvpResource_[objectIndex]->GetGPUVirtualAddress());
 		//ボーンCBufferの場所を設定
-		commandList_->SetGraphicsRootConstantBufferView(7, objectBoneResource_[objectIndex]->GetGPUVirtualAddress());
+		//commandList_->SetGraphicsRootConstantBufferView(7, objectBoneResource_[objectIndex]->GetGPUVirtualAddress());
 
 		//描画(DrawCall)
 		commandList_->DrawIndexedInstanced(offsets[i].indexCount, 1, 0, offsets[i].vertexStart, 0);
@@ -629,7 +629,7 @@ void GameEngine::DrawParts_3D_(Object* object, uint32_t partsIndex, shared_ptr<D
 	//wvp用のCBufferの場所を設定
 	commandList_->SetGraphicsRootConstantBufferView(1, objectWvpResource_[objectIndex]->GetGPUVirtualAddress());
 	//ボーンCBufferの場所を設定
-	commandList_->SetGraphicsRootConstantBufferView(7, objectBoneResource_[objectIndex]->GetGPUVirtualAddress());
+	//commandList_->SetGraphicsRootConstantBufferView(7, objectBoneResource_[objectIndex]->GetGPUVirtualAddress());
 
 	//描画(DrawCall)
 	commandList_->DrawIndexedInstanced(offsets[partsIndex].indexCount, 1, 0, offsets[partsIndex].vertexStart, 0);
@@ -723,7 +723,7 @@ void GameEngine::DrawObject_2D_(Object* object, shared_ptr<DirectionalLight> dir
 		//wvp用のCBufferの場所を設定
 		commandList_->SetGraphicsRootConstantBufferView(1, objectWvpResource_[objectIndex]->GetGPUVirtualAddress());
 		//ボーンCBufferの場所を設定
-		commandList_->SetGraphicsRootConstantBufferView(7, objectBoneResource_[objectIndex]->GetGPUVirtualAddress());
+		//commandList_->SetGraphicsRootConstantBufferView(7, objectBoneResource_[objectIndex]->GetGPUVirtualAddress());
 
 		//描画(DrawCall)
 		commandList_->DrawIndexedInstanced(offsets[i].indexCount, 1, 0, offsets[i].vertexStart, 0);
@@ -818,7 +818,7 @@ void GameEngine::DrawParts_2D_(Object* object, uint32_t partsIndex, shared_ptr<D
 	//wvp用のCBufferの場所を設定
 	commandList_->SetGraphicsRootConstantBufferView(1, objectWvpResource_[objectIndex]->GetGPUVirtualAddress());
 	//ボーンCBufferの場所を設定
-	commandList_->SetGraphicsRootConstantBufferView(7, objectBoneResource_[objectIndex]->GetGPUVirtualAddress());
+	//commandList_->SetGraphicsRootConstantBufferView(7, objectBoneResource_[objectIndex]->GetGPUVirtualAddress());
 
 	//描画(DrawCall)
 	commandList_->DrawIndexedInstanced(offsets[partsIndex].indexCount, 1, 0, offsets[partsIndex].vertexStart, 0);
