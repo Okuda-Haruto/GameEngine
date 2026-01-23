@@ -69,12 +69,12 @@ void Model::Initialize(const std::string& directoryPath, const std::string& file
 }
 
 //ボーンアニメーション
-void Model::BoneAnimation(std::vector<Bone>& bones,float time, UINT animationIndex) {
+void Model::BoneAnimation(std::vector<Bone>& bones,float time, UINT animationIndex, AnimationInterpolation interpolation) {
 	assert(animationIndex < modelData_.animations.size());
 
 	//ローカル座標
 	for (int i = 0; i < modelData_.bones.size();i++) {
-		QuaternionTransform animationTransform = GetAnimationTransform(bones[i].node, modelData_.animations[animationIndex], time);
+		QuaternionTransform animationTransform = GetAnimationTransform(bones[i].node, modelData_.animations[animationIndex], interpolation, time);
 		bones[i].localMatrix = MakeQuaternionMatrix(animationTransform.scale, animationTransform.rotate, animationTransform.translate);
 	}
 
@@ -91,9 +91,9 @@ void Model::BoneAnimation(std::vector<Bone>& bones,float time, UINT animationInd
 //階層構造の行列変換
 Matrix4x4 Model::Model::SetWorldMatrix(std::shared_ptr<Node> node, Bone bone) {
 	Matrix4x4 result = bone.localMatrix;
-	//現在のノードが指定していたノードならローカル座標を得る
+	//現在のノードが指定していたノードなら単位行列を得る
 	if (node->name == bone.name) {
-		result = bone.localMatrix;
+		result = MakeIdentity4x4();
 		return result;
 	}
 	//指定したノードがなかったら0行列を得る

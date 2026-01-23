@@ -406,6 +406,45 @@ Quaternion Inverse(const Quaternion& quaternion) {
 	return returnQuaternion;
 }
 
+Quaternion Log(const Quaternion& quaternion) {
+	Quaternion returnQuaternion;
+
+	Vector3 v = Vector3(quaternion.x, quaternion.y, quaternion.z);
+
+	// ノルムがゼロに近い場合は 0 を返す
+	if (Length(v) < 1e-6f) {
+		returnQuaternion.x = returnQuaternion.y = returnQuaternion.z = 0.0f;
+		returnQuaternion.w = 0.0f;
+		return returnQuaternion;
+	}
+
+	float theta = std::atan2(Length(v), quaternion.w);
+	float inv = theta / Length(v);
+
+	returnQuaternion = { quaternion.x * inv, quaternion.y * inv, quaternion.z * inv,0.0f };
+	return returnQuaternion;
+}
+
+Quaternion Exp(const Quaternion& quaternion) {
+	Quaternion returnQuaternion;
+
+	Vector3 v = Vector3(quaternion.x, quaternion.y, quaternion.z);
+
+	// |v| が 0 のとき，exp(0) = identity
+	if (Length(v) < 1e-6f) {
+		returnQuaternion.x = returnQuaternion.y = returnQuaternion.z = 0.0f;
+		returnQuaternion.w = 1.0f;
+		return returnQuaternion;
+	}
+
+	float sin = std::sinf(Length(v));
+	float cos = std::cosf(Length(v));
+	float inv = sin / Length(v);
+
+	returnQuaternion = { quaternion.x * inv, quaternion.y * inv, quaternion.z * inv,cos };
+	return returnQuaternion;
+}
+
 Quaternion MakeRotateAxisAngleQuaternion(const Vector3& axis, float angle) {
 	Quaternion returnQuaternion;
 
@@ -458,10 +497,37 @@ Quaternion Slerp(const Quaternion& q0, const Quaternion& q1, float t) {
 	return scale0 * Q0 + scale1 * Q1;
 }
 
+
+Quaternion Squad(const Quaternion& q0, const Quaternion& q1,
+	const Quaternion& q2, const Quaternion& q3, float t)
+{
+	// t を 0〜1 に制限
+	t = std::clamp(t, 0.0f, 1.0f);
+
+	// q1 の制御点 s1 を計算
+	Quaternion invQ1 = Inverse(q1);
+	Quaternion log1 = Log(invQ1 * q2);
+	Quaternion log2 = Log(invQ1 * q0);
+	Quaternion s1 = q1 * Exp((log1 + log2) * -0.25f);
+
+	// q2 の制御点 s2 を計算
+	Quaternion invQ2 = Inverse(q2);
+	log1 = Log(invQ2 * q3);
+	log2 = Log(invQ2 * q1);
+	Quaternion s2 = q2 * Exp((log1 + log2) * -0.25f);
+
+	// 内側の SLERP
+	Quaternion slerp1 = Slerp(q1, q2, t);
+	Quaternion slerp2 = Slerp(s1, s2, t);
+
+	// 外側の SLERP
+	return Slerp(slerp1, slerp2, 2.0f * t * (1.0f - t));
+}
 Quaternion operator+(const Quaternion& q1, const Quaternion& q2) { return Add(q1, q2); }
 Quaternion operator-(const Quaternion& q1, const Quaternion& q2) { return Subtract(q1, q2); }
 Quaternion operator*(float s, const Quaternion& q) { return Multiply(s, q); }
 Quaternion operator*(const Quaternion& q, float s) { return s * q; }
+Quaternion operator*(const Quaternion& q1, Quaternion q2) { return Multiply(q1, q2); }
 Quaternion operator/(const Quaternion& q, float s) { return (1 / s) * q; }
 Quaternion operator-(const Quaternion& q) { return Quaternion{ -q.x,-q.y,-q.z,-q.w }; }
 Quaternion operator+(const Quaternion& q) { return q; }
@@ -642,26 +708,11 @@ Matrix4x4 MakeRotateAxisAngle(const Vector3& axis, float angle) {
 Matrix4x4 MakeRotateMatrix(const Quaternion& quaternion) {
 	Matrix4x4 returnMatrix;
 
-	// w^2 - x^2 - y^2 ^ z^2
-	Matrix4x4 S = MakeScaleMatrix(Vector3{
-		powf(quaternion.w,2) - powf(quaternion.x,2) - powf(quaternion.y,2) - powf(quaternion.z,2),
-		powf(quaternion.w,2) - powf(quaternion.x,2) - powf(quaternion.y,2) - powf(quaternion.z,2) ,
-		powf(quaternion.w,2) - powf(quaternion.x,2) - powf(quaternion.y,2) - powf(quaternion.z,2)
-		});
-	// -wx,-wy,-wz
-	Matrix4x4 C = CrossMatrix(Vector3{
-		-(quaternion.w * quaternion.x),
-		-(quaternion.w * quaternion.y),
-		-(quaternion.w * quaternion.z)
-		});
-	// x,y,z * x,y,z
-	Matrix4x4 D = DotMatrix(
-		Vector3{ quaternion.x,quaternion.y,quaternion.z },
-		Vector3{ quaternion.x,quaternion.y,quaternion.z }
-	);
+	returnMatrix.m[0][0] = 1.0f - 2.0f * (quaternion.y * quaternion.y + quaternion.z * quaternion.z);	returnMatrix.m[0][1] = 2.0f * (quaternion.x * quaternion.y - quaternion.z * quaternion.w);				returnMatrix.m[0][2] = 2.0f * (quaternion.x * quaternion.z + quaternion.y * quaternion.w);			returnMatrix.m[0][3] = 0.0f;
+	returnMatrix.m[1][0] = 2.0f * (quaternion.x * quaternion.y + quaternion.z * quaternion.w);			returnMatrix.m[1][1] = 1.0f - 2.0f * (quaternion.x * quaternion.x + quaternion.z * quaternion.z);		returnMatrix.m[1][2] = 2.0f * (quaternion.y * quaternion.z - quaternion.x * quaternion.w);			returnMatrix.m[1][3] = 0.0f;
+	returnMatrix.m[2][0] = 2.0f * (quaternion.x * quaternion.z - quaternion.y * quaternion.w);			returnMatrix.m[2][1] = 2.0f * (quaternion.y * quaternion.z + quaternion.x * quaternion.w);				returnMatrix.m[2][2] = 1.0f - 2.0f * (quaternion.x * quaternion.x + quaternion.y * quaternion.y);	returnMatrix.m[2][3] = 0.0f;
+	returnMatrix.m[3][0] = 0.0f;																		returnMatrix.m[3][1] = 0.0f;																			returnMatrix.m[3][2] = 0.0f;																		returnMatrix.m[3][3] = 1.0f;
 
-	returnMatrix = S + 2.0f * (D + C);
-	returnMatrix.m[3][3] = 1.0f;
 	return returnMatrix;
 }
 

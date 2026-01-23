@@ -1,15 +1,5 @@
 #include "Object3d.hlsli"
-
-struct Material
-{
-    float4 color;
-    int reflection;
-    int enableDirectionalLighting;
-    int enablePointLighting;
-    int enableSpotLighting;
-    float4x4 uvTransform;
-    float shininess;
-};
+#include "Material.hlsli"
 
 struct DirectionalLight
 {
@@ -144,7 +134,14 @@ PixelShaderOutput main(VertexShaderOutput input)
     if (gMaterial.reflection <= 0 || gMaterial.reflection > 2)
         return output;
         
-    output = BlinnPhangReflectionModel(input, textureColor);
+    if (gMaterial.shading == 0)
+    {
+        output = PhangReflectionModel(input, textureColor);
+    }
+    else
+    {
+        output = BlinnPhangReflectionModel(input, textureColor);
+    }
     
     return output;
 }

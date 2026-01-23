@@ -5,6 +5,7 @@
 #include <d3d12.h>
 #include <string>
 #include <ObjectVertexData.h>
+#include <AnimationInterpolation.h>
 #include <Offset.h>
 #include <DirectXCommon/DirectXCommon.h>
 #include <TextureManager/TextureManager.h>
@@ -52,7 +53,7 @@ public:
 	//ボーン
 	std::vector<Bone> GetBones() { return modelData_.bones; }
 	//ボーンアニメーション
-	void BoneAnimation(std::vector<Bone>& bones, float time, UINT animationIndex);
+	void BoneAnimation(std::vector<Bone>& bones, float time, UINT animationIndex, AnimationInterpolation interpolation);
 	//アニメーションが終了しているか
 	bool IsEndAnimation(float time, UINT index) { return time * modelData_.animations[index].FPS >= modelData_.animations[index].duration; }
 	//アニメーションデータ
