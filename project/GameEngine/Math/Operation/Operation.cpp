@@ -282,6 +282,15 @@ Vector4 Normalize(const Vector4& v) {
 	return AnswerVector;
 }
 
+//正規化
+Vector4 NormalizeWeights(const Vector4& v) {
+	float sum = v.x + v.y + v.z + v.w;
+	if (sum > 0.0f) {
+		return Vector4(v.x / sum, v.y / sum, v.z / sum, v.w / sum);
+	}
+	return v;
+}
+
 Vector4 Lerp(Vector4 a, Vector4 b, float t) {
 	Vector4 AnswerVector;
 	AnswerVector.x = a.x * (1 - t) + b.x * t;
@@ -298,6 +307,164 @@ Vector4 operator*(const Vector4& v, float s) { return s * v; }
 Vector4 operator/(const Vector4& v, float s) { return Multiply(1.0f / s, v); }
 Vector4 operator-(const Vector4& v) { return { -v.x,-v.y }; }
 Vector4 operator+(const Vector4& v) { return v; }
+
+#pragma endregion
+
+#pragma region Quaternion
+
+Quaternion Add(const Quaternion& q0, const Quaternion& q1) {
+	Quaternion returnQuaternion;
+	returnQuaternion.x = q0.x + q1.x;
+	returnQuaternion.y = q0.y + q1.y;
+	returnQuaternion.z = q0.z + q1.z;
+	returnQuaternion.w = q0.w + q1.w;
+	return returnQuaternion;
+}
+
+Quaternion Subtract(const Quaternion& q0, const Quaternion& q1) {
+	Quaternion returnQuaternion;
+	returnQuaternion.x = q0.x - q1.x;
+	returnQuaternion.y = q0.y - q1.y;
+	returnQuaternion.z = q0.z - q1.z;
+	returnQuaternion.w = q0.w - q1.w;
+	return returnQuaternion;
+}
+
+Quaternion Multiply(const float& f, const Quaternion& q) {
+	Quaternion returnQuaternion;
+	returnQuaternion.x = q.x * f;
+	returnQuaternion.y = q.y * f;
+	returnQuaternion.z = q.z * f;
+	returnQuaternion.w = q.w * f;
+	return returnQuaternion;
+}
+
+
+Quaternion Multiply(const Quaternion& lhs, const Quaternion& rhs) {
+	Quaternion returnQuaternion;
+	Vector3 qv = { lhs.x,lhs.y,lhs.z };
+	Vector3 rv = { rhs.x,rhs.y,rhs.z };
+
+	returnQuaternion.w = lhs.w * rhs.w - Dot(qv, rv);
+	Vector3 ansQ = Cross(qv, rv) + qv * rhs.w + rv * lhs.w;
+	returnQuaternion.x = ansQ.x;
+	returnQuaternion.y = ansQ.y;
+	returnQuaternion.z = ansQ.z;
+
+	return returnQuaternion;
+}
+
+Quaternion IdentityQuaternion() {
+	Quaternion returnQuaternion{};
+
+	returnQuaternion.w = 1.0f;
+
+	return returnQuaternion;
+}
+
+Quaternion Conjugate(const Quaternion& quaternion) {
+	Quaternion returnQuaternion{};
+
+	returnQuaternion.x = -quaternion.x;
+	returnQuaternion.y = -quaternion.y;
+	returnQuaternion.z = -quaternion.z;
+	returnQuaternion.w = quaternion.w;
+
+	return returnQuaternion;
+}
+
+float Norm(const Quaternion& quaternion) {
+	float norm;
+
+	norm = sqrtf(powf(quaternion.w, 2) + powf(quaternion.x, 2) + powf(quaternion.y, 2) + powf(quaternion.z, 2));
+
+	return norm;
+}
+
+Quaternion Normalize(const Quaternion& quaternion) {
+	Quaternion returnQuaternion;
+	float norm = Norm(quaternion);
+
+	returnQuaternion.x = quaternion.x / norm;
+	returnQuaternion.y = quaternion.y / norm;
+	returnQuaternion.z = quaternion.z / norm;
+	returnQuaternion.w = quaternion.w / norm;
+
+	return returnQuaternion;
+}
+
+Quaternion Inverse(const Quaternion& quaternion) {
+	Quaternion returnQuaternion;
+	Quaternion conjugate = Conjugate(quaternion);
+	float norm = Norm(quaternion);
+
+	returnQuaternion.x = conjugate.x / powf(norm, 2);
+	returnQuaternion.y = conjugate.y / powf(norm, 2);
+	returnQuaternion.z = conjugate.z / powf(norm, 2);
+	returnQuaternion.w = conjugate.w / powf(norm, 2);
+
+	return returnQuaternion;
+}
+
+Quaternion MakeRotateAxisAngleQuaternion(const Vector3& axis, float angle) {
+	Quaternion returnQuaternion;
+
+	returnQuaternion.w = cosf(angle / 2.0f);
+	Vector3 vec = axis * sinf(angle / 2.0f);
+	returnQuaternion.x = vec.x;
+	returnQuaternion.y = vec.y;
+	returnQuaternion.z = vec.z;
+
+	return returnQuaternion;
+}
+
+Vector3 RotateVector(const Vector3& vector, const Quaternion& quaternion) {
+	Quaternion vecQuaternion;
+	vecQuaternion.x = vector.x;
+	vecQuaternion.y = vector.y;
+	vecQuaternion.z = vector.z;
+	vecQuaternion.w = 0.0f;
+
+	vecQuaternion = Multiply(Multiply(quaternion, vecQuaternion), Conjugate(quaternion));
+
+	Vector3 returnVector;
+	returnVector.x = vecQuaternion.x;
+	returnVector.y = vecQuaternion.y;
+	returnVector.z = vecQuaternion.z;
+
+	return returnVector;
+}
+
+float Dot(const Quaternion& q0, const Quaternion& q1) {
+	return q0.x * q1.x + q0.y * q1.y + q0.z * q1.z + q0.w * q1.w;
+}
+
+Quaternion Slerp(const Quaternion& q0, const Quaternion& q1, float t) {
+	Quaternion Q0 = q0, Q1 = q1;
+	float dot = Dot(Q0, Q1);
+	if (dot < 0) {
+		Q0 = -Q0;
+		dot = -dot;
+	}
+
+	float theta = std::acosf(dot);
+	if (theta == 0) {
+		return q0;
+	}
+
+	float scale0 = std::sinf((1 - t) * theta) / std::sinf(theta);
+	float scale1 = std::sinf(t * theta) / std::sinf(theta);
+
+	return scale0 * Q0 + scale1 * Q1;
+}
+
+Quaternion operator+(const Quaternion& q1, const Quaternion& q2) { return Add(q1, q2); }
+Quaternion operator-(const Quaternion& q1, const Quaternion& q2) { return Subtract(q1, q2); }
+Quaternion operator*(float s, const Quaternion& q) { return Multiply(s, q); }
+Quaternion operator*(const Quaternion& q, float s) { return s * q; }
+Quaternion operator/(const Quaternion& q, float s) { return (1 / s) * q; }
+Quaternion operator-(const Quaternion& q) { return Quaternion{ -q.x,-q.y,-q.z,-q.w }; }
+Quaternion operator+(const Quaternion& q) { return q; }
 
 #pragma endregion
 
@@ -471,21 +638,36 @@ Matrix4x4 MakeRotateAxisAngle(const Vector3& axis, float angle) {
 	return returnMatrix;
 }
 
-//3次元アフィン変換行列
-Matrix4x4 MakeAffineMatrix(Vector3 scale, Vector3 rotate, Vector3 translate) {
-
-	Matrix4x4 rotateMatrix = MakeRotateMatrix(rotate);
-
+//Quaternionからの回転行列
+Matrix4x4 MakeRotateMatrix(const Quaternion& quaternion) {
 	Matrix4x4 returnMatrix;
-	returnMatrix.m[0][0] = scale.x * rotateMatrix.m[0][0]; returnMatrix.m[0][1] = scale.x * rotateMatrix.m[0][1]; returnMatrix.m[0][2] = scale.x * rotateMatrix.m[0][2]; returnMatrix.m[0][3] = 0.0f;
-	returnMatrix.m[1][0] = scale.y * rotateMatrix.m[1][0]; returnMatrix.m[1][1] = scale.y * rotateMatrix.m[1][1]; returnMatrix.m[1][2] = scale.y * rotateMatrix.m[1][2]; returnMatrix.m[1][3] = 0.0f;
-	returnMatrix.m[2][0] = scale.z * rotateMatrix.m[2][0]; returnMatrix.m[2][1] = scale.z * rotateMatrix.m[2][1]; returnMatrix.m[2][2] = scale.z * rotateMatrix.m[2][2]; returnMatrix.m[2][3] = 0.0f;
-	returnMatrix.m[3][0] = translate.x; returnMatrix.m[3][1] = translate.y; returnMatrix.m[3][2] = translate.z; returnMatrix.m[3][3] = 1.0f;
+
+	// w^2 - x^2 - y^2 ^ z^2
+	Matrix4x4 S = MakeScaleMatrix(Vector3{
+		powf(quaternion.w,2) - powf(quaternion.x,2) - powf(quaternion.y,2) - powf(quaternion.z,2),
+		powf(quaternion.w,2) - powf(quaternion.x,2) - powf(quaternion.y,2) - powf(quaternion.z,2) ,
+		powf(quaternion.w,2) - powf(quaternion.x,2) - powf(quaternion.y,2) - powf(quaternion.z,2)
+		});
+	// -wx,-wy,-wz
+	Matrix4x4 C = CrossMatrix(Vector3{
+		-(quaternion.w * quaternion.x),
+		-(quaternion.w * quaternion.y),
+		-(quaternion.w * quaternion.z)
+		});
+	// x,y,z * x,y,z
+	Matrix4x4 D = DotMatrix(
+		Vector3{ quaternion.x,quaternion.y,quaternion.z },
+		Vector3{ quaternion.x,quaternion.y,quaternion.z }
+	);
+
+	returnMatrix = S + 2.0f * (D + C);
+	returnMatrix.m[3][3] = 1.0f;
 	return returnMatrix;
 }
 
-//クォータニオン行列
-Matrix4x4 MakeQuaternionMatrix(Vector3 scale, Vector3 rotate, Vector3 translate) {
+
+//3次元アフィン変換行列
+Matrix4x4 MakeAffineMatrix(Vector3 scale, Vector3 rotate, Vector3 translate) {
 
 	Matrix4x4 rotateXMatrix = MakeRotateAxisAngle(Vector3{ 1.0f,0.0f,0.0f }, rotate.x);
 	Matrix4x4 rotateYMatrix = MakeRotateAxisAngle(Vector3{ 0.0f,1.0f,0.0f }, rotate.y);
@@ -499,6 +681,20 @@ Matrix4x4 MakeQuaternionMatrix(Vector3 scale, Vector3 rotate, Vector3 translate)
 	returnMatrix.m[2][0] = scale.z * rotateMatrix.m[2][0]; returnMatrix.m[2][1] = scale.z * rotateMatrix.m[2][1]; returnMatrix.m[2][2] = scale.z * rotateMatrix.m[2][2]; returnMatrix.m[2][3] = 0.0f;
 	returnMatrix.m[3][0] = translate.x; returnMatrix.m[3][1] = translate.y; returnMatrix.m[3][2] = translate.z; returnMatrix.m[3][3] = 1.0f;
 	return returnMatrix;
+}
+
+//クォータニオン行列
+Matrix4x4 MakeQuaternionMatrix(Vector3 scale, Quaternion rotate, Vector3 translate) {
+
+	Matrix4x4 rotateMatrix = MakeRotateMatrix(rotate);
+
+	Matrix4x4 returnMatrix;
+	returnMatrix.m[0][0] = scale.x * rotateMatrix.m[0][0]; returnMatrix.m[0][1] = scale.x * rotateMatrix.m[0][1]; returnMatrix.m[0][2] = scale.x * rotateMatrix.m[0][2]; returnMatrix.m[0][3] = 0.0f;
+	returnMatrix.m[1][0] = scale.y * rotateMatrix.m[1][0]; returnMatrix.m[1][1] = scale.y * rotateMatrix.m[1][1]; returnMatrix.m[1][2] = scale.y * rotateMatrix.m[1][2]; returnMatrix.m[1][3] = 0.0f;
+	returnMatrix.m[2][0] = scale.z * rotateMatrix.m[2][0]; returnMatrix.m[2][1] = scale.z * rotateMatrix.m[2][1]; returnMatrix.m[2][2] = scale.z * rotateMatrix.m[2][2]; returnMatrix.m[2][3] = 0.0f;
+	returnMatrix.m[3][0] = translate.x; returnMatrix.m[3][1] = translate.y; returnMatrix.m[3][2] = translate.z; returnMatrix.m[3][3] = 1.0f;
+	return returnMatrix;
+
 }
 
 //内積行列
@@ -552,6 +748,16 @@ Matrix4x4 MakeViewportMatrix(float left, float top, float width, float height, f
 	returnMatrix.m[1][0] = 0.0f; returnMatrix.m[1][1] = -height / 2; returnMatrix.m[1][2] = 0.0f; returnMatrix.m[1][3] = 0.0f;
 	returnMatrix.m[2][0] = 0.0f; returnMatrix.m[2][1] = 0.0f; returnMatrix.m[2][2] = maxDepth - minDepth; returnMatrix.m[2][3] = 0.0f;
 	returnMatrix.m[3][0] = left + width / 2; returnMatrix.m[3][1] = top + height / 2; returnMatrix.m[3][2] = minDepth; returnMatrix.m[3][3] = 1.0f;
+	return returnMatrix;
+}
+
+//aiMatrix変換(GLTF用)
+Matrix4x4 aiMatrix4x4ToMatrix4x4(aiMatrix4x4 matrix) {
+	Matrix4x4 returnMatrix;
+	returnMatrix.m[0][0] = matrix.a1; returnMatrix.m[0][1] = matrix.a2; returnMatrix.m[0][2] = matrix.a3; returnMatrix.m[0][3] = matrix.a4;
+	returnMatrix.m[1][0] = matrix.b1; returnMatrix.m[1][1] = matrix.b2; returnMatrix.m[1][2] = matrix.b3; returnMatrix.m[1][3] = matrix.b4;
+	returnMatrix.m[2][0] = matrix.c1; returnMatrix.m[2][1] = matrix.c2; returnMatrix.m[2][2] = matrix.c3; returnMatrix.m[2][3] = matrix.c4;
+	returnMatrix.m[3][0] = matrix.d1; returnMatrix.m[3][1] = matrix.d2; returnMatrix.m[3][2] = matrix.d3; returnMatrix.m[3][3] = matrix.d4;
 	return returnMatrix;
 }
 

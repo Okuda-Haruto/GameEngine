@@ -4,7 +4,7 @@
 #include <d3d12.h>
 #include <DirectXCommon/DirectXCommon.h>
 #include <SRVManager/SRVManager.h>
-#include <Model/Model.h>
+#include <VertexData.h>
 #include <Material.h>
 #include <Particle.h>
 #include <Emitter.h>

@@ -31,17 +31,36 @@ private:
 
 	//デフォルトカメラ
 	static shared_ptr<Camera> DefaultCamera;
+
+	//アニメーションを使用するか
+	bool isUseAnimation_ = false;
+	//使用するアニメーション
+	UINT animationIndex_ = 0;
+	//アニメーションをループさせるか
+	bool isLoopAnimation_ = false;
+	//アニメーション用時間
+	float animationTime_ = 0.0f;
+	//ボーン
+	std::vector<Bone> bones_;
+
+
 public:
 
 	~Object();
 
 	//初期化
 	void Initialize(shared_ptr<Model> model);
+
+	//更新処理
+	void Update();
+
 	//描画
 	void Draw3D();
 	void Draw3D(uint32_t index);
 	void Draw2D();
 	void Draw2D(uint32_t index);
+
+	void ResetTimer() { animationTime_ = 0.0f; }
 
 	static shared_ptr<Camera> GetDefaultCamera() { return DefaultCamera; }
 	static void SetDefaultCamera(shared_ptr<Camera> defaultCamera) { DefaultCamera = defaultCamera; }
@@ -75,4 +94,18 @@ public:
 	UINT GetVertexIndex() { return model_->GetVertexIndex(); }
 	//オフセット
 	std::vector<Offset> GetOffsets() { return model_->GetOffsets(); }
+
+	//アニメーションを使用するか
+	void SetIsUseAnimation(bool isUseAnimation) { isUseAnimation_ = isUseAnimation; }
+	//使用するアニメーション番号
+	void SetAnimationIndex(UINT animationIndex) { animationIndex_ = animationIndex; }
+	//アニメーションをループさせるか
+	void SetIsLoopAnimation(bool isLoopAnimation) { isLoopAnimation_ = isLoopAnimation; }
+	//アニメーション時間リセット
+	void ResetAnimationTime() { animationTime_ = 0.0f; }
+	//アニメーションが終了しているか
+	bool IsEndAnimation(){ return model_->IsEndAnimation(animationTime_, animationIndex_); }
+
+	//ボーン
+	std::vector<Bone> GetBones() { return bones_; }
 };

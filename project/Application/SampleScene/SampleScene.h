@@ -56,11 +56,6 @@ private:
 	SpotLightElement spotLightElement_;
 	shared_ptr<SpotLight> spotLight_ = nullptr;
 
-
-	//インプット
-	unique_ptr<Input> input;
-
-
 	bool isDisplayUI = true;
 
 public:

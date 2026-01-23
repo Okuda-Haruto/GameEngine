@@ -23,6 +23,7 @@
 
 #include "Log.h"
 #include "Initialvalue.h"
+#include "Animation/Animation.h"
 
 int32_t GameEngine::kWindowWidth_;
 int32_t GameEngine::kWindowHeight_;
@@ -129,11 +130,11 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	//Shaderをコンパイルする
 	Microsoft::WRL::ComPtr<IDxcBlob> Object3DVertexShaderBlob = dxCommon_->CompileShader(L"./resources/Shader/Object3D.VS.hlsl", L"vs_6_0");
 	assert(Object3DVertexShaderBlob != nullptr);
-	Microsoft::WRL::ComPtr<IDxcBlob> Object3DPixelShaderBlob = dxCommon_->CompileShader(L"./resources/Shader/OBject3D.PS.hlsl", L"ps_6_0");
+	Microsoft::WRL::ComPtr<IDxcBlob> Object3DPixelShaderBlob = dxCommon_->CompileShader(L"./resources/Shader/Object3D.PS.hlsl", L"ps_6_0");
 	assert(Object3DPixelShaderBlob != nullptr);
 	Microsoft::WRL::ComPtr<IDxcBlob> Object2DVertexShaderBlob = dxCommon_->CompileShader(L"./resources/Shader/Object2D.VS.hlsl", L"vs_6_0");
 	assert(Object2DVertexShaderBlob != nullptr);
-	Microsoft::WRL::ComPtr<IDxcBlob> Object2DPixelShaderBlob = dxCommon_->CompileShader(L"./resources/Shader/OBject2D.PS.hlsl", L"ps_6_0");
+	Microsoft::WRL::ComPtr<IDxcBlob> Object2DPixelShaderBlob = dxCommon_->CompileShader(L"./resources/Shader/Object2D.PS.hlsl", L"ps_6_0");
 	assert(Object2DPixelShaderBlob != nullptr);
 	Microsoft::WRL::ComPtr<IDxcBlob> instancingObjectVertexShaderBlob = dxCommon_->CompileShader(L"./resources/Shader/InstanceObject3D.VS.hlsl", L"vs_6_0");
 	assert(instancingObjectVertexShaderBlob != nullptr);
@@ -155,11 +156,11 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	object2DPipelineState_ = TrianglePipelineStateInitialvalue(device_, objectRootSignature_, Object2DVertexShaderBlob.Get(), Object2DPixelShaderBlob.Get());
 	noDepthObjectPipelineState_ = NoDepthTrianglePipelineStateInitialvalue(device_, objectRootSignature_, Object3DVertexShaderBlob.Get(), Object3DPixelShaderBlob.Get());
 	instancingObjectPipelineState_ = InstancingTrianglePipelineStateInitialvalue(device_, instancingObjectRootSignature_, instancingObjectVertexShaderBlob.Get(), instancingObjectPixelShaderBlob.Get());
-	particlePipelineState_ = NoDepthInstancingTrianglePipelineStateInitialvalue(device_, particleRootSignature_, particleVSBlob.Get(), particlePSBlob.Get());
-	particleAddBlendPipelineState_ = NoDepthAddBlendInstancingTrianglePipelineStateInitialvalue(device_, particleRootSignature_, particleVSBlob.Get(), particlePSBlob.Get());
+	particlePipelineState_ = ParticlePipelineStateInitialvalue(device_, particleRootSignature_, particleVSBlob.Get(), particlePSBlob.Get());
+	particleAddbrendPipelineState_ = AddBlendParticlePipelineStateInitialvalue(device_, particleRootSignature_, particleVSBlob.Get(), particlePSBlob.Get());
 	spritePipelineState_ = SpritePipelineStateInitialvalue(device_, spriteRootSignature_, Sprite2DVertexShaderBlob.Get(), Sprite2DPixelShaderBlob.Get());
-	linePipelineState_ = LinePipelineStateInitialvalue(device_, instancingObjectRootSignature_, instancingObjectVertexShaderBlob.Get(), instancingLinePixelShaderBlob.Get());
-	noDepthLinePipelineState_ = NoDepthLinePipelineStateInitialvalue(device_, instancingObjectRootSignature_, instancingObjectVertexShaderBlob.Get(), instancingLinePixelShaderBlob.Get());
+	linePipelineState_ = LinePipelineStateInitialvalue(device_, instancingObjectRootSignature_, particleVSBlob.Get(), instancingLinePixelShaderBlob.Get());
+	noDepthLinePipelineState_ = NoDepthLinePipelineStateInitialvalue(device_, instancingObjectRootSignature_, particleVSBlob.Get(), instancingLinePixelShaderBlob.Get());
 	//XAudioエンジンのインスタンスを生成
 	hr = XAudio2Create(&xAudio2_, 0, XAUDIO2_DEFAULT_PROCESSOR);
 	assert(SUCCEEDED(hr));
@@ -178,6 +179,7 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	for (int i = 0; i < kMaxIndex; i++) {
 		objectMaterialResource_[i] = dxCommon_->CreateBufferResources(sizeof(Material));
 		objectWvpResource_[i] = dxCommon_->CreateBufferResources(sizeof(TransformationMatrix));
+		objectBoneResource_[i] = dxCommon_->CreateBufferResources(sizeof(BoneMatrix));
 		spriteMaterialResource_[i] = dxCommon_->CreateBufferResources(sizeof(Material));
 		spriteWvpResource_[i] = dxCommon_->CreateBufferResources(sizeof(TransformationMatrix));
 	}
@@ -185,8 +187,9 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	for (int i = 0; i < kMaxInstanceIndex; i++) {
 		instancingObjectMaterialResource_[i] = dxCommon_->CreateBufferResources(sizeof(Material));
 		instancingObjectResource_[i] = dxCommon_->CreateBufferResources(sizeof(InstancingTransformationMatrix) * kMaxNumInstance);
+		instancingObjectBoneResource_[i] = dxCommon_->CreateBufferResources(sizeof(BoneMatrix));
 		uint32_t index = srvManager_->Allocate();
-		// SRV を作成（NumElements と stride は一致させる）
+		//SRVを作成
 		srvManager_->CreateSRVforStructuredBuffer(index, instancingObjectResource_[i].Get(), kMaxNumInstance, sizeof(InstancingTransformationMatrix));
 		if (i == 0)startInstancingObjectIndex_ = index;
 	}
@@ -198,7 +201,7 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 		instancingSpriteMaterialResource_[i] = dxCommon_->CreateBufferResources(sizeof(Material));
 		instancingSpriteResource_[i] = dxCommon_->CreateBufferResources(sizeof(InstancingTransformationMatrix) * kMaxNumInstance);
 		uint32_t index = srvManager_->Allocate();
-		// SRV を作成（NumElements と stride は一致させる）
+		//SRVを作成
 		srvManager_->CreateSRVforStructuredBuffer(index, instancingSpriteResource_[i].Get(), kMaxNumInstance, sizeof(InstancingTransformationMatrix));
 		if (i == 0)startInstancingSpriteIndex_ = index;
 	}
@@ -299,7 +302,7 @@ void GameEngine::PostDraw_() {
 	dxCommon_->PostDraw();
 }
 
-void GameEngine::DrawObject_3D_(Object* object, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight) {
+void GameEngine::DrawObject_3D_(Object* object, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight, UINT animationIndex, float time) {
 
 	//上限に達していたら描画しない
 	if (objectIndex_ >= kMaxIndex)return;
@@ -321,7 +324,7 @@ void GameEngine::DrawObject_3D_(Object* object, shared_ptr<DirectionalLight> dir
 	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	
 	//オブジェクトのワールド座標
-	Matrix4x4 worldMatrix = MakeQuaternionMatrix(object->GetTransform().scale, object->GetTransform().rotate, object->GetTransform().translate);
+	Matrix4x4 worldMatrix = MakeAffineMatrix(object->GetTransform().scale, object->GetTransform().rotate, object->GetTransform().translate);
 
 	//変更が必要な部分だけ変える
 	for (int i = 0; i < parts.size();i++) {
@@ -329,10 +332,10 @@ void GameEngine::DrawObject_3D_(Object* object, shared_ptr<DirectionalLight> dir
 		//WVPデータを更新
 		objectWvpResource_[objectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&objectWvpData_[objectIndex_]));
 
-		Matrix4x4 partsMatrix = MakeQuaternionMatrix(parts[i].transform->scale, parts[i].transform->rotate, parts[i].transform->translate);
+		Matrix4x4 partsMatrix = MakeAffineMatrix(parts[i].transform->scale, parts[i].transform->rotate, parts[i].transform->translate);
 		if (parts[i].parent) {
 			//親を持つPartsのローカル座標
-			Matrix4x4 parentMatrix = MakeQuaternionMatrix(parts[i].parent->scale, parts[i].parent->rotate, parts[i].parent->translate);
+			Matrix4x4 parentMatrix = MakeAffineMatrix(parts[i].parent->scale, parts[i].parent->rotate, parts[i].parent->translate);
 			partsMatrix = partsMatrix * parentMatrix;
 		} else {
 			//ワールド座標を親に持つPartsのローカル座標
@@ -346,7 +349,18 @@ void GameEngine::DrawObject_3D_(Object* object, shared_ptr<DirectionalLight> dir
 
 		objectWvpResource_[objectIndex_]->Unmap(0, nullptr);
 
-		parts[i].material->uvTransform = MakeQuaternionMatrix(parts[i].UVtransform.scale, parts[i].UVtransform.rotate, parts[i].UVtransform.translate);
+		//ボーンデータ
+		objectBoneResource_[objectIndex]->Map(0, nullptr, reinterpret_cast<void**>(&objectBoneData_[objectIndex]));
+
+		std::vector<Bone> bones = object->GetBones();
+		for (int i = 0; i < bones.size(); i++) {
+			if (i > 128)break;
+			objectBoneData_[objectIndex]->matrix[i] = bones[i].worldMatrix;
+		}
+
+		objectBoneResource_[objectIndex]->Unmap(0,nullptr);
+
+		parts[i].material->uvTransform = MakeAffineMatrix(parts[i].UVtransform.scale, parts[i].UVtransform.rotate, parts[i].UVtransform.translate);
 		parts[i].material->enableDirectionalLighting = directionalLight != nullptr;
 		parts[i].material->enablePointLighting = pointLight != nullptr;
 		parts[i].material->enableSpotLighting = spotLight != nullptr;
@@ -375,7 +389,9 @@ void GameEngine::DrawObject_3D_(Object* object, shared_ptr<DirectionalLight> dir
 		//マテリアルCBufferの場所を設定
 		commandList_->SetGraphicsRootConstantBufferView(0, objectMaterialResource_[objectIndex_]->GetGPUVirtualAddress());
 		//wvp用のCBufferの場所を設定
-		commandList_->SetGraphicsRootConstantBufferView(1, objectWvpResource_[objectIndex_]->GetGPUVirtualAddress());
+		commandList_->SetGraphicsRootConstantBufferView(1, objectWvpResource_[objectIndex]->GetGPUVirtualAddress());
+		//ボーンCBufferの場所を設定
+		commandList_->SetGraphicsRootConstantBufferView(7, objectBoneResource_[objectIndex]->GetGPUVirtualAddress());
 
 		//描画(DrawCall)
 		commandList_->DrawIndexedInstanced(offsets[i].indexCount, 1, 0, offsets[i].vertexStart, 0);
@@ -408,15 +424,15 @@ void GameEngine::DrawParts_3D_(Object* object, uint32_t partsIndex, shared_ptr<D
 	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	//オブジェクトのワールド座標
-	Matrix4x4 worldMatrix = MakeQuaternionMatrix(object->GetTransform().scale, object->GetTransform().rotate, object->GetTransform().translate);
+	Matrix4x4 worldMatrix = MakeAffineMatrix(object->GetTransform().scale, object->GetTransform().rotate, object->GetTransform().translate);
 
 	//WVPデータを更新
 	objectWvpResource_[objectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&objectWvpData_[objectIndex_]));
 
-	Matrix4x4 partsMatrix = MakeQuaternionMatrix(parts[partsIndex].transform->scale, parts[partsIndex].transform->rotate, parts[partsIndex].transform->translate);
+	Matrix4x4 partsMatrix = MakeAffineMatrix(parts[partsIndex].transform->scale, parts[partsIndex].transform->rotate, parts[partsIndex].transform->translate);
 	if (parts[partsIndex].parent) {
 		//親を持つPartsのローカル座標
-		Matrix4x4 parentMatrix = MakeQuaternionMatrix(parts[partsIndex].parent->scale, parts[partsIndex].parent->rotate, parts[partsIndex].parent->translate);
+		Matrix4x4 parentMatrix = MakeAffineMatrix(parts[partsIndex].parent->scale, parts[partsIndex].parent->rotate, parts[partsIndex].parent->translate);
 		partsMatrix = partsMatrix * parentMatrix;
 	} else {
 		//ワールド座標を親に持つPartsのローカル座標
@@ -430,7 +446,18 @@ void GameEngine::DrawParts_3D_(Object* object, uint32_t partsIndex, shared_ptr<D
 
 	objectWvpResource_[objectIndex_]->Unmap(0, nullptr);
 
-	parts[partsIndex].material->uvTransform = MakeQuaternionMatrix(parts[partsIndex].UVtransform.scale, parts[partsIndex].UVtransform.rotate, parts[partsIndex].UVtransform.translate);
+	//ボーンデータ
+	objectBoneResource_[objectIndex]->Map(0, nullptr, reinterpret_cast<void**>(&objectBoneData_[objectIndex]));
+
+	std::vector<Bone> bones = object->GetBones();
+	for (int i = 0; i < bones.size(); i++) {
+		if (i > 128)break;
+		objectBoneData_[objectIndex]->matrix[i] = bones[i].worldMatrix;
+	}
+
+	objectBoneResource_[objectIndex]->Unmap(0, nullptr);
+
+	parts[partsIndex].material->uvTransform = MakeAffineMatrix(parts[partsIndex].UVtransform.scale, parts[partsIndex].UVtransform.rotate, parts[partsIndex].UVtransform.translate);
 	parts[partsIndex].material->enableDirectionalLighting = directionalLight != nullptr;
 	parts[partsIndex].material->enablePointLighting = pointLight != nullptr;
 	parts[partsIndex].material->enableSpotLighting = spotLight != nullptr;
@@ -459,7 +486,9 @@ void GameEngine::DrawParts_3D_(Object* object, uint32_t partsIndex, shared_ptr<D
 	//マテリアルCBufferの場所を設定
 	commandList_->SetGraphicsRootConstantBufferView(0, objectMaterialResource_[objectIndex_]->GetGPUVirtualAddress());
 	//wvp用のCBufferの場所を設定
-	commandList_->SetGraphicsRootConstantBufferView(1, objectWvpResource_[objectIndex_]->GetGPUVirtualAddress());
+	commandList_->SetGraphicsRootConstantBufferView(1, objectWvpResource_[objectIndex]->GetGPUVirtualAddress());
+	//ボーンCBufferの場所を設定
+	commandList_->SetGraphicsRootConstantBufferView(7, objectBoneResource_[objectIndex]->GetGPUVirtualAddress());
 
 	//描画(DrawCall)
 	commandList_->DrawIndexedInstanced(offsets[partsIndex].indexCount, 1, 0, offsets[partsIndex].vertexStart, 0);
@@ -492,7 +521,7 @@ void GameEngine::DrawObject_2D_(Object* object, shared_ptr<DirectionalLight> dir
 	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	//オブジェクトのワールド座標
-	Matrix4x4 worldMatrix = MakeQuaternionMatrix(object->GetTransform().scale, object->GetTransform().rotate, object->GetTransform().translate);
+	Matrix4x4 worldMatrix = MakeAffineMatrix(object->GetTransform().scale, object->GetTransform().rotate, object->GetTransform().translate);
 
 	//変更が必要な部分だけ変える
 	for (int i = 0; i < parts.size(); i++) {
@@ -500,10 +529,10 @@ void GameEngine::DrawObject_2D_(Object* object, shared_ptr<DirectionalLight> dir
 		//WVPデータを更新
 		objectWvpResource_[objectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&objectWvpData_[objectIndex_]));
 
-		Matrix4x4 partsMatrix = MakeQuaternionMatrix(parts[i].transform->scale, parts[i].transform->rotate, parts[i].transform->translate);
+		Matrix4x4 partsMatrix = MakeAffineMatrix(parts[i].transform->scale, parts[i].transform->rotate, parts[i].transform->translate);
 		if (parts[i].parent) {
 			//親を持つPartsのローカル座標
-			Matrix4x4 parentMatrix = MakeQuaternionMatrix(parts[i].parent->scale, parts[i].parent->rotate, parts[i].parent->translate);
+			Matrix4x4 parentMatrix = MakeAffineMatrix(parts[i].parent->scale, parts[i].parent->rotate, parts[i].parent->translate);
 			partsMatrix = partsMatrix * parentMatrix;
 		} else {
 			//ワールド座標を親に持つPartsのローカル座標
@@ -517,7 +546,18 @@ void GameEngine::DrawObject_2D_(Object* object, shared_ptr<DirectionalLight> dir
 
 		objectWvpResource_[objectIndex_]->Unmap(0, nullptr);
 
-		parts[i].material->uvTransform = MakeQuaternionMatrix(parts[i].UVtransform.scale, parts[i].UVtransform.rotate, parts[i].UVtransform.translate);
+		//ボーンデータ
+		objectBoneResource_[objectIndex]->Map(0, nullptr, reinterpret_cast<void**>(&objectBoneData_[objectIndex]));
+
+		std::vector<Bone> bones = object->GetBones();
+		for (int i = 0; i < bones.size(); i++) {
+			if (i > 128)break;
+			objectBoneData_[objectIndex]->matrix[i] = bones[i].worldMatrix;
+		}
+
+		objectBoneResource_[objectIndex]->Unmap(0, nullptr);
+
+		parts[i].material->uvTransform = MakeAffineMatrix(parts[i].UVtransform.scale, parts[i].UVtransform.rotate, parts[i].UVtransform.translate);
 		parts[i].material->enableDirectionalLighting = directionalLight != nullptr;
 		parts[i].material->enablePointLighting = false;
 		parts[i].material->enableSpotLighting = false;
@@ -540,7 +580,9 @@ void GameEngine::DrawObject_2D_(Object* object, shared_ptr<DirectionalLight> dir
 		//マテリアルCBufferの場所を設定
 		commandList_->SetGraphicsRootConstantBufferView(0, objectMaterialResource_[objectIndex_]->GetGPUVirtualAddress());
 		//wvp用のCBufferの場所を設定
-		commandList_->SetGraphicsRootConstantBufferView(1, objectWvpResource_[objectIndex_]->GetGPUVirtualAddress());
+		commandList_->SetGraphicsRootConstantBufferView(1, objectWvpResource_[objectIndex]->GetGPUVirtualAddress());
+		//ボーンCBufferの場所を設定
+		commandList_->SetGraphicsRootConstantBufferView(7, objectBoneResource_[objectIndex]->GetGPUVirtualAddress());
 
 		//描画(DrawCall)
 		commandList_->DrawIndexedInstanced(offsets[i].indexCount, 1, 0, offsets[i].vertexStart, 0);
@@ -577,15 +619,15 @@ void GameEngine::DrawParts_2D_(Object* object, uint32_t partsIndex, shared_ptr<D
 	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	//オブジェクトのワールド座標
-	Matrix4x4 worldMatrix = MakeQuaternionMatrix(object->GetTransform().scale, object->GetTransform().rotate, object->GetTransform().translate);
+	Matrix4x4 worldMatrix = MakeAffineMatrix(object->GetTransform().scale, object->GetTransform().rotate, object->GetTransform().translate);
 
 	//WVPデータを更新
 	objectWvpResource_[objectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&objectWvpData_[objectIndex_]));
 
-	Matrix4x4 partsMatrix = MakeQuaternionMatrix(parts[partsIndex].transform->scale, parts[partsIndex].transform->rotate, parts[partsIndex].transform->translate);
+	Matrix4x4 partsMatrix = MakeAffineMatrix(parts[partsIndex].transform->scale, parts[partsIndex].transform->rotate, parts[partsIndex].transform->translate);
 	if (parts[partsIndex].parent) {
 		//親を持つPartsのローカル座標
-		Matrix4x4 parentMatrix = MakeQuaternionMatrix(parts[partsIndex].parent->scale, parts[partsIndex].parent->rotate, parts[partsIndex].parent->translate);
+		Matrix4x4 parentMatrix = MakeAffineMatrix(parts[partsIndex].parent->scale, parts[partsIndex].parent->rotate, parts[partsIndex].parent->translate);
 		partsMatrix = partsMatrix * parentMatrix;
 	} else {
 		//ワールド座標を親に持つPartsのローカル座標
@@ -599,7 +641,18 @@ void GameEngine::DrawParts_2D_(Object* object, uint32_t partsIndex, shared_ptr<D
 
 	objectWvpResource_[objectIndex_]->Unmap(0, nullptr);
 
-	parts[partsIndex].material->uvTransform = MakeQuaternionMatrix(parts[partsIndex].UVtransform.scale, parts[partsIndex].UVtransform.rotate, parts[partsIndex].UVtransform.translate);
+	//ボーンデータ
+	objectBoneResource_[objectIndex]->Map(0, nullptr, reinterpret_cast<void**>(&objectBoneData_[objectIndex]));
+
+	std::vector<Bone> bones = object->GetBones();
+	for (int i = 0; i < bones.size(); i++) {
+		if (i > 128)break;
+		objectBoneData_[objectIndex]->matrix[i] = bones[i].worldMatrix;
+	}
+
+	objectBoneResource_[objectIndex]->Unmap(0, nullptr);
+
+	parts[partsIndex].material->uvTransform = MakeAffineMatrix(parts[partsIndex].UVtransform.scale, parts[partsIndex].UVtransform.rotate, parts[partsIndex].UVtransform.translate);
 	parts[partsIndex].material->enableDirectionalLighting = directionalLight != nullptr;
 	parts[partsIndex].material->enablePointLighting = false;
 	parts[partsIndex].material->enableSpotLighting = false;
@@ -622,7 +675,9 @@ void GameEngine::DrawParts_2D_(Object* object, uint32_t partsIndex, shared_ptr<D
 	//マテリアルCBufferの場所を設定
 	commandList_->SetGraphicsRootConstantBufferView(0, objectMaterialResource_[objectIndex_]->GetGPUVirtualAddress());
 	//wvp用のCBufferの場所を設定
-	commandList_->SetGraphicsRootConstantBufferView(1, objectWvpResource_[objectIndex_]->GetGPUVirtualAddress());
+	commandList_->SetGraphicsRootConstantBufferView(1, objectWvpResource_[objectIndex]->GetGPUVirtualAddress());
+	//ボーンCBufferの場所を設定
+	commandList_->SetGraphicsRootConstantBufferView(7, objectBoneResource_[objectIndex]->GetGPUVirtualAddress());
 
 	//描画(DrawCall)
 	commandList_->DrawIndexedInstanced(offsets[partsIndex].indexCount, 1, 0, offsets[partsIndex].vertexStart, 0);
@@ -668,13 +723,22 @@ void GameEngine::DrawInstancingObject_3D_(std::list<Object*> objects, shared_ptr
 		parts.push_back((*objectIterator)->GetParts());
 
 		//オブジェクトのワールド座標
-		Matrix4x4 worldMatrix = MakeQuaternionMatrix((*objectIterator)->GetTransform().scale, (*objectIterator)->GetTransform().rotate, (*objectIterator)->GetTransform().translate);
+		Matrix4x4 worldMatrix = MakeAffineMatrix((*objectIterator)->GetTransform().scale, (*objectIterator)->GetTransform().rotate, (*objectIterator)->GetTransform().translate);
 
 		worldMatries.push_back(worldMatrix);
 
 		++numInstance;
 		++objectIterator;
 	}
+
+	//インスタシング描画とボーンアニメーションの両立は構造体の大きさ故に難しい
+	instancingObjectBoneResource_[instancingObjectIndex]->Map(0, nullptr, reinterpret_cast<void**>(&instancingObjectBoneData_));
+	std::vector<Bone> bones = (*objectIterator)->GetBones();
+	for (int i = 0; i < bones.size(); i++) {
+		instancingObjectBoneData_[instancingObjectIndex]->matrix[i] = bones[i].worldMatrix;
+	}
+	instancingObjectBoneResource_[instancingObjectIndex]->Unmap(0, nullptr);
+	commandList_->SetGraphicsRootConstantBufferView(7, instancingObjectBoneResource_[instancingObjectIndex]->GetGPUVirtualAddress());
 	
 	//パーツごとにインスタシング描画
 	for (uint32_t i = 0; i < numParts; i++) {
@@ -698,11 +762,11 @@ void GameEngine::DrawInstancingObject_3D_(std::list<Object*> objects, shared_ptr
 			if (numInstance >= kMaxNumInstance)break;
 
 			//ワールド座標を親に持つPartsのローカル座標
-			Matrix4x4 partsMatrix = MakeQuaternionMatrix(parts[numInstance][i].transform->scale, parts[numInstance][i].transform->rotate, parts[numInstance][i].transform->translate);
+			Matrix4x4 partsMatrix = MakeAffineMatrix(parts[numInstance][i].transform->scale, parts[numInstance][i].transform->rotate, parts[numInstance][i].transform->translate);
 
 			if (parts[numInstance][i].parent) {
 				//親を持つPartsのローカル座標
-				Matrix4x4 parentMatrix = MakeQuaternionMatrix(parts[numInstance][i].parent->scale, parts[numInstance][i].parent->rotate, parts[numInstance][i].parent->translate);
+				Matrix4x4 parentMatrix = MakeAffineMatrix(parts[numInstance][i].parent->scale, parts[numInstance][i].parent->rotate, parts[numInstance][i].parent->translate);
 				partsMatrix = partsMatrix * parentMatrix;
 			} else {
 				//ワールド座標を親に持つPartsのローカル座標
@@ -721,7 +785,7 @@ void GameEngine::DrawInstancingObject_3D_(std::list<Object*> objects, shared_ptr
 		instancingObjectResource_[instancingObjectIndex_]->Unmap(0, nullptr);
 
 		//インスタシング描画の都合上マテリアルは先頭のもの全てに適応
-		parts[0][i].material->uvTransform = MakeQuaternionMatrix(parts[0][i].UVtransform.scale, parts[0][i].UVtransform.rotate, parts[0][i].UVtransform.translate);
+		parts[0][i].material->uvTransform = MakeAffineMatrix(parts[0][i].UVtransform.scale, parts[0][i].UVtransform.rotate, parts[0][i].UVtransform.translate);
 		parts[0][i].material->enableDirectionalLighting = directionalLight != nullptr;
 		parts[0][i].material->enablePointLighting = pointLight != nullptr;
 		parts[0][i].material->enableSpotLighting = spotLight != nullptr;
@@ -871,9 +935,9 @@ void GameEngine::DrawSprite_2D_(Sprite* sprite) {
 	//WVPデータを更新
 	spriteWvpResource_[spriteIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&spriteWvpData_[spriteIndex_]));
 
-	Matrix4x4 worldMatrix = MakeQuaternionMatrix(sprite->GetTransform().scale, sprite->GetTransform().rotate, sprite->GetTransform().translate);
-	spriteWvpData_[spriteIndex_]->World = worldMatrix;
-	spriteWvpData_[spriteIndex_]->WorldInverseTranspose = Transpose(Inverse(worldMatrix));
+	Matrix4x4 worldMatrix = MakeAffineMatrix(sprite->GetTransform().scale, sprite->GetTransform().rotate, sprite->GetTransform().translate);
+	spriteWvpData_[spriteIndex]->World = worldMatrix;
+	spriteWvpData_[spriteIndex]->WorldInverseTranspose = Transpose(Inverse(worldMatrix));
 
 	Matrix4x4 worldViewProjectionMatrix = worldMatrix * viewMatrix * projectionMatrix;
 	spriteWvpData_[spriteIndex_]->WVP = worldViewProjectionMatrix;
@@ -883,13 +947,13 @@ void GameEngine::DrawSprite_2D_(Sprite* sprite) {
 	//マテリアルデータを更新
 	spriteMaterialResource_[spriteIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&spriteMaterialData_[spriteIndex_]));
 
-	spriteMaterialData_[spriteIndex_]->color = sprite->GetColor();
-	spriteMaterialData_[spriteIndex_]->uvTransform = MakeQuaternionMatrix(sprite->GetUVTransform().scale, sprite->GetUVTransform().rotate, sprite->GetUVTransform().translate);
-	spriteMaterialData_[spriteIndex_]->reflection = 0;
-	spriteMaterialData_[spriteIndex_]->enableDirectionalLighting = false;
-	spriteMaterialData_[spriteIndex_]->enablePointLighting = false;
-	spriteMaterialData_[spriteIndex_]->enableSpotLighting = false;
-	spriteMaterialData_[spriteIndex_]->shininess = 0.0f;
+	spriteMaterialData_[spriteIndex]->color = sprite->GetColor();
+	spriteMaterialData_[spriteIndex]->uvTransform = MakeAffineMatrix(sprite->GetUVTransform().scale, sprite->GetUVTransform().rotate, sprite->GetUVTransform().translate);
+	spriteMaterialData_[spriteIndex]->reflection = 0;
+	spriteMaterialData_[spriteIndex]->enableDirectionalLighting = false;
+	spriteMaterialData_[spriteIndex]->enablePointLighting = false;
+	spriteMaterialData_[spriteIndex]->enableSpotLighting = false;
+	spriteMaterialData_[spriteIndex]->shininess = 0.0f;
 
 	spriteMaterialResource_[spriteIndex_]->Unmap(0, nullptr);
 
@@ -951,9 +1015,9 @@ void GameEngine::DrawInstancingSprite_2D_(std::list<Sprite*> sprits) {
 
 		if (numInstance >= kMaxNumInstance)break;
 
-		Matrix4x4 worldMatrix = MakeQuaternionMatrix((*SpriteIterator)->GetTransform().translate, (*SpriteIterator)->GetTransform().rotate, (*SpriteIterator)->GetTransform().translate);
-		instancingSpriteData_[instancingSpriteIndex_][numInstance]->World = worldMatrix;
-		instancingSpriteData_[instancingSpriteIndex_][numInstance]->WorldInverseTranspose = Transpose(Inverse(worldMatrix));
+		Matrix4x4 worldMatrix = MakeAffineMatrix((*SpriteIterator)->GetTransform().translate, (*SpriteIterator)->GetTransform().rotate, (*SpriteIterator)->GetTransform().translate);
+		instancingSpriteData_[instancingSpriteIndex][numInstance]->World = worldMatrix;
+		instancingSpriteData_[instancingSpriteIndex][numInstance]->WorldInverseTranspose = Transpose(Inverse(worldMatrix));
 		Matrix4x4 worldViewProjectionMatrix = worldMatrix * viewMatrix * projectionMatrix;
 		instancingSpriteData_[instancingSpriteIndex_][numInstance]->WVP = worldViewProjectionMatrix;
 
@@ -966,7 +1030,7 @@ void GameEngine::DrawInstancingSprite_2D_(std::list<Sprite*> sprits) {
 	Material material = startSprite->GetMaterial();
 	SRT UVTransform = startSprite->GetUVTransform();
 
-	material.uvTransform = MakeQuaternionMatrix(UVTransform.scale, UVTransform.rotate, UVTransform.translate);
+	material.uvTransform = MakeAffineMatrix(UVTransform.scale, UVTransform.rotate, UVTransform.translate);
 	material.reflection = 0;
 	material.enableDirectionalLighting = false;
 	material.enablePointLighting = false;
@@ -1040,7 +1104,7 @@ void GameEngine::DrawLine_(std::list<Line> lines, PrimitiveManager::PrimitiveRes
 		transform.rotate.x = std::atan2(-(*lineIterator).diff.y, length);
 		transform.translate = (*lineIterator).origin;	//直線の開始地点
 
-		Matrix4x4 worldMatrix = MakeQuaternionMatrix(transform.scale, transform.rotate, transform.translate);
+		Matrix4x4 worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
 
 		primitiveData_[PrimitiveManager::SHAPE_Plane][numInstance]->World = worldMatrix;
 		primitiveData_[PrimitiveManager::SHAPE_Plane][numInstance]->WorldInverseTranspose = Transpose(Inverse(worldMatrix));
@@ -1119,7 +1183,7 @@ void GameEngine::DrawPoint_(std::list<Vector3> points, PrimitiveManager::Primiti
 		transform.scale = Vector3{ 1.0f,1.0f,1.0f };
 		transform.translate = (*pointIterator);	//特に言うことはない
 
-		Matrix4x4 worldMatrix = MakeQuaternionMatrix(transform.scale, transform.rotate, transform.translate);
+		Matrix4x4 worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
 
 		primitiveData_[PrimitiveManager::SHAPE_Point][numInstance]->World = worldMatrix;
 		primitiveData_[PrimitiveManager::SHAPE_Point][numInstance]->WorldInverseTranspose = Transpose(Inverse(worldMatrix));
@@ -1199,7 +1263,7 @@ void GameEngine::DrawAABB_(std::list<AABB> aabbs, PrimitiveManager::PrimitiveRes
 		transform.translate = (*aabbIterator).min;	//AABBの開始地点
 		transform.scale = (*aabbIterator).max - (*aabbIterator).min;	//AABBの終了地点
 
-		Matrix4x4 worldMatrix = MakeQuaternionMatrix(transform.scale, transform.rotate, transform.translate);
+		Matrix4x4 worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
 
 		primitiveData_[PrimitiveManager::SHAPE_AABB][numInstance]->World = worldMatrix;
 		primitiveData_[PrimitiveManager::SHAPE_AABB][numInstance]->WorldInverseTranspose = Transpose(Inverse(worldMatrix));

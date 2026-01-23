@@ -4,8 +4,10 @@
 #include "Vector4.h"
 #include "UINT4.h"
 
-struct VertexData {
+struct ObjectVertexData {
 	Vector4 position;
 	Vector2 texcoord;
 	Vector3 normal;
+	UINT4 boneID;
+	Vector4 boneWeight;
 };

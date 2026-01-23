@@ -75,7 +75,7 @@ ModelData LoadObjFile(const std::string& directoryPath, const std::string& filen
 			normal.x *= -1.0f;
 			normals.push_back(normal);
 		} else if (identifier == "f") {	//面
-			VertexData triangle[3];
+			ObjectVertexData triangle[3]{};
 			//面は三角形限定。その他は未定義
 			for (int32_t faceVertex = 0; faceVertex < 3; ++faceVertex) {
 				std::string vertexDefinition;
@@ -106,12 +106,15 @@ ModelData LoadObjFile(const std::string& directoryPath, const std::string& filen
 				} else {
 					normal = {};
 				}
-				triangle[faceVertex] = { position,texcoord,normal };
+				triangle[faceVertex].position = position;
+				triangle[faceVertex].texcoord = texcoord;
+				triangle[faceVertex].normal = normal;
 			}
 			//頂点を逆順に登録することで、周り順を逆にする
 			modelData.vertices.push_back(triangle[2]);
 			modelData.vertices.push_back(triangle[1]);
 			modelData.vertices.push_back(triangle[0]);
+
 		} else if (identifier == "usemtl") {
 			//使用するMaterialの名前を取得する
 			std::string materialFilename;
@@ -143,6 +146,11 @@ ModelData LoadObjFile(const std::string& directoryPath, const std::string& filen
 	offset.indexCount = offset.vertexCount;
 
 	modelData.offset.push_back(offset);
+
+	//3角形2つを組合わせ4角形にする
+	for (uint32_t i = 0; i < modelData.vertices.size(); i++) {
+		modelData.indexes.push_back(i);
+	}
 
 	return modelData;
 }

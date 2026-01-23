@@ -2,8 +2,10 @@
 #include <Vector2.h>
 #include <Vector3.h>
 #include <Vector4.h>
+#include <Quaternion.h>
 #include <Matrix3x3.h>
 #include <Matrix4x4.h>
+#include <assimp/matrix4x4.h>
 #include <vector>
 
 #pragma region Vector2
@@ -84,6 +86,7 @@ float Dot(const Vector4& v1, const Vector4& v2);
 float Length(const Vector4& v);
 //正規化
 Vector4 Normalize(const Vector4& v);
+Vector4 NormalizeWeights(const Vector4& v);
 // 線形補間
 Vector4 Lerp(Vector4 a, Vector4 b, float t);
 
@@ -94,6 +97,52 @@ Vector4 operator*(const Vector4& v, float s);
 Vector4 operator/(const Vector4& v, float s);
 Vector4 operator-(const Vector4& v);
 Vector4 operator+(const Vector4& v);
+
+#pragma endregion
+
+#pragma region Quaternion
+
+//加算
+Quaternion Add(const Quaternion& q0, const Quaternion& q1);
+
+//減算
+Quaternion Subtract(const Quaternion& q0, const Quaternion& q1);
+
+//スカラー倍
+Quaternion Multiply(const float& f, const Quaternion& q);
+
+//乗算
+Quaternion Multiply(const Quaternion& lhs, const Quaternion& rhs);
+
+//単位クオータニオン
+Quaternion IdentityQuaternion();
+
+Quaternion Conjugate(const Quaternion& quaternion);
+
+float Norm(const Quaternion& quaternion);
+
+Quaternion Normalize(const Quaternion& quaternion);
+
+Quaternion Inverse(const Quaternion& quaternion);
+
+//任意軸回転を表すQuaternionの生成
+Quaternion MakeRotateAxisAngleQuaternion(const Vector3& axis, float angle);
+//ベクトルをQuaternionで回転させた結果のベクトルを求める
+Vector3 RotateVector(const Vector3& vector, const Quaternion& quaternion);
+
+//内積
+float Dot(const Quaternion& q0, const Quaternion& q1);
+
+//球面線形補間
+Quaternion Slerp(const Quaternion& q0, const Quaternion& q1, float t);
+
+Quaternion operator+(const Quaternion& q1, const Quaternion& q2);
+Quaternion operator-(const Quaternion& q1, const Quaternion& q2);
+Quaternion operator*(float s, const Quaternion& q);
+Quaternion operator*(const Quaternion& q, float s);
+Quaternion operator/(const Quaternion& q, float s);
+Quaternion operator-(const Quaternion& q);
+Quaternion operator+(const Quaternion& q);
 
 #pragma endregion
 
@@ -129,11 +178,13 @@ Matrix4x4 MakeRotateZMatrix(float radian);
 Matrix4x4 MakeRotateMatrix(Vector3 rotate);
 //任意軸回転行列
 Matrix4x4 MakeRotateAxisAngle(const Vector3& axis, float angle);
+//Quaternionからの回転行列
+Matrix4x4 MakeRotateMatrix(const Quaternion& quaternion);
 
 //3次元アフィン変換行列
 Matrix4x4 MakeAffineMatrix(Vector3 scale, Vector3 rotate, Vector3 translate);
 //クォータニオン行列
-Matrix4x4 MakeQuaternionMatrix(Vector3 scale, Vector3 rotate, Vector3 translate);
+Matrix4x4 MakeQuaternionMatrix(Vector3 scale, Quaternion rotate, Vector3 translate);
 
 //内積行列
 Matrix4x4 DotMatrix(const Vector3& v1, const Vector3& v2);
@@ -146,6 +197,9 @@ Matrix4x4 MakePerspectiveFovMatrix(float fovY, float aspectRatio, float nearClip
 Matrix4x4 MakeOrthographicMatrix(float left, float top, float right, float bottom, float nearClip, float farClip);
 //ビューポート変換行列
 Matrix4x4 MakeViewportMatrix(float left, float top, float width, float height, float minDepth, float maxDepth);
+
+//aiMatrix変換(GLTF用)
+Matrix4x4 aiMatrix4x4ToMatrix4x4(aiMatrix4x4 matrix);
 
 Matrix4x4 operator+(const Matrix4x4& m1, const Matrix4x4& m2);
 Matrix4x4 operator-(const Matrix4x4& m1, const Matrix4x4& m2);
