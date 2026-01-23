@@ -30,6 +30,8 @@ void Object::Initialize(shared_ptr<Model> model) {
 
 		parts_[i].UVtransform = {};
 		parts_[i].UVtransform.scale = { 1.0f,1.0f,1.0f };
+
+		parts_[i].material->shading = SHADING_Blinn_Phong;
 	}
 
 	transform_ = {};
@@ -55,7 +57,7 @@ void Object::Update() {
 			AnimationData animationData = model_->GetAnimationData(animationIndex_);
 			animationTime_ -= float(animationData.duration / animationData.FPS);
 		}
-		model_->BoneAnimation(bones_, animationTime_, animationIndex_);
+		model_->BoneAnimation(bones_, animationTime_, animationIndex_, interpolation_);
 	}
 }
 
@@ -78,6 +80,12 @@ void Object::Draw2D(uint32_t index) {
 void Object::SetReflection(UINT reflection) {
 	for (int i = 0; i < parts_.size(); i++) {
 		parts_[i].material->reflection = reflection;
+	}
+}
+
+void Object::SetShading(UINT shading) {
+	for (int i = 0; i < parts_.size(); i++) {
+		parts_[i].material->shading = shading;
 	}
 }
 

@@ -157,7 +157,7 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	noDepthObjectPipelineState_ = NoDepthTrianglePipelineStateInitialvalue(device_, objectRootSignature_, Object3DVertexShaderBlob.Get(), Object3DPixelShaderBlob.Get());
 	instancingObjectPipelineState_ = InstancingTrianglePipelineStateInitialvalue(device_, instancingObjectRootSignature_, instancingObjectVertexShaderBlob.Get(), instancingObjectPixelShaderBlob.Get());
 	particlePipelineState_ = ParticlePipelineStateInitialvalue(device_, particleRootSignature_, particleVSBlob.Get(), particlePSBlob.Get());
-	particleAddbrendPipelineState_ = AddBlendParticlePipelineStateInitialvalue(device_, particleRootSignature_, particleVSBlob.Get(), particlePSBlob.Get());
+	particleAddBrendPipelineState_ = AddBlendParticlePipelineStateInitialvalue(device_, particleRootSignature_, particleVSBlob.Get(), particlePSBlob.Get());
 	spritePipelineState_ = SpritePipelineStateInitialvalue(device_, spriteRootSignature_, Sprite2DVertexShaderBlob.Get(), Sprite2DPixelShaderBlob.Get());
 	linePipelineState_ = LinePipelineStateInitialvalue(device_, instancingObjectRootSignature_, particleVSBlob.Get(), instancingLinePixelShaderBlob.Get());
 	noDepthLinePipelineState_ = NoDepthLinePipelineStateInitialvalue(device_, instancingObjectRootSignature_, particleVSBlob.Get(), instancingLinePixelShaderBlob.Get());
@@ -350,15 +350,15 @@ void GameEngine::DrawObject_3D_(Object* object, shared_ptr<DirectionalLight> dir
 		objectWvpResource_[objectIndex_]->Unmap(0, nullptr);
 
 		//ボーンデータ
-		objectBoneResource_[objectIndex]->Map(0, nullptr, reinterpret_cast<void**>(&objectBoneData_[objectIndex]));
+		objectBoneResource_[objectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&objectBoneData_[objectIndex_]));
 
 		std::vector<Bone> bones = object->GetBones();
 		for (int i = 0; i < bones.size(); i++) {
 			if (i > 128)break;
-			objectBoneData_[objectIndex]->matrix[i] = bones[i].worldMatrix;
+			objectBoneData_[objectIndex_]->matrix[i] = bones[i].worldMatrix;
 		}
 
-		objectBoneResource_[objectIndex]->Unmap(0,nullptr);
+		objectBoneResource_[objectIndex_]->Unmap(0,nullptr);
 
 		parts[i].material->uvTransform = MakeAffineMatrix(parts[i].UVtransform.scale, parts[i].UVtransform.rotate, parts[i].UVtransform.translate);
 		parts[i].material->enableDirectionalLighting = directionalLight != nullptr;
@@ -389,9 +389,9 @@ void GameEngine::DrawObject_3D_(Object* object, shared_ptr<DirectionalLight> dir
 		//マテリアルCBufferの場所を設定
 		commandList_->SetGraphicsRootConstantBufferView(0, objectMaterialResource_[objectIndex_]->GetGPUVirtualAddress());
 		//wvp用のCBufferの場所を設定
-		commandList_->SetGraphicsRootConstantBufferView(1, objectWvpResource_[objectIndex]->GetGPUVirtualAddress());
+		commandList_->SetGraphicsRootConstantBufferView(1, objectWvpResource_[objectIndex_]->GetGPUVirtualAddress());
 		//ボーンCBufferの場所を設定
-		commandList_->SetGraphicsRootConstantBufferView(7, objectBoneResource_[objectIndex]->GetGPUVirtualAddress());
+		commandList_->SetGraphicsRootConstantBufferView(7, objectBoneResource_[objectIndex_]->GetGPUVirtualAddress());
 
 		//描画(DrawCall)
 		commandList_->DrawIndexedInstanced(offsets[i].indexCount, 1, 0, offsets[i].vertexStart, 0);
@@ -447,15 +447,15 @@ void GameEngine::DrawParts_3D_(Object* object, uint32_t partsIndex, shared_ptr<D
 	objectWvpResource_[objectIndex_]->Unmap(0, nullptr);
 
 	//ボーンデータ
-	objectBoneResource_[objectIndex]->Map(0, nullptr, reinterpret_cast<void**>(&objectBoneData_[objectIndex]));
+	objectBoneResource_[objectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&objectBoneData_[objectIndex_]));
 
 	std::vector<Bone> bones = object->GetBones();
 	for (int i = 0; i < bones.size(); i++) {
 		if (i > 128)break;
-		objectBoneData_[objectIndex]->matrix[i] = bones[i].worldMatrix;
+		objectBoneData_[objectIndex_]->matrix[i] = bones[i].worldMatrix;
 	}
 
-	objectBoneResource_[objectIndex]->Unmap(0, nullptr);
+	objectBoneResource_[objectIndex_]->Unmap(0, nullptr);
 
 	parts[partsIndex].material->uvTransform = MakeAffineMatrix(parts[partsIndex].UVtransform.scale, parts[partsIndex].UVtransform.rotate, parts[partsIndex].UVtransform.translate);
 	parts[partsIndex].material->enableDirectionalLighting = directionalLight != nullptr;
@@ -486,9 +486,9 @@ void GameEngine::DrawParts_3D_(Object* object, uint32_t partsIndex, shared_ptr<D
 	//マテリアルCBufferの場所を設定
 	commandList_->SetGraphicsRootConstantBufferView(0, objectMaterialResource_[objectIndex_]->GetGPUVirtualAddress());
 	//wvp用のCBufferの場所を設定
-	commandList_->SetGraphicsRootConstantBufferView(1, objectWvpResource_[objectIndex]->GetGPUVirtualAddress());
+	commandList_->SetGraphicsRootConstantBufferView(1, objectWvpResource_[objectIndex_]->GetGPUVirtualAddress());
 	//ボーンCBufferの場所を設定
-	commandList_->SetGraphicsRootConstantBufferView(7, objectBoneResource_[objectIndex]->GetGPUVirtualAddress());
+	commandList_->SetGraphicsRootConstantBufferView(7, objectBoneResource_[objectIndex_]->GetGPUVirtualAddress());
 
 	//描画(DrawCall)
 	commandList_->DrawIndexedInstanced(offsets[partsIndex].indexCount, 1, 0, offsets[partsIndex].vertexStart, 0);
@@ -547,15 +547,15 @@ void GameEngine::DrawObject_2D_(Object* object, shared_ptr<DirectionalLight> dir
 		objectWvpResource_[objectIndex_]->Unmap(0, nullptr);
 
 		//ボーンデータ
-		objectBoneResource_[objectIndex]->Map(0, nullptr, reinterpret_cast<void**>(&objectBoneData_[objectIndex]));
+		objectBoneResource_[objectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&objectBoneData_[objectIndex_]));
 
 		std::vector<Bone> bones = object->GetBones();
 		for (int i = 0; i < bones.size(); i++) {
 			if (i > 128)break;
-			objectBoneData_[objectIndex]->matrix[i] = bones[i].worldMatrix;
+			objectBoneData_[objectIndex_]->matrix[i] = bones[i].worldMatrix;
 		}
 
-		objectBoneResource_[objectIndex]->Unmap(0, nullptr);
+		objectBoneResource_[objectIndex_]->Unmap(0, nullptr);
 
 		parts[i].material->uvTransform = MakeAffineMatrix(parts[i].UVtransform.scale, parts[i].UVtransform.rotate, parts[i].UVtransform.translate);
 		parts[i].material->enableDirectionalLighting = directionalLight != nullptr;
@@ -580,9 +580,9 @@ void GameEngine::DrawObject_2D_(Object* object, shared_ptr<DirectionalLight> dir
 		//マテリアルCBufferの場所を設定
 		commandList_->SetGraphicsRootConstantBufferView(0, objectMaterialResource_[objectIndex_]->GetGPUVirtualAddress());
 		//wvp用のCBufferの場所を設定
-		commandList_->SetGraphicsRootConstantBufferView(1, objectWvpResource_[objectIndex]->GetGPUVirtualAddress());
+		commandList_->SetGraphicsRootConstantBufferView(1, objectWvpResource_[objectIndex_]->GetGPUVirtualAddress());
 		//ボーンCBufferの場所を設定
-		commandList_->SetGraphicsRootConstantBufferView(7, objectBoneResource_[objectIndex]->GetGPUVirtualAddress());
+		commandList_->SetGraphicsRootConstantBufferView(7, objectBoneResource_[objectIndex_]->GetGPUVirtualAddress());
 
 		//描画(DrawCall)
 		commandList_->DrawIndexedInstanced(offsets[i].indexCount, 1, 0, offsets[i].vertexStart, 0);
@@ -642,15 +642,15 @@ void GameEngine::DrawParts_2D_(Object* object, uint32_t partsIndex, shared_ptr<D
 	objectWvpResource_[objectIndex_]->Unmap(0, nullptr);
 
 	//ボーンデータ
-	objectBoneResource_[objectIndex]->Map(0, nullptr, reinterpret_cast<void**>(&objectBoneData_[objectIndex]));
+	objectBoneResource_[objectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&objectBoneData_[objectIndex_]));
 
 	std::vector<Bone> bones = object->GetBones();
 	for (int i = 0; i < bones.size(); i++) {
 		if (i > 128)break;
-		objectBoneData_[objectIndex]->matrix[i] = bones[i].worldMatrix;
+		objectBoneData_[objectIndex_]->matrix[i] = bones[i].worldMatrix;
 	}
 
-	objectBoneResource_[objectIndex]->Unmap(0, nullptr);
+	objectBoneResource_[objectIndex_]->Unmap(0, nullptr);
 
 	parts[partsIndex].material->uvTransform = MakeAffineMatrix(parts[partsIndex].UVtransform.scale, parts[partsIndex].UVtransform.rotate, parts[partsIndex].UVtransform.translate);
 	parts[partsIndex].material->enableDirectionalLighting = directionalLight != nullptr;
@@ -675,9 +675,9 @@ void GameEngine::DrawParts_2D_(Object* object, uint32_t partsIndex, shared_ptr<D
 	//マテリアルCBufferの場所を設定
 	commandList_->SetGraphicsRootConstantBufferView(0, objectMaterialResource_[objectIndex_]->GetGPUVirtualAddress());
 	//wvp用のCBufferの場所を設定
-	commandList_->SetGraphicsRootConstantBufferView(1, objectWvpResource_[objectIndex]->GetGPUVirtualAddress());
+	commandList_->SetGraphicsRootConstantBufferView(1, objectWvpResource_[objectIndex_]->GetGPUVirtualAddress());
 	//ボーンCBufferの場所を設定
-	commandList_->SetGraphicsRootConstantBufferView(7, objectBoneResource_[objectIndex]->GetGPUVirtualAddress());
+	commandList_->SetGraphicsRootConstantBufferView(7, objectBoneResource_[objectIndex_]->GetGPUVirtualAddress());
 
 	//描画(DrawCall)
 	commandList_->DrawIndexedInstanced(offsets[partsIndex].indexCount, 1, 0, offsets[partsIndex].vertexStart, 0);
@@ -732,13 +732,13 @@ void GameEngine::DrawInstancingObject_3D_(std::list<Object*> objects, shared_ptr
 	}
 
 	//インスタシング描画とボーンアニメーションの両立は構造体の大きさ故に難しい
-	instancingObjectBoneResource_[instancingObjectIndex]->Map(0, nullptr, reinterpret_cast<void**>(&instancingObjectBoneData_));
+	instancingObjectBoneResource_[instancingObjectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&instancingObjectBoneData_));
 	std::vector<Bone> bones = (*objectIterator)->GetBones();
 	for (int i = 0; i < bones.size(); i++) {
-		instancingObjectBoneData_[instancingObjectIndex]->matrix[i] = bones[i].worldMatrix;
+		instancingObjectBoneData_[instancingObjectIndex_]->matrix[i] = bones[i].worldMatrix;
 	}
-	instancingObjectBoneResource_[instancingObjectIndex]->Unmap(0, nullptr);
-	commandList_->SetGraphicsRootConstantBufferView(7, instancingObjectBoneResource_[instancingObjectIndex]->GetGPUVirtualAddress());
+	instancingObjectBoneResource_[instancingObjectIndex_]->Unmap(0, nullptr);
+	commandList_->SetGraphicsRootConstantBufferView(7, instancingObjectBoneResource_[instancingObjectIndex_]->GetGPUVirtualAddress());
 	
 	//パーツごとにインスタシング描画
 	for (uint32_t i = 0; i < numParts; i++) {
@@ -936,8 +936,8 @@ void GameEngine::DrawSprite_2D_(Sprite* sprite) {
 	spriteWvpResource_[spriteIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&spriteWvpData_[spriteIndex_]));
 
 	Matrix4x4 worldMatrix = MakeAffineMatrix(sprite->GetTransform().scale, sprite->GetTransform().rotate, sprite->GetTransform().translate);
-	spriteWvpData_[spriteIndex]->World = worldMatrix;
-	spriteWvpData_[spriteIndex]->WorldInverseTranspose = Transpose(Inverse(worldMatrix));
+	spriteWvpData_[spriteIndex_]->World = worldMatrix;
+	spriteWvpData_[spriteIndex_]->WorldInverseTranspose = Transpose(Inverse(worldMatrix));
 
 	Matrix4x4 worldViewProjectionMatrix = worldMatrix * viewMatrix * projectionMatrix;
 	spriteWvpData_[spriteIndex_]->WVP = worldViewProjectionMatrix;
@@ -947,13 +947,13 @@ void GameEngine::DrawSprite_2D_(Sprite* sprite) {
 	//マテリアルデータを更新
 	spriteMaterialResource_[spriteIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&spriteMaterialData_[spriteIndex_]));
 
-	spriteMaterialData_[spriteIndex]->color = sprite->GetColor();
-	spriteMaterialData_[spriteIndex]->uvTransform = MakeAffineMatrix(sprite->GetUVTransform().scale, sprite->GetUVTransform().rotate, sprite->GetUVTransform().translate);
-	spriteMaterialData_[spriteIndex]->reflection = 0;
-	spriteMaterialData_[spriteIndex]->enableDirectionalLighting = false;
-	spriteMaterialData_[spriteIndex]->enablePointLighting = false;
-	spriteMaterialData_[spriteIndex]->enableSpotLighting = false;
-	spriteMaterialData_[spriteIndex]->shininess = 0.0f;
+	spriteMaterialData_[spriteIndex_]->color = sprite->GetColor();
+	spriteMaterialData_[spriteIndex_]->uvTransform = MakeAffineMatrix(sprite->GetUVTransform().scale, sprite->GetUVTransform().rotate, sprite->GetUVTransform().translate);
+	spriteMaterialData_[spriteIndex_]->reflection = 0;
+	spriteMaterialData_[spriteIndex_]->enableDirectionalLighting = false;
+	spriteMaterialData_[spriteIndex_]->enablePointLighting = false;
+	spriteMaterialData_[spriteIndex_]->enableSpotLighting = false;
+	spriteMaterialData_[spriteIndex_]->shininess = 0.0f;
 
 	spriteMaterialResource_[spriteIndex_]->Unmap(0, nullptr);
 
@@ -1016,8 +1016,8 @@ void GameEngine::DrawInstancingSprite_2D_(std::list<Sprite*> sprits) {
 		if (numInstance >= kMaxNumInstance)break;
 
 		Matrix4x4 worldMatrix = MakeAffineMatrix((*SpriteIterator)->GetTransform().translate, (*SpriteIterator)->GetTransform().rotate, (*SpriteIterator)->GetTransform().translate);
-		instancingSpriteData_[instancingSpriteIndex][numInstance]->World = worldMatrix;
-		instancingSpriteData_[instancingSpriteIndex][numInstance]->WorldInverseTranspose = Transpose(Inverse(worldMatrix));
+		instancingSpriteData_[instancingSpriteIndex_][numInstance]->World = worldMatrix;
+		instancingSpriteData_[instancingSpriteIndex_][numInstance]->WorldInverseTranspose = Transpose(Inverse(worldMatrix));
 		Matrix4x4 worldViewProjectionMatrix = worldMatrix * viewMatrix * projectionMatrix;
 		instancingSpriteData_[instancingSpriteIndex_][numInstance]->WVP = worldViewProjectionMatrix;
 

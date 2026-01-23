@@ -1,4 +1,5 @@
 #include "Object3d.hlsli"
+#include "Material.hlsli"
 
 struct DirectionalLight
 {
@@ -36,17 +37,6 @@ struct Camera
     float farDist;
     float nearTransparentDist;
     float farTransparentDist;
-};
-
-struct Material
-{
-    float4 color;
-    int reflection;
-    int enableDirectionalLighting;
-    int enablePointLighting;
-    int enableSpotLighting;
-    float4x4 uvTransform;
-    float shininess;
 };
 
 ConstantBuffer<Material> gMaterial : register(b0);
@@ -328,7 +318,14 @@ PixelShaderOutput main(VertexShaderOutput input)
     if (gMaterial.reflection <= 0 || gMaterial.reflection > 2)
         return output;
         
-    output = BlinnPhangReflectionModel(input,textureColor);
+    if (gMaterial.shading == 0)
+    {
+        output = PhangReflectionModel(input, textureColor);
+    } 
+    else
+    {
+        output = BlinnPhangReflectionModel(input, textureColor);
+    }
     
     return output;
 }

@@ -125,6 +125,8 @@ Quaternion Normalize(const Quaternion& quaternion);
 
 Quaternion Inverse(const Quaternion& quaternion);
 
+Quaternion Log(const Quaternion& quaternion);
+
 //任意軸回転を表すQuaternionの生成
 Quaternion MakeRotateAxisAngleQuaternion(const Vector3& axis, float angle);
 //ベクトルをQuaternionで回転させた結果のベクトルを求める
@@ -136,10 +138,14 @@ float Dot(const Quaternion& q0, const Quaternion& q1);
 //球面線形補間
 Quaternion Slerp(const Quaternion& q0, const Quaternion& q1, float t);
 
+//球面スプライン
+Quaternion Squad(const Quaternion& q0, const Quaternion& q1, const Quaternion& q2, const Quaternion& q3, float t);
+
 Quaternion operator+(const Quaternion& q1, const Quaternion& q2);
 Quaternion operator-(const Quaternion& q1, const Quaternion& q2);
 Quaternion operator*(float s, const Quaternion& q);
 Quaternion operator*(const Quaternion& q, float s);
+Quaternion operator*(const Quaternion& q1, Quaternion q2);
 Quaternion operator/(const Quaternion& q, float s);
 Quaternion operator-(const Quaternion& q);
 Quaternion operator+(const Quaternion& q);

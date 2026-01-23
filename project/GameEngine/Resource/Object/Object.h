@@ -6,6 +6,7 @@
 #include "Model/Model.h"
 #include "Material.h"
 #include "Parts.h"
+#include <AnimationInterpolation.h>
 #include <Camera/Camera.h>
 #include <DirectionalLight/DirectionalLight.h>
 #include <PointLight/PointLight.h>
@@ -40,6 +41,8 @@ private:
 	bool isLoopAnimation_ = false;
 	//アニメーション用時間
 	float animationTime_ = 0.0f;
+	//アニメーション補完方法
+	AnimationInterpolation interpolation_ = AnimationInterpolation::Linear;
 	//ボーン
 	std::vector<Bone> bones_;
 
@@ -79,6 +82,8 @@ public:
 
 	//反射方法(例:REFLECTION_Lambert)
 	void SetReflection(UINT reflection);
+	
+	void SetShading(UINT shading);
 	//鏡面反射(大きいほどつるつるになる。例:40.0f)
 	void SetShininess(float shininess);
 
@@ -105,6 +110,8 @@ public:
 	void ResetAnimationTime() { animationTime_ = 0.0f; }
 	//アニメーションが終了しているか
 	bool IsEndAnimation(){ return model_->IsEndAnimation(animationTime_, animationIndex_); }
+	//アニメーション補完方法
+	void SetAnimationInterpolation(AnimationInterpolation interpolation) { interpolation_ = interpolation; }
 
 	//ボーン
 	std::vector<Bone> GetBones() { return bones_; }

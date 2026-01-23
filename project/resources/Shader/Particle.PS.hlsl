@@ -1,4 +1,5 @@
 #include "Particle.hlsli"
+#include "Material.hlsli"
 
 struct Fog
 {
@@ -8,18 +9,6 @@ struct Fog
     float fogStart;
     float fogEnd;
     float4 color;
-};
-
-
-struct Material
-{
-    float4 color;
-    int reflection;
-    int enableDirectionalLighting;
-    int enablePointLighting;
-    int enableSpotLighting;
-    float4x4 uvTransform;
-    float shininess;
 };
 
 ConstantBuffer<Material> gMaterial : register(b0);

@@ -534,6 +534,9 @@
     <ClInclude Include="GameEngine\Math\QuaternionTransform.h">
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
+    <ClInclude Include="GameEngine\Data\AnimationInterpolation.h">
+      <Filter>GameEngine\Data</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -547,6 +550,9 @@
       <Filter>GameEngine\Shader</Filter>
     </None>
     <None Include="resources\Shader\InstanceObject3d.hlsli">
+      <Filter>GameEngine\Shader</Filter>
+    </None>
+    <None Include="resources\Shader\Material.hlsli">
       <Filter>GameEngine\Shader</Filter>
     </None>
   </ItemGroup>

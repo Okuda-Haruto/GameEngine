@@ -11,52 +11,54 @@
 #include <Sprite/Sprite.h>
 #include <ParticleEmitter/ParticleEmitter.h>
 
-using namespace std;
-
 class SampleScene
 {
 private:
 
-	shared_ptr<Input> input_;
+	std::shared_ptr<Input> input_;
 
 	// 3Dモデル
 	std::array<bool, 7>isObjectDraw_{ TRUE ,TRUE ,TRUE ,TRUE ,TRUE ,TRUE ,TRUE };
-	std::array<unique_ptr<Object>, 7> object_;
+	std::array<std::unique_ptr<Object>, 7> object_;
+
+	std::vector<std::unique_ptr<Object>> gltfs_;
+	int gltfIndex_ = 0;
+
 	// 3Dモデルデータ
 	std::array<SRT, 7> objectTransform_;
 
 	Emitter emitter_;
 	AccelerationField accelerationField_;
-	unique_ptr<ParticleEmitter> particleEmitter_ = nullptr;
+	std::unique_ptr<ParticleEmitter> particleEmitter_ = nullptr;
 
 	//2Dモデル
 	std::array<bool, 2> isSpriteDraw_ = { true,false };
-	std::array<unique_ptr<Sprite>,2> sprite_;
+	std::array<std::unique_ptr<Sprite>,2> sprite_;
 
-	unique_ptr<Audio> audio_ = nullptr;
+	std::unique_ptr<Audio> audio_ = nullptr;
 	
 	// カメラ
 	SRT cameraTransform_{};
-	shared_ptr<Camera> defaultCamera_ = nullptr;
+	std::shared_ptr<Camera> defaultCamera_ = nullptr;
 
 	//デバッグカメラ
-	shared_ptr<DebugCamera> debugCamera_ = nullptr;
+	std::shared_ptr<DebugCamera> debugCamera_ = nullptr;
 	//デバッグカメラを使用するか
 	bool isUseDebugCamera_ = true;
 
 	//光源
 	DirectionalLightElement directionalLightElement_;
-	shared_ptr<DirectionalLight> directionalLight_ = nullptr;
+	std::shared_ptr<DirectionalLight> directionalLight_ = nullptr;
 	UINT reflection = REFLECTION_HalfLambert;
 	float shininess_ = 40.0f;
 
 	PointLightElement pointLightElement_;
-	shared_ptr<PointLight> pointLight_ = nullptr;
+	std::shared_ptr<PointLight> pointLight_ = nullptr;
 
 	SpotLightElement spotLightElement_;
-	shared_ptr<SpotLight> spotLight_ = nullptr;
+	std::shared_ptr<SpotLight> spotLight_ = nullptr;
 
-	bool isDisplayUI = true;
+	bool isDisplayUI = false;
 
 public:
 	//デストラクタ

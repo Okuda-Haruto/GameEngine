@@ -1,4 +1,5 @@
 #include "InstanceObject3d.hlsli"
+#include "Material.hlsli"
 
 struct DirectionalLight
 {
@@ -34,17 +35,6 @@ struct Camera
     float3 WorldPosition;
     float nearDist;
     float farDist;
-};
-
-struct Material
-{
-    float4 color;
-    int reflection;
-    int enableDirectionalLighting;
-    int enablePointLighting;
-    int enableSpotLighting;
-    float4x4 uvTransform;
-    float shininess;
 };
 
 ConstantBuffer<Material> gMaterial : register(b0);
