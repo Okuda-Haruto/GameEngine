@@ -282,6 +282,15 @@ Vector4 Normalize(const Vector4& v) {
 	return AnswerVector;
 }
 
+//正規化
+Vector4 NormalizeWeights(const Vector4& v) {
+	float sum = v.x + v.y + v.z + v.w;
+	if (sum > 0.0f) {
+		return Vector4(v.x / sum, v.y / sum, v.z / sum, v.w / sum);
+	}
+	return v;
+}
+
 Vector4 Lerp(Vector4 a, Vector4 b, float t) {
 	Vector4 AnswerVector;
 	AnswerVector.x = a.x * (1 - t) + b.x * t;

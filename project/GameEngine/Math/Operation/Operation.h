@@ -86,6 +86,7 @@ float Dot(const Vector4& v1, const Vector4& v2);
 float Length(const Vector4& v);
 //正規化
 Vector4 Normalize(const Vector4& v);
+Vector4 NormalizeWeights(const Vector4& v);
 // 線形補間
 Vector4 Lerp(Vector4 a, Vector4 b, float t);
 

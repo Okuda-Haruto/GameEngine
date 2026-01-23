@@ -33,6 +33,9 @@ VertexShaderOutput main(VertexShaderInput input)
         input.weights.z > 0.0f ||
         input.weights.w > 0.0f)
     {
+        float totalWeight = input.weights.x + input.weights.y + input.weights.z + input.weights.w;
+        float4 w = input.weights / totalWeight;
+        
         float4 skinnedPos = float4(0, 0, 0, 0);
         float3 skinnedNormal = float3(0, 0, 0);
         [unroll]

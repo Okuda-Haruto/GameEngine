@@ -74,6 +74,10 @@ ModelData LoadGLTFFile(const std::string& directoryPath, const std::string& file
 			modelData.bones.push_back(bone);
 		}
 
+		for (int index = 0; index < modelData.vertices.size(); index++) {
+			modelData.vertices[index].boneWeight = NormalizeWeights(modelData.vertices[index].boneWeight);
+		}
+
 		//オフセット記録
 		offset.vertexCount = UINT(modelData.vertices.size()) - offset.vertexStart;
 		offset.indexCount = UINT(modelData.indexes.size()) - offset.indexStart;
@@ -177,24 +181,80 @@ std::shared_ptr<Node>& FindNode(std::shared_ptr<Node>& node, const std::string& 
 }
 
 void SetVertexWeight(UINT4& ids, Vector4& weights, UINT id, float weight) {
-	if (weights.x <= 0.0f) {
-		ids.x = id;
-		weights.x = weight;
-		return;
-	}
-	if (weights.y <= 0.0f) {
-		ids.y = id;
-		weights.y = weight;
-		return;
-	}
-	if (weights.z <= 0.0f) {
-		ids.z = id;
-		weights.z = weight;
-		return;
-	}
-	if (weights.w <= 0.0f) {
-		ids.w = id;
-		weights.w = weight;
-		return;
+	//weightが満杯なら
+	if (weights.x > 0.0f &&
+		weights.y > 0.0f &&
+		weights.z > 0.0f &&
+		weights.w > 0.0f) {
+
+		//全てのweightより小さいなら切り捨て
+		if (weights.x > weight &&
+			weights.y > weight &&
+			weights.z > weight &&
+			weights.w > weight) {
+			return;
+		}
+
+		//最小値のweightのIndexを求める
+		UINT minIndex = ids.x;
+		if (weights.x < weights.y && weights.x < weights.z && weights.x < weights.w) {
+			minIndex = ids.x;
+		} else if (weights.y < weights.x && weights.y < weights.z && weights.y < weights.w) {
+			minIndex = ids.y;
+		} else if (weights.z < weights.x && weights.z < weights.y && weights.z < weights.w) {
+			minIndex = ids.z;
+		} else if (weights.w < weights.x && weights.w < weights.y && weights.w < weights.z) {
+			minIndex = ids.w;
+		}
+
+		//最小値のweightを上書き
+		if (ids.x == minIndex) {
+			ids.x = id;
+			weights.x = weight;
+			weights = NormalizeWeights(weights);
+			return;
+		}
+		if (ids.y == minIndex) {
+			ids.y = id;
+			weights.y = weight;
+			weights = NormalizeWeights(weights);
+			return;
+		}
+		if (ids.z == minIndex) {
+			ids.z = id;
+			weights.z = weight;
+			weights = NormalizeWeights(weights);
+			return;
+		}
+		if (ids.w == minIndex) {
+			ids.w = id;
+			weights.w = weight;
+			weights = NormalizeWeights(weights);
+			return;
+		}
+
+	} else {
+
+		//空いてるところから入れていく
+		if (weights.x <= 0.0f) {
+			ids.x = id;
+			weights.x = weight;
+			return;
+		}
+		if (weights.y <= 0.0f) {
+			ids.y = id;
+			weights.y = weight;
+			return;
+		}
+		if (weights.z <= 0.0f) {
+			ids.z = id;
+			weights.z = weight;
+			return;
+		}
+		if (weights.w <= 0.0f) {
+			ids.w = id;
+			weights.w = weight;
+			return;
+		}
 	}
 }

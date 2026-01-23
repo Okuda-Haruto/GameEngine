@@ -37,7 +37,7 @@ void SampleScene::Initialize() {
 	object_[4]->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/terrain", "terrain.obj"));
 	object_[5] = make_unique<Object>();
 	object_[5]->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/gltf", "box.gltf"));
-	object_[5]->SetIsUseAnimation(true);
+	//object_[5]->SetIsUseAnimation(true);
 	object_[5]->SetIsLoopAnimation(true);
 	object_[6] = make_unique<Object>();
 	object_[6]->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/teapot", "teapot.obj"));
