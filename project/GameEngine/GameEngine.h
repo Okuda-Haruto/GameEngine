@@ -21,7 +21,6 @@
 #include "BoneMatrix.h"
 #include "Fog.h"
 
-#include "Text.h"
 #include <Audio/Audio.h>
 #include "Input/Input.h"
 #include "DebugCamera.h"
@@ -81,7 +80,7 @@ private:
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> noDepthObjectPipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> instancingObjectPipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> particlePipelineState_ = nullptr;
-	Microsoft::WRL::ComPtr <ID3D12PipelineState> particleAddbrendPipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> particleAddBlendPipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> spritePipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> linePipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> noDepthLinePipelineState_ = nullptr;
@@ -95,7 +94,7 @@ public:
 	static const uint32_t kMaxNumInstance = 256;
 private:
 #pragma region object
-	int16_t objectIndex;
+	int16_t objectIndex_;
 	//マテリアルリソース
 	std::array <Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxIndex > objectMaterialResource_;
 	//マテリアルデータ
@@ -111,8 +110,8 @@ private:
 #pragma endregion
 
 #pragma region instancingObject
-	int16_t instancingObjectIndex;
-	uint32_t startInstancingObjectIndex;
+	int16_t instancingObjectIndex_;
+	uint32_t startInstancingObjectIndex_;
 	//マテリアルリソース
 	std::array <Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxInstanceIndex > instancingObjectMaterialResource_;
 	//マテリアルデータ
@@ -128,7 +127,7 @@ private:
 #pragma endregion
 
 #pragma region Particle
-	int16_t particleIndex;
+	int16_t particleIndex_;
 	//マテリアルリソース
 	std::array <Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxInstanceIndex > particleMaterialResource_;
 	//マテリアルデータ
@@ -140,7 +139,7 @@ private:
 #pragma endregion
 
 #pragma region sprite
-	int16_t spriteIndex;
+	int16_t spriteIndex_;
 	//マテリアルリソース
 	std::array <Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxIndex > spriteMaterialResource_;
 	//マテリアルデータ
@@ -152,8 +151,8 @@ private:
 #pragma endregion
 
 #pragma region instancingSprite
-	int16_t instancingSpriteIndex;
-	uint32_t startInstancingSpriteIndex;
+	int16_t instancingSpriteIndex_;
+	uint32_t startInstancingSpriteIndex_;
 	//マテリアルリソース
 	std::array <Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxInstanceIndex > instancingSpriteMaterialResource_;
 	//マテリアルデータ
@@ -188,7 +187,7 @@ private:
 	//テクスチャデータ
 	std::vector<TextureData> textureData_;
 
-	void Intialize_(const wchar_t* WindowName, int32_t kWindowWidth = 1280, int32_t kWindowHeight = 720);
+	void Initialize_(const wchar_t* WindowName, int32_t kWindowWidth = 1280, int32_t kWindowHeight = 720);
 
 	float randomFloat_(float minFloat, float maxFloat);
 	int32_t randomInt_(int32_t minInt,int32_t maxInt);
@@ -206,16 +205,7 @@ private:
 	void DrawParts_2D_(Object* object, uint32_t partsIndex, shared_ptr<DirectionalLight> directionalLight);
 	void DrawInstancingObject_3D_(std::list<Object*> objects, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight);
 	void DrawParticle_(ParticleGroup particleGroup);
-	/*void DrawSprite_3D_();
-	void DrawInstancingSprite_3D_();
-	void DrawBillbord_3D_();
-	void DrawInstancingBillbord_3D_();
-	void DrawLine_3D_();
-	void DrawInstancingLine_3D_();
-	void DrawAxisIndicator_3D_();
-	void DrawGrid_3D_();
-	void DrawObject_2D_();
-	void DrawInstancingObject_2D_();*/
+
 	void DrawSprite_2D_(Sprite* sprite);
 	void DrawInstancingSprite_2D_(std::list<Sprite*> sprits);
 
@@ -252,7 +242,7 @@ public:
 	/// <param name="WindowName">ウィンドウ名 (例:L"LE2A_00_ミョウジ_ナマエ")</param>
 	/// <param name="kWindowWidth">ウィンドウの幅 (例:1280)</param>
 	/// <param name="kWindowHeight">ウィンドウの高さ (例:720)</param>
-	static void Intialize(const wchar_t* WindowName, int32_t kWindowWidth = 1280, int32_t kWindowHeight = 720) { GetInstance()->Intialize_(WindowName, kWindowWidth, kWindowHeight); }
+	static void Initialize(const wchar_t* WindowName, int32_t kWindowWidth = 1280, int32_t kWindowHeight = 720) { GetInstance()->Initialize_(WindowName, kWindowWidth, kWindowHeight); }
 
 	static float randomFloat(float minFloat, float maxFloat) { return GetInstance()->randomFloat_(minFloat, maxFloat); }
 	static int32_t randomInt(int32_t minInt, int32_t maxInt) { return GetInstance()->randomInt_(minInt, maxInt); }

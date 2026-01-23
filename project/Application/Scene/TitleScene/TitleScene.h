@@ -29,7 +29,7 @@ private:
 	std::unique_ptr<Object> player_;
 
 	std::unique_ptr<Sprite>titleSprite_;
-	std::unique_ptr<Sprite>pless_B_Start_Sprite_;
+	std::unique_ptr<Sprite>press_B_Start_Sprite_;
 	std::unique_ptr<Sprite>credit_Sprite_;
 
 	float animationTime = 0.0f;

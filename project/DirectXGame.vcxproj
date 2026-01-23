@@ -91,11 +91,6 @@
     <ClCompile Include="GameEngine\Resource\PointLight\PointLight.cpp" />
     <ClCompile Include="GameEngine\Resource\SpotLight\SpotLight.cpp" />
     <ClCompile Include="GameEngine\Resource\Sprite\Sprite.cpp" />
-    <ClCompile Include="GameEngine\Resource\Text.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="GameEngine\Modules\Input\Input.cpp" />
     <ClCompile Include="Application\Scene\GameScene\GameScene.cpp" />
     <ClCompile Include="Application\BackGround\Ground\Ground.cpp" />
@@ -205,11 +200,6 @@
     <ClInclude Include="GameEngine\Resource\PointLight\PointLight.h" />
     <ClInclude Include="GameEngine\Resource\SpotLight\SpotLight.h" />
     <ClInclude Include="GameEngine\Resource\Sprite\Sprite.h" />
-    <ClInclude Include="GameEngine\Resource\Text.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClInclude>
     <ClInclude Include="GameEngine\Modules\Input\Input.h" />
     <ClInclude Include="Application\SampleScene\SampleScene.h" />
     <ClInclude Include="Application\BackGround\Skydome\Skydome.h" />

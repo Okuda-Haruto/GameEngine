@@ -226,22 +226,6 @@ void GameScene::Initialize(shared_ptr<Input> input) {
 	tumbleweed_ = std::make_unique<Tumbleweed>();
 	tumbleweed_->Initialize(gameCamera_->GetCamera(),directionalLight_,pointLight_,particle_4.get());
 
-	/*for (int i = 0; i < 64; i++) {	//大岩で囲むために一番最初に使う奴
-		std::unique_ptr<BackGround> newBG = std::make_unique<BackGround>();
-		newBG->Initialize(7);
-		SRT transform = {
-			{1,1,1},
-			{0,i * std::numbers::pi_v<float> * 2 / 64,0},
-			{0,0,0}
-		};
-		Matrix4x4 rotateMatrix = MakeRotateYMatrix(transform.rotate.y);
-		transform.translate = Vector3{ 0,0,256 } * rotateMatrix;
-		newBG->SetTransform(transform);
-		newBG->SetDirectionalLight(directionalLight_);
-		newBG->SetPointLight(pointLight_);
-		backGrouds_.push_back(move(newBG));
-	}*/
-
 	fence_ = std::make_unique<Fence>();
 	fence_->Initialize(gameCamera_->GetCamera(),directionalLight_,pointLight_);
 
@@ -517,8 +501,8 @@ void GameScene::Collision() {
 
 				//どちらかがキャラクターの場合
 				if (idA & 0b100 || idB & 0b100) {
-					if (Length((*iteratorA)->GetSphare().center - (*iteratorB)->GetSphare().center) <=
-						((*iteratorA)->GetSphare().radius + (*iteratorB)->GetSphare().radius)) {
+					if (Length((*iteratorA)->GetSphere().center - (*iteratorB)->GetSphere().center) <=
+						((*iteratorA)->GetSphere().radius + (*iteratorB)->GetSphere().radius)) {
 						(*iteratorA)->IsCollision();
 						(*iteratorB)->IsCollision();
 					}
@@ -527,15 +511,15 @@ void GameScene::Collision() {
 			} else if (idA & 0b01 && idB & 0b00) {
 				//プレイヤーがアイテムを取得
 				if (idA == CollisionID_Player_Character && idB == CollisionID_Item_Bullet) {
-					if (Length((*iteratorA)->GetSphare().center - (*iteratorB)->GetSphare().center) <=
-						((*iteratorA)->GetSphare().radius + (*iteratorB)->GetSphare().radius)) {
+					if (Length((*iteratorA)->GetSphere().center - (*iteratorB)->GetSphere().center) <=
+						((*iteratorA)->GetSphere().radius + (*iteratorB)->GetSphere().radius)) {
 						(*iteratorB)->IsCollision();
 					}
 				}
 				//プレイヤー弾がボックスを破壊
 				if (idA == CollisionID_Player_Bullet && idB == CollisionID_Item_Character) {
-					if (Length((*iteratorA)->GetSphare().center - (*iteratorB)->GetSphare().center) <=
-						((*iteratorA)->GetSphare().radius + (*iteratorB)->GetSphare().radius)) {
+					if (Length((*iteratorA)->GetSphere().center - (*iteratorB)->GetSphere().center) <=
+						((*iteratorA)->GetSphere().radius + (*iteratorB)->GetSphere().radius)) {
 						(*iteratorA)->IsCollision();
 						(*iteratorB)->IsCollision();
 					}
@@ -543,15 +527,15 @@ void GameScene::Collision() {
 			} else if (idA & 0b00 && idB & 0b01) {
 				//プレイヤーがアイテムを取得
 				if (idA == CollisionID_Item_Bullet && idB == CollisionID_Player_Character) {
-					if (Length((*iteratorA)->GetSphare().center - (*iteratorB)->GetSphare().center) <=
-						((*iteratorA)->GetSphare().radius + (*iteratorB)->GetSphare().radius)) {
+					if (Length((*iteratorA)->GetSphere().center - (*iteratorB)->GetSphere().center) <=
+						((*iteratorA)->GetSphere().radius + (*iteratorB)->GetSphere().radius)) {
 						(*iteratorA)->IsCollision();
 					}
 				}
 				//プレイヤー弾がボックスを破壊
 				if (idA == CollisionID_Item_Character && idB == CollisionID_Player_Bullet) {
-					if (Length((*iteratorA)->GetSphare().center - (*iteratorB)->GetSphare().center) <=
-						((*iteratorA)->GetSphare().radius + (*iteratorB)->GetSphare().radius)) {
+					if (Length((*iteratorA)->GetSphere().center - (*iteratorB)->GetSphere().center) <=
+						((*iteratorA)->GetSphere().radius + (*iteratorB)->GetSphere().radius)) {
 						(*iteratorA)->IsCollision();
 						(*iteratorB)->IsCollision();
 					}
@@ -561,8 +545,8 @@ void GameScene::Collision() {
 			//キャラクター同士の場合
 			if (idA & 0b100 && idB & 0b100) {
 
-				if (Length((*iteratorA)->GetSphare().center - (*iteratorB)->GetSphare().center) <=
-					((*iteratorA)->GetSphare().radius + (*iteratorB)->GetSphare().radius)) {
+				if (Length((*iteratorA)->GetSphere().center - (*iteratorB)->GetSphere().center) <=
+					((*iteratorA)->GetSphere().radius + (*iteratorB)->GetSphere().radius)) {
 					
 				}
 			}

@@ -22,7 +22,7 @@ protected:
 	uint8_t id_;
 public:
 	virtual void IsCollision() {}
-	Sphere GetSphare() { return sphere_; }
+	Sphere GetSphere() { return sphere_; }
 	uint8_t GetID() { return id_; }
 	bool GetInvincible() { return invincible_; }
 };
