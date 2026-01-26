@@ -136,6 +136,12 @@ void SampleScene::Initialize() {
 
 	std::unique_ptr<Object> box_;
 	box_ = make_unique<Object>();
+	box_->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/gltf", "box.gltf"));
+	box_->SetIsUseAnimation(true);
+	box_->SetIsLoopAnimation(true);
+	box_->SetAnimationInterpolation(AnimationInterpolation::Linear);
+	gltfs_.push_back(move(box_));
+	box_ = make_unique<Object>();
 	box_->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/gltf", "box_0.gltf"));
 	box_->SetIsUseAnimation(true);
 	box_->SetIsLoopAnimation(true);
@@ -284,6 +290,7 @@ void SampleScene::Update() {
 	}
 
 	ImGui::Begin("デバッグ");
+	ImGui::Text("FPS: %5.2f fps", ImGui::GetIO().Framerate);
 	ImGui::Checkbox("デバッグカメラ", &isUseDebugCamera_);
 	if (isUseDebugCamera_) {
 		if (ImGui::Button("カメラリセット")) {
@@ -530,11 +537,11 @@ void SampleScene::Update() {
 	ImGui::DragFloat3("Line diff", &line.diff.x, 0.01f);
 	PrimitiveManager::GetInstance()->AddLine(line);
 
-	static Vector3 point = { 0.5f,0.5f,0.5f };
+	static Vector3 point = { 0.0f,0.0f,0.0f };
 	ImGui::DragFloat3("Point pos", &point.x, 0.01f);
 	PrimitiveManager::GetInstance()->AddPoint(point);
 
-	static AABB aabb = { .min{0.0f,0.0f,0.0f},.max{1.0f,1.0f,1.0f} };
+	static AABB aabb = { .min{-1.0f,-1.0f,-1.0f},.max{1.0f,1.0f,1.0f} };
 	ImGui::DragFloat3("AABB min", &aabb.min.x, 0.01f);
 	ImGui::DragFloat3("AABB max", &aabb.max.x, 0.01f);
 	PrimitiveManager::GetInstance()->AddAABB(aabb);

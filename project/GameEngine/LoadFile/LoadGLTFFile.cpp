@@ -60,7 +60,7 @@ ModelData LoadGLTFFile(const std::string& directoryPath, const std::string& file
 		for (uint32_t boneIndex = 0; boneIndex < mesh->mNumBones; ++boneIndex) {
 			aiBone* boneData = mesh->mBones[boneIndex];
 			Bone bone;
-			bone.offsetMatrix = aiMatrix4x4ToMatrix4x4(boneData->mOffsetMatrix);
+			bone.offsetMatrix = Transpose(aiMatrix4x4ToMatrix4x4(boneData->mOffsetMatrix));
 			bone.name = boneData->mName.C_Str();
 			//Weightの解析
 			for (uint32_t weightIndex = 0; weightIndex < boneData->mNumWeights; ++weightIndex) {
@@ -91,6 +91,7 @@ ModelData LoadGLTFFile(const std::string& directoryPath, const std::string& file
 			aiString textureFilePath;
 			material->GetTexture(aiTextureType_DIFFUSE, 0, &textureFilePath);
 			modelData.material.textureFilepath = directoryPath + "/" + textureFilePath.C_Str();
+			modelData.textureIndex.push_back(TextureManager::GetInstance()->GetSrvIndex(modelData.material.textureFilepath));
 		}
 	}
 
