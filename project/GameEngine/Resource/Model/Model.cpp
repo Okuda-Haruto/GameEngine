@@ -61,10 +61,12 @@ void Model::Initialize(const std::string& directoryPath, const std::string& file
 
 	//ワールド座標
 	for (Bone& bone : modelData_.bones) {
+		//QuaternionTransform animationTransform = GetAnimationTransform(bone.node, modelData_.animations[0], AnimationInterpolation::Step, 0.0f);
+		//bone.localMatrix = MakeQuaternionMatrix(animationTransform.scale, animationTransform.rotate, animationTransform.translate);
 		bone.localMatrix = MakeIdentity4x4();
 	}
 	for (Bone& bone : modelData_.bones) {
-		bone.worldMatrix = SetWorldMatrix(modelData_.rootNode, bone) * bone.offsetMatrix;
+		bone.finalMatrix = bone.node.lock()->localMatrix * SetWorldMatrix(modelData_.rootNode, bone) * bone.offsetMatrix;
 	}
 }
 
@@ -73,14 +75,14 @@ void Model::BoneAnimation(std::vector<Bone>& bones,float time, UINT animationInd
 	assert(animationIndex < modelData_.animations.size());
 
 	//ローカル座標
-	for (int i = 0; i < modelData_.bones.size();i++) {
-		QuaternionTransform animationTransform = GetAnimationTransform(bones[i].node, modelData_.animations[animationIndex], interpolation, time);
-		bones[i].localMatrix = MakeQuaternionMatrix(animationTransform.scale, animationTransform.rotate, animationTransform.translate);
+	for (Bone& bone : bones) {
+		QuaternionTransform animationTransform = GetAnimationTransform(bone.node, modelData_.animations[animationIndex], interpolation, time);
+		bone.localMatrix = MakeQuaternionMatrix(animationTransform.scale, animationTransform.rotate, animationTransform.translate);
 	}
 
 	//ワールド座標
 	for (Bone& bone : bones) {
-		bone.worldMatrix = SetWorldMatrix(modelData_.rootNode, bone) * bone.offsetMatrix;
+		bone.finalMatrix = bone.node.lock()->localMatrix * SetWorldMatrix(modelData_.rootNode, bone) * bone.offsetMatrix;
 	}
 
 }
@@ -90,27 +92,27 @@ void Model::BoneAnimation(std::vector<Bone>& bones,float time, UINT animationInd
 
 //階層構造の行列変換
 Matrix4x4 Model::Model::SetWorldMatrix(std::shared_ptr<Node> node, Bone bone) {
-	Matrix4x4 result = bone.localMatrix;
-	//現在のノードが指定していたノードなら単位行列を得る
+// node から目的の bone.name までの合成行列を返す。
+	// 見つからなければゼロ行列を返す（呼び側は m[3][3] == 0 で判定する）
+	// 目的ノードに到達したら、そのノードの局所行列は bone.localMatrix で置き換える。
+
+	// 現在ノードの行列（通常は node->localMatrix）
+	Matrix4x4 current = node->localMatrix;
+
+	// 目的ノードなら bone.localMatrix を使って返す
 	if (node->name == bone.name) {
-		result = MakeIdentity4x4();
-		return result;
-	}
-	//指定したノードがなかったら0行列を得る
-	if (node->children.empty()) {
-		result = {};
-		return {};
+		return bone.localMatrix;
 	}
 
-	//そうでないならローカル座標を掛ける
+	// 子を探索し、見つかったら current * childMatrix を返す
 	for (std::shared_ptr<Node>& child : node->children) {
-		Matrix4x4 matrix = SetWorldMatrix(child, bone);
-		//0行列なら無視する
-		if (matrix.m[3][3] != 0) {
-			result = result * matrix;
+		Matrix4x4 childMatrix = SetWorldMatrix(child, bone);
+		// childMatrix がゼロ行列でなければ見つかったと判断
+		if (childMatrix.m[3][3] != 0) {
+			return current * childMatrix;
 		}
-
 	}
 
-	return result;
+	// 見つからなかったらゼロ行列を返す
+	return {};
 }

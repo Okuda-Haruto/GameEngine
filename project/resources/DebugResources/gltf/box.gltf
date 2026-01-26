@@ -8,13 +8,29 @@
 		{
 			"name":"Scene",
 			"nodes":[
-				2
+				3
 			]
 		}
 	],
 	"nodes":[
 		{
-			"name":"\u30dc\u30fc\u30f3"
+			"name":"\u30dc\u30fc\u30f3.001",
+			"translation":[
+				0,
+				1,
+				0
+			]
+		},
+		{
+			"children":[
+				0
+			],
+			"name":"\u30dc\u30fc\u30f3",
+			"translation":[
+				0,
+				-1,
+				0
+			]
 		},
 		{
 			"mesh":0,
@@ -23,8 +39,8 @@
 		},
 		{
 			"children":[
-				1,
-				0
+				2,
+				1
 			],
 			"name":"\u30a2\u30fc\u30de\u30c1\u30e5\u30a2"
 		}
@@ -54,7 +70,7 @@
 					}
 				}
 			],
-			"name":"\u30a2\u30fc\u30de\u30c1\u30e5\u30a2\u30a2\u30af\u30b7\u30e7\u30f3.001",
+			"name":"\u30a2\u30fc\u30de\u30c1\u30e5\u30a2\u30a2\u30af\u30b7\u30e7\u30f3",
 			"samplers":[
 				{
 					"input":7,
@@ -95,6 +111,7 @@
 		{
 			"inverseBindMatrices":6,
 			"joints":[
+				1,
 				0
 			],
 			"name":"\u30a2\u30fc\u30de\u30c1\u30e5\u30a2"
@@ -150,37 +167,37 @@
 		{
 			"bufferView":6,
 			"componentType":5126,
-			"count":1,
+			"count":2,
 			"type":"MAT4"
 		},
 		{
 			"bufferView":7,
 			"componentType":5126,
-			"count":3,
+			"count":2,
 			"max":[
-				3.3333333333333335
+				1
 			],
 			"min":[
-				0
+				0.016666666666666666
 			],
 			"type":"SCALAR"
 		},
 		{
 			"bufferView":8,
 			"componentType":5126,
-			"count":9,
+			"count":6,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":9,
 			"componentType":5126,
-			"count":9,
+			"count":6,
 			"type":"VEC4"
 		},
 		{
 			"bufferView":10,
 			"componentType":5126,
-			"count":9,
+			"count":6,
 			"type":"VEC3"
 		}
 	],
@@ -223,33 +240,33 @@
 		},
 		{
 			"buffer":0,
-			"byteLength":64,
+			"byteLength":128,
 			"byteOffset":1320
 		},
 		{
 			"buffer":0,
-			"byteLength":12,
-			"byteOffset":1384
+			"byteLength":8,
+			"byteOffset":1448
 		},
 		{
 			"buffer":0,
-			"byteLength":108,
-			"byteOffset":1396
+			"byteLength":72,
+			"byteOffset":1456
 		},
 		{
 			"buffer":0,
-			"byteLength":144,
-			"byteOffset":1504
+			"byteLength":96,
+			"byteOffset":1528
 		},
 		{
 			"buffer":0,
-			"byteLength":108,
-			"byteOffset":1648
+			"byteLength":72,
+			"byteOffset":1624
 		}
 	],
 	"buffers":[
 		{
-			"byteLength":1756,
+			"byteLength":1696,
 			"uri":"box.bin"
 		}
 	]

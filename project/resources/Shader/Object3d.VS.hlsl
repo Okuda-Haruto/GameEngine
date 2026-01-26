@@ -34,20 +34,21 @@ VertexShaderOutput main(VertexShaderInput input)
         input.weights.w > 0.0f)
     {
         float totalWeight = input.weights.x + input.weights.y + input.weights.z + input.weights.w;
-        float4 w = input.weights / totalWeight;
+        float4 weight = input.weights / totalWeight;
         
         float4 skinnedPos = float4(0, 0, 0, 0);
         float3 skinnedNormal = float3(0, 0, 0);
         [unroll]
-        for (int i = 0; i < 4; ++i)
+        for (int i = 0; i < 2; ++i)
         {
-            if (input.weights[i] >= 0)
+
+            if (weight[i] > 0)
             {
                 float4 posTransformed = mul(input.position, gBoneMatrix.boneMatrix[input.boneIDs[i]]);
-                skinnedPos += posTransformed * input.weights[i];
+                skinnedPos += posTransformed * weight[i];
 
                 float3 normalTransformed = mul(input.normal, (float3x3) gBoneMatrix.boneMatrix[input.boneIDs[i]]);
-                skinnedNormal += normalTransformed * input.weights[i];
+                skinnedNormal += normalTransformed * weight[i];
             }
         }
         
