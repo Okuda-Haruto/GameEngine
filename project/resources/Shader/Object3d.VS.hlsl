@@ -39,7 +39,7 @@ VertexShaderOutput main(VertexShaderInput input)
         float4 skinnedPos = float4(0, 0, 0, 0);
         float3 skinnedNormal = float3(0, 0, 0);
         [unroll]
-        for (int i = 0; i < 2; ++i)
+        for (int i = 0; i < 4; ++i)
         {
 
             if (weight[i] > 0)
