@@ -136,13 +136,13 @@ void SampleScene::Initialize() {
 
 	std::unique_ptr<Object> box_;
 	box_ = make_unique<Object>();
-	box_->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/gltf", "box.gltf"));
+	box_->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/gltf", "LE2A_02_human.gltf"));
 	box_->SetIsUseAnimation(true);
 	box_->SetIsLoopAnimation(true);
 	box_->SetAnimationInterpolation(AnimationInterpolation::Linear);
 	gltfs_.push_back(move(box_));
 	box_ = make_unique<Object>();
-	box_->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/gltf", "box_0.gltf"));
+	box_->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/gltf", "box.gltf"));
 	box_->SetIsUseAnimation(true);
 	box_->SetIsLoopAnimation(true);
 	box_->SetAnimationInterpolation(AnimationInterpolation::Linear);
@@ -539,7 +539,7 @@ void SampleScene::Update() {
 
 	static Vector3 point = { 0.0f,0.0f,0.0f };
 	ImGui::DragFloat3("Point pos", &point.x, 0.01f);
-	PrimitiveManager::GetInstance()->AddPoint(point);
+	//PrimitiveManager::GetInstance()->AddPoint(point);
 
 	static AABB aabb = { .min{-1.0f,-1.0f,-1.0f},.max{1.0f,1.0f,1.0f} };
 	ImGui::DragFloat3("AABB min", &aabb.min.x, 0.01f);
