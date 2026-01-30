@@ -7,7 +7,7 @@ Vector3 LerpKeyFrame(std::vector<KeyFrame> keyFrame, AnimationData animationData
 	float time = t * float(animationData.FPS);
 
 	//範囲内に合わせる
-	time = std::min(float(animationData.duration), std::max(time, 0.0f));
+	time = std::min(float(keyFrame[keyFrame.size() - 1].time), std::max(time, float(keyFrame[0].time)));
 
 	KeyFrame minKeyFrame = keyFrame[0];
 	uint32_t minIndex = 0;
@@ -72,7 +72,7 @@ Quaternion LerpKeyFrame(std::vector<QuaternionKeyFlame> keyFrame, AnimationData 
 	float time = t * float(animationData.FPS);
 
 	//範囲内に合わせる
-	time = std::min(float(animationData.duration), std::max(time, 0.0f));
+	time = std::min(float(animationData.duration), std::max(time, float(keyFrame[0].time)));
 
 	QuaternionKeyFlame minKeyFrame = keyFrame[0];
 	uint32_t minIndex = 0;

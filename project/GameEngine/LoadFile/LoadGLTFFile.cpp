@@ -7,6 +7,14 @@
 #include <list>
 #include <GameEngine.h>
 
+Matrix4x4 mirrorX =
+{
+	-1, 0, 0, 0,
+	 0, 1, 0, 0,
+	 0, 0, 1, 0,
+	 0, 0, 0, 1
+};
+
 //.gltfファイルからModelDataを構築する
 ModelData LoadGLTFFile(const std::string& directoryPath, const std::string& filename) {
 
@@ -60,7 +68,7 @@ ModelData LoadGLTFFile(const std::string& directoryPath, const std::string& file
 		for (uint32_t boneIndex = 0; boneIndex < mesh->mNumBones; ++boneIndex) {
 			aiBone* boneData = mesh->mBones[boneIndex];
 			Bone bone;
-			bone.offsetMatrix = Transpose(aiMatrix4x4ToMatrix4x4(boneData->mOffsetMatrix));
+			bone.offsetMatrix = mirrorX * Transpose(aiMatrix4x4ToMatrix4x4(boneData->mOffsetMatrix)) * mirrorX;
 			bone.name = boneData->mName.C_Str();
 			//Weightの解析
 			for (uint32_t weightIndex = 0; weightIndex < boneData->mNumWeights; ++weightIndex) {
@@ -127,7 +135,7 @@ ModelData LoadGLTFFile(const std::string& directoryPath, const std::string& file
 				aiQuatKey rotationKey = channel->mRotationKeys[rotationKeyIndex];
 				QuaternionKeyFlame transformKeyFrame;
 				transformKeyFrame.time = rotationKey.mTime;
-				transformKeyFrame.quaternion = Quaternion{ rotationKey.mValue.x,rotationKey.mValue.y,rotationKey.mValue.z,rotationKey.mValue.w };
+				transformKeyFrame.quaternion = Quaternion{ -rotationKey.mValue.x,rotationKey.mValue.y,rotationKey.mValue.z,rotationKey.mValue.w };
 
 				node->rotateKeyFrame.push_back(transformKeyFrame);
 			}
@@ -159,6 +167,7 @@ std::shared_ptr<Node> ReadNode(aiNode* node) {
 			result->localMatrix.m[i][j] = aiLocalMatrix[i][j];
 		}
 	}
+	result->localMatrix = mirrorX * result->localMatrix * mirrorX;
 	result->name = node->mName.C_Str();	//Node名を格納
 	result->children.resize(node->mNumChildren);	//子の数だけ確保
 	for (uint32_t childIndex = 0; childIndex < node->mNumChildren; childIndex++) {

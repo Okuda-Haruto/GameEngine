@@ -63,5 +63,8 @@ public:
 private:
 
 	//階層構造の行列変換
-	Matrix4x4 SetWorldMatrix(std::shared_ptr<Node> node, Bone bone);
+	Matrix4x4 SetWorldMatrix(std::shared_ptr<Node> node, std::vector<Bone>& bones, Bone bone);
+
+	Matrix4x4 FindBoneLocalMatrix(std::vector<Bone>& bones, std::string boneName);
+
 };

@@ -61,17 +61,17 @@ void Model::Initialize(const std::string& directoryPath, const std::string& file
 
 	//ワールド座標
 	for (Bone& bone : modelData_.bones) {
-		//QuaternionTransform animationTransform = GetAnimationTransform(bone.node, modelData_.animations[0], AnimationInterpolation::Step, 0.0f);
-		//bone.localMatrix = MakeQuaternionMatrix(animationTransform.scale, animationTransform.rotate, animationTransform.translate);
-		bone.localMatrix = MakeIdentity4x4();
+		bone.offsetMatrix = bone.offsetMatrix;	//bone.node.lock()->localMatrix = 前ノードとの差分
+
+		bone.localMatrix = bone.node.lock()->localMatrix;
 	}
 	for (Bone& bone : modelData_.bones) {
-		bone.finalMatrix = bone.node.lock()->localMatrix * SetWorldMatrix(modelData_.rootNode, bone) * bone.offsetMatrix;
+		bone.finalMatrix = Inverse(modelData_.rootNode->localMatrix) * bone.offsetMatrix * SetWorldMatrix(modelData_.rootNode, modelData_.bones, bone);
 	}
 }
 
 //ボーンアニメーション
-void Model::BoneAnimation(std::vector<Bone>& bones,float time, UINT animationIndex, AnimationInterpolation interpolation) {
+void Model::BoneAnimation(std::vector<Bone>& bones, float time, UINT animationIndex, AnimationInterpolation interpolation) {
 	assert(animationIndex < modelData_.animations.size());
 
 	//ローカル座標
@@ -82,7 +82,7 @@ void Model::BoneAnimation(std::vector<Bone>& bones,float time, UINT animationInd
 
 	//ワールド座標
 	for (Bone& bone : bones) {
-		bone.finalMatrix = bone.node.lock()->localMatrix * SetWorldMatrix(modelData_.rootNode, bone) * bone.offsetMatrix;
+		bone.finalMatrix = bone.offsetMatrix * SetWorldMatrix(modelData_.rootNode, bones, bone);
 	}
 
 }
@@ -91,13 +91,12 @@ void Model::BoneAnimation(std::vector<Bone>& bones,float time, UINT animationInd
 
 
 //階層構造の行列変換
-Matrix4x4 Model::Model::SetWorldMatrix(std::shared_ptr<Node> node, Bone bone) {
-// node から目的の bone.name までの合成行列を返す。
-	// 見つからなければゼロ行列を返す（呼び側は m[3][3] == 0 で判定する）
-	// 目的ノードに到達したら、そのノードの局所行列は bone.localMatrix で置き換える。
+Matrix4x4 Model::Model::SetWorldMatrix(std::shared_ptr<Node> node, std::vector<Bone>& bones, Bone bone) {
 
-	// 現在ノードの行列（通常は node->localMatrix）
-	Matrix4x4 current = node->localMatrix;
+	Matrix4x4 current = FindBoneLocalMatrix(bones, node->name);
+	if (current.m[3][3] == 0) {
+		current = node->localMatrix;
+	}
 
 	// 目的ノードなら bone.localMatrix を使って返す
 	if (node->name == bone.name) {
@@ -106,13 +105,24 @@ Matrix4x4 Model::Model::SetWorldMatrix(std::shared_ptr<Node> node, Bone bone) {
 
 	// 子を探索し、見つかったら current * childMatrix を返す
 	for (std::shared_ptr<Node>& child : node->children) {
-		Matrix4x4 childMatrix = SetWorldMatrix(child, bone);
+		Matrix4x4 childMatrix = SetWorldMatrix(child, bones, bone);
 		// childMatrix がゼロ行列でなければ見つかったと判断
 		if (childMatrix.m[3][3] != 0) {
-			return current * childMatrix;
+			return childMatrix * current;
 		}
 	}
 
 	// 見つからなかったらゼロ行列を返す
+	return {};
+}
+
+Matrix4x4 Model::FindBoneLocalMatrix(std::vector<Bone>& bones, std::string boneName) {
+
+	for (Bone bone : bones) {
+		if (bone.name == boneName) {
+			return bone.localMatrix;
+		}
+	}
+
 	return {};
 }

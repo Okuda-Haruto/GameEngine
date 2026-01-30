@@ -485,6 +485,13 @@ Quaternion Slerp(const Quaternion& q0, const Quaternion& q1, float t) {
 		Q0 = -Q0;
 		dot = -dot;
 	}
+	dot = std::clamp(dot, -1.0f, 1.0f);
+
+	//ほとんど1.0fならすぐに返す
+	const float EPS = 1e-5f;
+	if (dot > 1.0f - EPS) {
+		return Normalize((1 - t) * Q0 + t * Q1);
+	}
 
 	float theta = std::acosf(dot);
 	if (theta == 0) {
