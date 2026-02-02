@@ -121,6 +121,11 @@ ModelData LoadGLTFFile(const std::string& directoryPath, const std::string& file
 		for (uint32_t channelIndex = 0; channelIndex < animation->mNumChannels; ++channelIndex) {
 			aiNodeAnim* channel = animation->mChannels[channelIndex];
 			std::shared_ptr<Node>& node = FindNode(modelData.rootNode, channel->mNodeName.C_Str());
+
+			std::vector<KeyFrame> scaleKeyFrame;
+			std::vector<QuaternionKeyFlame> rotateKeyFrame;
+			std::vector<KeyFrame> translateKeyFrame;
+
 			//Scalingのキーフレームの解析
 			for (uint32_t scalingKeyIndex = 0; scalingKeyIndex < channel->mNumScalingKeys; ++scalingKeyIndex) {
 				aiVectorKey scalingKey = channel->mScalingKeys[scalingKeyIndex];
@@ -128,8 +133,10 @@ ModelData LoadGLTFFile(const std::string& directoryPath, const std::string& file
 				transformKeyFrame.time = scalingKey.mTime;
 				transformKeyFrame.vector = Vector3{ scalingKey.mValue.x,scalingKey.mValue.y,scalingKey.mValue.z };
 
-				node->scaleKeyFrame.push_back(transformKeyFrame);
+				scaleKeyFrame.push_back(transformKeyFrame);
 			}
+			node->scaleKeyFrame.push_back(scaleKeyFrame);
+
 			//Rotationのキーフレームの解析
 			for (uint32_t rotationKeyIndex = 0; rotationKeyIndex < channel->mNumRotationKeys; ++rotationKeyIndex) {
 				aiQuatKey rotationKey = channel->mRotationKeys[rotationKeyIndex];
@@ -137,8 +144,10 @@ ModelData LoadGLTFFile(const std::string& directoryPath, const std::string& file
 				transformKeyFrame.time = rotationKey.mTime;
 				transformKeyFrame.quaternion = Quaternion{ -rotationKey.mValue.x,rotationKey.mValue.y,rotationKey.mValue.z,rotationKey.mValue.w };
 
-				node->rotateKeyFrame.push_back(transformKeyFrame);
+				rotateKeyFrame.push_back(transformKeyFrame);
 			}
+			node->rotateKeyFrame.push_back(rotateKeyFrame);
+
 			//Positionのキーフレームの解析
 			for (uint32_t positionKeyIndex = 0; positionKeyIndex < channel->mNumPositionKeys; ++positionKeyIndex) {
 				aiVectorKey positionKey = channel->mPositionKeys[positionKeyIndex];
@@ -148,8 +157,10 @@ ModelData LoadGLTFFile(const std::string& directoryPath, const std::string& file
 				//右手→左手
 				transformKeyFrame.vector.x *= -1.0f;
 
-				node->translateKeyFrame.push_back(transformKeyFrame);
+				translateKeyFrame.push_back(transformKeyFrame);
 			}
+			node->translateKeyFrame.push_back(translateKeyFrame);
+
 		}
 
 		modelData.animations.push_back(animationData);

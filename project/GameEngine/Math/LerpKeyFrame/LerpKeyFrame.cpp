@@ -12,7 +12,7 @@ Vector3 LerpKeyFrame(std::vector<KeyFrame> keyFrame, AnimationData animationData
 	KeyFrame minKeyFrame = keyFrame[0];
 	uint32_t minIndex = 0;
 	KeyFrame maxKeyFrame = keyFrame[keyFrame.size() - 1];
-	uint32_t maxIndex = 0;
+	uint32_t maxIndex = int(keyFrame.size()) - 1;
 	for (uint32_t index = 0; index < keyFrame.size();index++) {
 		//より近いフレームを選別
 		if (keyFrame[index].time < time &&
@@ -23,6 +23,17 @@ Vector3 LerpKeyFrame(std::vector<KeyFrame> keyFrame, AnimationData animationData
 			keyFrame[index].time < maxKeyFrame.time) {
 			maxKeyFrame = keyFrame[index];
 			maxIndex = index;
+		}
+	}
+
+	//同値だとダメ
+	if (minKeyFrame.time == maxKeyFrame.time) {
+		if (minKeyFrame.time <= keyFrame[0].time + 1.0f) {
+			maxKeyFrame.time = keyFrame[1].time;
+			maxIndex = 1;
+		} else {
+			minKeyFrame.time = keyFrame[keyFrame.size() - 2].time;
+			minIndex = int(keyFrame.size()) - 2;
 		}
 	}
 
@@ -77,7 +88,7 @@ Quaternion LerpKeyFrame(std::vector<QuaternionKeyFlame> keyFrame, AnimationData 
 	QuaternionKeyFlame minKeyFrame = keyFrame[0];
 	uint32_t minIndex = 0;
 	QuaternionKeyFlame maxKeyFrame = keyFrame[keyFrame.size() - 1];
-	uint32_t maxIndex = 0;
+	uint32_t maxIndex = int(keyFrame.size()) - 1;
 	for (uint32_t index = 0; index < keyFrame.size(); index++) {
 		//より近いフレームを選別
 		if (keyFrame[index].time < time &&
@@ -88,6 +99,17 @@ Quaternion LerpKeyFrame(std::vector<QuaternionKeyFlame> keyFrame, AnimationData 
 			keyFrame[index].time < maxKeyFrame.time) {
 			maxKeyFrame = keyFrame[index];
 			maxIndex = index;
+		}
+	}
+
+	//同値だとダメ
+	if (minKeyFrame.time == maxKeyFrame.time) {
+		if (minKeyFrame.time <= keyFrame[0].time + 1.0f) {
+			maxKeyFrame.time = keyFrame[1].time;
+			maxIndex = 1;
+		} else {
+			minKeyFrame.time = keyFrame[keyFrame.size() - 2].time;
+			minIndex = int(keyFrame.size()) - 2;
 		}
 	}
 

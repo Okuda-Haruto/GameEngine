@@ -76,7 +76,7 @@ void Model::BoneAnimation(std::vector<Bone>& bones, float time, UINT animationIn
 
 	//ローカル座標
 	for (Bone& bone : bones) {
-		QuaternionTransform animationTransform = GetAnimationTransform(bone.node, modelData_.animations[animationIndex], interpolation, time);
+		QuaternionTransform animationTransform = GetAnimationTransform(bone.node, modelData_.animations, animationIndex, interpolation, time);
 		bone.localMatrix = MakeQuaternionMatrix(animationTransform.scale, animationTransform.rotate, animationTransform.translate);
 	}
 
