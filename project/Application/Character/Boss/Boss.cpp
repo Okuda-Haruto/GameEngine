@@ -231,9 +231,9 @@ void BossAction_Jump::Update() {
 		BossTransform->rotate.y = (BossTransform->rotate.y + d * 0.2f);
 		BossTransform->rotate.y = std::fmodf(BossTransform->rotate.y, std::numbers::pi_v<float> *2);
 
-		BossTransform->scale.x = 2.0f * Lerp(1.0f, 1.5f, targetedCooltime_ / kMaxTargetedCooltime_);
-		BossTransform->scale.y = 2.0f * Lerp(1.0f, 0.5f, targetedCooltime_ / kMaxTargetedCooltime_);
-		BossTransform->scale.z = 2.0f * Lerp(1.0f, 1.5f, targetedCooltime_ / kMaxTargetedCooltime_);
+		BossTransform->scale.x = 2.0f * Lerp(0.562558f, 0.562558f * 1.5f, targetedCooltime_ / kMaxTargetedCooltime_);
+		BossTransform->scale.y = 2.0f * Lerp(0.562558f, 0.562558f * 0.5f, targetedCooltime_ / kMaxTargetedCooltime_);
+		BossTransform->scale.z = 2.0f * Lerp(0.562558f, 0.562558f * 1.5f, targetedCooltime_ / kMaxTargetedCooltime_);
 
 		BossTransform->translate.y = BossTransform->scale.y;
 		startPosition_.y = BossTransform->translate.y;
@@ -247,17 +247,17 @@ void BossAction_Jump::Update() {
 		BossTransform->translate = Lerp(startPosition_, nextPosition_, (jumpingTime_ / kMaxJumpingTime_));
 
 		if (jumpingTime_ <= kMaxJumpingTime_ / 10) {
-			BossTransform->scale.x = 2.0f * Lerp(1.5f, 0.5f, jumpingTime_ / (kMaxJumpingTime_ / 10));
-			BossTransform->scale.y = 2.0f * Lerp(0.5f, 1.5f, jumpingTime_ / (kMaxJumpingTime_ / 10));
-			BossTransform->scale.z = 2.0f * Lerp(1.5f, 0.5f, jumpingTime_ / (kMaxJumpingTime_ / 10));
+			BossTransform->scale.x = 2.0f * Lerp(0.562558f * 1.5f, 0.562558f * 0.5f, jumpingTime_ / (kMaxJumpingTime_ / 10));
+			BossTransform->scale.y = 2.0f * Lerp(0.562558f * 0.5f, 0.562558f * 1.5f, jumpingTime_ / (kMaxJumpingTime_ / 10));
+			BossTransform->scale.z = 2.0f * Lerp(0.562558f * 1.5f, 0.562558f * 0.5f, jumpingTime_ / (kMaxJumpingTime_ / 10));
 		} else {
 			BossTransform->scale.x = 1.0f;
 			BossTransform->scale.y = 3.0f;
 			BossTransform->scale.z = 1.0f;
 		}
 
-		startPosition_.y = BossTransform->scale.y;
-		nextPosition_.y = BossTransform->scale.y;
+		startPosition_.y = 1;
+		nextPosition_.y = 1;
 
 		if (jumpingTime_ <= kMaxJumpingTime_ / 2) {
 			BossTransform->translate.y = 2.0f * Lerp(startPosition_.y, 10.0f, 1.0f - powf(1.0f - jumpingTime_ / (kMaxJumpingTime_ / 2), 2));
@@ -275,16 +275,16 @@ void BossAction_Jump::Update() {
 
 		SRT* BossTransform = boss_->GetTransform();
 		if (landingTime_ <= kMaxLandingTime_ / 2) {
-			BossTransform->scale.x = 2.0f * Lerp(0.5f, 1.5f, (landingTime_ / (kMaxLandingTime_ / 2)));
-			BossTransform->scale.y = 2.0f * Lerp(1.5f, 0.5f, (landingTime_ / (kMaxLandingTime_ / 2)));
-			BossTransform->scale.z = 2.0f * Lerp(0.5f, 1.5f, (landingTime_ / (kMaxLandingTime_ / 2)));
+			BossTransform->scale.x = 2.0f * Lerp(0.562558f * 0.5f, 0.562558f * 1.5f, (landingTime_ / (kMaxLandingTime_ / 2)));
+			BossTransform->scale.y = 2.0f * Lerp(0.562558f * 1.5f, 0.562558f * 0.5f, (landingTime_ / (kMaxLandingTime_ / 2)));
+			BossTransform->scale.z = 2.0f * Lerp(0.562558f * 0.5f, 0.562558f * 1.5f, (landingTime_ / (kMaxLandingTime_ / 2)));
 		} else {
-			BossTransform->scale.x = 2.0f * Lerp(1.5f, 1.0f, ((landingTime_ - kMaxLandingTime_ / 2) / (kMaxLandingTime_ / 2)));
-			BossTransform->scale.y = 2.0f * Lerp(0.5f, 1.0f, ((landingTime_ - kMaxLandingTime_ / 2) / (kMaxLandingTime_ / 2)));
-			BossTransform->scale.z = 2.0f * Lerp(1.5f, 1.0f, ((landingTime_ - kMaxLandingTime_ / 2) / (kMaxLandingTime_ / 2)));
+			BossTransform->scale.x = 2.0f * Lerp(0.562558f * 1.5f, 0.562558f, ((landingTime_ - kMaxLandingTime_ / 2) / (kMaxLandingTime_ / 2)));
+			BossTransform->scale.y = 2.0f * Lerp(0.562558f * 0.5f, 0.562558f, ((landingTime_ - kMaxLandingTime_ / 2) / (kMaxLandingTime_ / 2)));
+			BossTransform->scale.z = 2.0f * Lerp(0.562558f * 1.5f, 0.562558f, ((landingTime_ - kMaxLandingTime_ / 2) / (kMaxLandingTime_ / 2)));
 		}
 
-		BossTransform->translate.y = BossTransform->scale.y;
+		BossTransform->translate.y = 1;
 		startPosition_.y = BossTransform->translate.y;
 		nextPosition_.y = BossTransform->translate.y;
 	}
@@ -382,10 +382,15 @@ void Boss::Initialize(GameScene* gameScene, GameCamera* gameCamera, ParticleEmit
 	//モデルの生成
 	object_ = std::make_unique<Object>();
 	object_->Initialize(ModelHolder::GetInstance()->GetModel(ModelIndex::Boss));
-	transform_.scale = { 2.0f,2.0f,2.0f };
-	transform_.rotate = { 0.0f,std::numbers::pi_v<float>,0.0f };
-	transform_.translate = { 0.0f,2.0f,0.0f };
+	object_->SetIsUseAnimation(true);
+	object_->SetAnimationIndex(1);
+	object_->SetAnimationInterpolation(AnimationInterpolation::Cubic_Spline);
+	transform_.scale = { 0.562558f * 2,0.562558f * 2,0.562558f * 2 };
+	transform_.rotate = { 0.0f,0.0f,0.0f };
+	transform_.translate = { 0.0f,1.0f,0.0f };
 	object_->SetTransform(transform_);
+
+	isStartAnimation_ = true;
 
 	targetTransform_ = std::make_unique<SRT>();
 	*targetTransform_ = transform_;
@@ -402,49 +407,62 @@ void Boss::Initialize(GameScene* gameScene, GameCamera* gameCamera, ParticleEmit
 }
 
 void Boss::Update() {
-	if (HP_ > 0.0f) {
 
-		Parts head = object_->GetParts()[2];
-		head.UVtransform.translate.y = Lerp(0.0f, -0.6f, 1.0f - (HP_ / maxHP_));
-		object_->SetParts(head, 2);
-
-		if (HP_ / maxHP_ < 0.2f) {
-			weights_[2] = 8;
-			weights_[3] = 3;
-		} else if (HP_ / maxHP_ < 0.5f) {
-			weights_[2] = 4;
-			weights_[3] = 6;
-		} else {
-			weights_[2] = 3;
-			weights_[3] = 3;
+	if (isStartAnimation_) {
+		if (object_->IsEndAnimation()) {
+			object_->SetAnimationIndex(0);
+			object_->ResetAnimationTime();
+			object_->SetIsLoopAnimation(true);
+			isStartAnimation_ = false;
 		}
+	} else {
 
-		action_->Update();
-		if (action_->IsEnd()) {
-			action_->Finalize();
-			action_.reset();
+		if (HP_ > 0.0f) {
 
-			int maxWeight = 0;
-			for (int& weight : weights_) {
-				maxWeight += weight;
+			Vector4 color;
+			color = { (HP_ / maxHP_), (HP_ / maxHP_), (HP_ / maxHP_), 1.0f };
+			object_->SetColor(color);
+
+			if (HP_ / maxHP_ < 0.2f) {
+				weights_[2] = 8;
+				weights_[3] = 3;
+			} else if (HP_ / maxHP_ < 0.5f) {
+				weights_[2] = 4;
+				weights_[3] = 6;
+			} else {
+				weights_[2] = 3;
+				weights_[3] = 3;
 			}
-			int randInt = GameEngine::randomInt(1, maxWeight);
-			if (randInt <= weights_[0]) {
-				action_ = std::make_unique<BossAction_Shot_01>();
-			} else if (randInt <= weights_[0] + weights_[1]) {
-				action_ = std::make_unique<BossAction_Shot_02>();
-			} else if (randInt <= weights_[0] + weights_[1] + weights_[2]) {
-				action_ = std::make_unique<BossAction_Jump>();
-			} else if (randInt <= weights_[0] + weights_[1] + weights_[2] + weights_[3]) {
-				action_ = std::make_unique<BossAction_Move>();
+
+			action_->Update();
+			if (action_->IsEnd()) {
+				action_->Finalize();
+				action_.reset();
+
+				int maxWeight = 0;
+				for (int& weight : weights_) {
+					maxWeight += weight;
+				}
+				int randInt = GameEngine::randomInt(1, maxWeight);
+				if (randInt <= weights_[0]) {
+					action_ = std::make_unique<BossAction_Shot_01>();
+				} else if (randInt <= weights_[0] + weights_[1]) {
+					action_ = std::make_unique<BossAction_Shot_02>();
+				} else if (randInt <= weights_[0] + weights_[1] + weights_[2]) {
+					action_ = std::make_unique<BossAction_Jump>();
+				} else if (randInt <= weights_[0] + weights_[1] + weights_[2] + weights_[3]) {
+					action_ = std::make_unique<BossAction_Move>();
+				}
+				action_->Initialize(this);
 			}
-			action_->Initialize(this);
+			transform_ = *targetTransform_;
 		}
-		transform_ = *targetTransform_;
-
-		object_->SetTransform(transform_);
-		UpdateCollider();
 	}
+	SRT displayTransform = transform_;
+	displayTransform.translate.y -= 1.0f;
+	object_->SetTransform(displayTransform);
+	object_->Update();
+	UpdateCollider();
 }
 
 void Boss::Draw() {

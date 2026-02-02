@@ -137,6 +137,10 @@ void GameScene::Initialize(shared_ptr<Input> input) {
 	gameCamera_->Initialize(input_);
 	gameCamera_->SetOffset(Vector3{ 0.0f,6.0f,-60.0f });
 	gameCamera_->SetRotate(Vector3{ std::numbers::pi_v<float> / 180 * 10,0.0f,0.0f });
+	SRT event{};
+	event.translate = { 0.0f,2.0f,-30.0f };
+	gameCamera_->SetEventTransform(event);
+	gameCamera_->SetIsEvent(true);
 	PlayerBullet::SetCamera(gameCamera_->GetCamera());
 	BossBullet::SetCamera(gameCamera_->GetCamera());
 
@@ -273,8 +277,11 @@ void GameScene::Update() {
 		}
 	}
 
-	if (fade_ == Fade::None) {
-		player_->Update();
+	if (!boss_->IsStartAnimation()) {
+		gameCamera_->SetIsEvent(false);
+		if (fade_ == Fade::None) {
+			player_->Update();
+		}
 	}
 	if (!isClear_) {
 		gameCamera_->SetMoveVelocity(player_->GetMove().x);

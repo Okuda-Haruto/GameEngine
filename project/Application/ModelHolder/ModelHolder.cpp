@@ -42,7 +42,7 @@ void ModelHolder::Initialize() {
 	filePathes_.push_back(filePath);
 	//ボス
 	filePath.directoryPath_ = "resources/Character/Boss";
-	filePath.fileName_ = "Boss.obj";
+	filePath.fileName_ = "Boss_1_anm.gltf";
 	filePathes_.push_back(filePath);
 	//弾丸
 	filePath.directoryPath_ = "resources/Bullet";

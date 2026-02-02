@@ -131,6 +131,8 @@ private:
 
 	std::array<int, 4> weights_;
 
+	bool isStartAnimation_ = false;
+
 public:
 
 	~Boss();
@@ -155,5 +157,7 @@ public:
 	void SetPointLight(shared_ptr<PointLight> pointLight) { object_->SetPointLight(pointLight); }
 
 	bool IsDead() { return HP_ <= 0; }
+
+	bool IsStartAnimation() { return isStartAnimation_; }
 };
 

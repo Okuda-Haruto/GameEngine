@@ -52,6 +52,15 @@ void GameCamera::Update() {
 		}
 	}
 
+	if (!isEvent_) {
+		if (eventShiftTime_ > 0.0f) {
+			eventShiftTime_ -= 1.0f / 60.0f;
+			if (eventShiftTime_ < 0.0f) {
+				eventShiftTime_ = 0.0f;
+			}
+		}
+	}
+
 	if (fabsf(velocity_) > 0.5f) {
 		if (velocity_ > 0.0f) {
 			cameraPos_ += (kMaxCameraPos - cameraPos_) / 3;
@@ -138,11 +147,26 @@ void GameCamera::Update() {
 		}
 	}
 
-	transform_->translate = lockonTransform_.translate * (1.0f - powf(1.0f - shiftTime_ / kMaxShiftTime, 2)) + normalTransform_.translate * (1.0f - (1.0f - powf(1.0f - shiftTime_ / kMaxShiftTime, 2)));
+	//通常の変換
+	transform_->translate = lockonTransform_.translate * (1.0f - powf(1.0f - shiftTime_ / kMaxShiftTime, 2)) 
+		+ normalTransform_.translate * (1.0f - (1.0f - powf(1.0f - shiftTime_ / kMaxShiftTime, 2)));
+	//eventから戻る
+	if (eventShiftTime_ > 0.0f) {
+		transform_->translate = eventTransform_.translate * (1.0f - powf(1.0f - eventShiftTime_ / kMaxEventShiftTime, 2))
+			+ transform_->translate * (1.0f - (1.0f - powf(1.0f - eventShiftTime_ / kMaxEventShiftTime, 2)));
+	}
+
 	if (shakeTime_ > 0.0f) {
 		transform_->translate.x += GameEngine::randomFloat(-shakeTime_, shakeTime_);
 		transform_->translate.y += GameEngine::randomFloat(-shakeTime_, shakeTime_);
 		transform_->translate.z += GameEngine::randomFloat(-shakeTime_, shakeTime_);
 	}
-	transform_->rotate = lockonTransform_.rotate * (1.0f - powf(1.0f - shiftTime_ / kMaxShiftTime, 2)) + normalTransform_.rotate * (1.0f - (1.0f - powf(1.0f - shiftTime_ / kMaxShiftTime, 2)));
+	//通常の変換
+	transform_->rotate = lockonTransform_.rotate * (1.0f - powf(1.0f - shiftTime_ / kMaxShiftTime, 2)) 
+		+ normalTransform_.rotate * (1.0f - (1.0f - powf(1.0f - shiftTime_ / kMaxShiftTime, 2)));
+	//eventから戻る
+	if (eventShiftTime_ > 0.0f) {
+		transform_->rotate = eventTransform_.rotate * (1.0f - powf(1.0f - eventShiftTime_ / kMaxEventShiftTime, 2))
+			+ transform_->rotate * (1.0f - (1.0f - powf(1.0f - eventShiftTime_ / kMaxEventShiftTime, 2)));
+	}
 }

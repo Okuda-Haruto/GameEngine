@@ -14,11 +14,16 @@ private:
 	const float kMaxShiftTime = 0.25f;
 	float shiftTime_ = 0.0f;
 
+	const float kMaxEventShiftTime = 0.25f;
+	float eventShiftTime_ = 0.0f;
+	bool isEvent_ = false;
+
 	float shakeTime_ = 0.0f;
 
 	shared_ptr<SRT> transform_;
 	SRT lockonTransform_;
 	SRT normalTransform_;
+	SRT eventTransform_;
 
 	const SRT* player_ = nullptr;
 	const SRT* target_ = nullptr;
@@ -51,6 +56,9 @@ public:
 	//追従対象を指定
 	void SetPlayer(const SRT* player) { player_ = player; }
 	void SetTarget(const SRT* target) { target_ = target; }
+
+	void SetEventTransform(const SRT& event) { eventTransform_ = event; }
+	void SetIsEvent(bool IsEvent) { isEvent_ = IsEvent; if (isEvent_)eventShiftTime_ = kMaxEventShiftTime; }
 
 	void SetShakeTime(float shakeTime) { shakeTime_ = shakeTime; }
 

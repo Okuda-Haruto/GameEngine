@@ -11,7 +11,7 @@ struct Node {
 	std::string name;	//ノード名
 	std::vector<std::shared_ptr<Node>> children;	//子ノード
 
-	std::vector<KeyFrame> scaleKeyFrame;	//拡縮キーフレーム
-	std::vector<QuaternionKeyFlame> rotateKeyFrame;	//回転キーフレーム
-	std::vector<KeyFrame> translateKeyFrame;//移動キーフレーム
+	std::vector<std::vector<KeyFrame>> scaleKeyFrame;	//拡縮キーフレーム
+	std::vector<std::vector<QuaternionKeyFlame>> rotateKeyFrame;	//回転キーフレーム
+	std::vector<std::vector<KeyFrame>> translateKeyFrame;//移動キーフレーム
 };

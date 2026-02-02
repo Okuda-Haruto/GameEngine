@@ -35,10 +35,12 @@ void GameOverScene::Initialize(shared_ptr<Input> input) {
 	player_->Initialize(ModelHolder::GetInstance()->GetModel(ModelIndex::Boss));
 	player_->SetDirectionalLight(directionalLight_);
 	player_->SetCamera(camera_);
+	player_->SetIsLoopAnimation(true);
+	player_->SetIsUseAnimation(true);
 	SRT PlayerTransform{};
-	PlayerTransform.scale = { 2,2,2 };
+	PlayerTransform.scale = { 0.562558f,0.562558f,0.562558f };
 	PlayerTransform.rotate = { 0,std::numbers::pi_v<float>,0 };
-	PlayerTransform.translate = { 0,2,1.5f };
+	PlayerTransform.translate = { 0,0,1.5f };
 	player_->SetTransform(PlayerTransform);
 
 
@@ -102,6 +104,7 @@ void GameOverScene::Update() {
 		{0,2,-20}
 	};
 	camera_->Update(transform);
+	player_->Update();
 }
 
 void GameOverScene::Draw() {
