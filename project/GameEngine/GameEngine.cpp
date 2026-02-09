@@ -356,9 +356,6 @@ void GameEngine::DrawObject_3D_(Object* object, shared_ptr<DirectionalLight> dir
 		for (int i = 0; i < bones.size(); i++) {
 			if (i > 128)break;
 			objectBoneData_[objectIndex_]->matrix[i] = bones[i].finalMatrix;
-			if (i == 5) {
-				PrimitiveManager::GetInstance()->AddPoint(Vector3{ bones[i].finalMatrix.m[3][0],bones[i].finalMatrix.m[3][1] ,bones[i].finalMatrix.m[3][2] });
-			}
 		}
 
 		objectBoneResource_[objectIndex_]->Unmap(0,nullptr);

@@ -466,9 +466,7 @@ void Boss::Update() {
 }
 
 void Boss::Draw() {
-	if (HP_ > 0.0f) {
-		object_->Draw3D();
-	}
+	object_->Draw3D();
 }
 
 void Boss::IsCollision() {
