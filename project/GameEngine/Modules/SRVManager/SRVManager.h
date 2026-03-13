@@ -41,6 +41,8 @@ public:
 	void CreateSRVforStructuredBuffer(uint32_t srvIndex, ID3D12Resource* pResource, UINT numElement, UINT structureByteStride);
 	//SRV生成(深度バッファ用)
 	void CreateSRVforDepthBuffer(uint32_t srvIndex, ID3D12Resource* pResource);
+	//SRV生成(オフスクリーンレンダリング用)
+	void CreateSRVforOffscreenRendering(uint32_t srvIndex, ID3D12Resource* pResource);
 
 	//ヒープをセット
 	void PreDraw();

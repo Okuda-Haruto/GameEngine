@@ -362,4 +362,4 @@ MigrationBackup/
 !project/externals/assimp/lib/Debug/*.pdb
 
 generated/
-**/imgui.ini
+*.ini

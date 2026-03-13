@@ -47,7 +47,7 @@ void DirectXCommon::Initialize(WindowsAPI* winApp) {
 	//コマンドキュー
 	commandQueueInitialvalue();
 
-	//スワップチェーンを生成する
+	//スワップチェーン
 	swapChainInitialize();
 
 	//DepthStencilTexture
@@ -61,6 +61,9 @@ void DirectXCommon::Initialize(WindowsAPI* winApp) {
 
 	//レンダーターゲットビュー
 	RenderTargetViewInitialize();
+
+	//オフスクリーンリソース
+	//CreateOffscreenTextureResource();
 
 	//深度ステンシル
 	depthStencilInitialize();
@@ -129,6 +132,42 @@ void DirectXCommon::PostDraw() {
 	//FPS固定更新
 	UpdateFixFPS();
 
+}
+
+//描画前処理
+void DirectXCommon::OffScreenPreDraw(uint32_t textureIndex) {
+
+	//TransitionBarrierの設定
+	//今回のバリアはTransition
+	barrier_.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	//Noneにしておく
+	barrier_.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	//バリアを張る対象のリソース。現在のバックバッファに対して行う
+	barrier_.Transition.pResource = swapChainResources_[textureIndex].Get();
+	//遷移前(現在)のResourcesState
+	barrier_.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
+	//遷移後のResourceState
+	barrier_.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+	//TransitionBarrierを張る
+	commandList_->ResourceBarrier(1, &barrier_);
+
+	//描画先のRTVとDSVを設定する
+	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = GetCPUDescriptorHandle(dsvDescriptorheap_, descriptorSizeDSV_, 0);
+	commandList_->OMSetRenderTargets(1, &rtvHandles_[textureIndex], false, &dsvHandle);
+	
+	//オブジェクト描画前処理
+	commandList_->RSSetViewports(1, &viewport_);			//Viewportを設定
+	commandList_->RSSetScissorRects(1, &scissorRect_);	//Scirssorを設定
+}
+
+//描画後処理
+void DirectXCommon::OffScreenPostDraw(uint32_t textureIndex) {
+
+	//RenderTargetからPresentにする
+	barrier_.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+	barrier_.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
+	//TransitionBarrierを張る
+	commandList_->ResourceBarrier(1, &barrier_);
 }
 
 //RootSignature作成
@@ -555,7 +594,7 @@ ComPtr<ID3D12Resource> DirectXCommon::CreateTextureResource(const DirectX::TexMe
 	resourceDesc.DepthOrArraySize = UINT16(metadata.arraySize);	//奥行き or 配列Textureの配列数
 	resourceDesc.Format = metadata.format;	//TextureのFormat
 	resourceDesc.SampleDesc.Count = 1;	//サンプリングカウント。1固定
-	resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION(metadata.dimension);	//Textureの次元数。普段歩勝っているのは2次元
+	resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION(metadata.dimension);	//Textureの次元数。普段使っているのは2次元
 
 	//利用するHeapの設定。非常に特殊な運用
 	D3D12_HEAP_PROPERTIES heapProperties{};
@@ -662,6 +701,21 @@ void DirectXCommon::SetDepthTexture(UINT RootParameterIndex) {
 	commandList_->ResourceBarrier(1, &SRVToDepth);
 
 	commandList_->SetGraphicsRootDescriptorTable(RootParameterIndex,srvManager_->GetGPUDescriptorHandle(depthBufferIndex_));
+}
+
+//オフスクリーンレンダリングSRVをセット
+void DirectXCommon::OffsceenRenderingInitialize(SRVManager* srvManager) {
+	srvManager_ = srvManager;
+
+	//初期地点
+	offscreenBufferIndex_ = srvManager_->Allocate();
+
+	for (uint32_t i = 0; i < kOffscreenDescriptorSize_; i++) {
+		//オフスクリーンレンダリング用バッファの生成
+		srvManager_->CreateSRVforDepthBuffer(offscreenBufferIndex_ + i, offscreenTextureResource_[i].Get());
+		//アロケート位置調整
+		srvManager_->Allocate();
+	}
 }
 
 
@@ -846,6 +900,47 @@ void DirectXCommon::CreateDepthWriteTextureResource() {
 	assert(SUCCEEDED(hr));
 }
 
+//オフスクリーンテクスチャの生成
+void DirectXCommon::CreateOffscreenTextureResource() {
+	for (uint32_t i = 0; i < kOffscreenDescriptorSize_; i++) {
+		//生成するResourceの設定
+		D3D12_RESOURCE_DESC resourceDesc{};
+		resourceDesc.Width = winApp_->kClientWidth_;	//Textureの幅
+		resourceDesc.Height = winApp_->kClientHeight_;	//Textureの高さ
+		resourceDesc.MipLevels = 1;	//mipmapの数
+		resourceDesc.DepthOrArraySize = 1;	//奥行き or 配列Textureの配列数
+		resourceDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;	//テクスチャ用のフォーマット
+		resourceDesc.SampleDesc.Count = 1;	//サンプリングカウント。1固定
+		resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;	//2次元
+
+		//利用するHeapの設定
+		D3D12_HEAP_PROPERTIES heapProperties{};
+		heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;	//VRAM上に作る
+
+		//Resourceの生成
+		ComPtr <ID3D12Resource> TextureResource;
+		HRESULT hr = device_->CreateCommittedResource(
+			&heapProperties,	//Heapの設定
+			D3D12_HEAP_FLAG_NONE,	//Heapの特殊な設定。特になし
+			&resourceDesc,	//Resourceの設定
+			D3D12_RESOURCE_STATE_COMMON,	//初回のResourceState。Textureは基本読むだけ
+			nullptr,	//Clear最適値。使わないのでnullptr
+			IID_PPV_ARGS(&TextureResource)	//作成するResourceポインタへのポインタ
+		);
+		offscreenTextureResource_.push_back(TextureResource);
+
+		assert(SUCCEEDED(hr));
+	}
+
+	//制作したリソースからRTVとSRVを作成
+	for (uint32_t i = kSwapChainDescriptorSize_; i < kRTVHandleSize_; i++) {
+		//RTVハンドルを取得
+		rtvHandles_[i] = GetCPUDescriptorHandle(rtvDescriptorHeap_, descriptorSizeRTV_, i);
+		//レンダ―ターゲットビューの生成
+		device_->CreateRenderTargetView(offscreenTextureResource_[i - kSwapChainDescriptorSize_].Get(), &rtvDesc_, rtvHandles_[i]);
+	}
+}
+
 //デスクリプタヒープの生成
 ComPtr <ID3D12DescriptorHeap> DirectXCommon::CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptors, bool shaderVisible) {
 
@@ -865,8 +960,8 @@ void DirectXCommon::descriptorHeapInitialize() {
 	descriptorSizeRTV_ = device_->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 	descriptorSizeDSV_ = device_->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
-	//RTV用のヒープでディスクリプタ数は2。RTVはShader内で触る物ではないので、ShaderVisibleはfalse
-	rtvDescriptorHeap_ = CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 2, false);
+	//RTV用のヒープでディスクリプタ数は10。RTVはShader内で触る物ではないので、ShaderVisibleはfalse
+	rtvDescriptorHeap_ = CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, kRTVHandleSize_, false);
 
 	//DSV用のヒープディスクリプタの数は1。DSVはShader内で触る物ではないので、ShaderVisibleはfalse
 	dsvDescriptorheap_ = CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1, false);
@@ -887,7 +982,7 @@ void DirectXCommon::RenderTargetViewInitialize() {
 	//2dテクスチャとして書き込む
 	rtvDesc_.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
 
-	for (uint32_t i = 0; i < 2; i++) {
+	for (uint32_t i = 0; i < kSwapChainDescriptorSize_; i++) {
 		//RTVハンドルを取得
 		rtvHandles_[i] = GetCPUDescriptorHandle(rtvDescriptorHeap_, descriptorSizeRTV_, i);
 		//レンダ―ターゲットビューの生成

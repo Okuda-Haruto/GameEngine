@@ -57,6 +57,7 @@ void SRVManager::CreateSRVforTexture2D(uint32_t srvIndex, ID3D12Resource* pResou
 
 	dxCommon_->GetDevice()->CreateShaderResourceView(pResource, &srvDesc, GetCPUDescriptorHandle(srvIndex));
 }
+
 //SRV生成(Structured Buffer用)
 void SRVManager::CreateSRVforStructuredBuffer(uint32_t srvIndex, ID3D12Resource* pResource, UINT numElement, UINT structureByteStride) {
 	//metaDataを基にSRVの設定
@@ -80,6 +81,18 @@ void SRVManager::CreateSRVforDepthBuffer(uint32_t srvIndex, ID3D12Resource* pRes
 	//metaDataを基にSRVの設定
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
 	srvDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;	//typelessに対応するSRVフォーマット
+	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;	//2Dテクスチャ
+	srvDesc.Texture2D.MipLevels = 1;
+
+	dxCommon_->GetDevice()->CreateShaderResourceView(pResource, &srvDesc, GetCPUDescriptorHandle(srvIndex));
+}
+
+//SRV生成(オフスクリーンレンダリング用)
+void SRVManager::CreateSRVforOffscreenRendering(uint32_t srvIndex, ID3D12Resource* pResource) {
+	//metaDataを基にSRVの設定
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
+	srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;	//typelessに対応するSRVフォーマット
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;	//2Dテクスチャ
 	srvDesc.Texture2D.MipLevels = 1;

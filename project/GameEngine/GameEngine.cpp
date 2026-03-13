@@ -105,6 +105,7 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	imguiManager_->Initialize(dxCommon_.get(), winApp_.get(), srvManager_.get());
 
 	dxCommon_->DepthBufferInitialize(srvManager_.get());
+	//dxCommon_->OffsceenRenderingInitialize(srvManager_.get());
 	
 	TextureManager::GetInstance()->Initialize(dxCommon_.get(), srvManager_.get());
 	ModelManager::GetInstance()->Initialize(dxCommon_.get());
