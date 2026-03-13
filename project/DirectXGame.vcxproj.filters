@@ -312,9 +312,6 @@
     <ClInclude Include="GameEngine\Modules\ConvertString\ConvertString.h">
       <Filter>GameEngine\Modules\ConvertString</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\Modules\DirectXCommon\DirectXCommon.h">
-      <Filter>GameEngine\Modules\DirectXCommon</Filter>
-    </ClInclude>
     <ClInclude Include="GameEngine\Modules\Initialvalue\Initialvalue.h">
       <Filter>GameEngine\Modules\Initialvalue</Filter>
     </ClInclude>
@@ -536,6 +533,9 @@
     </ClInclude>
     <ClInclude Include="GameEngine\Data\AnimationInterpolation.h">
       <Filter>GameEngine\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Modules\DirectXCommon\DirectXCommon.h">
+      <Filter>GameEngine\Modules\DirectXCommon</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
