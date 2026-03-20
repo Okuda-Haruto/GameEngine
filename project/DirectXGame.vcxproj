@@ -57,11 +57,11 @@
     <ClCompile Include="Application\Scene\ClearScene\ClearScene.cpp" />
     <ClCompile Include="Application\Scene\GameOverScene\GameOverScene.cpp" />
     <ClCompile Include="Application\Scene\TitleScene\TitleScene.cpp" />
-    <ClCompile Include="GameEngine\Debug\D3DResourceLeakChecker.cpp" />
-    <ClCompile Include="GameEngine\Debug\DebugCamera.cpp" />
-    <ClCompile Include="GameEngine\Debug\ExportDump.cpp" />
-    <ClCompile Include="GameEngine\Debug\ImGuiManager\ImGuiManager.cpp" />
-    <ClCompile Include="GameEngine\Debug\Log.cpp" />
+    <ClCompile Include="GameEngine\DebugTool\D3DResourceLeakChecker.cpp" />
+    <ClCompile Include="GameEngine\DebugTool\DebugCamera.cpp" />
+    <ClCompile Include="GameEngine\DebugTool\ExportDump.cpp" />
+    <ClCompile Include="GameEngine\DebugTool\ImGuiManager\ImGuiManager.cpp" />
+    <ClCompile Include="GameEngine\DebugTool\Log.cpp" />
     <ClCompile Include="GameEngine\Editor\ParticleEditor\ParticleEditor.cpp" />
     <ClCompile Include="GameEngine\LoadFile\LoadGLTFFile.cpp" />
     <ClCompile Include="GameEngine\Math\LerpKeyFrame\LerpKeyFrame.cpp" />
@@ -142,7 +142,7 @@
     <ClInclude Include="GameEngine\Data\SpotLightElement.h" />
     <ClInclude Include="GameEngine\Data\TransformationMatrix.h" />
     <ClInclude Include="GameEngine\Data\VertexData.h" />
-    <ClInclude Include="GameEngine\Debug\ImGuiManager\ImGuiManager.h" />
+    <ClInclude Include="GameEngine\DebugTool\ImGuiManager\ImGuiManager.h" />
     <ClInclude Include="GameEngine\Editor\ParticleEditor\ParticleEditor.h" />
     <ClInclude Include="GameEngine\Factory\AbstractSceneFactory\AbstractSceneFactory.h" />
     <ClInclude Include="GameEngine\LoadFile\LoadGLTFFile.h" />
@@ -166,10 +166,10 @@
     <ClInclude Include="GameEngine\Data\TextureData.h" />
     <ClInclude Include="GameEngine\Math\Shape\Triangle.h" />
     <ClInclude Include="GameEngine\Data\ObjectVertexData.h" />
-    <ClInclude Include="GameEngine\Debug\D3DResourceLeakChecker.h" />
-    <ClInclude Include="GameEngine\Debug\DebugCamera.h" />
-    <ClInclude Include="GameEngine\Debug\ExportDump.h" />
-    <ClInclude Include="GameEngine\Debug\Log.h" />
+    <ClInclude Include="GameEngine\DebugTool\D3DResourceLeakChecker.h" />
+    <ClInclude Include="GameEngine\DebugTool\DebugCamera.h" />
+    <ClInclude Include="GameEngine\DebugTool\ExportDump.h" />
+    <ClInclude Include="GameEngine\DebugTool\Log.h" />
     <ClInclude Include="GameEngine\Math\UINT4.h" />
     <ClInclude Include="GameEngine\Modules\Animation\Animation.h" />
     <ClInclude Include="GameEngine\Modules\AudioManager\AudioManager.h" />
@@ -372,7 +372,7 @@
       <TreatWarningAsError>true</TreatWarningAsError>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(ProjectDir)GameEngine\Resource;$(ProjectDir)GameEngine\Math;$(ProjectDir)GameEngine\Math\Shape;$(ProjectDir)GameEngine\LoadFile;$(ProjectDir)GameEngine\Debug;$(ProjectDir)GameEngine\Data;$(ProjectDir)GameEngine\Modules;$(ProjectDir)GameEngine\Modules\CompileShader;$(ProjectDir)GameEngine\Modules\ConvertString;$(ProjectDir)GameEngine\Modules\CreateBufferResource;$(ProjectDir)GameEngine\Modules\CreateDepthStencilTextureResource;$(ProjectDir)GameEngine\Modules\CreateDescriptorHeap;$(ProjectDir)GameEngine\Modules\CreateTextureResource;$(ProjectDir)GameEngine\Modules\GetDescriptorHandle;$(ProjectDir)GameEngine\Modules\Initialvalue;$(ProjectDir)GameEngine\Modules\UploadTextreData;$(ProjectDir)GameEngine\Modules\Window;$(ProjectDir)GameEngine;$(ProjectDir)externals;$(ProjectDir)externals\assimp\include;$(ProjectDir)Application;$(ProjectDir)Application\GameManager;$(ProjectDir)Application\GameManager\SceneFactory;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)GameEngine\Resource;$(ProjectDir)GameEngine\Math;$(ProjectDir)GameEngine\Math\Shape;$(ProjectDir)GameEngine\LoadFile;$(ProjectDir)GameEngine\DebugTool;$(ProjectDir)GameEngine\Data;$(ProjectDir)GameEngine\Modules;$(ProjectDir)GameEngine\Modules\CompileShader;$(ProjectDir)GameEngine\Modules\ConvertString;$(ProjectDir)GameEngine\Modules\CreateBufferResource;$(ProjectDir)GameEngine\Modules\CreateDepthStencilTextureResource;$(ProjectDir)GameEngine\Modules\CreateDescriptorHeap;$(ProjectDir)GameEngine\Modules\CreateTextureResource;$(ProjectDir)GameEngine\Modules\GetDescriptorHandle;$(ProjectDir)GameEngine\Modules\Initialvalue;$(ProjectDir)GameEngine\Modules\UploadTextreData;$(ProjectDir)GameEngine\Modules\Window;$(ProjectDir)GameEngine;$(ProjectDir)externals;$(ProjectDir)externals\assimp\include;$(ProjectDir)Application;$(ProjectDir)Application\GameManager;$(ProjectDir)Application\GameManager\SceneFactory;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -401,7 +401,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <Optimization>MinSpace</Optimization>
-      <AdditionalIncludeDirectories>$(ProjectDir)GameEngine\Resource;$(ProjectDir)GameEngine\Math;$(ProjectDir)GameEngine\Math\Shape;$(ProjectDir)GameEngine\LoadFile;$(ProjectDir)GameEngine\Debug;$(ProjectDir)GameEngine\Data;$(ProjectDir)GameEngine\Modules;$(ProjectDir)GameEngine\Modules\CompileShader;$(ProjectDir)GameEngine\Modules\ConvertString;$(ProjectDir)GameEngine\Modules\CreateBufferResource;$(ProjectDir)GameEngine\Modules\CreateDepthStencilTextureResource;$(ProjectDir)GameEngine\Modules\CreateDescriptorHeap;$(ProjectDir)GameEngine\Modules\CreateTextureResource;$(ProjectDir)GameEngine\Modules\GetDescriptorHandle;$(ProjectDir)GameEngine\Modules\Initialvalue;$(ProjectDir)GameEngine\Modules\UploadTextreData;$(ProjectDir)GameEngine\Modules\Window;$(ProjectDir)GameEngine;$(ProjectDir)externals;$(ProjectDir)externals\assimp\include;$(ProjectDir)Application;$(ProjectDir)Application\GameManager;$(ProjectDir)Application\GameManager\SceneFactory;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)GameEngine\Resource;$(ProjectDir)GameEngine\Math;$(ProjectDir)GameEngine\Math\Shape;$(ProjectDir)GameEngine\LoadFile;$(ProjectDir)GameEngine\DebugTool;$(ProjectDir)GameEngine\Data;$(ProjectDir)GameEngine\Modules;$(ProjectDir)GameEngine\Modules\CompileShader;$(ProjectDir)GameEngine\Modules\ConvertString;$(ProjectDir)GameEngine\Modules\CreateBufferResource;$(ProjectDir)GameEngine\Modules\CreateDepthStencilTextureResource;$(ProjectDir)GameEngine\Modules\CreateDescriptorHeap;$(ProjectDir)GameEngine\Modules\CreateTextureResource;$(ProjectDir)GameEngine\Modules\GetDescriptorHandle;$(ProjectDir)GameEngine\Modules\Initialvalue;$(ProjectDir)GameEngine\Modules\UploadTextreData;$(ProjectDir)GameEngine\Modules\Window;$(ProjectDir)GameEngine;$(ProjectDir)externals;$(ProjectDir)externals\assimp\include;$(ProjectDir)Application;$(ProjectDir)Application\GameManager;$(ProjectDir)Application\GameManager\SceneFactory;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -431,7 +431,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(ProjectDir)GameEngine\Resource;$(ProjectDir)GameEngine\Math;$(ProjectDir)GameEngine\Math\Shape;$(ProjectDir)GameEngine\LoadFile;$(ProjectDir)GameEngine\Debug;$(ProjectDir)GameEngine\Data;$(ProjectDir)GameEngine\Modules;$(ProjectDir)GameEngine\Modules\CompileShader;$(ProjectDir)GameEngine\Modules\ConvertString;$(ProjectDir)GameEngine\Modules\CreateBufferResource;$(ProjectDir)GameEngine\Modules\CreateDepthStencilTextureResource;$(ProjectDir)GameEngine\Modules\CreateDescriptorHeap;$(ProjectDir)GameEngine\Modules\CreateTextureResource;$(ProjectDir)GameEngine\Modules\GetDescriptorHandle;$(ProjectDir)GameEngine\Modules\Initialvalue;$(ProjectDir)GameEngine\Modules\UploadTextreData;$(ProjectDir)GameEngine\Modules\Window;$(ProjectDir)GameEngine;$(ProjectDir)externals;$(ProjectDir)externals\assimp\include;$(ProjectDir)Application;$(ProjectDir)Application\GameManager;$(ProjectDir)Application\GameManager\SceneFactory;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)GameEngine\Resource;$(ProjectDir)GameEngine\Math;$(ProjectDir)GameEngine\Math\Shape;$(ProjectDir)GameEngine\LoadFile;$(ProjectDir)GameEngine\DebugTool;$(ProjectDir)GameEngine\Data;$(ProjectDir)GameEngine\Modules;$(ProjectDir)GameEngine\Modules\CompileShader;$(ProjectDir)GameEngine\Modules\ConvertString;$(ProjectDir)GameEngine\Modules\CreateBufferResource;$(ProjectDir)GameEngine\Modules\CreateDepthStencilTextureResource;$(ProjectDir)GameEngine\Modules\CreateDescriptorHeap;$(ProjectDir)GameEngine\Modules\CreateTextureResource;$(ProjectDir)GameEngine\Modules\GetDescriptorHandle;$(ProjectDir)GameEngine\Modules\Initialvalue;$(ProjectDir)GameEngine\Modules\UploadTextreData;$(ProjectDir)GameEngine\Modules\Window;$(ProjectDir)GameEngine;$(ProjectDir)externals;$(ProjectDir)externals\assimp\include;$(ProjectDir)Application;$(ProjectDir)Application\GameManager;$(ProjectDir)Application\GameManager\SceneFactory;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
