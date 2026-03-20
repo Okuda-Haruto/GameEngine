@@ -329,6 +329,7 @@ void GameScene::Update() {
 
 
 
+
 	float a = 0.0f;
 	if (fade_ == Fade::FadeIn) {
 		a = 1.0f - fadeTime_ / kMaxFadeTime;
