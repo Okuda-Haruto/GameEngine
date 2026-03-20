@@ -76,17 +76,17 @@
     <ClCompile Include="GameEngine\Math\Collision.cpp">
       <Filter>GameEngine\Math\Collision</Filter>
     </ClCompile>
-    <ClCompile Include="GameEngine\Debug\D3DResourceLeakChecker.cpp">
-      <Filter>GameEngine\Debug\ResourceLeakChecker</Filter>
+    <ClCompile Include="GameEngine\DebugTool\D3DResourceLeakChecker.cpp">
+      <Filter>GameEngine\DebugTool\ResourceLeakChecker</Filter>
     </ClCompile>
-    <ClCompile Include="GameEngine\Debug\Log.cpp">
-      <Filter>GameEngine\Debug\Log</Filter>
+    <ClCompile Include="GameEngine\DebugTool\Log.cpp">
+      <Filter>GameEngine\DebugTool\Log</Filter>
     </ClCompile>
-    <ClCompile Include="GameEngine\Debug\ExportDump.cpp">
-      <Filter>GameEngine\Debug\Dump</Filter>
+    <ClCompile Include="GameEngine\DebugTool\ExportDump.cpp">
+      <Filter>GameEngine\DebugTool\Dump</Filter>
     </ClCompile>
-    <ClCompile Include="GameEngine\Debug\DebugCamera.cpp">
-      <Filter>GameEngine\Debug\DebugCamera</Filter>
+    <ClCompile Include="GameEngine\DebugTool\DebugCamera.cpp">
+      <Filter>GameEngine\DebugTool\DebugCamera</Filter>
     </ClCompile>
     <ClCompile Include="GameEngine\LoadFile\LoadMaterialTemplateFile.cpp">
       <Filter>GameEngine\LoadFile\Material</Filter>
@@ -151,8 +151,8 @@
     <ClCompile Include="GameEngine\LoadFile\LoadGLTFFile.cpp">
       <Filter>GameEngine\LoadFile\GLTF</Filter>
     </ClCompile>
-    <ClCompile Include="GameEngine\Debug\ImGuiManager\ImGuiManager.cpp">
-      <Filter>GameEngine\Debug\ImGuiManager</Filter>
+    <ClCompile Include="GameEngine\DebugTool\ImGuiManager\ImGuiManager.cpp">
+      <Filter>GameEngine\DebugTool\ImGuiManager</Filter>
     </ClCompile>
     <ClCompile Include="GameEngine\Editor\ParticleEditor\ParticleEditor.cpp">
       <Filter>GameEngine\Editor</Filter>
@@ -291,17 +291,17 @@
     <ClInclude Include="GameEngine\Math\Vector4.h">
       <Filter>GameEngine\Math</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\Debug\D3DResourceLeakChecker.h">
-      <Filter>GameEngine\Debug\ResourceLeakChecker</Filter>
+    <ClInclude Include="GameEngine\DebugTool\D3DResourceLeakChecker.h">
+      <Filter>GameEngine\DebugTool\ResourceLeakChecker</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\Debug\Log.h">
-      <Filter>GameEngine\Debug\Log</Filter>
+    <ClInclude Include="GameEngine\DebugTool\Log.h">
+      <Filter>GameEngine\DebugTool\Log</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\Debug\ExportDump.h">
-      <Filter>GameEngine\Debug\Dump</Filter>
+    <ClInclude Include="GameEngine\DebugTool\ExportDump.h">
+      <Filter>GameEngine\DebugTool\Dump</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\Debug\DebugCamera.h">
-      <Filter>GameEngine\Debug\DebugCamera</Filter>
+    <ClInclude Include="GameEngine\DebugTool\DebugCamera.h">
+      <Filter>GameEngine\DebugTool\DebugCamera</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\LoadFile\LoadMaterialTemplateFile.h">
       <Filter>GameEngine\LoadFile\Material</Filter>
@@ -429,8 +429,8 @@
     <ClInclude Include="GameEngine\Data\Node.h">
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\Debug\ImGuiManager\ImGuiManager.h">
-      <Filter>GameEngine\Debug\ImGuiManager</Filter>
+    <ClInclude Include="GameEngine\DebugTool\ImGuiManager\ImGuiManager.h">
+      <Filter>GameEngine\DebugTool\ImGuiManager</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\Editor\ParticleEditor\ParticleEditor.h">
       <Filter>GameEngine\Editor</Filter>
@@ -605,21 +605,6 @@
     <Filter Include="GameEngine\Math\Lerp">
       <UniqueIdentifier>{a4d38b83-aa69-48b9-99a3-42011105b589}</UniqueIdentifier>
     </Filter>
-    <Filter Include="GameEngine\Debug">
-      <UniqueIdentifier>{f4fd4c27-a9ce-43eb-87c9-5c9802eb6f93}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GameEngine\Debug\ResourceLeakChecker">
-      <UniqueIdentifier>{9c0664c9-2ff5-4ebb-a2d0-a9de39ea9fa0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GameEngine\Debug\Log">
-      <UniqueIdentifier>{d11f17b7-2389-4413-95ec-f496a19cdecf}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GameEngine\Debug\Dump">
-      <UniqueIdentifier>{d2f446f4-3be2-4a96-b2e7-66837ee41c14}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GameEngine\Debug\DebugCamera">
-      <UniqueIdentifier>{501a205f-ca82-4c2a-9f09-a43eb174dfc0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="GameEngine\LoadFile">
       <UniqueIdentifier>{93d6a10b-fd58-4fea-9cc9-e8072b1f5bf0}</UniqueIdentifier>
     </Filter>
@@ -722,9 +707,6 @@
     <Filter Include="GameEngine\LoadFile\GLTF">
       <UniqueIdentifier>{247048d6-d430-4237-9e90-0b89364d0db5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="GameEngine\Debug\ImGuiManager">
-      <UniqueIdentifier>{07d70550-e26b-4612-aef3-967a338f70c4}</UniqueIdentifier>
-    </Filter>
     <Filter Include="GameEngine\Editor">
       <UniqueIdentifier>{c35b57a5-245b-4abc-bf2f-b0d4cd4e04ba}</UniqueIdentifier>
     </Filter>
@@ -778,6 +760,24 @@
     </Filter>
     <Filter Include="GameEngine\Modules\Animation">
       <UniqueIdentifier>{2c4cc0fb-6e3d-40e2-ab0e-b89fb46ab728}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\DebugTool">
+      <UniqueIdentifier>{f4fd4c27-a9ce-43eb-87c9-5c9802eb6f93}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\DebugTool\ResourceLeakChecker">
+      <UniqueIdentifier>{9c0664c9-2ff5-4ebb-a2d0-a9de39ea9fa0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\DebugTool\Log">
+      <UniqueIdentifier>{d11f17b7-2389-4413-95ec-f496a19cdecf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\DebugTool\Dump">
+      <UniqueIdentifier>{d2f446f4-3be2-4a96-b2e7-66837ee41c14}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\DebugTool\DebugCamera">
+      <UniqueIdentifier>{501a205f-ca82-4c2a-9f09-a43eb174dfc0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\DebugTool\ImGuiManager">
+      <UniqueIdentifier>{07d70550-e26b-4612-aef3-967a338f70c4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
