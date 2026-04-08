@@ -5,8 +5,6 @@
 #include "GameCamera/GameCamera.h"
 #include "ParticleEmitter/ParticleEmitter.h"
 
-using namespace std;
-
 class GameScene;
 
 class Player : public BaseCharacter

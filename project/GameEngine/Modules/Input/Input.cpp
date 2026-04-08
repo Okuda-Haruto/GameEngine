@@ -76,8 +76,8 @@ void Input::Update() {
 	//パッド入力
 	for (auto i = 0; i < 4; i++) {
 		//前frame処理
-		memcpy(&prePadState_, &padState_, sizeof(XINPUT_STATE));
-		ZeroMemory(&padState_, sizeof(XINPUT_STATE));
+		memcpy(&prePadState_[i], &padState_[i], sizeof(XINPUT_STATE));
+		ZeroMemory(&padState_[i], sizeof(XINPUT_STATE));
 
 		//パッド入力を入手
 		dwResult_[i] = XInputGetState(0, &padState_[i]);

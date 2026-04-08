@@ -4,8 +4,6 @@
 #include <Camera/Camera.h>
 #include <ModelHolder/ModelHolder.h>
 
-using namespace std;
-
 class Skydome
 {
 private:
