@@ -5,8 +5,6 @@
 #include <ModelHolder/ModelHolder.h>
 #include "ParticleEmitter/ParticleEmitter.h"
 
-using namespace std;
-
 class Tumbleweed
 {
 private:
