@@ -359,6 +359,7 @@ MigrationBackup/
 # DirectXTex Compiled Shaders
 **/DirectXTex/Shaders/Compiled/
 
+!project/externals/assimp/lib/Debug/
 !project/externals/assimp/lib/Debug/*.pdb
 
 generated/
