@@ -135,12 +135,12 @@ void SampleScene::Initialize() {
 	}
 
 	std::unique_ptr<Object> box_;
-	box_ = make_unique<Object>();
+	/*box_ = make_unique<Object>();
 	box_->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/gltf", "LE2A_02_human.gltf"));
 	box_->SetIsUseAnimation(true);
 	box_->SetIsLoopAnimation(true);
 	box_->SetAnimationInterpolation(AnimationInterpolation::Linear);
-	gltfs_.push_back(move(box_));
+	gltfs_.push_back(move(box_));*/
 	box_ = make_unique<Object>();
 	box_->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/gltf", "box.gltf"));
 	box_->SetIsUseAnimation(true);
