@@ -127,6 +127,7 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	spriteRootSignature_ = dxCommon_->SpriteRootSignatureInitialvalue();
 	instancingObjectRootSignature_ = dxCommon_->InstancingObjectRootSignatureInitialvalue();
 	particleRootSignature_ = dxCommon_->ParticleRootSignatureInitialvalue();
+	screenRootSignature_ = dxCommon_->ScreenRootSignatureInitialvalue();
 
 	//Shaderをコンパイルする
 	Microsoft::WRL::ComPtr<IDxcBlob> Object3DVertexShaderBlob = dxCommon_->CompileShader(L"./resources/Shader/Object3D.VS.hlsl", L"vs_6_0");
@@ -151,6 +152,10 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	assert(particleVSBlob != nullptr);
 	Microsoft::WRL::ComPtr<IDxcBlob> particlePSBlob = dxCommon_->CompileShader(L"./resources/Shader/Particle.PS.hlsl", L"ps_6_0");
 	assert(particlePSBlob != nullptr);
+	Microsoft::WRL::ComPtr<IDxcBlob> CopyImageVSBlob = dxCommon_->CompileShader(L"./resources/Shader/CopyImage.VS.hlsl", L"vs_6_0");
+	assert(CopyImageVSBlob != nullptr);
+	Microsoft::WRL::ComPtr<IDxcBlob> CopyImagePSBlob = dxCommon_->CompileShader(L"./resources/Shader/CopyImage.PS.hlsl", L"ps_6_0");
+	assert(CopyImagePSBlob != nullptr);
 
 	//PSOを生成
 	object3DPipelineState_ = TrianglePipelineStateInitialvalue(device_, objectRootSignature_, Object3DVertexShaderBlob.Get(), Object3DPixelShaderBlob.Get());
@@ -162,6 +167,7 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	spritePipelineState_ = SpritePipelineStateInitialvalue(device_, spriteRootSignature_, Sprite2DVertexShaderBlob.Get(), Sprite2DPixelShaderBlob.Get());
 	linePipelineState_ = LinePipelineStateInitialvalue(device_, instancingObjectRootSignature_, particleVSBlob.Get(), instancingLinePixelShaderBlob.Get());
 	noDepthLinePipelineState_ = NoDepthLinePipelineStateInitialvalue(device_, instancingObjectRootSignature_, particleVSBlob.Get(), instancingLinePixelShaderBlob.Get());
+	screenPipelineState_ = ScreenPipelineStateInitialvalue(device_, screenRootSignature_, CopyImageVSBlob.Get(), CopyImagePSBlob.Get());
 	//XAudioエンジンのインスタンスを生成
 	hr = XAudio2Create(&xAudio2_, 0, XAUDIO2_DEFAULT_PROCESSOR);
 	assert(SUCCEEDED(hr));
@@ -290,13 +296,19 @@ void GameEngine::PreDraw_() {
 
 	imguiManager_->End();
 
-	srvManager_->PreDraw();
+	srvManager_->RenderPreDraw("render",0);
 
 }
 
 void GameEngine::PostDraw_() {
 
 	PrimitiveManager::GetInstance()->Draw();
+
+	dxCommon_->RenderPostDraw();
+
+	srvManager_->PreDraw();
+
+	DrawScreen(TextureManager::GetInstance()->GetSrvIndex("render"));
 
 	imguiManager_->Draw();
 
@@ -1058,6 +1070,23 @@ void GameEngine::DrawInstancingSprite_2D_(std::list<Sprite*> sprits) {
 	commandList_->DrawIndexedInstanced(6, numInstance, 0, 0, 0);
 
 	instancingSpriteIndex_++;
+}
+
+void GameEngine::DrawScreen_(uint32_t textureIndex) {
+
+	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
+	commandList_->SetGraphicsRootSignature(screenRootSignature_.Get());
+	commandList_->SetPipelineState(screenPipelineState_.Get());	//PSOを設定
+
+	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
+	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
+	commandList_->SetGraphicsRootDescriptorTable(1, srvManager_->GetGPUDescriptorHandle(textureIndex));
+
+	//描画(DrawCall)(頂点は勝手に入るのでIndexedじゃない)
+	commandList_->DrawInstanced(3, 1, 0, 0);
+
 }
 
 void GameEngine::DrawLine_(std::list<PrimitiveManager::PrimitiveLine> lines, PrimitiveManager::PrimitiveResource primitiveResource) {

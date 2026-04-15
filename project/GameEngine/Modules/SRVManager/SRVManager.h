@@ -41,11 +41,15 @@ public:
 	void CreateSRVforStructuredBuffer(uint32_t srvIndex, ID3D12Resource* pResource, UINT numElement, UINT structureByteStride);
 	//SRV生成(深度バッファ用)
 	void CreateSRVforDepthBuffer(uint32_t srvIndex, ID3D12Resource* pResource);
-	//SRV生成(オフスクリーンレンダリング用)
-	void CreateSRVforOffscreenRendering(uint32_t srvIndex, ID3D12Resource* pResource);
+	//SRV生成(レンダーテクスチャ用)
+	void CreateSRVforRenderTexture(uint32_t srvIndex, ID3D12Resource* pResource);
+
+	//デスクリプタヒープセット
+	void SetDescriptorHeap();
 
 	//ヒープをセット
 	void PreDraw();
+	void RenderPreDraw(std::string textureName, UINT rtvIndex);
 
 	//SRVセット
 	void SetGraphicsRootDescriptorTable(UINT RootParameterIndex, uint32_t srvIndex);

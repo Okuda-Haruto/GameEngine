@@ -63,6 +63,35 @@ void TextureManager::LoadTexture(const std::string& filePath) {
 	srvManager_->CreateSRVforTexture2D(textureData.srvIndex, textureData.resource.Get(), textureData.metadata.format, UINT(textureData.metadata.mipLevels));
 }
 
+//レンダーテクスチャの作成
+void TextureManager::MakeRenderTexture(const std::string& renderName) {
+
+	//読み込み済みテクスチャを検索
+	if (textureDatas.contains(renderName)) {
+		//読み込み済みなら早期Return
+		return;
+	}
+
+	//テクスチャ上限チェック
+	assert(srvManager_->IsCanAllocate());
+
+	//テクスチャデータを追加して書き込む
+	TextureData& textureData = textureDatas[renderName];
+
+	//textureData.metadata = mipImages.GetMetadata();
+	const Vector4 kRenderTargetClearValue{ 1.0f,0.0f,0.0f,1.0f };	//いったんわかりやすいように赤
+	textureData.resource = dxCommon_->CreateRenderTextureResource(1280,720,DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,kRenderTargetClearValue);
+
+	//dxCommon_->UploadTextureData(textureData.resource.Get(), mipImages);
+
+	textureData.srvIndex = srvManager_->Allocate();
+	textureData.srvHandleCPU = srvManager_->GetCPUDescriptorHandle(textureData.srvIndex);
+	textureData.srvHandleGPU = srvManager_->GetGPUDescriptorHandle(textureData.srvIndex);
+
+	//SRV生成
+	srvManager_->CreateSRVforRenderTexture(textureData.srvIndex, textureData.resource.Get());
+}
+
 uint32_t TextureManager::GetSrvIndex(const std::string& filePath) {
 	//読み込み済みテクスチャを検索
 	if (textureDatas.contains(filePath)) {
@@ -83,6 +112,26 @@ uint32_t TextureManager::GetSrvIndex(const std::string& filePath) {
 
 	assert(0);
 	return 0;
+}
+
+ID3D12Resource* TextureManager::GetResource(const std::string& renderName) {
+	//読み込み済みテクスチャを検索
+	if (textureDatas.contains(renderName)) {
+		//読み込み済みなら要素番号を返す
+		return textureDatas[renderName].resource.Get();
+	}
+
+	//読み込んでいないテクスチャを指定した場合ここで読み込む
+	MakeRenderTexture(renderName);
+
+	//読み込み済みテクスチャを検索
+	if (textureDatas.contains(renderName)) {
+		//読み込み済みなら要素番号を返す
+		return textureDatas[renderName].resource.Get();
+	}
+
+	assert(0);
+	return nullptr;
 }
 
 D3D12_GPU_DESCRIPTOR_HANDLE TextureManager::GetSrvHandleGPU(const std::string& filePath) {

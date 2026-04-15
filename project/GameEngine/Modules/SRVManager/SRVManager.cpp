@@ -88,11 +88,11 @@ void SRVManager::CreateSRVforDepthBuffer(uint32_t srvIndex, ID3D12Resource* pRes
 	dxCommon_->GetDevice()->CreateShaderResourceView(pResource, &srvDesc, GetCPUDescriptorHandle(srvIndex));
 }
 
-//SRV生成(オフスクリーンレンダリング用)
-void SRVManager::CreateSRVforOffscreenRendering(uint32_t srvIndex, ID3D12Resource* pResource) {
+//SRV生成(レンダーテクスチャ用)
+void SRVManager::CreateSRVforRenderTexture(uint32_t srvIndex, ID3D12Resource* pResource) {
 	//metaDataを基にSRVの設定
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
-	srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;	//typelessに対応するSRVフォーマット
+	srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;	//2Dテクスチャ
 	srvDesc.Texture2D.MipLevels = 1;
@@ -104,7 +104,16 @@ void SRVManager::PreDraw() {
 	//描画用のDescriptorHeapの設定
 	ID3D12DescriptorHeap* descriptorHeaps[] = { descriptorHeap_.Get() };
 	dxCommon_->GetCommandList()->SetDescriptorHeaps(1, descriptorHeaps);
+
 	dxCommon_->PreDraw();
+}
+
+void SRVManager::RenderPreDraw(std::string textureName, UINT rtvIndex) {
+	//描画用のDescriptorHeapの設定
+	ID3D12DescriptorHeap* descriptorHeaps[] = { descriptorHeap_.Get() };
+	dxCommon_->GetCommandList()->SetDescriptorHeaps(1, descriptorHeaps);
+
+	dxCommon_->RenderPreDraw(textureName, rtvIndex);
 }
 
 void SRVManager::SetGraphicsRootDescriptorTable(UINT RootParameterIndex, uint32_t srvIndex) {
