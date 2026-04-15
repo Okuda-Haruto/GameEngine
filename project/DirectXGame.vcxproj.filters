@@ -537,6 +537,7 @@
     <ClInclude Include="GameEngine\Modules\DirectXCommon\DirectXCommon.h">
       <Filter>GameEngine\Modules\DirectXCommon</Filter>
     </ClInclude>
+    <ClInclude Include="GameEngine\Math\Shape\Circle.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />

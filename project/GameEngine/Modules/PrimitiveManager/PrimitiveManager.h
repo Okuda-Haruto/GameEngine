@@ -12,6 +12,9 @@
 #include "Line.h"
 #include "Plane.h"
 #include "AABB.h"
+#include "Triangle.h"
+#include "Circle.h"
+#include "Sphere.h"
 
 using namespace std;
 
@@ -19,10 +22,14 @@ class PrimitiveManager {
 public:
 	//プリミティブで使用可能な形
 	enum Primitive_SHAPE {
-		SHAPE_Line,
-		SHAPE_Plane,
 		SHAPE_Point,
+		SHAPE_Line,
+		//SHAPE_Triangle,
+		//SHAPE_Plane,
+		//SHAPE_Circle,
+
 		SHAPE_AABB,
+		//SHAPE_Sphere,
 		SHAPE_count
 	};
 	//プリミティブのインスタシング用リソース
@@ -33,6 +40,38 @@ public:
 	};
 	//描画可能なプリミティブの数
 	static const uint32_t kMaxNumPrimitive = 1024;
+
+	//色の要素を持つ点
+	struct PrimitivePoint {
+		Vector3 point;
+		Vector4 color;
+	};
+	//色の要素を持つ直線
+	struct PrimitiveLine {
+		Line line;
+		Vector4 color;
+	};
+	//色の要素を持つ三角形
+	struct PrimitiveTriangle {
+		Triangle triangle;
+		Vector4 color;
+	};
+	//色の要素を持つ円
+	struct PrimitiveCircle {
+		Circle circle;
+		Vector4 color;
+	};
+	//色の要素を持つAABB
+	struct PrimitiveAABB {
+		AABB aabb;
+		Vector4 color;
+	};
+	//色の要素を持つ球
+	struct PrimitiveSphere {
+		Sphere sphere;
+		Vector4 color;
+	};
+
 private:
 
 	static unique_ptr<PrimitiveManager> instance;
@@ -54,18 +93,24 @@ private:
 
 	//インスタシング用リソース
 	std::array<PrimitiveResource, SHAPE_count> primitiveResource_;
-	//直線データ
-	std::array<Line, kMaxNumPrimitive> line_;
-	int32_t lineIndex_ = 0;
-	//平面データ
-	std::array<Plane, kMaxNumPrimitive> plane_;
-	int32_t planeIndex_ = 0;
 	//点データ
-	std::array<Vector3, kMaxNumPrimitive> point_;
+	std::array<PrimitivePoint, kMaxNumPrimitive> point_;
 	int32_t pointIndex_ = 0;
+	//直線データ
+	std::array<PrimitiveLine, kMaxNumPrimitive> line_;
+	int32_t lineIndex_ = 0;
+	//三角形データ
+	std::array<PrimitiveTriangle, kMaxNumPrimitive> triangle_;
+	int32_t triangleIndex_ = 0;
+	//円データ
+	std::array<PrimitiveCircle, kMaxNumPrimitive> circle_;
+	int32_t circleIndex_ = 0;
 	//AABBデータ
-	std::array<AABB, kMaxNumPrimitive> aabb_;
+	std::array<PrimitiveAABB, kMaxNumPrimitive> aabb_;
 	int32_t aabbIndex_ = 0;
+	//球データ
+	std::array<PrimitiveSphere, kMaxNumPrimitive> sphere_;
+	int32_t sphereIndex_ = 0;
 
 public:
 
@@ -84,17 +129,15 @@ public:
 	void Draw();
 
 	//直線
-	void AddLine(Line line) { line_[lineIndex_] = line; lineIndex_++; };
+	void AddLine(Line line, Vector4 color = {1,0,0,1}) { line_[lineIndex_].line = line; line_[lineIndex_].color = color; lineIndex_++; };
 	//半直線
-	void AddRay(Ray ray) { Line line = { .origin = ray.origin,.diff = ray.diff }; AddLine(line); };
+	void AddRay(Ray ray, Vector4 color = { 1,0,0,1 }) { Line line = { .origin = ray.origin,.diff = ray.diff }; AddLine(line, color); };
 	//線分
-	void AddSegment(Segment segment) { Line line = { .origin = segment.origin,.diff = segment.diff }; AddLine(line); };
-	//平面
-	void AddPlane(Plane plane) { plane_[planeIndex_] = plane; planeIndex_++; };
+	void AddSegment(Segment segment, Vector4 color = { 1,0,0,1 }) { Line line = { .origin = segment.origin,.diff = segment.diff }; AddLine(line, color); };
 	//AABB
-	void AddPoint(Vector3 point) { point_[pointIndex_] = point; pointIndex_++; };
+	void AddPoint(Vector3 point, Vector4 color = { 1,0,0,1 }) { point_[pointIndex_].point = point; point_[pointIndex_].color = color; pointIndex_++; };
 	//AABB
-	void AddAABB(AABB aabb) { aabb_[aabbIndex_] = aabb; aabbIndex_++; };
+	void AddAABB(AABB aabb, Vector4 color = { 1,0,0,1 }) { aabb_[aabbIndex_].aabb = aabb; aabb_[aabbIndex_].color = color; aabbIndex_++; };
 
 	//リセット
 	void Reset();
