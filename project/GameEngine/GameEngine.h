@@ -70,6 +70,7 @@ private:
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> instancingObjectRootSignature_;
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> spriteRootSignature_;
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> particleRootSignature_;
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> screenRootSignature_;
 
 	//Windowのメッセージ
 	MSG msg_{};
@@ -84,6 +85,7 @@ private:
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> spritePipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> linePipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> noDepthLinePipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> screenPipelineState_ = nullptr;
 
 public:
 	//描画可能なモデルの数(通常)
@@ -209,6 +211,8 @@ private:
 	void DrawSprite_2D_(Sprite* sprite);
 	void DrawInstancingSprite_2D_(std::list<Sprite*> sprits);
 
+	void DrawScreen_(uint32_t textureIndex);
+
 	void DrawLine_(std::list<PrimitiveManager::PrimitiveLine> lines, PrimitiveManager::PrimitiveResource primitiveResource);
 	void DrawPoint_(std::list<PrimitiveManager::PrimitivePoint> points, PrimitiveManager::PrimitiveResource primitiveResource);
 	void DrawAABB_(std::list<PrimitiveManager::PrimitiveAABB> aabbs, PrimitiveManager::PrimitiveResource primitiveResource);
@@ -289,6 +293,8 @@ public:
 	
 	static void DrawSprite_2D(Sprite* sprite) { return GetInstance()->DrawSprite_2D_(sprite); }
 	static void DrawInstancingSprite_2D(std::list<Sprite*> sprits) { return GetInstance()->DrawInstancingSprite_2D_(sprits); }
+
+	static void DrawScreen(uint32_t textureIndex) { return GetInstance()->DrawScreen_(textureIndex); }
 
 	static void DrawLine(std::list<PrimitiveManager::PrimitiveLine> lines, PrimitiveManager::PrimitiveResource primitiveResource) { return GetInstance()->DrawLine_(lines, primitiveResource); }
 	static void DrawPoint(std::list<PrimitiveManager::PrimitivePoint> points, PrimitiveManager::PrimitiveResource primitiveResource) { return GetInstance()->DrawPoint_(points, primitiveResource); }

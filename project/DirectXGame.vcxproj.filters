@@ -37,6 +37,8 @@
     <FxCompile Include="resources\Shader\InstanceLine.PS.hlsl">
       <Filter>GameEngine\Shader</Filter>
     </FxCompile>
+    <FxCompile Include="resources\Shader\CopyImage.PS.hlsl" />
+    <FxCompile Include="resources\Shader\CopyImage.VS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -556,6 +558,7 @@
     <None Include="resources\Shader\Material.hlsli">
       <Filter>GameEngine\Shader</Filter>
     </None>
+    <None Include="resources\Shader\CopyImage.hlsli" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Application">

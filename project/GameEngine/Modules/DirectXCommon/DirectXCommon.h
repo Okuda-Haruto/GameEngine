@@ -12,11 +12,19 @@
 #include <Log.h>
 
 #include <WindowsAPI/WindowsAPI.h>
+#include <Vector4.h>
 
 class SRVManager;
 
 //DirectX基盤
 class DirectXCommon {
+public:
+	//スワップチェーンで使うRTVデスクリプタサイズ
+	static const uint32_t kSwapChainDescriptorSize_ = 2;
+	//オフスクリーンレンダリングで使うRTVデスクリプタサイズ
+	static const uint32_t kOffscreenDescriptorSize_ = 8;
+	//全体RTVデスクリプタサイズ
+	static const uint32_t kRTVHandleSize_ = 10;
 private:
 	//WindowsAPI
 	WindowsAPI* winApp_ = nullptr;
@@ -51,21 +59,9 @@ private:
 	//深度バッファ位置
 	uint32_t depthBufferIndex_;
 
-	//オフスクリーン描画用リソース
-	std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> offscreenTextureResource_;
-	//オフスクリーンバッファ開始位置
-	uint32_t offscreenBufferIndex_;
-
 	//デスクリプタサイズ
 	uint32_t descriptorSizeRTV_;
 	uint32_t descriptorSizeDSV_;
-
-	//スワップチェーンで使うRTVデスクリプタサイズ
-	static const uint32_t kSwapChainDescriptorSize_ = 2;
-	//オフスクリーンレンダリングで使うRTVデスクリプタサイズ
-	static const uint32_t kOffscreenDescriptorSize_ = 8;
-	//全体RTVデスクリプタサイズ
-	static const uint32_t kRTVHandleSize_ = 10;
 
 	//RTV用のヒープディスクリプタ
 	Microsoft::WRL::ComPtr <ID3D12DescriptorHeap> rtvDescriptorHeap_;
@@ -116,9 +112,9 @@ public:
 	void PostDraw();
 
 	//描画前処理
-	void OffScreenPreDraw(uint32_t textureIndex = 2);
-	//描画前処理
-	void OffScreenPostDraw(uint32_t textureIndex = 2);
+	void RenderPreDraw(std::string textureName, UINT rtvIndex);
+	//描画後処理
+	void RenderPostDraw();
 
 	//RootSignature作成
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> ObjectRootSignatureInitialvalue();
@@ -126,6 +122,7 @@ public:
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> InstancingObjectRootSignatureInitialvalue();
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> ParticleRootSignatureInitialvalue();
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> FogRootSignatureInitialvalue();
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> ScreenRootSignatureInitialvalue();
 
 	//シェーダーのコンパイル
 	Microsoft::WRL::ComPtr<IDxcBlob> CompileShader(const std::wstring& filePath,const wchar_t* profile);
@@ -133,6 +130,8 @@ public:
 	Microsoft::WRL::ComPtr<ID3D12Resource> CreateBufferResources(size_t sizeInBytes);
 	//テクスチャリソースの生成
 	Microsoft::WRL::ComPtr<ID3D12Resource> CreateTextureResource(const DirectX::TexMetadata& metadata);
+	//レンダーテクスチャリソースの生成
+	Microsoft::WRL::ComPtr<ID3D12Resource> CreateRenderTextureResource(uint32_t width,uint32_t height,DXGI_FORMAT format, const Vector4 clearColor);
 	//テクスチャデータの転送
 	void UploadTextureData(ID3D12Resource* texture, const DirectX::ScratchImage& mipImages);
 
@@ -172,8 +171,6 @@ private:
 	void CreateDepthStencilTextureResource();
 	//深度描画テクスチャの生成
 	void CreateDepthWriteTextureResource();
-	//オフスクリーンテクスチャの生成
-	void CreateOffscreenTextureResource();
 	//各種デスクリプタヒープの生成
 	void descriptorHeapInitialize();
 	//レンダーターゲットビューの初期値
