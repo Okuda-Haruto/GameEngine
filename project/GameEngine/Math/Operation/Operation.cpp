@@ -228,6 +228,8 @@ Vector3 operator+(const Vector3& v1, const Vector3& v2) { return Add(v1, v2); }
 Vector3 operator-(const Vector3& v1, const Vector3& v2) { return Subtract(v1, v2); }
 Vector3 operator*(float s, const Vector3& v) { return Multiply(s, v); }
 Vector3 operator*(const Vector3& v, float s) { return s * v; }
+Vector3 operator*(Quaternion q, const Vector3& v) { return RotateVector(v, q); }
+Vector3 operator*(const Vector3& v, Quaternion q) { return q * v; }
 Vector3 operator/(const Vector3& v, float s) { return Multiply(1.0f / s, v); }
 Vector3 operator-(const Vector3& v) { return{ -v.x,-v.y,-v.z }; }
 Vector3 operator+(const Vector3& v) { return v; }
@@ -530,6 +532,31 @@ Quaternion Squad(const Quaternion& q0, const Quaternion& q1,
 	// 外側の SLERP
 	return Slerp(slerp1, slerp2, 2.0f * t * (1.0f - t));
 }
+
+Quaternion LookAt(const Vector3& v0, const Vector3& v1) {
+	// 方向ベクトル
+	Vector3 forward = Normalize(v1 - v0);
+
+	// 基準軸（例では前方向 Z）
+	Vector3 from = { 0.0f, 0.0f, 1.0f };
+
+	// 内積・外積で軸と角度情報を得る
+	float dot = Dot(from, forward);
+	Vector3 axis = Cross(from, forward);
+
+	// 方向が同一・反対の場合への対処
+	if (dot < -0.999999f) {
+		// 反対方向 → 180° 回転
+		axis = { 0.0f, 1.0f, 0.0f };
+		return { axis.x, axis.y, axis.z, 0.0f };
+	}
+
+	Quaternion quaternion;
+	quaternion = { axis.x,axis.y,axis.z,(1.0f + dot) };
+	quaternion = Normalize(quaternion);
+	return quaternion;
+}
+
 Quaternion operator+(const Quaternion& q1, const Quaternion& q2) { return Add(q1, q2); }
 Quaternion operator-(const Quaternion& q1, const Quaternion& q2) { return Subtract(q1, q2); }
 Quaternion operator*(float s, const Quaternion& q) { return Multiply(s, q); }

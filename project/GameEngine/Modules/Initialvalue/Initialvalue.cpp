@@ -101,7 +101,7 @@ Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList> commandListInitialvalue(Micro
 
 
 //PSOを生成する
-Microsoft::WRL::ComPtr <ID3D12PipelineState> TrianglePipelineStateInitialvalue(ID3D12Device* device,
+Microsoft::WRL::ComPtr <ID3D12PipelineState> Triangle_PipelineStateInitialvalue(ID3D12Device* device,
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> rootSignature,
 	IDxcBlob* vertexShaderBlob,
 	IDxcBlob* pixelShaderBlob)
@@ -189,7 +189,7 @@ Microsoft::WRL::ComPtr <ID3D12PipelineState> TrianglePipelineStateInitialvalue(I
 }
 
 //PSOを生成する
-Microsoft::WRL::ComPtr <ID3D12PipelineState> NoDepthTrianglePipelineStateInitialvalue(ID3D12Device* device,
+Microsoft::WRL::ComPtr <ID3D12PipelineState> Triangle_NoDepth_PipelineStateInitialvalue(ID3D12Device* device,
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> rootSignature,
 	IDxcBlob* vertexShaderBlob,
 	IDxcBlob* pixelShaderBlob)
@@ -275,7 +275,7 @@ Microsoft::WRL::ComPtr <ID3D12PipelineState> NoDepthTrianglePipelineStateInitial
 }
 
 //PSOを生成する
-Microsoft::WRL::ComPtr <ID3D12PipelineState> InstancingTrianglePipelineStateInitialvalue(ID3D12Device* device,
+Microsoft::WRL::ComPtr <ID3D12PipelineState> Triangle_Instancing_PipelineStateInitialvalue(ID3D12Device* device,
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> rootSignature,
 	IDxcBlob* vertexShaderBlob,
 	IDxcBlob* pixelShaderBlob)
@@ -368,7 +368,85 @@ Microsoft::WRL::ComPtr <ID3D12PipelineState> InstancingTrianglePipelineStateInit
 }
 
 //PSOを生成する
-Microsoft::WRL::ComPtr <ID3D12PipelineState> ParticlePipelineStateInitialvalue(ID3D12Device* device,
+Microsoft::WRL::ComPtr <ID3D12PipelineState> Sprite_PipelineStateInitialvalue(ID3D12Device* device,
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> rootSignature,
+	IDxcBlob* vertexShaderBlob,
+	IDxcBlob* pixelShaderBlob)
+{
+	//InputLayoutの作成
+	D3D12_INPUT_ELEMENT_DESC inputElementDescs[3] = {};
+	inputElementDescs[0].SemanticName = "POSITION";
+	inputElementDescs[0].SemanticIndex = 0;
+	inputElementDescs[0].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	inputElementDescs[0].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
+	inputElementDescs[1].SemanticName = "TEXCOORD";
+	inputElementDescs[1].SemanticIndex = 0;
+	inputElementDescs[1].Format = DXGI_FORMAT_R32G32_FLOAT;
+	inputElementDescs[1].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
+	inputElementDescs[2].SemanticName = "NORMAL";
+	inputElementDescs[2].SemanticIndex = 0;
+	inputElementDescs[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	inputElementDescs[2].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
+	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
+	inputLayoutDesc.pInputElementDescs = inputElementDescs;
+	inputLayoutDesc.NumElements = _countof(inputElementDescs);
+
+	//BlendStateの設定
+	D3D12_BLEND_DESC blendDesc{};
+	blendDesc.RenderTarget[0].BlendEnable = true;
+	blendDesc.RenderTarget[0].LogicOpEnable = false;
+	blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+	blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+	blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
+	blendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
+	blendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].LogicOp = D3D12_LOGIC_OP_NOOP;
+	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+
+	//RasiterzerStateの設定
+	D3D12_RASTERIZER_DESC rasterizerDesc{};
+	//裏面(時計回り)を表示しない
+	rasterizerDesc.CullMode = D3D12_CULL_MODE_NONE;
+	//三角形の中を塗りつぶす
+	rasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
+
+	//DepthStencilStateの設定
+	D3D12_DEPTH_STENCIL_DESC depthStencilDesc{};
+	//Depthの機能を無効化する
+	depthStencilDesc.DepthEnable = false;
+	//書き込み
+	depthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;	//Depthの書き込みを行わない
+
+	//PSOを生成する
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc{};
+	graphicsPipelineStateDesc.pRootSignature = rootSignature.Get();	//RootSignature
+	graphicsPipelineStateDesc.InputLayout = inputLayoutDesc;	//InputLayout
+	graphicsPipelineStateDesc.VS = { vertexShaderBlob->GetBufferPointer(),vertexShaderBlob->GetBufferSize() };	//VertexShader
+	graphicsPipelineStateDesc.PS = { pixelShaderBlob->GetBufferPointer(),pixelShaderBlob->GetBufferSize() };	//PixelShader
+	graphicsPipelineStateDesc.BlendState = blendDesc;			//BlendState
+	graphicsPipelineStateDesc.RasterizerState = rasterizerDesc;	//RasterizerState
+	//書き込むRTVの情報
+	graphicsPipelineStateDesc.NumRenderTargets = 1;
+	graphicsPipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	//利用するトポロジ(形状)のタイプ
+	graphicsPipelineStateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	//どのように画面に色を打ち込むかの設定
+	graphicsPipelineStateDesc.SampleDesc.Count = 1;
+	graphicsPipelineStateDesc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
+	//DepthStencilの設定
+	graphicsPipelineStateDesc.DepthStencilState = depthStencilDesc;
+	graphicsPipelineStateDesc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	//実際に生成
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> graphicsPipelineState = nullptr;
+	HRESULT hr = device->CreateGraphicsPipelineState(&graphicsPipelineStateDesc, IID_PPV_ARGS(&graphicsPipelineState));
+	assert(SUCCEEDED(hr));
+
+	return graphicsPipelineState;
+}
+
+//PSOを生成する
+Microsoft::WRL::ComPtr <ID3D12PipelineState> Particle_PipelineStateInitialvalue(ID3D12Device* device,
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> rootSignature,
 	IDxcBlob* vertexShaderBlob,
 	IDxcBlob* pixelShaderBlob)
@@ -450,7 +528,7 @@ Microsoft::WRL::ComPtr <ID3D12PipelineState> ParticlePipelineStateInitialvalue(I
 }
 
 //PSOを生成する
-Microsoft::WRL::ComPtr <ID3D12PipelineState> AddBlendParticlePipelineStateInitialvalue(ID3D12Device* device,
+Microsoft::WRL::ComPtr <ID3D12PipelineState> Particle_AddBlend_PipelineStateInitialvalue(ID3D12Device* device,
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> rootSignature,
 	IDxcBlob* vertexShaderBlob,
 	IDxcBlob* pixelShaderBlob)
@@ -532,85 +610,7 @@ Microsoft::WRL::ComPtr <ID3D12PipelineState> AddBlendParticlePipelineStateInitia
 }
 
 //PSOを生成する
-Microsoft::WRL::ComPtr <ID3D12PipelineState>SpritePipelineStateInitialvalue(ID3D12Device* device,
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> rootSignature,
-	IDxcBlob* vertexShaderBlob,
-	IDxcBlob* pixelShaderBlob)
-{
-	//InputLayoutの作成
-	D3D12_INPUT_ELEMENT_DESC inputElementDescs[3] = {};
-	inputElementDescs[0].SemanticName = "POSITION";
-	inputElementDescs[0].SemanticIndex = 0;
-	inputElementDescs[0].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	inputElementDescs[0].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
-	inputElementDescs[1].SemanticName = "TEXCOORD";
-	inputElementDescs[1].SemanticIndex = 0;
-	inputElementDescs[1].Format = DXGI_FORMAT_R32G32_FLOAT;
-	inputElementDescs[1].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
-	inputElementDescs[2].SemanticName = "NORMAL";
-	inputElementDescs[2].SemanticIndex = 0;
-	inputElementDescs[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-	inputElementDescs[2].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
-	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
-	inputLayoutDesc.pInputElementDescs = inputElementDescs;
-	inputLayoutDesc.NumElements = _countof(inputElementDescs);
-
-	//BlendStateの設定
-	D3D12_BLEND_DESC blendDesc{};
-	blendDesc.RenderTarget[0].BlendEnable = true;
-	blendDesc.RenderTarget[0].LogicOpEnable = false;
-	blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
-	blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
-	blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
-	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
-	blendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
-	blendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
-	blendDesc.RenderTarget[0].LogicOp = D3D12_LOGIC_OP_NOOP;
-	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
-
-	//RasiterzerStateの設定
-	D3D12_RASTERIZER_DESC rasterizerDesc{};
-	//裏面(時計回り)を表示しない
-	rasterizerDesc.CullMode = D3D12_CULL_MODE_NONE;
-	//三角形の中を塗りつぶす
-	rasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
-
-	//DepthStencilStateの設定
-	D3D12_DEPTH_STENCIL_DESC depthStencilDesc{};
-	//Depthの機能を無効化する
-	depthStencilDesc.DepthEnable = false;
-	//書き込み
-	depthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;	//Depthの書き込みを行わない
-
-	//PSOを生成する
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc{};
-	graphicsPipelineStateDesc.pRootSignature = rootSignature.Get();	//RootSignature
-	graphicsPipelineStateDesc.InputLayout = inputLayoutDesc;	//InputLayout
-	graphicsPipelineStateDesc.VS = { vertexShaderBlob->GetBufferPointer(),vertexShaderBlob->GetBufferSize() };	//VertexShader
-	graphicsPipelineStateDesc.PS = { pixelShaderBlob->GetBufferPointer(),pixelShaderBlob->GetBufferSize() };	//PixelShader
-	graphicsPipelineStateDesc.BlendState = blendDesc;			//BlendState
-	graphicsPipelineStateDesc.RasterizerState = rasterizerDesc;	//RasterizerState
-	//書き込むRTVの情報
-	graphicsPipelineStateDesc.NumRenderTargets = 1;
-	graphicsPipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-	//利用するトポロジ(形状)のタイプ
-	graphicsPipelineStateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-	//どのように画面に色を打ち込むかの設定
-	graphicsPipelineStateDesc.SampleDesc.Count = 1;
-	graphicsPipelineStateDesc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
-	//DepthStencilの設定
-	graphicsPipelineStateDesc.DepthStencilState = depthStencilDesc;
-	graphicsPipelineStateDesc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	//実際に生成
-	Microsoft::WRL::ComPtr <ID3D12PipelineState> graphicsPipelineState = nullptr;
-	HRESULT hr = device->CreateGraphicsPipelineState(&graphicsPipelineStateDesc, IID_PPV_ARGS(&graphicsPipelineState));
-	assert(SUCCEEDED(hr));
-
-	return graphicsPipelineState;
-}
-
-//PSOを生成する
-Microsoft::WRL::ComPtr <ID3D12PipelineState> LinePipelineStateInitialvalue(ID3D12Device* device,
+Microsoft::WRL::ComPtr <ID3D12PipelineState> Line_PipelineStateInitialvalue(ID3D12Device* device,
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> rootSignature,
 	IDxcBlob* vertexShaderBlob,
 	IDxcBlob* pixelShaderBlob)
@@ -698,7 +698,7 @@ Microsoft::WRL::ComPtr <ID3D12PipelineState> LinePipelineStateInitialvalue(ID3D1
 }
 
 //PSOを生成する
-Microsoft::WRL::ComPtr <ID3D12PipelineState> NoDepthLinePipelineStateInitialvalue(ID3D12Device* device,
+Microsoft::WRL::ComPtr <ID3D12PipelineState> Line_NoDepth_PipelineStateInitialvalue(ID3D12Device* device,
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> rootSignature,
 	IDxcBlob* vertexShaderBlob,
 	IDxcBlob* pixelShaderBlob)
@@ -784,7 +784,7 @@ Microsoft::WRL::ComPtr <ID3D12PipelineState> NoDepthLinePipelineStateInitialvalu
 }
 
 //PSOを生成する
-Microsoft::WRL::ComPtr <ID3D12PipelineState> ScreenPipelineStateInitialvalue(ID3D12Device* device,
+Microsoft::WRL::ComPtr <ID3D12PipelineState> Screen_PipelineStateInitialvalue(ID3D12Device* device,
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> rootSignature,
 	IDxcBlob* vertexShaderBlob,
 	IDxcBlob* pixelShaderBlob)
@@ -795,7 +795,7 @@ Microsoft::WRL::ComPtr <ID3D12PipelineState> ScreenPipelineStateInitialvalue(ID3
 
 	//BlendStateの設定
 	D3D12_BLEND_DESC blendDesc{};
-	blendDesc.RenderTarget[0].BlendEnable = true;
+	blendDesc.RenderTarget[0].BlendEnable = false;
 	blendDesc.RenderTarget[0].LogicOpEnable = false;
 	blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
 	blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;

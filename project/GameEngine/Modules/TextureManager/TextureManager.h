@@ -58,7 +58,7 @@ public:
 	const DirectX::TexMetadata& GetMetaData(const std::string& filePath);
 	//SRVインデクスの取得
 	uint32_t GetSrvIndex(const std::string& filePath);
-	//SRVインデクスの取得
+	//リソースの取得
 	ID3D12Resource* GetResource(const std::string& renderName);
 	//GPUハンドルの取得
 	D3D12_GPU_DESCRIPTOR_HANDLE  GetSrvHandleGPU(const std::string& filePath);
