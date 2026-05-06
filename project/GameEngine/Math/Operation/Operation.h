@@ -66,6 +66,8 @@ Vector3 operator+(const Vector3& v1, const Vector3& v2);
 Vector3 operator-(const Vector3& v1, const Vector3& v2);
 Vector3 operator*(float s, const Vector3& v);
 Vector3 operator*(const Vector3& v, float s);
+Vector3 operator*(Quaternion q, const Vector3& v);
+Vector3 operator*(const Vector3& v, Quaternion q);
 Vector3 operator/(const Vector3& v, float s);
 Vector3 operator-(const Vector3& v);
 Vector3 operator+(const Vector3& v);
@@ -140,6 +142,9 @@ Quaternion Slerp(const Quaternion& q0, const Quaternion& q1, float t);
 
 //球面スプライン
 Quaternion Squad(const Quaternion& q0, const Quaternion& q1, const Quaternion& q2, const Quaternion& q3, float t);
+
+//v0からv1への向き
+Quaternion LookAt(const Vector3& v0, const Vector3& v1);
 
 Quaternion operator+(const Quaternion& q1, const Quaternion& q2);
 Quaternion operator-(const Quaternion& q1, const Quaternion& q2);

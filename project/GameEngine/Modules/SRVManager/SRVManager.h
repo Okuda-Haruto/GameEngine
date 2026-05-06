@@ -44,12 +44,9 @@ public:
 	//SRV生成(レンダーテクスチャ用)
 	void CreateSRVforRenderTexture(uint32_t srvIndex, ID3D12Resource* pResource);
 
-	//デスクリプタヒープセット
-	void SetDescriptorHeap();
-
 	//ヒープをセット
 	void PreDraw();
-	void RenderPreDraw(std::string textureName, UINT rtvIndex);
+	void RenderPreDraw(std::string textureName);
 
 	//SRVセット
 	void SetGraphicsRootDescriptorTable(UINT RootParameterIndex, uint32_t srvIndex);

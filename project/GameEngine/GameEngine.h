@@ -20,6 +20,7 @@
 #include "InstancingTransformationMatrix.h"
 #include "BoneMatrix.h"
 #include "Fog.h"
+#include "ColorChange.h"
 
 #include <Audio/Audio.h>
 #include "Input/Input.h"
@@ -66,26 +67,28 @@ private:
 	ID3D12GraphicsCommandList* commandList_;
 
 	//RootSignature
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> objectRootSignature_;
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> instancingObjectRootSignature_;
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> spriteRootSignature_;
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> particleRootSignature_;
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> screenRootSignature_;
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> object_RootSignature_;
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> object_Instancing_RootSignature_;
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> sprite_RootSignature_;
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> particle_RootSignature_;
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> screen_RootSignature_;
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> screen_ColorChange_RootSignature_;
 
 	//Windowのメッセージ
 	MSG msg_{};
 
 	//PSO
-	Microsoft::WRL::ComPtr <ID3D12PipelineState> object3DPipelineState_ = nullptr;
-	Microsoft::WRL::ComPtr <ID3D12PipelineState> object2DPipelineState_ = nullptr;
-	Microsoft::WRL::ComPtr <ID3D12PipelineState> noDepthObjectPipelineState_ = nullptr;
-	Microsoft::WRL::ComPtr <ID3D12PipelineState> instancingObjectPipelineState_ = nullptr;
-	Microsoft::WRL::ComPtr <ID3D12PipelineState> particlePipelineState_ = nullptr;
-	Microsoft::WRL::ComPtr <ID3D12PipelineState> particleAddBrendPipelineState_ = nullptr;
-	Microsoft::WRL::ComPtr <ID3D12PipelineState> spritePipelineState_ = nullptr;
-	Microsoft::WRL::ComPtr <ID3D12PipelineState> linePipelineState_ = nullptr;
-	Microsoft::WRL::ComPtr <ID3D12PipelineState> noDepthLinePipelineState_ = nullptr;
-	Microsoft::WRL::ComPtr <ID3D12PipelineState> screenPipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> object3D_PipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> object2D_PipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> object3D_NoDepth_PipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> object3D_Instancing_PipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> particle_PipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> particle_AddBlend_PipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> sprite_PipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> line_PipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> line_NoDepth_PipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> screen_PipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> screen_ColorChange_PipelineState_ = nullptr;
 
 public:
 	//描画可能なモデルの数(通常)
@@ -178,6 +181,9 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> fogResource_;
 	Fog* fogData_;
+
+	Microsoft::WRL::ComPtr<ID3D12Resource> colorChangeStateResource_;
+	ColorChange::ColorChangeState* colorChangeStateData_;
 	
 	//XAudio2インスタンス
 	Microsoft::WRL::ComPtr<IXAudio2> xAudio2_;
@@ -199,6 +205,9 @@ private:
 	void PreDraw_();
 	void PostDraw_();
 
+	void RenderPreDraw_(std::string renderTextureName);
+	void RenderPostDraw_();
+
 	Microsoft::WRL::ComPtr<ID3D12Device> GetDevice_() { return dxCommon_->GetDevice(); }
 
 	void DrawObject_3D_(Object* object, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight, UINT animationIndex, float time);
@@ -211,7 +220,8 @@ private:
 	void DrawSprite_2D_(Sprite* sprite);
 	void DrawInstancingSprite_2D_(std::list<Sprite*> sprits);
 
-	void DrawScreen_(uint32_t textureIndex);
+	void DrawScreen_(std::string textureName);
+	void DrawScreen_(std::string textureName, ColorChange::ColorMode colorMode, float intensity);
 
 	void DrawLine_(std::list<PrimitiveManager::PrimitiveLine> lines, PrimitiveManager::PrimitiveResource primitiveResource);
 	void DrawPoint_(std::list<PrimitiveManager::PrimitivePoint> points, PrimitiveManager::PrimitiveResource primitiveResource);
@@ -271,6 +281,12 @@ public:
 	//描画後処理
 	static void PostDraw() { GetInstance()->PostDraw_(); }
 
+	//描画前処理
+	static void RenderPreDraw(std::string renderTextureName) { GetInstance()->RenderPreDraw_(renderTextureName); }
+
+	//描画後処理
+	static void RenderPostDraw() { GetInstance()->RenderPostDraw_(); }
+
 	//ウィンドウ幅
 	[[nodiscard]]
 	static int32_t GetWindowWidth() { return kWindowWidth_; }
@@ -294,7 +310,8 @@ public:
 	static void DrawSprite_2D(Sprite* sprite) { return GetInstance()->DrawSprite_2D_(sprite); }
 	static void DrawInstancingSprite_2D(std::list<Sprite*> sprits) { return GetInstance()->DrawInstancingSprite_2D_(sprits); }
 
-	static void DrawScreen(uint32_t textureIndex) { return GetInstance()->DrawScreen_(textureIndex); }
+	static void DrawScreen(std::string textureName) { return GetInstance()->DrawScreen_(textureName); }
+	static void DrawScreen(std::string textureName, ColorChange::ColorMode colorMode, float intensity) { return GetInstance()->DrawScreen_(textureName, colorMode, intensity); };
 
 	static void DrawLine(std::list<PrimitiveManager::PrimitiveLine> lines, PrimitiveManager::PrimitiveResource primitiveResource) { return GetInstance()->DrawLine_(lines, primitiveResource); }
 	static void DrawPoint(std::list<PrimitiveManager::PrimitivePoint> points, PrimitiveManager::PrimitiveResource primitiveResource) { return GetInstance()->DrawPoint_(points, primitiveResource); }
@@ -304,4 +321,9 @@ public:
 	static WindowsAPI* GetWindowsAPI() { return GetInstance()->GetWindowsAPI_(); }
 
 	static DirectXCommon* GetDirectXCommon() { return GetInstance()->dxCommon_.get(); }
+
+	//1fあたりの経過時間
+	static float GetDeltaTime() { return GetInstance()->dxCommon_->GetDeltaTime(); }
+	//60fpsを基準とした場合の経過時間の割合
+	static float GetDeltaTimeRate() { return GetInstance()->dxCommon_->GetDeltaTime() / (1.0f / 60.0f); }
 };

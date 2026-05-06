@@ -22,9 +22,9 @@ public:
 	//スワップチェーンで使うRTVデスクリプタサイズ
 	static const uint32_t kSwapChainDescriptorSize_ = 2;
 	//オフスクリーンレンダリングで使うRTVデスクリプタサイズ
-	static const uint32_t kOffscreenDescriptorSize_ = 8;
+	static const uint32_t kOffscreenDescriptorSize_ = 1;
 	//全体RTVデスクリプタサイズ
-	static const uint32_t kRTVHandleSize_ = 10;
+	static const uint32_t kRTVHandleSize_ = 3;
 private:
 	//WindowsAPI
 	WindowsAPI* winApp_ = nullptr;
@@ -99,6 +99,9 @@ private:
 	//TransitionBarrier
 	D3D12_RESOURCE_BARRIER barrier_{};
 
+	//1fあたりの経過時間
+	float deltaTime_;
+
 public:
 
 	~DirectXCommon();
@@ -112,17 +115,18 @@ public:
 	void PostDraw();
 
 	//描画前処理
-	void RenderPreDraw(std::string textureName, UINT rtvIndex);
+	void RenderPreDraw(std::string textureName);
 	//描画後処理
 	void RenderPostDraw();
 
 	//RootSignature作成
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> ObjectRootSignatureInitialvalue();
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> SpriteRootSignatureInitialvalue();
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> InstancingObjectRootSignatureInitialvalue();
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> ParticleRootSignatureInitialvalue();
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> FogRootSignatureInitialvalue();
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> ScreenRootSignatureInitialvalue();
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> Object_RootSignatureInitialvalue();
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> Object_Instancing_RootSignatureInitialvalue();
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> Sprite_RootSignatureInitialvalue();
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> Particle_RootSignatureInitialvalue();
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> Fog_RootSignatureInitialvalue();
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> Screen_RootSignatureInitialvalue();
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> Screen_ColorChange_RootSignatureInitialvalue();
 
 	//シェーダーのコンパイル
 	Microsoft::WRL::ComPtr<IDxcBlob> CompileShader(const std::wstring& filePath,const wchar_t* profile);
@@ -144,13 +148,12 @@ public:
 	UINT SwapChainBufferCount() { return swapChainDesc_.BufferCount; }
 	DXGI_FORMAT GetRTVFormat() { return rtvDesc_.Format; }
 
+	float GetDeltaTime() { return deltaTime_; }
+
 	//SRVManagerはDirectXCommonの後に初期化しないといけないので分ける
 	void DepthBufferInitialize(SRVManager* srvManager);
 	//深度バッファSRVをセット
 	void SetDepthTexture(UINT RootParameterIndex);
-
-	//オフスクリーンレンダリングSRVをセット
-	void OffsceenRenderingInitialize(SRVManager* srvManager);
 
 private:
 	//ログファイルの生成
