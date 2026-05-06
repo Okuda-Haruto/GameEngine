@@ -10,8 +10,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	TextureManager::GetInstance()->MakeRenderTexture("render");
 
-	unique_ptr<SampleScene> gameManager = make_unique<SampleScene>();
-	//unique_ptr<GameManager> gameManager = make_unique<GameManager>();
+	//unique_ptr<SampleScene> gameManager = make_unique<SampleScene>();
+	unique_ptr<GameManager> gameManager = make_unique<GameManager>();
+
 	gameManager->Initialize();
 
 	//ウィンドウの×ボタンが押されるまでループ
