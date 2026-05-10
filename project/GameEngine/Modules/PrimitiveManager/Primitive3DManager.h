@@ -18,7 +18,7 @@
 
 using namespace std;
 
-class PrimitiveManager {
+class Primitive3DManager {
 public:
 	//プリミティブで使用可能な形
 	enum Primitive_SHAPE {
@@ -29,7 +29,7 @@ public:
 		//SHAPE_Circle,
 
 		SHAPE_AABB,
-		//SHAPE_Sphere,
+		SHAPE_Sphere,
 		SHAPE_count
 	};
 	//プリミティブのインスタシング用リソース
@@ -74,7 +74,7 @@ public:
 
 private:
 
-	static unique_ptr<PrimitiveManager> instance;
+	static unique_ptr<Primitive3DManager> instance;
 
 	DirectXCommon* dxCommon_ = nullptr;
 
@@ -114,12 +114,12 @@ private:
 
 public:
 
-	PrimitiveManager() = default;
-	~PrimitiveManager() = default;
-	PrimitiveManager(PrimitiveManager&) = delete;
-	PrimitiveManager& operator=(PrimitiveManager&) = delete;
+	Primitive3DManager() = default;
+	~Primitive3DManager() = default;
+	Primitive3DManager(Primitive3DManager&) = delete;
+	Primitive3DManager& operator=(Primitive3DManager&) = delete;
 
-	static PrimitiveManager* GetInstance();
+	static Primitive3DManager* GetInstance();
 
 	//初期化
 	void Initialize(DirectXCommon* dxCommon, SRVManager* srvManager);
@@ -134,10 +134,12 @@ public:
 	void AddRay(Ray ray, Vector4 color = { 1,0,0,1 }) { Line line = { .origin = ray.origin,.diff = ray.diff }; AddLine(line, color); };
 	//線分
 	void AddSegment(Segment segment, Vector4 color = { 1,0,0,1 }) { Line line = { .origin = segment.origin,.diff = segment.diff }; AddLine(line, color); };
-	//AABB
+	//点
 	void AddPoint(Vector3 point, Vector4 color = { 1,0,0,1 }) { point_[pointIndex_].point = point; point_[pointIndex_].color = color; pointIndex_++; };
 	//AABB
 	void AddAABB(AABB aabb, Vector4 color = { 1,0,0,1 }) { aabb_[aabbIndex_].aabb = aabb; aabb_[aabbIndex_].color = color; aabbIndex_++; };
+	//球
+	void AddSphere(Sphere sphere, Vector4 color = { 1,0,0,1 }) { sphere_[sphereIndex_].sphere = sphere; sphere_[sphereIndex_].color = color; sphereIndex_++; };
 
 	//リセット
 	void Reset();

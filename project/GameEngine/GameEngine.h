@@ -34,7 +34,7 @@
 #include "ModelManager/ModelManager.h"
 #include "SRVManager/SRVManager.h"
 #include "ParticleManager/ParticleManager.h"
-#include "PrimitiveManager/PrimitiveManager.h"
+#include "PrimitiveManager/Primitive3DManager.h"
 #include "AudioManager/AudioManager.h"
 
 #include <vector>
@@ -170,13 +170,13 @@ private:
 
 #pragma region primitive
 	//マテリアルリソース
-	std::array<Microsoft::WRL::ComPtr<ID3D12Resource>, PrimitiveManager::SHAPE_count> primitiveMaterialResource_;
+	std::array<Microsoft::WRL::ComPtr<ID3D12Resource>, Primitive3DManager::SHAPE_count> primitiveMaterialResource_;
 	//マテリアルデータ
-	std::array<Material*, PrimitiveManager::SHAPE_count> primitiveMaterialData_;
+	std::array<Material*, Primitive3DManager::SHAPE_count> primitiveMaterialData_;
 	//インスタンス用リソース
-	std::array<Microsoft::WRL::ComPtr<ID3D12Resource>, PrimitiveManager::SHAPE_count> primitiveResource_;
+	std::array<Microsoft::WRL::ComPtr<ID3D12Resource>, Primitive3DManager::SHAPE_count> primitiveResource_;
 	//インスタンスデータ
-	std::array<std::array<InstancingTransformationMatrix*, PrimitiveManager::kMaxNumPrimitive>, PrimitiveManager::SHAPE_count> primitiveData_;
+	std::array<std::array<InstancingTransformationMatrix*, Primitive3DManager::kMaxNumPrimitive>, Primitive3DManager::SHAPE_count> primitiveData_;
 #pragma endregion
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> fogResource_;
@@ -223,9 +223,10 @@ private:
 	void DrawScreen_(std::string textureName);
 	void DrawScreen_(std::string textureName, ColorChange::ColorMode colorMode, float intensity);
 
-	void DrawLine_(std::list<PrimitiveManager::PrimitiveLine> lines, PrimitiveManager::PrimitiveResource primitiveResource);
-	void DrawPoint_(std::list<PrimitiveManager::PrimitivePoint> points, PrimitiveManager::PrimitiveResource primitiveResource);
-	void DrawAABB_(std::list<PrimitiveManager::PrimitiveAABB> aabbs, PrimitiveManager::PrimitiveResource primitiveResource);
+	void DrawLine_(std::list<Primitive3DManager::PrimitiveLine> lines, Primitive3DManager::PrimitiveResource primitiveResource);
+	void DrawPoint_(std::list<Primitive3DManager::PrimitivePoint> points, Primitive3DManager::PrimitiveResource primitiveResource);
+	void DrawAABB_(std::list<Primitive3DManager::PrimitiveAABB> aabbs, Primitive3DManager::PrimitiveResource primitiveResource);
+	void DrawSphere_(std::list<Primitive3DManager::PrimitiveSphere> spheres, Primitive3DManager::PrimitiveResource primitiveResource);
 
 	WindowsAPI* GetWindowsAPI_() { return winApp_.get(); }
 
@@ -313,9 +314,10 @@ public:
 	static void DrawScreen(std::string textureName) { return GetInstance()->DrawScreen_(textureName); }
 	static void DrawScreen(std::string textureName, ColorChange::ColorMode colorMode, float intensity) { return GetInstance()->DrawScreen_(textureName, colorMode, intensity); };
 
-	static void DrawLine(std::list<PrimitiveManager::PrimitiveLine> lines, PrimitiveManager::PrimitiveResource primitiveResource) { return GetInstance()->DrawLine_(lines, primitiveResource); }
-	static void DrawPoint(std::list<PrimitiveManager::PrimitivePoint> points, PrimitiveManager::PrimitiveResource primitiveResource) { return GetInstance()->DrawPoint_(points, primitiveResource); }
-	static void DrawAABB(std::list<PrimitiveManager::PrimitiveAABB> aabbs, PrimitiveManager::PrimitiveResource primitiveResource) { return GetInstance()->DrawAABB_(aabbs, primitiveResource); }
+	static void DrawLine(std::list<Primitive3DManager::PrimitiveLine> lines, Primitive3DManager::PrimitiveResource primitiveResource) { return GetInstance()->DrawLine_(lines, primitiveResource); }
+	static void DrawPoint(std::list<Primitive3DManager::PrimitivePoint> points, Primitive3DManager::PrimitiveResource primitiveResource) { return GetInstance()->DrawPoint_(points, primitiveResource); }
+	static void DrawAABB(std::list<Primitive3DManager::PrimitiveAABB> aabbs, Primitive3DManager::PrimitiveResource primitiveResource) { return GetInstance()->DrawAABB_(aabbs, primitiveResource); }
+	static void DrawSphere(std::list<Primitive3DManager::PrimitiveSphere> spheres, Primitive3DManager::PrimitiveResource primitiveResource) { return GetInstance()->DrawSphere_(spheres, primitiveResource); }
 
 	[[nodiscard]]
 	static WindowsAPI* GetWindowsAPI() { return GetInstance()->GetWindowsAPI_(); }
