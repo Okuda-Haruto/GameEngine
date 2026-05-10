@@ -1,7 +1,7 @@
 #include "Animation.h"
 #include "LerpKeyFrame/LerpKeyFrame.h"
 #include "Operation/Operation.h"
-#include "PrimitiveManager/PrimitiveManager.h"
+#include <PrimitiveManager/Primitive3DManager.h>
 
 QuaternionTransform GetAnimationTransform(std::weak_ptr<Node> node, std::vector<AnimationData> animationData, UINT animationIndex, AnimationInterpolation interpolation, float time) {
 	QuaternionTransform result{};
