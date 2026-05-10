@@ -3,7 +3,7 @@
 #include <Vector3.h>
 #include <Matrix4x4.h>
 #include <numbers>
-#include "Math/Lerp.h"
+#include <Math/Easing.h>
 #include "Scene/GameScene/GameScene.h"
 #include "Operation/Operation.h"
 
@@ -231,9 +231,9 @@ void BossAction_Jump::Update() {
 		BossTransform->rotate.y = (BossTransform->rotate.y + d * 0.2f);
 		BossTransform->rotate.y = std::fmodf(BossTransform->rotate.y, std::numbers::pi_v<float> *2);
 
-		BossTransform->scale.x = 2.0f * Lerp(0.562558f, 0.562558f * 1.5f, targetedCooltime_ / kMaxTargetedCooltime_);
-		BossTransform->scale.y = 2.0f * Lerp(0.562558f, 0.562558f * 0.5f, targetedCooltime_ / kMaxTargetedCooltime_);
-		BossTransform->scale.z = 2.0f * Lerp(0.562558f, 0.562558f * 1.5f, targetedCooltime_ / kMaxTargetedCooltime_);
+		BossTransform->scale.x = 2.0f * Easing::Lerp(0.562558f, 0.562558f * 1.5f, targetedCooltime_ / kMaxTargetedCooltime_);
+		BossTransform->scale.y = 2.0f * Easing::Lerp(0.562558f, 0.562558f * 0.5f, targetedCooltime_ / kMaxTargetedCooltime_);
+		BossTransform->scale.z = 2.0f * Easing::Lerp(0.562558f, 0.562558f * 1.5f, targetedCooltime_ / kMaxTargetedCooltime_);
 
 		BossTransform->translate.y = BossTransform->scale.y;
 		startPosition_.y = BossTransform->translate.y;
@@ -247,9 +247,9 @@ void BossAction_Jump::Update() {
 		BossTransform->translate = Lerp(startPosition_, nextPosition_, (jumpingTime_ / kMaxJumpingTime_));
 
 		if (jumpingTime_ <= kMaxJumpingTime_ / 10) {
-			BossTransform->scale.x = 2.0f * Lerp(0.562558f * 1.5f, 0.562558f * 0.5f, jumpingTime_ / (kMaxJumpingTime_ / 10));
-			BossTransform->scale.y = 2.0f * Lerp(0.562558f * 0.5f, 0.562558f * 1.5f, jumpingTime_ / (kMaxJumpingTime_ / 10));
-			BossTransform->scale.z = 2.0f * Lerp(0.562558f * 1.5f, 0.562558f * 0.5f, jumpingTime_ / (kMaxJumpingTime_ / 10));
+			BossTransform->scale.x = 2.0f * Easing::Lerp(0.562558f * 1.5f, 0.562558f * 0.5f, jumpingTime_ / (kMaxJumpingTime_ / 10));
+			BossTransform->scale.y = 2.0f * Easing::Lerp(0.562558f * 0.5f, 0.562558f * 1.5f, jumpingTime_ / (kMaxJumpingTime_ / 10));
+			BossTransform->scale.z = 2.0f * Easing::Lerp(0.562558f * 1.5f, 0.562558f * 0.5f, jumpingTime_ / (kMaxJumpingTime_ / 10));
 		} else {
 			BossTransform->scale.x = 1.0f;
 			BossTransform->scale.y = 3.0f;
@@ -260,9 +260,9 @@ void BossAction_Jump::Update() {
 		nextPosition_.y = 1;
 
 		if (jumpingTime_ <= kMaxJumpingTime_ / 2) {
-			BossTransform->translate.y = 2.0f * Lerp(startPosition_.y, 10.0f, 1.0f - powf(1.0f - jumpingTime_ / (kMaxJumpingTime_ / 2), 2));
+			BossTransform->translate.y = 2.0f * Easing::Lerp(startPosition_.y, 10.0f, 1.0f - powf(1.0f - jumpingTime_ / (kMaxJumpingTime_ / 2), 2));
 		} else {
-			BossTransform->translate.y = 2.0f * Lerp(nextPosition_.y, 10.0f, 1.0f - powf((jumpingTime_ - kMaxJumpingTime_ / 2) / (kMaxJumpingTime_ / 2), 2));
+			BossTransform->translate.y = 2.0f * Easing::Lerp(nextPosition_.y, 10.0f, 1.0f - powf((jumpingTime_ - kMaxJumpingTime_ / 2) / (kMaxJumpingTime_ / 2), 2));
 		}
 
 	} else if (landingTime_ < kMaxLandingTime_) {
@@ -275,13 +275,13 @@ void BossAction_Jump::Update() {
 
 		SRT* BossTransform = boss_->GetTransform();
 		if (landingTime_ <= kMaxLandingTime_ / 2) {
-			BossTransform->scale.x = 2.0f * Lerp(0.562558f * 0.5f, 0.562558f * 1.5f, (landingTime_ / (kMaxLandingTime_ / 2)));
-			BossTransform->scale.y = 2.0f * Lerp(0.562558f * 1.5f, 0.562558f * 0.5f, (landingTime_ / (kMaxLandingTime_ / 2)));
-			BossTransform->scale.z = 2.0f * Lerp(0.562558f * 0.5f, 0.562558f * 1.5f, (landingTime_ / (kMaxLandingTime_ / 2)));
+			BossTransform->scale.x = 2.0f * Easing::Lerp(0.562558f * 0.5f, 0.562558f * 1.5f, (landingTime_ / (kMaxLandingTime_ / 2)));
+			BossTransform->scale.y = 2.0f * Easing::Lerp(0.562558f * 1.5f, 0.562558f * 0.5f, (landingTime_ / (kMaxLandingTime_ / 2)));
+			BossTransform->scale.z = 2.0f * Easing::Lerp(0.562558f * 0.5f, 0.562558f * 1.5f, (landingTime_ / (kMaxLandingTime_ / 2)));
 		} else {
-			BossTransform->scale.x = 2.0f * Lerp(0.562558f * 1.5f, 0.562558f, ((landingTime_ - kMaxLandingTime_ / 2) / (kMaxLandingTime_ / 2)));
-			BossTransform->scale.y = 2.0f * Lerp(0.562558f * 0.5f, 0.562558f, ((landingTime_ - kMaxLandingTime_ / 2) / (kMaxLandingTime_ / 2)));
-			BossTransform->scale.z = 2.0f * Lerp(0.562558f * 1.5f, 0.562558f, ((landingTime_ - kMaxLandingTime_ / 2) / (kMaxLandingTime_ / 2)));
+			BossTransform->scale.x = 2.0f * Easing::Lerp(0.562558f * 1.5f, 0.562558f, ((landingTime_ - kMaxLandingTime_ / 2) / (kMaxLandingTime_ / 2)));
+			BossTransform->scale.y = 2.0f * Easing::Lerp(0.562558f * 0.5f, 0.562558f, ((landingTime_ - kMaxLandingTime_ / 2) / (kMaxLandingTime_ / 2)));
+			BossTransform->scale.z = 2.0f * Easing::Lerp(0.562558f * 1.5f, 0.562558f, ((landingTime_ - kMaxLandingTime_ / 2) / (kMaxLandingTime_ / 2)));
 		}
 
 		BossTransform->translate.y = 1;

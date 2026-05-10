@@ -26,7 +26,9 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </None>
-    <None Include="resources\Shader\Material.hlsli" />
+    <None Include="resources\Shader\Material.hlsli">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </None>
     <None Include="resources\Shader\Sprite2d.hlsli">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
@@ -81,7 +83,7 @@
     <ClCompile Include="GameEngine\LoadFile\LoadObjFile.cpp" />
     <ClCompile Include="GameEngine\Math\Collision.cpp" />
     <ClCompile Include="GameEngine\Modules\ModelManager\ModelManager.cpp" />
-    <ClCompile Include="GameEngine\Modules\PrimitiveManager\PrimitiveManager.cpp" />
+    <ClCompile Include="GameEngine\Modules\PrimitiveManager\Primitive3DManager.cpp" />
     <ClCompile Include="GameEngine\Modules\SceneManager\SceneManager.cpp" />
     <ClCompile Include="GameEngine\Modules\SpriteManager\SpriteManager.cpp" />
     <ClCompile Include="GameEngine\Modules\SRVManager\SRVManager.cpp" />
@@ -192,7 +194,7 @@
     <ClInclude Include="GameEngine\Math\Vector3.h" />
     <ClInclude Include="GameEngine\Math\Vector4.h" />
     <ClInclude Include="GameEngine\Modules\ModelManager\ModelManager.h" />
-    <ClInclude Include="GameEngine\Modules\PrimitiveManager\PrimitiveManager.h" />
+    <ClInclude Include="GameEngine\Modules\PrimitiveManager\Primitive3DManager.h" />
     <ClInclude Include="GameEngine\Modules\SceneManager\SceneManager.h" />
     <ClInclude Include="GameEngine\Modules\SpriteManager\SpriteManager.h" />
     <ClInclude Include="GameEngine\Modules\SRVManager\SRVManager.h" />
@@ -213,7 +215,7 @@
     <ClInclude Include="Application\BackGround\Skydome\Skydome.h" />
     <ClInclude Include="Application\Scene\GameScene\GameScene.h" />
     <ClInclude Include="Application\BackGround\Ground\Ground.h" />
-    <ClInclude Include="GameEngine\Math\Lerp.h" />
+    <ClInclude Include="GameEngine\Math\Easing.h" />
     <ClInclude Include="GameEngine\Modules\ParticleManager\ParticleManager.h" />
   </ItemGroup>
   <ItemGroup>

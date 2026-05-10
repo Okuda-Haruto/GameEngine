@@ -1,5 +1,5 @@
 #include "LerpKeyFrame.h"
-#include "Lerp.h"
+#include <Easing.h>
 #include "Operation/Operation.h"
 
 Vector3 LerpKeyFrame(std::vector<KeyFrame> keyFrame, AnimationData animationData, AnimationInterpolation interpolation, float t) {

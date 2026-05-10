@@ -1,39 +1,39 @@
-#include "PrimitiveManager.h"
+#include "Primitive3DManager.h"
 #include <GameEngine.h>
 #include <LoadObjFile.h>
 #include <SpriteManager/SpriteManager.h>
 #include <numbers>
 
-unique_ptr<PrimitiveManager> PrimitiveManager::instance;
+unique_ptr<Primitive3DManager> Primitive3DManager::instance;
 
-PrimitiveManager* PrimitiveManager::GetInstance() {
+Primitive3DManager* Primitive3DManager::GetInstance() {
 	if (!instance) {
-		instance = make_unique<PrimitiveManager>();
+		instance = make_unique<Primitive3DManager>();
 	}
 	return instance.get();
 }
 
-void PrimitiveManager::Initialize(DirectXCommon* dxCommon, SRVManager* srvManager) {
+void Primitive3DManager::Initialize(DirectXCommon* dxCommon, SRVManager* srvManager) {
 
 	//頂点リソースを作る
-	vertexResource_ = dxCommon->CreateBufferResources(sizeof(VertexData) * 200);
+	vertexResource_ = dxCommon->CreateBufferResources(sizeof(VertexData) * 4000);
 
 	//頂点バッファビューを作成する
 	//リソースの先頭のアドレスから使う
 	vertexBufferView_.BufferLocation = vertexResource_->GetGPUVirtualAddress();
 	//使用するリソースのサイズは頂点は4つサイズ
-	vertexBufferView_.SizeInBytes = sizeof(VertexData) * 20;
+	vertexBufferView_.SizeInBytes = sizeof(VertexData) * 2000;
 	//1頂点あたりのサイズ
 	vertexBufferView_.StrideInBytes = sizeof(VertexData);
 
 	//Primitive用のインデックスリソースを作る
-	indexResource_ = dxCommon->CreateBufferResources(sizeof(uint32_t) * 400);
+	indexResource_ = dxCommon->CreateBufferResources(sizeof(uint32_t) * 4000);
 
 	//インデックスバッファビューを作成する
 	//リソースの先頭のアドレスから使う
 	indexBufferView_.BufferLocation = indexResource_->GetGPUVirtualAddress();
 	//使用するリソースのサイズ
-	indexBufferView_.SizeInBytes = sizeof(uint32_t) * 40;
+	indexBufferView_.SizeInBytes = sizeof(uint32_t) * 4000;
 	//インデックスはuint32_tとする
 	indexBufferView_.Format = DXGI_FORMAT_R32_UINT;
 
@@ -194,34 +194,78 @@ void PrimitiveManager::Initialize(DirectXCommon* dxCommon, SRVManager* srvManage
 #pragma endregion
 
 #pragma region 球
-	/*
-
-	//y = 1,y = -1を複数作るのは無駄なため
-	const int ringNum = 16 - 2;
+	
+	//縦方向の分割数
+	const int ringNum = 16;
+	//横方向の分割数
 	const int segmentNum = 32;
 
 	primitiveResource_[SHAPE_Sphere].offset.vertexStart = primitiveResource_[SHAPE_AABB].offset.vertexStart + primitiveResource_[SHAPE_AABB].offset.vertexCount;
 	primitiveResource_[SHAPE_Sphere].offset.vertexCount = ringNum * segmentNum + 2;
 
-	//y = 1の頂点
-	vertexData_[primitiveResource_[SHAPE_Sphere].offset.vertexStart + 0].position = { 0.0f,1.0f,0.0f,1.0f };
-	vertexData_[primitiveResource_[SHAPE_Sphere].offset.vertexStart + 0].texcoord = { 0.0f,1.0f };
-	vertexData_[primitiveResource_[SHAPE_Sphere].offset.vertexStart + 0].normal = { 0.0f,0.0f,-1.0f };
+	//上下最大値は半径0なので複数作らない
+	const int topVertexNum = 0;
+	const int bottomVertexNum = 1;
 
-	//16分割
-	for (int y = 1; y < ringNum; y++) {
+	//y = 1の頂点
+	vertexData_[primitiveResource_[SHAPE_Sphere].offset.vertexStart + topVertexNum].position = { 0.0f,1.0f,0.0f,1.0f };
+	vertexData_[primitiveResource_[SHAPE_Sphere].offset.vertexStart + topVertexNum].texcoord = { 0.0f,1.0f };
+	vertexData_[primitiveResource_[SHAPE_Sphere].offset.vertexStart + topVertexNum].normal = { 0.0f,0.0f,-1.0f };
+
+	//y = -1の頂点
+	vertexData_[primitiveResource_[SHAPE_Sphere].offset.vertexStart + bottomVertexNum].position = { 0.0f,-1.0f,0.0f,1.0f };
+	vertexData_[primitiveResource_[SHAPE_Sphere].offset.vertexStart + bottomVertexNum].texcoord = { 0.0f,1.0f };
+	vertexData_[primitiveResource_[SHAPE_Sphere].offset.vertexStart + bottomVertexNum].normal = { 0.0f,0.0f,-1.0f };
+
+	//角度
+	const float ringAngle = std::numbers::pi_v<float> / ringNum;
+	const float segmentAngle = (std::numbers::pi_v<float> * 2) / segmentNum;
+
+	//球の断面の円を回る頂点
+	for (int y = 1; y <= ringNum - 1; y++) {
 		for (int x = 0; x < segmentNum; x++) {
-			vertexData_[primitiveResource_[SHAPE_Sphere].offset.vertexStart + (y - 1) * segmentNum + x + 1].position = { 0.0f,1.0f,0.0f,1.0f };
-			vertexData_[primitiveResource_[SHAPE_Sphere].offset.vertexStart + (y - 1) * segmentNum + x + 1].texcoord = { 0.0f,1.0f };
-			vertexData_[primitiveResource_[SHAPE_Sphere].offset.vertexStart + (y - 1) * segmentNum + x + 1].normal = { 0.0f,0.0f,-1.0f };
+			vertexData_[primitiveResource_[SHAPE_Sphere].offset.vertexStart + (y - 1) * segmentNum + x + 2].position = {
+				cosf(segmentAngle * x) * sinf(ringAngle * y),
+				cosf(ringAngle * y),
+				sinf(segmentAngle * x)* sinf(ringAngle * y),
+				1.0f };
+			vertexData_[primitiveResource_[SHAPE_Sphere].offset.vertexStart + (y - 1) * segmentNum + x + 2].texcoord = { 0.0f,1.0f };
+			vertexData_[primitiveResource_[SHAPE_Sphere].offset.vertexStart + (y - 1) * segmentNum + x + 2].normal = { 0.0f,0.0f,-1.0f };
 		}
 	}
 
 	primitiveResource_[SHAPE_Sphere].offset.indexStart = primitiveResource_[SHAPE_AABB].offset.indexStart + primitiveResource_[SHAPE_AABB].offset.indexCount;
-	primitiveResource_[SHAPE_Sphere].offset.indexCount = 24;
 
-	//頂点2つで線分を作る
-		indexData_[primitiveResource_[SHAPE_Sphere].offset.indexStart + i * 2] = primitiveResource_[SHAPE_Sphere].offset.vertexStart + i;*/
+	int verticalLines = ringNum * segmentNum;
+	int horizontalLines = (ringNum - 1) * segmentNum;
+	primitiveResource_[SHAPE_Sphere].offset.indexCount =(verticalLines + horizontalLines) * 2;
+
+	//y = 1から伸びる線
+	for (int x = 0; x < segmentNum; x++) {
+		indexData_[primitiveResource_[SHAPE_Sphere].offset.indexStart + x * 2] = primitiveResource_[SHAPE_Sphere].offset.vertexStart + topVertexNum;
+		indexData_[primitiveResource_[SHAPE_Sphere].offset.indexStart + x * 2 + 1] = primitiveResource_[SHAPE_Sphere].offset.vertexStart + x + 2;
+	}
+	//下に伸ばす線
+	for (int y = 1; y <= ringNum - 2; y++) {
+		for (int x = 0; x < segmentNum; x++) {
+			indexData_[primitiveResource_[SHAPE_Sphere].offset.indexStart + y * (segmentNum * 2) + x * 2] = primitiveResource_[SHAPE_Sphere].offset.vertexStart + (y - 1) * segmentNum + x + 2;
+			indexData_[primitiveResource_[SHAPE_Sphere].offset.indexStart + y * (segmentNum * 2) + x * 2 + 1] = primitiveResource_[SHAPE_Sphere].offset.vertexStart + y * segmentNum + x + 2;
+		}
+	}
+	//y = -1に伸びる線
+	for (int x = 0; x < segmentNum; x++) {
+		indexData_[primitiveResource_[SHAPE_Sphere].offset.indexStart + (ringNum - 1) * (segmentNum * 2) + x * 2] = primitiveResource_[SHAPE_Sphere].offset.vertexStart + (ringNum - 2) * segmentNum + x + 2;
+		indexData_[primitiveResource_[SHAPE_Sphere].offset.indexStart + (ringNum - 1) * (segmentNum * 2) + x * 2 + 1] = primitiveResource_[SHAPE_Sphere].offset.vertexStart + bottomVertexNum;
+	}
+
+	//横に伸ばす線
+	for (int y = 1; y <= ringNum - 1; y++) {
+		for (int x = 0; x < segmentNum; x++) {
+			indexData_[primitiveResource_[SHAPE_Sphere].offset.indexStart + (ringNum - 1 + y) * (segmentNum * 2) + x * 2] = primitiveResource_[SHAPE_Sphere].offset.vertexStart + (y - 1) * segmentNum + x + 2;
+			indexData_[primitiveResource_[SHAPE_Sphere].offset.indexStart + (ringNum - 1 + y) * (segmentNum * 2) + x * 2 + 1] = primitiveResource_[SHAPE_Sphere].offset.vertexStart + (y - 1) * segmentNum + (x + 1) % segmentNum + 2;
+		}
+	}
+
 
 #pragma endregion
 
@@ -241,11 +285,11 @@ void PrimitiveManager::Initialize(DirectXCommon* dxCommon, SRVManager* srvManage
 	Reset();
 }
 
-void PrimitiveManager::Finalize() {
+void Primitive3DManager::Finalize() {
 	instance.reset();
 }
 
-void PrimitiveManager::Draw() {
+void Primitive3DManager::Draw() {
 	std::list<PrimitiveLine> lines;
 	for (int i = 0; i < lineIndex_; i++) {
 		lines.push_back(line_[i]);
@@ -264,12 +308,19 @@ void PrimitiveManager::Draw() {
 	}
 	if (!aabbs.empty())GameEngine::DrawAABB(aabbs, primitiveResource_[SHAPE_AABB]);
 
+	std::list<PrimitiveSphere> spheres;
+	for (int i = 0; i < sphereIndex_; i++) {
+		spheres.push_back(sphere_[i]);
+	}
+	if (!spheres.empty())GameEngine::DrawSphere(spheres, primitiveResource_[SHAPE_Sphere]);
+
 	Reset();
 }
 
-void PrimitiveManager::Reset() {
+void Primitive3DManager::Reset() {
 	lineIndex_ = 0;
 	triangleIndex_ = 0;
 	pointIndex_ = 0;
 	aabbIndex_ = 0;
+	sphereIndex_ = 0;
 }

@@ -3,7 +3,7 @@
 #include <Vector3.h>
 #include <Matrix4x4.h>
 #include <numbers>
-#include "Math/Lerp.h"
+#include <Math/Easing.h>
 #include "Scene/GameScene/GameScene.h"
 #include "Input/Input.h"
 
@@ -220,23 +220,23 @@ void Player::Update() {
 			{
 			case Player::DODGE_ANGLE::FRONT:
 				//前転
-				velocity_ = Vector3{ 0.0f,0.0f,1.0f } *Lerp(0.2f, dodgeSpeed, powf(1.0f - dodgeActiveTime / kMaxDodgeActiveTime, 3));
-				transform_.rotate.x = Lerp(0.0f, std::numbers::pi_v<float> *2, 1.0f - powf(1.0f - dodgeActiveTime / kMaxDodgeActiveTime, 3));
+				velocity_ = Vector3{ 0.0f,0.0f,1.0f } * Easing::Lerp(0.2f, dodgeSpeed, powf(1.0f - dodgeActiveTime / kMaxDodgeActiveTime, 3));
+				transform_.rotate.x = Easing::Lerp(0.0f, std::numbers::pi_v<float> *2, 1.0f - powf(1.0f - dodgeActiveTime / kMaxDodgeActiveTime, 3));
 				break;
 			case Player::DODGE_ANGLE::BACK:
 				//後転
-				velocity_ = Vector3{ 0.0f,0.0f,-1.0f } *Lerp(0.2f, dodgeSpeed, powf(1.0f - dodgeActiveTime / kMaxDodgeActiveTime, 3));
-				transform_.rotate.x = -Lerp(0.0f, std::numbers::pi_v<float> *2, 1.0f - powf(1.0f - dodgeActiveTime / kMaxDodgeActiveTime, 3));
+				velocity_ = Vector3{ 0.0f,0.0f,-1.0f } * Easing::Lerp(0.2f, dodgeSpeed, powf(1.0f - dodgeActiveTime / kMaxDodgeActiveTime, 3));
+				transform_.rotate.x = -Easing::Lerp(0.0f, std::numbers::pi_v<float> *2, 1.0f - powf(1.0f - dodgeActiveTime / kMaxDodgeActiveTime, 3));
 				break;
 			case Player::DODGE_ANGLE::RIGHT:
 				//右側転
-				velocity_ = Vector3{ 1.0f,0.0f,0.0f } *Lerp(0.2f, dodgeSpeed, powf(1.0f - dodgeActiveTime / kMaxDodgeActiveTime, 3));
-				transform_.rotate.z = -Lerp(0.0f, std::numbers::pi_v<float> *2, 1.0f - powf(1.0f - dodgeActiveTime / kMaxDodgeActiveTime, 3));
+				velocity_ = Vector3{ 1.0f,0.0f,0.0f } * Easing::Lerp(0.2f, dodgeSpeed, powf(1.0f - dodgeActiveTime / kMaxDodgeActiveTime, 3));
+				transform_.rotate.z = -Easing::Lerp(0.0f, std::numbers::pi_v<float> *2, 1.0f - powf(1.0f - dodgeActiveTime / kMaxDodgeActiveTime, 3));
 				break;
 			case Player::DODGE_ANGLE::LEFT:
 				//左側転
-				velocity_ = Vector3{ -1.0f,0.0f,0.0f } *Lerp(0.2f, dodgeSpeed, powf(1.0f - dodgeActiveTime / kMaxDodgeActiveTime, 3));
-				transform_.rotate.z = Lerp(0.0f, std::numbers::pi_v<float> *2, 1.0f - powf(1.0f - dodgeActiveTime / kMaxDodgeActiveTime, 3));
+				velocity_ = Vector3{ -1.0f,0.0f,0.0f } * Easing::Lerp(0.2f, dodgeSpeed, powf(1.0f - dodgeActiveTime / kMaxDodgeActiveTime, 3));
+				transform_.rotate.z = Easing::Lerp(0.0f, std::numbers::pi_v<float> *2, 1.0f - powf(1.0f - dodgeActiveTime / kMaxDodgeActiveTime, 3));
 				break;
 			default:
 				break;
@@ -315,7 +315,7 @@ void Player::Update() {
 		}
 		if (keys.hold[DIK_Z] || keys.hold[DIK_X] || pad.Button[PAD_BUTTON_RT].hold && dodgeActiveTime >= kMaxDodgeActiveTime) {
 			if (remainingRounds_ > 0.0f) {
-				if (shotCooltime_ >= kMaxShotCooltime * Lerp<float>(1.0f, 0.2f, stopTime_ / kMaxStopTime_)) {
+				if (shotCooltime_ >= kMaxShotCooltime * Easing::Lerp<float>(1.0f, 0.2f, stopTime_ / kMaxStopTime_)) {
 					gameScene_->AddPlayerBullet(transform_.translate, transform_.rotate);
 					shotCooltime_ = 0.0f;
 					remainingRounds_--;
@@ -341,7 +341,7 @@ void Player::Update() {
 
 		//動いていない場合
 		if (shotCooltime_ != 0.0f && dodgeCoolTime != 0.0f) {
-			if (reloadTime_ >= kMaxReloadTime * Lerp<float>(1.0f, 0.1f, stopTime_ / kMaxStopTime_) && remainingRounds_ != kMaxRemainingRounds) {
+			if (reloadTime_ >= kMaxReloadTime * Easing::Lerp<float>(1.0f, 0.1f, stopTime_ / kMaxStopTime_) && remainingRounds_ != kMaxRemainingRounds) {
 				remainingRounds_ = kMaxRemainingRounds;
 				reloadTime_ = 0.0f;
 				AudioHolder::GetInstance()->GetAudio(AudioIndex::Reload_SE).lock()->SoundPlayWave();

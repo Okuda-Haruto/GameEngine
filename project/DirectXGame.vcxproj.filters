@@ -37,8 +37,12 @@
     <FxCompile Include="resources\Shader\InstanceLine.PS.hlsl">
       <Filter>GameEngine\Shader</Filter>
     </FxCompile>
-    <FxCompile Include="resources\Shader\CopyImage.PS.hlsl" />
-    <FxCompile Include="resources\Shader\CopyImage.VS.hlsl" />
+    <FxCompile Include="resources\Shader\CopyImage.PS.hlsl">
+      <Filter>GameEngine\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="resources\Shader\CopyImage.VS.hlsl">
+      <Filter>GameEngine\Shader</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -162,7 +166,7 @@
     <ClCompile Include="GameEngine\Math\Operation\Operation.cpp">
       <Filter>GameEngine\Math\Operation</Filter>
     </ClCompile>
-    <ClCompile Include="GameEngine\Modules\PrimitiveManager\PrimitiveManager.cpp">
+    <ClCompile Include="GameEngine\Modules\PrimitiveManager\Primitive3DManager.cpp">
       <Filter>GameEngine\Modules\PrimitiveManager</Filter>
     </ClCompile>
     <ClCompile Include="Application\BackGround\Fence\Fence.cpp">
@@ -275,8 +279,8 @@
     <ClInclude Include="GameEngine\Math\Collision.h">
       <Filter>GameEngine\Math\Collision</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\Math\Lerp.h">
-      <Filter>GameEngine\Math\Lerp</Filter>
+    <ClInclude Include="GameEngine\Math\Easing.h">
+      <Filter>GameEngine\Math\Easing</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\Math\Matrix3x3.h">
       <Filter>GameEngine\Math</Filter>
@@ -440,7 +444,7 @@
     <ClInclude Include="GameEngine\Math\Operation\Operation.h">
       <Filter>GameEngine\Math\Operation</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\Modules\PrimitiveManager\PrimitiveManager.h">
+    <ClInclude Include="GameEngine\Modules\PrimitiveManager\Primitive3DManager.h">
       <Filter>GameEngine\Modules\PrimitiveManager</Filter>
     </ClInclude>
     <ClInclude Include="Application\BackGround\Fence\Fence.h">
@@ -539,7 +543,9 @@
     <ClInclude Include="GameEngine\Modules\DirectXCommon\DirectXCommon.h">
       <Filter>GameEngine\Modules\DirectXCommon</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\Math\Shape\Circle.h" />
+    <ClInclude Include="GameEngine\Math\Shape\Circle.h">
+      <Filter>GameEngine\Math\Shape</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -558,7 +564,9 @@
     <None Include="resources\Shader\Material.hlsli">
       <Filter>GameEngine\Shader</Filter>
     </None>
-    <None Include="resources\Shader\CopyImage.hlsli" />
+    <None Include="resources\Shader\CopyImage.hlsli">
+      <Filter>GameEngine\Shader</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Application">
@@ -605,9 +613,6 @@
     </Filter>
     <Filter Include="GameEngine\Math\Collision">
       <UniqueIdentifier>{5ac8890e-cd02-45f9-8bd4-dd8ca7e933c7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GameEngine\Math\Lerp">
-      <UniqueIdentifier>{a4d38b83-aa69-48b9-99a3-42011105b589}</UniqueIdentifier>
     </Filter>
     <Filter Include="GameEngine\LoadFile">
       <UniqueIdentifier>{93d6a10b-fd58-4fea-9cc9-e8072b1f5bf0}</UniqueIdentifier>
@@ -717,9 +722,6 @@
     <Filter Include="GameEngine\Math\Operation">
       <UniqueIdentifier>{4b389da2-57a0-43b5-bc5d-3eebca42f631}</UniqueIdentifier>
     </Filter>
-    <Filter Include="GameEngine\Modules\PrimitiveManager">
-      <UniqueIdentifier>{f6336c19-5f0e-4227-84d0-ef1f2364fa48}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Application\Bullet\BossBullet">
       <UniqueIdentifier>{4aa5fe03-41ea-49c0-94d6-731469498c92}</UniqueIdentifier>
     </Filter>
@@ -782,6 +784,12 @@
     </Filter>
     <Filter Include="GameEngine\DebugTool\ImGuiManager">
       <UniqueIdentifier>{07d70550-e26b-4612-aef3-967a338f70c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\Math\Easing">
+      <UniqueIdentifier>{a4d38b83-aa69-48b9-99a3-42011105b589}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\Modules\PrimitiveManager">
+      <UniqueIdentifier>{f6336c19-5f0e-4227-84d0-ef1f2364fa48}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
