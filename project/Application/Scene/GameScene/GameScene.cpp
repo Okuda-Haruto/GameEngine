@@ -482,7 +482,7 @@ void GameScene::Collision() {
 	characterList.push_back(player_.get());
 	characterList.push_back(boss_.get());
 
-	std::list<Collider*> collider;
+	std::list<SphereCollider*> collider;
 	collider.push_back(player_.get());
 	collider.push_back(boss_.get());
 	for (auto& bullet : playerBullet_) {
@@ -492,9 +492,9 @@ void GameScene::Collision() {
 		collider.push_back(bullet.get());
 	}
 
-	for (std::list<Collider*>::iterator iteratorA = collider.begin();
+	for (std::list<SphereCollider*>::iterator iteratorA = collider.begin();
 		iteratorA != collider.end(); iteratorA++) {
-		for (std::list<Collider*>::iterator iteratorB = iteratorA;
+		for (std::list<SphereCollider*>::iterator iteratorB = iteratorA;
 			iteratorB != collider.end(); iteratorB++) {
 
 			if (iteratorA == iteratorB)continue;

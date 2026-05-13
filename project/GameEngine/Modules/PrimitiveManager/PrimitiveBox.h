@@ -1,0 +1,56 @@
+#pragma once
+#include <wrl.h>
+#include <vector>
+#include <ModelData.h>
+#include <d3d12.h>
+#include <string>
+#include <VertexData.h>
+#include <AnimationInterpolation.h>
+#include <Offset.h>
+#include <DirectXCommon/DirectXCommon.h>
+#include <TextureManager/TextureManager.h>
+#include <Camera/Camera.h>
+
+//モデル
+class PrimitiveBox {
+private:
+	static unique_ptr<PrimitiveBox> instance;
+
+	DirectXCommon* dxCommon_ = nullptr;
+
+	//頂点リソース
+	Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource_;
+	//頂点バッファビュー
+	D3D12_VERTEX_BUFFER_VIEW vertexBufferView_{};
+	//頂点リソースデータ
+	VertexData* vertexData_ = nullptr;
+	//インデックスリソース
+	Microsoft::WRL::ComPtr<ID3D12Resource> indexResource_;
+	//インデックスバッファビュー
+	D3D12_INDEX_BUFFER_VIEW indexBufferView_{};
+	//インデックスデータ
+	uint32_t* indexData_ = nullptr;
+
+	//テクスチャ番号
+	uint32_t textureIndex_;
+
+	std::shared_ptr<Camera> camera_;
+public:
+	~PrimitiveBox();
+
+	//初期値
+	void Initialize(uint32_t textureIndex, std::shared_ptr<Camera> camera, DirectXCommon* dxCommon);
+
+	//描画処理
+	void Draw();
+
+	//頂点バッファビュー
+	D3D12_VERTEX_BUFFER_VIEW& GetVBV() { return vertexBufferView_; }
+	//インデックスバッファビュー
+	D3D12_INDEX_BUFFER_VIEW& GetIBV() { return indexBufferView_; }
+	//テクスチャ番号
+	uint32_t GetTextureIndex() { return textureIndex_; }
+
+	std::shared_ptr<Camera> GetCamera() { return camera_; }
+
+};

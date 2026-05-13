@@ -27,9 +27,11 @@ public:
 		//SHAPE_Triangle,
 		//SHAPE_Plane,
 		//SHAPE_Circle,
+		//SHAPE_Arrow
 
 		SHAPE_AABB,
 		SHAPE_Sphere,
+
 		SHAPE_count
 	};
 	//プリミティブのインスタシング用リソース

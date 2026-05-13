@@ -43,6 +43,12 @@
     <FxCompile Include="resources\Shader\CopyImage.VS.hlsl">
       <Filter>GameEngine\Shader</Filter>
     </FxCompile>
+    <FxCompile Include="resources\Shader\Cubemap.VS.hlsl">
+      <Filter>GameEngine\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="resources\Shader\Cubemap.PS.hlsl">
+      <Filter>GameEngine\Shader</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -222,6 +228,12 @@
     </ClCompile>
     <ClCompile Include="GameEngine\Modules\Animation\Animation.cpp">
       <Filter>GameEngine\Modules\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="ColliderObject.cpp">
+      <Filter>Application\ColiderObject</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEngine\Modules\PrimitiveManager\PrimitiveBox.cpp">
+      <Filter>GameEngine\Modules\PrimitiveManager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -420,7 +432,7 @@
     <ClInclude Include="Application\Scene\GameScene\GameScene.h">
       <Filter>Application\Scene\GameScene</Filter>
     </ClInclude>
-    <ClInclude Include="Application\Collider\Collider.h">
+    <ClInclude Include="Application\Collider\SphereCollider.h">
       <Filter>Application\Collider</Filter>
     </ClInclude>
     <ClInclude Include="Application\Character\Item\Item.h">
@@ -546,6 +558,21 @@
     <ClInclude Include="GameEngine\Math\Shape\Circle.h">
       <Filter>GameEngine\Math\Shape</Filter>
     </ClInclude>
+    <ClInclude Include="ColliderObject.h">
+      <Filter>Application\ColiderObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Collider\CollisionID.h">
+      <Filter>Application\Collider</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Collider\OBBCollider.h">
+      <Filter>Application\Collider</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Collider\Colliders.h">
+      <Filter>Application\Collider</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Modules\PrimitiveManager\PrimitiveBox.h">
+      <Filter>GameEngine\Modules\PrimitiveManager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -565,6 +592,9 @@
       <Filter>GameEngine\Shader</Filter>
     </None>
     <None Include="resources\Shader\CopyImage.hlsli">
+      <Filter>GameEngine\Shader</Filter>
+    </None>
+    <None Include="resources\Shader\Cubemap.hlsli">
       <Filter>GameEngine\Shader</Filter>
     </None>
   </ItemGroup>
@@ -790,6 +820,9 @@
     </Filter>
     <Filter Include="GameEngine\Modules\PrimitiveManager">
       <UniqueIdentifier>{f6336c19-5f0e-4227-84d0-ef1f2364fa48}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\ColiderObject">
+      <UniqueIdentifier>{58bafceb-5255-4031-8a16-a8b99ea52f05}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

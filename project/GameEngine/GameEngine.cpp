@@ -131,6 +131,7 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	particle_RootSignature_ = dxCommon_->Particle_RootSignatureInitialvalue();
 	screen_RootSignature_ = dxCommon_->Screen_RootSignatureInitialvalue();
 	screen_ColorChange_RootSignature_ = dxCommon_->Screen_ColorChange_RootSignatureInitialvalue();
+	cubemap_RootSignature_ = dxCommon_->Cubemap_RootSignatureInitialvalue();
 
 	//Shaderをコンパイルする
 	Microsoft::WRL::ComPtr<IDxcBlob> Object3DVertexShaderBlob = dxCommon_->CompileShader(L"./resources/Shader/Object3D.VS.hlsl", L"vs_6_0");
@@ -161,6 +162,10 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	assert(CopyImagePSBlob != nullptr);
 	Microsoft::WRL::ComPtr<IDxcBlob> ColorChangePSBlob = dxCommon_->CompileShader(L"./resources/Shader/ColorChange.PS.hlsl", L"ps_6_0");
 	assert(ColorChangePSBlob != nullptr);
+	Microsoft::WRL::ComPtr<IDxcBlob> CubemapVSBlob = dxCommon_->CompileShader(L"./resources/Shader/Cubemap.VS.hlsl", L"vs_6_0");
+	assert(CubemapVSBlob != nullptr);
+	Microsoft::WRL::ComPtr<IDxcBlob> CubemapPSBlob = dxCommon_->CompileShader(L"./resources/Shader/Cubemap.PS.hlsl", L"ps_6_0");
+	assert(CubemapPSBlob != nullptr);
 
 	//PSOを生成
 	object3D_PipelineState_ = Triangle_PipelineStateInitialvalue(device_, object_RootSignature_, Object3DVertexShaderBlob.Get(), Object3DPixelShaderBlob.Get());
@@ -174,6 +179,7 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	line_NoDepth_PipelineState_ = Line_NoDepth_PipelineStateInitialvalue(device_, object_Instancing_RootSignature_, particleVSBlob.Get(), instancingLinePixelShaderBlob.Get());
 	screen_PipelineState_ = Screen_PipelineStateInitialvalue(device_, screen_RootSignature_, CopyImageVSBlob.Get(), CopyImagePSBlob.Get());
 	screen_ColorChange_PipelineState_ = Screen_PipelineStateInitialvalue(device_, screen_RootSignature_, CopyImageVSBlob.Get(), ColorChangePSBlob.Get());
+	cubemap_PipelineState_ = Cubemap_PipelineStateInitialvalue(device_, cubemap_RootSignature_, CubemapVSBlob.Get(), CubemapPSBlob.Get());
 	//XAudioエンジンのインスタンスを生成
 	hr = XAudio2Create(&xAudio2_, 0, XAUDIO2_DEFAULT_PROCESSOR);
 	assert(SUCCEEDED(hr));
@@ -1458,4 +1464,59 @@ void GameEngine::DrawSphere_(std::list<Primitive3DManager::PrimitiveSphere> sphe
 	srvManager_->CreateSRVforStructuredBuffer(primitiveResource.instancingIndex, primitiveResource_[Primitive3DManager::SHAPE_Sphere].Get(), Primitive3DManager::kMaxNumPrimitive, sizeof(InstancingTransformationMatrix));
 	//描画(DrawCall)
 	commandList_->DrawIndexedInstanced(primitiveResource.offset.indexCount, numInstance, primitiveResource.offset.indexStart, 0, 0);
+}
+
+void GameEngine::DrawPrimitiveBox_(PrimitiveBox* primitiveBox) {
+
+	//上限に達していたら描画しない
+	if (objectIndex_ >= kMaxIndex)return;
+
+	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
+	commandList_->SetGraphicsRootSignature(cubemap_RootSignature_.Get());
+	commandList_->SetPipelineState(cubemap_PipelineState_.Get());	//PSOを設定
+
+	commandList_->IASetVertexBuffers(0, 1, &primitiveBox->GetVBV());	//VBVを設定
+	commandList_->IASetIndexBuffer(&primitiveBox->GetIBV());	//IBVを設定
+
+	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
+	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	//WVPデータを更新
+	objectWvpResource_[objectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&objectWvpData_[objectIndex_]));
+
+	//オブジェクトのワールド座標
+	Matrix4x4 worldMatrix = MakeAffineMatrix({ 200,200,200 }, { 0,0,0 }, { 0,0,0 });
+
+	objectWvpData_[objectIndex_]->World = worldMatrix;
+	objectWvpData_[objectIndex_]->WorldInverseTranspose = Transpose(Inverse(worldMatrix));
+	Matrix4x4 worldViewProjectionMatrix = worldMatrix * primitiveBox->GetCamera()->GetViewMatrix() * primitiveBox->GetCamera()->GetProjectionMatrix();
+	objectWvpData_[objectIndex_]->WVP = worldViewProjectionMatrix;
+
+	objectWvpResource_[objectIndex_]->Unmap(0, nullptr);
+
+	//マテリアルデータを更新
+	objectMaterialResource_[objectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&objectMaterialData_[objectIndex_]));
+
+	objectMaterialData_[objectIndex_]->uvTransform = MakeIdentity4x4();
+	objectMaterialData_[objectIndex_]->enableDirectionalLighting = false;
+	objectMaterialData_[objectIndex_]->enablePointLighting = false;
+	objectMaterialData_[objectIndex_]->enableSpotLighting = false;
+	objectMaterialData_[objectIndex_]->reflection = 0;
+	objectMaterialData_[objectIndex_]->shininess = 0;
+	objectMaterialData_[objectIndex_]->color = { 1.0f,1.0f,1.0f,1.0f };
+
+	objectMaterialResource_[objectIndex_]->Unmap(0, nullptr);
+
+	//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
+	commandList_->SetGraphicsRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(primitiveBox->GetTextureIndex()));
+
+	//マテリアルCBufferの場所を設定
+	commandList_->SetGraphicsRootConstantBufferView(0, objectMaterialResource_[objectIndex_]->GetGPUVirtualAddress());
+	//wvp用のCBufferの場所を設定
+	commandList_->SetGraphicsRootConstantBufferView(1, objectWvpResource_[objectIndex_]->GetGPUVirtualAddress());
+
+	//描画(DrawCall)
+	commandList_->DrawIndexedInstanced(36, 1, 0, 0, 0);
+
+	objectIndex_++;
 }

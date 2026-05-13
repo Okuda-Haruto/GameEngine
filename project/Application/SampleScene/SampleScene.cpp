@@ -186,6 +186,8 @@ void SampleScene::Initialize() {
 		gltf->SetSpotLight(spotLight_);
 	}
 
+	skybox_ = std::make_unique<PrimitiveBox>();
+	skybox_->Initialize(TextureManager::GetInstance()->GetSrvIndex("resources/BackGround/minedump_flats_1k.dds"),defaultCamera_,GameEngine::GetDirectXCommon());
 }
 
 void SampleScene::Update() {
@@ -574,6 +576,8 @@ void SampleScene::Draw() {
 	//grid_->Draw(GameEngine::GetCommandList());
 
 	//axis_->Draw(GameEngine::GetCommandList());
+
+	skybox_->Draw();
 
 	for (INT i = 0; i < object_.size(); i++) {
 		if (isObjectDraw_[i]) {
