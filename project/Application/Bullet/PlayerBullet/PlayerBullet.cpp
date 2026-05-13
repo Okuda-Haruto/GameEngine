@@ -24,7 +24,7 @@ void PlayerBullet::Initialize(Vector3 translate, Vector3 rotate) {
 	lifeTime_ = 0.0f;
 	isDead = false;
 
-	InitializeCollider(1.0f, CollisionID_Player_Bullet);
+	InitializeSphereCollider(1.0f, CollisionID_Player_Bullet);
 }
 
 void PlayerBullet::Update() {
@@ -44,7 +44,7 @@ void PlayerBullet::Update() {
 	}
 
 	object_->SetTransform(transform_);
-	UpdateCollider();
+	UpdateSphereCollider();
 }
 
 void PlayerBullet::Draw() {

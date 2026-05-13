@@ -402,8 +402,8 @@ void Boss::Initialize(GameScene* gameScene, GameCamera* gameCamera, ParticleEmit
 		weight = 5;
 	}
 
-	InitializeCollider(1.0f, CollisionID_Enemy_Character);
-	UpdateCollider();
+	InitializeSphereCollider(1.0f, CollisionID_Enemy_Character);
+	UpdateSphereCollider();
 }
 
 void Boss::Update() {
@@ -462,7 +462,7 @@ void Boss::Update() {
 	displayTransform.translate.y -= 1.0f;
 	object_->SetTransform(displayTransform);
 	object_->Update();
-	UpdateCollider();
+	UpdateSphereCollider();
 }
 
 void Boss::Draw() {

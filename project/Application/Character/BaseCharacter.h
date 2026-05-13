@@ -2,9 +2,9 @@
 #include <memory>
 #include <Object/Object.h>
 #include <ModelHolder/ModelHolder.h>
-#include "../Collider/Collider.h"
+#include "../Collider/SphereCollider.h"
 
-class BaseCharacter : public Collider
+class BaseCharacter : public SphereCollider
 {
 protected:
 	//自キャラモデル
@@ -23,8 +23,8 @@ public:
 
 	virtual void IsCollision() {}
 
-	void InitializeCollider(float radius, uint8_t id) { radius_ = radius; id_ = id; }
-	void UpdateCollider() { sphere_.center = transform_.translate; sphere_.radius = radius_ * transform_.scale.x; }
+	void InitializeSphereCollider(float radius, uint8_t id) { radius_ = radius; id_ = id; }
+	void UpdateSphereCollider() { sphere_.center = transform_.translate; sphere_.radius = radius_ * transform_.scale.x; }
 	void SetInvincible(bool invincible) { invincible_ = invincible; }
 };
 

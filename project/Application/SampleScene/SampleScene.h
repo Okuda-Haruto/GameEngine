@@ -10,6 +10,7 @@
 #include <Object/Object.h>
 #include <Sprite/Sprite.h>
 #include <ParticleEmitter/ParticleEmitter.h>
+#include <PrimitiveManager/PrimitiveBox.h>
 
 class SampleScene
 {
@@ -59,6 +60,8 @@ private:
 	std::shared_ptr<SpotLight> spotLight_ = nullptr;
 
 	bool isDisplayUI = false;
+
+	std::unique_ptr<PrimitiveBox> skybox_;
 
 public:
 	//デストラクタ

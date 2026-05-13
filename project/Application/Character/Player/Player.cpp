@@ -60,8 +60,8 @@ void Player::Initialize(GameScene* gameScene, GameCamera* gameCamera, shared_ptr
 
 	isTargeted_ = false;
 
-	InitializeCollider(1.0f, CollisionID_Player_Character);
-	UpdateCollider();
+	InitializeSphereCollider(1.0f, CollisionID_Player_Character);
+	UpdateSphereCollider();
 }
 
 void Player::Update() {
@@ -368,7 +368,7 @@ void Player::Update() {
 	*targetTransform_ = transform_;
 
 	object_->SetTransform(transform_);
-	UpdateCollider();
+	UpdateSphereCollider();
 	particle_2->Update();
 }
 

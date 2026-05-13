@@ -35,6 +35,7 @@
 #include "SRVManager/SRVManager.h"
 #include "ParticleManager/ParticleManager.h"
 #include "PrimitiveManager/Primitive3DManager.h"
+#include <PrimitiveManager/PrimitiveBox.h>
 #include "AudioManager/AudioManager.h"
 
 #include <vector>
@@ -73,6 +74,7 @@ private:
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> particle_RootSignature_;
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> screen_RootSignature_;
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> screen_ColorChange_RootSignature_;
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> cubemap_RootSignature_ = nullptr;
 
 	//Windowのメッセージ
 	MSG msg_{};
@@ -89,6 +91,7 @@ private:
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> line_NoDepth_PipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> screen_PipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> screen_ColorChange_PipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> cubemap_PipelineState_ = nullptr;
 
 public:
 	//描画可能なモデルの数(通常)
@@ -228,6 +231,8 @@ private:
 	void DrawAABB_(std::list<Primitive3DManager::PrimitiveAABB> aabbs, Primitive3DManager::PrimitiveResource primitiveResource);
 	void DrawSphere_(std::list<Primitive3DManager::PrimitiveSphere> spheres, Primitive3DManager::PrimitiveResource primitiveResource);
 
+	void DrawPrimitiveBox_(PrimitiveBox* primitiveBox);
+
 	WindowsAPI* GetWindowsAPI_() { return winApp_.get(); }
 
 	// インスタンス生成
@@ -318,6 +323,8 @@ public:
 	static void DrawPoint(std::list<Primitive3DManager::PrimitivePoint> points, Primitive3DManager::PrimitiveResource primitiveResource) { return GetInstance()->DrawPoint_(points, primitiveResource); }
 	static void DrawAABB(std::list<Primitive3DManager::PrimitiveAABB> aabbs, Primitive3DManager::PrimitiveResource primitiveResource) { return GetInstance()->DrawAABB_(aabbs, primitiveResource); }
 	static void DrawSphere(std::list<Primitive3DManager::PrimitiveSphere> spheres, Primitive3DManager::PrimitiveResource primitiveResource) { return GetInstance()->DrawSphere_(spheres, primitiveResource); }
+
+	static void DrawPrimitiveBox(PrimitiveBox* primitiveBox) { return GetInstance()->DrawPrimitiveBox_(primitiveBox); }
 
 	[[nodiscard]]
 	static WindowsAPI* GetWindowsAPI() { return GetInstance()->GetWindowsAPI_(); }

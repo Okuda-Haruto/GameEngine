@@ -3,9 +3,9 @@
 #include <Object/Object.h>
 #include <Camera/Camera.h>
 #include <ModelHolder/ModelHolder.h>
-#include "../Collider/Collider.h"
+#include "../Collider/SphereCollider.h"
 
-class BaseBullet : public Collider {
+class BaseBullet : public SphereCollider {
 protected:
 	std::unique_ptr<Object> object_;
 	SRT transform_;
@@ -17,6 +17,6 @@ public:
 
 	virtual void IsCollision() {}
 
-	void InitializeCollider(float radius, uint8_t id) { radius_ = radius; id_ = id; }
-	void UpdateCollider() { sphere_.center = transform_.translate; sphere_.radius = radius_ * transform_.scale.x; }
+	void InitializeSphereCollider(float radius, uint8_t id) { radius_ = radius; id_ = id; }
+	void UpdateSphereCollider() { sphere_.center = transform_.translate; sphere_.radius = radius_ * transform_.scale.x; }
 };
