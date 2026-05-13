@@ -20,8 +20,11 @@ struct Material {
 	int32_t enableDirectionalLighting;
 	int32_t enablePointLighting;
 	int32_t enableSpotLighting;
+	int32_t enableEnviromentMap;		//環境マップを使用するか(trueかfalse)
+	float padding0[3];
 	Matrix4x4 uvTransform;				//UV行列
 	float shininess = 0.0f;				//反射輝度
 	int32_t shading;					//フォンシェーディング
-	float padding[3];
+	float enviromentCoefficient = 0.0f;		//環境マップ映りこみ度合
+	float padding1;
 };

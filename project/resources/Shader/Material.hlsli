@@ -5,7 +5,9 @@ struct Material
     int enableDirectionalLighting;
     int enablePointLighting;
     int enableSpotLighting;
+    int enableEnviromentMap;
     float4x4 uvTransform;
     float shininess;
     int shading;
+    float enviromentCoefficient;
 };

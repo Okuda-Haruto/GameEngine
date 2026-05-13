@@ -51,6 +51,7 @@ struct PixelShaderOutput
 };
 
 Texture2D<float4> gTexture : register(t0);
+TextureCube<float4> gEnvironmenttexture : register(t1);
 SamplerState gSampler : register(s0);
 
 PixelShaderOutput PhangReflectionModel(VertexShaderOutput input, float4 textureColor)
@@ -165,6 +166,16 @@ PixelShaderOutput PhangReflectionModel(VertexShaderOutput input, float4 textureC
     {
         output.color.rgb = diffuseDirectionalLighting + diffusePointLighting + diffuseSpotLighting;
     }
+    
+    if (gMaterial.enableEnviromentMap)
+    {
+        float3 cameraToPosition = normalize(input.worldPosition - gCamera.WorldPosition);
+        float3 reflectedVector = reflect(cameraToPosition, normalize(input.normal));
+        float4 enviromentColor = gEnvironmenttexture.Sample(gSampler, reflectedVector);
+    
+        output.color.rgb += enviromentColor.rgb * gMaterial.enviromentCoefficient;
+    }
+    
     return output;
 }
 
@@ -283,6 +294,16 @@ PixelShaderOutput BlinnPhangReflectionModel(VertexShaderOutput input, float4 tex
     {
         output.color.rgb = diffuseDirectionalLighting + diffusePointLighting + diffuseSpotLighting;
     }
+    
+    if (gMaterial.enableEnviromentMap)
+    {
+        float3 cameraToPosition = normalize(input.worldPosition - gCamera.WorldPosition);
+        float3 reflectedVector = reflect(cameraToPosition, normalize(input.normal));
+        float4 enviromentColor = gEnvironmenttexture.Sample(gSampler, reflectedVector);
+    
+        output.color.rgb += enviromentColor.rgb * gMaterial.enviromentCoefficient;
+    }
+    
     return output;
 }
 

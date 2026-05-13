@@ -42,6 +42,11 @@ void SampleScene::Initialize() {
 	object_[6] = make_unique<Object>();
 	object_[6]->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/teapot", "teapot.obj"));
 
+	object_[1]->SetCubeTextureIndex(TextureManager::GetInstance()->GetSrvIndex("resources/BackGround/minedump_flats_1k.dds"));
+	std::vector<Parts> parts = object_[1]->GetParts();
+	parts[0].material->enviromentCoefficient = 0.5f;
+	object_[1]->SetParts(parts[0], 0);
+
 	//2Dスプライト
 	sprite_[0] = make_unique<Sprite>();
 	sprite_[0]->Initialize("resources/DebugResources/uvChecker.png");
