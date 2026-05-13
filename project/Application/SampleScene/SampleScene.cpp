@@ -187,7 +187,7 @@ void SampleScene::Initialize() {
 	}
 
 	skybox_ = std::make_unique<PrimitiveBox>();
-	skybox_->Initialize(TextureManager::GetInstance()->GetSrvIndex("resources/DebugResources/rostock_laage_airport_4k.dds"),defaultCamera_,GameEngine::GetDirectXCommon());
+	skybox_->Initialize(TextureManager::GetInstance()->GetSrvIndex("resources/BackGround/minedump_flats_1k.dds"),defaultCamera_,GameEngine::GetDirectXCommon());
 }
 
 void SampleScene::Update() {
