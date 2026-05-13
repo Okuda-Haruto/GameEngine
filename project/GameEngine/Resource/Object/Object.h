@@ -46,6 +46,9 @@ private:
 	//ボーン
 	std::vector<Bone> bones_;
 
+	//環境マップ用テクスチャキューブ
+	int32_t cubeTextureIndex_;
+
 
 public:
 
@@ -90,6 +93,9 @@ public:
 	void SetDirectionalLight(const shared_ptr<DirectionalLight>& directionalLight) { directionalLight_ = directionalLight; }
 	void SetPointLight(const shared_ptr<PointLight>& pointLight) { pointLight_ = pointLight; }
 	void SetSpotLight(const shared_ptr<SpotLight>& spotLight) { spotLight_ = spotLight; }
+	void SetCubeTextureIndex(int32_t cubeTextureIndex) { cubeTextureIndex_ = cubeTextureIndex; }
+
+	int32_t GetCubeTextureIndex() { return cubeTextureIndex_; }
 	
 	//頂点バッファビュー
 	D3D12_VERTEX_BUFFER_VIEW& GetVBV() { return model_->GetVBV(); }

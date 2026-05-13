@@ -396,6 +396,7 @@ void GameEngine::DrawObject_3D_(Object* object, shared_ptr<DirectionalLight> dir
 		parts[i].material->enableDirectionalLighting = directionalLight != nullptr;
 		parts[i].material->enablePointLighting = pointLight != nullptr;
 		parts[i].material->enableSpotLighting = spotLight != nullptr;
+		parts[i].material->enableEnviromentMap = parts[i].material->enviromentCoefficient > 0.0f;
 
 		//マテリアルデータを更新
 		objectMaterialResource_[objectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&objectMaterialData_[objectIndex_]));
@@ -416,6 +417,9 @@ void GameEngine::DrawObject_3D_(Object* object, shared_ptr<DirectionalLight> dir
 		}
 		if (parts[i].material->reflection != 0 && spotLight != nullptr) {
 			commandList_->SetGraphicsRootConstantBufferView(6, spotLight->SpotLightElementResource()->GetGPUVirtualAddress());	//SpotLighting
+		}
+		if (parts[i].material->enviromentCoefficient > 0.0f) {	//環境マップ
+			commandList_->SetGraphicsRootDescriptorTable(8, srvManager_->GetGPUDescriptorHandle(object->GetCubeTextureIndex()));
 		}
 
 		//マテリアルCBufferの場所を設定
