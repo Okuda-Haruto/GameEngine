@@ -60,8 +60,7 @@ void Player::Initialize(GameScene* gameScene, GameCamera* gameCamera, shared_ptr
 
 	isTargeted_ = false;
 
-	InitializeSphereCollider(1.0f, CollisionID_Player_Character);
-	UpdateSphereCollider();
+	BaseCharacter::Initialize({ 1.0f,1.0f,1.0f }, CollisionID_Player_Character);
 }
 
 void Player::Update() {
@@ -81,7 +80,6 @@ void Player::Update() {
 		invincibleTime_ -= 1.0f / 60.0f;
 		if (invincibleTime_ <= 0.0f) {
 			invincibleTime_ = 0.0f;
-			SetInvincible(false);
 		}
 	}
 
@@ -368,7 +366,7 @@ void Player::Update() {
 	*targetTransform_ = transform_;
 
 	object_->SetTransform(transform_);
-	UpdateSphereCollider();
+	BaseCharacter::Update();
 	particle_2->Update();
 }
 
@@ -389,7 +387,6 @@ void Player::IsCollision() {
 		HP_--;
 		gameCamera_->SetShakeTime(0.3f);
 		invincibleTime_ = kMaxInvincibleTime_;
-		SetInvincible(true);
 		AudioHolder::GetInstance()->GetAudio(AudioIndex::Player_Damage_SE).lock()->SoundPlayWave();
 	}
 }

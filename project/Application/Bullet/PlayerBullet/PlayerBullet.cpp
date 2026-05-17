@@ -49,7 +49,8 @@ void PlayerBullet::Update() {
 	}
 
 	object_->SetTransform(transform_);
-	UpdateSphereCollider();
+
+	BaseBullet
 }
 
 void PlayerBullet::Draw() {

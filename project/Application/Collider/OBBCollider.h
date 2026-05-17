@@ -1,18 +1,19 @@
 #pragma once
 #include "CollisionID.h"
 #include "Shape/OBB.h"
-#include <SRT.h>
+#include <Matrix4x4.h>
 #include <stdint.h>
+#include <memory>
 
-class OBBCollider {
-protected:
-	OBB obb_;
-	uint8_t id_;
-	bool isCollision_;
+struct OBBCollider {
 	//ローカル座標
-	SRT localTransform_;
-public:
-	void IsCollision() {}
-	OBB GetOBB() { return obb_; }
-	uint8_t GetID() { return id_; }
+	OBB localOBB_;
+	//ペアレント座標
+	std::shared_ptr<Matrix4x4> parentMatrix_;
+	//接触範囲
+	OBB colliderOBB_;
+	//自分->相手
+	uint8_t sourceId_;
+	//相手->自分
+	uint8_t targetId_;
 };

@@ -28,7 +28,7 @@ void BossBullet::Initialize(Vector3 translate, Vector3 rotate) {
 	lifeTime_ = 0.0f;
 	isDead = false;
 
-	InitializeSphereCollider(1.0f, CollisionID_Enemy_Bullet);
+	BaseBullet::Initialize({ 1.0f,1.0f,1.0f }, CollisionID_Enemy_Bullet);
 }
 
 void BossBullet::Update() {
@@ -48,7 +48,7 @@ void BossBullet::Update() {
 	}
 
 	object_->SetTransform(transform_);
-	UpdateSphereCollider();
+	BaseBullet::Update();
 }
 
 void BossBullet::Draw() {

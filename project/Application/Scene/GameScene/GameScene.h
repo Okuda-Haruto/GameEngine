@@ -10,6 +10,8 @@
 #include "Bullet/BossBullet/BossBullet.h"
 #include "Character/Player/Player.h"
 #include "Character/Boss/Boss.h"
+#include <ColliderObject/ColliderObject.h>
+
 #include "Sprite/Sprite.h"
 #include "Editor/ParticleEditor/ParticleEditor.h"
 #include "AudioHolder/AudioHolder.h"
@@ -38,6 +40,8 @@ private:
 
 	std::list<std::unique_ptr<PlayerBullet>> playerBullet_;
 	std::list<std::unique_ptr<BossBullet>> bossBullet_;
+
+	std::unique_ptr<ColliderObject> colliderObject_;
 
 	std::unique_ptr<Object> cylinder_;
 	SRT cylinderTransform_;

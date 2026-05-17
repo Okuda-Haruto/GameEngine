@@ -2,9 +2,9 @@
 #include <memory>
 #include <Object/Object.h>
 #include <ModelHolder/ModelHolder.h>
-#include "../Collider/SphereCollider.h"
+#include <Collider/Colliders.h>
 
-class BaseCharacter : public SphereCollider
+class BaseCharacter
 {
 protected:
 	//自キャラモデル
@@ -13,18 +13,22 @@ protected:
 	Vector3 velocity_;
 	Vector3 acceleration_;
 
+	//コライダー座標
+	std::shared_ptr<Matrix4x4> colliderParent_;
+	//コライダー
+	std::unique_ptr<Colliders> colliders_;
+
 public:
 	//初期化
-	void Initialize();
+	void Initialize(Vector3 size, CollisionID id);
+	virtual void Initialize();
 	//更新
-	void Update();
+	virtual void Update();
 	//描画
-	void Draw();
+	virtual void Draw();
 
-	virtual void IsCollision() {}
+	virtual void IsCollision(uint8_t targetId) { colliders_->IsCollision(targetId); }
 
-	void InitializeSphereCollider(float radius, uint8_t id) { radius_ = radius; id_ = id; }
-	void UpdateSphereCollider() { sphere_.center = transform_.translate; sphere_.radius = radius_ * transform_.scale.x; }
-	void SetInvincible(bool invincible) { invincible_ = invincible; }
+	Colliders* GetColliders() {	return colliders_.get();}
 };
 
