@@ -4,7 +4,7 @@
 #include <ModelHolder/ModelHolder.h>
 #include <Collider/Colliders.h>
 
-class BaseBullet{
+class BaseBullet : public Collider {
 protected:
 	std::unique_ptr<Object> object_;
 	SRT transform_;
@@ -16,12 +16,11 @@ protected:
 	std::unique_ptr<Colliders> colliders_;
 public:
 
-	void Initialize(Vector3 size, CollisionID id);
-	virtual void Initialize();
+	void Initialize(float radius, CollisionID id);
 	virtual void Update();
 	virtual void Draw();
 
-	virtual void IsCollision(uint8_t targetId) { colliders_->IsCollision(targetId); }
+	virtual void IsCollision(uint8_t targetId) override { colliders_->IsCollision(targetId); }
 
 	Colliders* GetColliders() { return colliders_.get(); }
 };

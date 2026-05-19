@@ -60,7 +60,7 @@ void Player::Initialize(GameScene* gameScene, GameCamera* gameCamera, shared_ptr
 
 	isTargeted_ = false;
 
-	BaseCharacter::Initialize({ 1.0f,1.0f,1.0f }, CollisionID_Player_Character);
+	BaseCharacter::Initialize(1.0f, CollisionID_Player_Body);
 }
 
 void Player::Update() {
@@ -382,7 +382,7 @@ void Player::Draw() {
 	}
 }
 
-void Player::IsCollision() {
+void Player::IsCollision(uint8_t targetId) {
 	if (invincibleTime_ <= 0.0f) {
 		HP_--;
 		gameCamera_->SetShakeTime(0.3f);

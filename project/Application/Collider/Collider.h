@@ -1,7 +1,8 @@
 #pragma once
+#include <cstdint>
 
 //CollidersからIsCollisionを呼び出すためだけのClass
 class Collider {
 public:
-	virtual void IsCollision() = 0;
+	virtual void IsCollision(uint8_t sourceId) = 0;
 };

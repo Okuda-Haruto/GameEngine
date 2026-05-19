@@ -29,7 +29,7 @@ void PlayerBullet::Initialize(Vector3 translate, Vector3 rotate) {
 	lifeTime_ = 0.0f;
 	isDead = false;
 
-	InitializeSphereCollider(1.0f, CollisionID_Player_Bullet);
+	BaseBullet::Initialize(1.0f,CollisionID_Player_Attack);
 }
 
 void PlayerBullet::Update() {
@@ -50,7 +50,7 @@ void PlayerBullet::Update() {
 
 	object_->SetTransform(transform_);
 
-	BaseBullet
+	BaseBullet::Update();
 }
 
 void PlayerBullet::Draw() {
@@ -59,6 +59,6 @@ void PlayerBullet::Draw() {
 	}
 }
 
-void PlayerBullet::IsCollision() {
+void PlayerBullet::IsCollision(uint8_t targetId) {
 	isDead = true;
 }

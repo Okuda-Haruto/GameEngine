@@ -87,7 +87,7 @@ public:
 	//描画
 	void Draw();
 
-	void IsCollision();
+	void IsCollision(uint8_t targetId) override;
 
 	SRT* GetTransform() { return targetTransform_.get(); }
 	void SetBossTransform(SRT* bossTransform) { bossTransform_ = bossTransform; }

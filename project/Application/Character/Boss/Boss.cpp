@@ -402,7 +402,7 @@ void Boss::Initialize(GameScene* gameScene, GameCamera* gameCamera, ParticleEmit
 		weight = 5;
 	}
 
-	BaseCharacter::Initialize({ 1.0f,1.0f,1.0f }, CollisionID_Enemy_Character);
+	BaseCharacter::Initialize(2.0f, CollisionID_Enemy_Body);
 }
 
 void Boss::Update() {
@@ -470,7 +470,7 @@ void Boss::Draw() {
 	object_->Draw3D();
 }
 
-void Boss::IsCollision() {
+void Boss::IsCollision(uint8_t targetId) {
 	HP_--;
 	particle_->Emit();
 	gameCamera_->SetShakeTime(0.3f);

@@ -1,15 +1,19 @@
 #pragma once
 #include <Collider/OBBCollider.h>
 #include <Object/Object.h>
+#include <Collider/Colliders.h>
 
 /// <summary>
 /// 接触可能なオブジェクト
 /// </summary>
-class ColliderObject {
+class ColliderObject : public Collider {
 private:
 	std::unique_ptr<Object> object_;
 
-	std::shared_ptr<OBBCollider> collider_;
+	std::shared_ptr<Colliders> colliders_;
+
+	//コライダー座標
+	std::shared_ptr<Matrix4x4> colliderParent_;
 
 	SRT transform_;
 public:
@@ -20,5 +24,7 @@ public:
 	//描画処理
 	void Draw();
 
-	std::shared_ptr<OBBCollider> GetCollider() { return collider_; }
+	virtual void IsCollision(uint8_t targetId) override {}
+
+	std::shared_ptr<Colliders> GetCollider() { return colliders_; }
 };

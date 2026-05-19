@@ -66,6 +66,7 @@ void Model::Initialize(const std::string& directoryPath, const std::string& file
 		bone.localMatrix = bone.node.lock()->localMatrix;
 	}
 	for (Bone& bone : modelData_.bones) {
+		bone.finalMatrix = std::make_shared<Matrix4x4>();
 		*bone.finalMatrix = Inverse(modelData_.rootNode->localMatrix) * bone.offsetMatrix * SetWorldMatrix(modelData_.rootNode, modelData_.bones, bone);
 	}
 }

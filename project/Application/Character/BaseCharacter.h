@@ -4,7 +4,7 @@
 #include <ModelHolder/ModelHolder.h>
 #include <Collider/Colliders.h>
 
-class BaseCharacter
+class BaseCharacter : public Collider
 {
 protected:
 	//自キャラモデル
@@ -20,14 +20,13 @@ protected:
 
 public:
 	//初期化
-	void Initialize(Vector3 size, CollisionID id);
-	virtual void Initialize();
+	void Initialize(float radius, CollisionID id);
 	//更新
 	virtual void Update();
 	//描画
 	virtual void Draw();
 
-	virtual void IsCollision(uint8_t targetId) { colliders_->IsCollision(targetId); }
+	virtual void IsCollision(uint8_t targetId) override {}
 
 	Colliders* GetColliders() {	return colliders_.get();}
 };

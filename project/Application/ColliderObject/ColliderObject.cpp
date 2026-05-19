@@ -1,20 +1,34 @@
 #include "ColliderObject.h"
+#include <Operation/Operation.h>
 
 void ColliderObject::Initialize(std::shared_ptr<Model> model, SRT transform) {
+	transform_ = transform;
+
+	colliderParent_ = std::make_shared<Matrix4x4>();
+	*colliderParent_ = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
+
 	object_ = std::make_unique<Object>();
 	object_->Initialize(model);
 	object_->SetTransform(transform);
 
-	collider_ = std::make_shared<OBBCollider>();
-	collider_->colliderOBB_.center = transform.translate;
-	collider_->colliderOBB_.orientations[0] = { 1,0,0 };
-	collider_->colliderOBB_.orientations[1] = { 0,1,0 };
-	collider_->colliderOBB_.orientations[2] = { 0,0,1 };
-	collider_->colliderOBB_.size = transform.scale;
+	colliders_ = std::make_shared<Colliders>();
+	colliders_->Initialize(this);
+
+	OBB obb;
+	obb.center = { 0,0,0 };
+	obb.orientations[0] = { 1,0,0 };
+	obb.orientations[1] = { 0,1,0 };
+	obb.orientations[2] = { 0,0,1 };
+	obb.size = transform.scale;
+
+	colliders_->AddOBBCollider(obb, 0b100, 0b100, colliderParent_);
+	colliders_->Update();
 }
 
 void ColliderObject::Update() {
+	*colliderParent_ = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
 
+	colliders_->Update();
 }
 
 void ColliderObject::Draw() {

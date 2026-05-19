@@ -500,17 +500,21 @@ void GameScene::Collision() {
 		colliders.push_back(bullet.get()->GetColliders());
 	}
 
-	OBB obbCollider = colliderObject_->GetCollider()->colliderOBB_;
+	//障害物コライダー
+	std::vector<OBBCollider> obbCollider = colliderObject_->GetCollider()->GetOBBColliders();
 
 	for (std::list<Colliders*>::iterator iteratorA = colliders.begin();
 		iteratorA != colliders.end(); iteratorA++) {
+
+		//球接触判定
+		std::vector<SphereCollider> sphereColliderA = (*iteratorA)->GetSphereColliders();
+
 		for (std::list<Colliders*>::iterator iteratorB = iteratorA;
 			iteratorB != colliders.end(); iteratorB++) {
 
 			if (iteratorA == iteratorB)continue;
 
-			//球接触判定同士
-			std::vector<SphereCollider> sphereColliderA = (*iteratorA)->GetSphereColliders();
+			//球接触判定
 			std::vector<SphereCollider> sphereColliderB = (*iteratorB)->GetSphereColliders();
 
 			if (sphereColliderA.size() > 0 && sphereColliderB.size() > 0) {
@@ -525,13 +529,13 @@ void GameScene::Collision() {
 						}
 
 						// A->B
-						if (!sphereColliderA[a].sourceId_ & 0b100 && sphereColliderB[b].targetId_ & 0b100) {
+						if (!(sphereColliderA[a].sourceId_ & 0b100) && sphereColliderB[b].targetId_ & 0b100) {
 							if (IsCollision(sphereColliderA[a].colliderSphere_, sphereColliderB[b].colliderSphere_)) {
 								(*iteratorB)->IsCollision(sphereColliderA[a].sourceId_);
 							}
 						}
 						// B->A
-						if (!sphereColliderB[b].sourceId_ & 0b100 && sphereColliderA[a].targetId_ & 0b100) {
+						if (!(sphereColliderB[b].sourceId_ & 0b100) && sphereColliderA[a].targetId_ & 0b100) {
 							if (IsCollision(sphereColliderA[a].colliderSphere_, sphereColliderB[b].colliderSphere_)) {
 								(*iteratorA)->IsCollision(sphereColliderB[b].sourceId_);
 							}
@@ -541,13 +545,18 @@ void GameScene::Collision() {
 					}
 				}
 			}
+		}
 
-		if (IsCollision(obbCollider, ((*iteratorA)->GetSphere()))) {
 
-			(*iteratorA)->IsCollision();
+		for (int a = 0; a < sphereColliderA.size(); a++) {
+			for (int i = 0; i < obbCollider.size(); i++) {
+				if (IsCollision(obbCollider[i].colliderOBB_, (sphereColliderA[a].colliderSphere_))) {
+					(*iteratorA)->IsCollision(0b100);
+				}
+			}
+
 		}
 	}
-
 }
 
 void GameScene::AddPlayerBullet(Vector3 translate, Vector3 rotate) {
