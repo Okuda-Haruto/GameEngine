@@ -1489,7 +1489,7 @@ void GameEngine::DrawPrimitiveBox_(PrimitiveBox* primitiveBox) {
 	objectWvpResource_[objectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&objectWvpData_[objectIndex_]));
 
 	//オブジェクトのワールド座標
-	Matrix4x4 worldMatrix = MakeAffineMatrix({ 200,200,200 }, { 0,0,0 }, { 0,0,0 });
+	Matrix4x4 worldMatrix = MakeAffineMatrix({ 2000,2000,2000 }, { 0,0,0 }, { 0,0,0 });
 
 	objectWvpData_[objectIndex_]->World = worldMatrix;
 	objectWvpData_[objectIndex_]->WorldInverseTranspose = Transpose(Inverse(worldMatrix));
