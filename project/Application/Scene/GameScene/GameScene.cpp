@@ -223,8 +223,7 @@ void GameScene::Initialize(shared_ptr<Input> input) {
 
 	//背景
 	skydome_ = std::make_unique<Skydome>();
-	skydome_->Initialize();
-	skydome_->SetCamera(gameCamera_->GetCamera());
+	skydome_->Initialize(gameCamera_->GetCamera());
 	ground_ = std::make_unique<Ground>();
 	ground_->Initialize();
 	ground_->SetCamera(gameCamera_->GetCamera());

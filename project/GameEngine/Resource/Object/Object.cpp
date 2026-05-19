@@ -23,6 +23,7 @@ void Object::Initialize(shared_ptr<Model> model) {
 		parts_[i].material->color = { 1.0f,1.0f,1.0f,1.0f };
 		parts_[i].material->reflection = REFLECTION_HalfLambert;
 		parts_[i].material->shininess = 40.0f;
+		parts_[i].material->enviromentCoefficient = 0.0f;
 
 		parts_[i].transform = make_shared<SRT>();
 		*parts_[i].transform = {};

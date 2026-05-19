@@ -23,8 +23,7 @@ void TitleScene::Initialize(shared_ptr<Input> input) {
 	camera_->Initialize(GameEngine::GetDirectXCommon());
 
 	skydome_ = std::make_unique<Skydome>();
-	skydome_->Initialize();
-	skydome_->SetCamera(camera_);
+	skydome_->Initialize(camera_);
 	ground_ = std::make_unique<Ground>();
 	ground_->Initialize();
 	ground_->SetDirectionalLight(directionalLight_);
