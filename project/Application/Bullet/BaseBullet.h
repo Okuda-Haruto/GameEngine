@@ -1,22 +1,26 @@
 #pragma once
-#include <memory>
 #include <Object/Object.h>
 #include <Camera/Camera.h>
 #include <ModelHolder/ModelHolder.h>
-#include "../Collider/SphereCollider.h"
+#include <Collider/Colliders.h>
 
-class BaseBullet : public SphereCollider {
+class BaseBullet : public Collider {
 protected:
 	std::unique_ptr<Object> object_;
 	SRT transform_;
 	SRT velocity_;
+
+	//コライダー座標
+	std::shared_ptr<Matrix4x4> colliderParent_;
+	//コライダー
+	std::unique_ptr<Colliders> colliders_;
 public:
-	virtual void Initialize();
+
+	void Initialize(float radius, CollisionID id);
 	virtual void Update();
 	virtual void Draw();
 
-	virtual void IsCollision() {}
+	virtual void IsCollision(uint8_t targetId) override { colliders_->IsCollision(targetId); }
 
-	void InitializeSphereCollider(float radius, uint8_t id) { radius_ = radius; id_ = id; }
-	void UpdateSphereCollider() { sphere_.center = transform_.translate; sphere_.radius = radius_ * transform_.scale.x; }
+	Colliders* GetColliders() { return colliders_.get(); }
 };

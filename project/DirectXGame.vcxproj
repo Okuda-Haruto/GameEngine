@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -64,6 +64,7 @@
     <ClCompile Include="Application\Character\Boss\Boss.cpp" />
     <ClCompile Include="Application\Character\Item\Item.cpp" />
     <ClCompile Include="Application\Character\Player\Player.cpp" />
+    <ClCompile Include="Application\Collider\Colliders.cpp" />
     <ClCompile Include="Application\GameManager\GameManager.cpp" />
     <ClCompile Include="Application\GameManager\SceneFactory\SceneFactory.cpp" />
     <ClCompile Include="Application\ModelHolder\ModelHolder.cpp" />
@@ -71,7 +72,7 @@
     <ClCompile Include="Application\Scene\ClearScene\ClearScene.cpp" />
     <ClCompile Include="Application\Scene\GameOverScene\GameOverScene.cpp" />
     <ClCompile Include="Application\Scene\TitleScene\TitleScene.cpp" />
-    <ClCompile Include="ColliderObject.cpp" />
+    <ClCompile Include="Application\ColliderObject\ColliderObject.cpp" />
     <ClCompile Include="GameEngine\DebugTool\D3DResourceLeakChecker.cpp" />
     <ClCompile Include="GameEngine\DebugTool\DebugCamera.cpp" />
     <ClCompile Include="GameEngine\DebugTool\ExportDump.cpp" />
@@ -130,6 +131,7 @@
     <ClInclude Include="Application\Character\Boss\Boss.h" />
     <ClInclude Include="Application\Character\Item\Item.h" />
     <ClInclude Include="Application\Character\Player\Player.h" />
+    <ClInclude Include="Application\Collider\Collider.h" />
     <ClInclude Include="Application\Collider\Colliders.h" />
     <ClInclude Include="Application\Collider\OBBCollider.h" />
     <ClInclude Include="Application\Collider\SphereCollider.h" />
@@ -140,7 +142,7 @@
     <ClInclude Include="Application\Scene\ClearScene\ClearScene.h" />
     <ClInclude Include="Application\Scene\GameOverScene\GameOverScene.h" />
     <ClInclude Include="Application\Scene\TitleScene\TitleScene.h" />
-    <ClInclude Include="ColliderObject.h" />
+    <ClInclude Include="Application\ColliderObject\ColliderObject.h" />
     <ClInclude Include="Application\Collider\CollisionID.h" />
     <ClInclude Include="GameEngine\Data\AnimationData.h" />
     <ClInclude Include="GameEngine\Data\AnimationInterpolation.h" />

@@ -402,8 +402,7 @@ void Boss::Initialize(GameScene* gameScene, GameCamera* gameCamera, ParticleEmit
 		weight = 5;
 	}
 
-	InitializeSphereCollider(1.0f, CollisionID_Enemy_Character);
-	UpdateSphereCollider();
+	BaseCharacter::Initialize(2.0f, CollisionID_Enemy_Body);
 }
 
 void Boss::Update() {
@@ -453,6 +452,8 @@ void Boss::Update() {
 				} else if (randInt <= weights_[0] + weights_[1] + weights_[2] + weights_[3]) {
 					action_ = std::make_unique<BossAction_Move>();
 				}
+
+				action_ = std::make_unique<BossAction_Shot_01>();
 				action_->Initialize(this);
 			}
 			transform_ = *targetTransform_;
@@ -462,14 +463,14 @@ void Boss::Update() {
 	displayTransform.translate.y -= 1.0f;
 	object_->SetTransform(displayTransform);
 	object_->Update();
-	UpdateSphereCollider();
+	BaseCharacter::Update();
 }
 
 void Boss::Draw() {
 	object_->Draw3D();
 }
 
-void Boss::IsCollision() {
+void Boss::IsCollision(uint8_t targetId) {
 	HP_--;
 	particle_->Emit();
 	gameCamera_->SetShakeTime(0.3f);

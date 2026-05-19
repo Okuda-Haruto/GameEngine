@@ -4,6 +4,7 @@
 #include <SceneManager/SceneManager.h>
 #include "../TitleScene/TitleScene.h"
 #include <cmath>
+#include <Collision.h>
 
 GameScene::~GameScene() {
 	playerBullet_.clear();
@@ -181,6 +182,9 @@ void GameScene::Initialize(shared_ptr<Input> input) {
 	boss_->SetCamera(gameCamera_->GetCamera());
 	boss_->SetDirectionalLight(directionalLight_);
 	boss_->SetPointLight(pointLight_);
+
+	colliderObject_ = std::make_unique<ColliderObject>();
+	colliderObject_->Initialize(ModelHolder::GetInstance()->GetModel(ModelIndex::Tumbleweed), SRT{{2,2,2},{0,0,0},{20,2,0}});
 
 	cylinder_ = std::make_unique<Object>();
 	cylinder_->Initialize(ModelHolder::GetInstance()->GetModel(ModelIndex::Cylinder));
@@ -412,6 +416,8 @@ void GameScene::Update() {
 	backGrouds_[cursor]->SetTransform(transform);
 	ImGui::End();
 #endif
+
+	colliderObject_->Update();
 }
 
 void GameScene::Draw() {
@@ -431,6 +437,8 @@ void GameScene::Draw() {
 	}
 
 	player_->Draw();
+
+	colliderObject_->Draw();
 
 	for (auto& BG : backGrouds_) {
 		BG->Draw();
@@ -482,85 +490,73 @@ void GameScene::Collision() {
 	characterList.push_back(player_.get());
 	characterList.push_back(boss_.get());
 
-	std::list<SphereCollider*> collider;
-	collider.push_back(player_.get());
-	collider.push_back(boss_.get());
+	std::list<Colliders*> colliders;
+	colliders.push_back(player_.get()->GetColliders());
+	colliders.push_back(boss_.get()->GetColliders());
 	for (auto& bullet : playerBullet_) {
-		collider.push_back(bullet.get());
+		colliders.push_back(bullet.get()->GetColliders());
 	}
 	for (auto& bullet : bossBullet_) {
-		collider.push_back(bullet.get());
+		colliders.push_back(bullet.get()->GetColliders());
 	}
 
-	for (std::list<SphereCollider*>::iterator iteratorA = collider.begin();
-		iteratorA != collider.end(); iteratorA++) {
-		for (std::list<SphereCollider*>::iterator iteratorB = iteratorA;
-			iteratorB != collider.end(); iteratorB++) {
+	//障害物コライダー
+	std::vector<OBBCollider> obbCollider = colliderObject_->GetCollider()->GetOBBColliders();
+
+	for (std::list<Colliders*>::iterator iteratorA = colliders.begin();
+		iteratorA != colliders.end(); iteratorA++) {
+
+		//球接触判定
+		std::vector<SphereCollider> sphereColliderA = (*iteratorA)->GetSphereColliders();
+
+		for (std::list<Colliders*>::iterator iteratorB = iteratorA;
+			iteratorB != colliders.end(); iteratorB++) {
 
 			if (iteratorA == iteratorB)continue;
 
-			uint8_t idA = (*iteratorA)->GetID(), idB = (*iteratorB)->GetID();
+			//球接触判定
+			std::vector<SphereCollider> sphereColliderB = (*iteratorB)->GetSphereColliders();
 
-			//プレイヤー側と敵側の場合
-			if ((idA & 0b01 && idB & 0b10) ||
-				(idA & 0b10 && idB & 0b01)) {
-				
-				if ((*iteratorA)->GetInvincible() || (*iteratorB)->GetInvincible())continue;
+			if (sphereColliderA.size() > 0 && sphereColliderB.size() > 0) {
+				for (int a = 0; a < sphereColliderA.size(); a++) {
+					for (int b = 0; b < sphereColliderB.size(); b++) {
 
-				//どちらかがキャラクターの場合
-				if (idA & 0b100 || idB & 0b100) {
-					if (Length((*iteratorA)->GetSphere().center - (*iteratorB)->GetSphere().center) <=
-						((*iteratorA)->GetSphere().radius + (*iteratorB)->GetSphere().radius)) {
-						(*iteratorA)->IsCollision();
-						(*iteratorB)->IsCollision();
-					}
-				}
-			//プレイヤー側とアイテムの場合
-			} else if (idA & 0b01 && idB & 0b00) {
-				//プレイヤーがアイテムを取得
-				if (idA == CollisionID_Player_Character && idB == CollisionID_Item_Bullet) {
-					if (Length((*iteratorA)->GetSphere().center - (*iteratorB)->GetSphere().center) <=
-						((*iteratorA)->GetSphere().radius + (*iteratorB)->GetSphere().radius)) {
-						(*iteratorB)->IsCollision();
-					}
-				}
-				//プレイヤー弾がボックスを破壊
-				if (idA == CollisionID_Player_Bullet && idB == CollisionID_Item_Character) {
-					if (Length((*iteratorA)->GetSphere().center - (*iteratorB)->GetSphere().center) <=
-						((*iteratorA)->GetSphere().radius + (*iteratorB)->GetSphere().radius)) {
-						(*iteratorA)->IsCollision();
-						(*iteratorB)->IsCollision();
-					}
-				}
-			} else if (idA & 0b00 && idB & 0b01) {
-				//プレイヤーがアイテムを取得
-				if (idA == CollisionID_Item_Bullet && idB == CollisionID_Player_Character) {
-					if (Length((*iteratorA)->GetSphere().center - (*iteratorB)->GetSphere().center) <=
-						((*iteratorA)->GetSphere().radius + (*iteratorB)->GetSphere().radius)) {
-						(*iteratorA)->IsCollision();
-					}
-				}
-				//プレイヤー弾がボックスを破壊
-				if (idA == CollisionID_Item_Character && idB == CollisionID_Player_Bullet) {
-					if (Length((*iteratorA)->GetSphere().center - (*iteratorB)->GetSphere().center) <=
-						((*iteratorA)->GetSphere().radius + (*iteratorB)->GetSphere().radius)) {
-						(*iteratorA)->IsCollision();
-						(*iteratorB)->IsCollision();
-					}
-				}
-			}
+						//同一のグループの属するなら抜ける
+						if (sphereColliderA[a].sourceId_ & 0b01 && sphereColliderB[b].targetId_ & 0b01 ||
+							sphereColliderA[a].sourceId_ & 0b10 && sphereColliderB[b].targetId_ & 0b10 ||
+							sphereColliderA[a].sourceId_ & 0b00 && sphereColliderB[b].targetId_ & 0b00) {
+							continue;
+						}
 
-			//キャラクター同士の場合
-			if (idA & 0b100 && idB & 0b100) {
+						// A->B
+						if (!(sphereColliderA[a].sourceId_ & 0b100) && sphereColliderB[b].targetId_ & 0b100) {
+							if (IsCollision(sphereColliderA[a].colliderSphere_, sphereColliderB[b].colliderSphere_)) {
+								(*iteratorB)->IsCollision(sphereColliderA[a].sourceId_);
+							}
+						}
+						// B->A
+						if (!(sphereColliderB[b].sourceId_ & 0b100) && sphereColliderA[a].targetId_ & 0b100) {
+							if (IsCollision(sphereColliderA[a].colliderSphere_, sphereColliderB[b].colliderSphere_)) {
+								(*iteratorA)->IsCollision(sphereColliderB[b].sourceId_);
+							}
+						}
 
-				if (Length((*iteratorA)->GetSphere().center - (*iteratorB)->GetSphere().center) <=
-					((*iteratorA)->GetSphere().radius + (*iteratorB)->GetSphere().radius)) {
-					
+
+					}
 				}
 			}
 		}
-	}
 
+
+		for (int a = 0; a < sphereColliderA.size(); a++) {
+			for (int i = 0; i < obbCollider.size(); i++) {
+				if (IsCollision(obbCollider[i].colliderOBB_, (sphereColliderA[a].colliderSphere_))) {
+					(*iteratorA)->IsCollision(0b100);
+				}
+			}
+
+		}
+	}
 }
 
 void GameScene::AddPlayerBullet(Vector3 translate, Vector3 rotate) {

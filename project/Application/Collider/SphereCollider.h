@@ -1,17 +1,19 @@
 #pragma once
 #include "CollisionID.h"
 #include "Shape/Sphere.h"
+#include <Matrix4x4.h>
 #include <stdint.h>
+#include <memory>
 
-class SphereCollider {
-protected:
-	bool invincible_ = false;
-	float radius_;
-	Sphere sphere_;
-	uint8_t id_;
-public:
-	virtual void IsCollision() {}
-	Sphere GetSphere() { return sphere_; }
-	uint8_t GetID() { return id_; }
-	bool GetInvincible() { return invincible_; }
+struct SphereCollider {
+	//ローカル座標
+	Sphere localSphere_;
+	//ペアレント座標
+	std::shared_ptr<Matrix4x4> parentMatrix_;
+	//接触範囲
+	Sphere colliderSphere_;
+	//自分->相手
+	uint8_t sourceId_;
+	//相手->自分
+	uint8_t targetId_;
 };

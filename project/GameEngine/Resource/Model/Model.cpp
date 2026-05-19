@@ -66,7 +66,8 @@ void Model::Initialize(const std::string& directoryPath, const std::string& file
 		bone.localMatrix = bone.node.lock()->localMatrix;
 	}
 	for (Bone& bone : modelData_.bones) {
-		bone.finalMatrix = Inverse(modelData_.rootNode->localMatrix) * bone.offsetMatrix * SetWorldMatrix(modelData_.rootNode, modelData_.bones, bone);
+		bone.finalMatrix = std::make_shared<Matrix4x4>();
+		*bone.finalMatrix = Inverse(modelData_.rootNode->localMatrix) * bone.offsetMatrix * SetWorldMatrix(modelData_.rootNode, modelData_.bones, bone);
 	}
 }
 
@@ -82,7 +83,7 @@ void Model::BoneAnimation(std::vector<Bone>& bones, float time, UINT animationIn
 
 	//ワールド座標
 	for (Bone& bone : bones) {
-		bone.finalMatrix = bone.offsetMatrix * SetWorldMatrix(modelData_.rootNode, bones, bone);
+		*bone.finalMatrix = bone.offsetMatrix * SetWorldMatrix(modelData_.rootNode, bones, bone);
 	}
 
 }

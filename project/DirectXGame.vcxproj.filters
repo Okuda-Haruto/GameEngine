@@ -229,11 +229,14 @@
     <ClCompile Include="GameEngine\Modules\Animation\Animation.cpp">
       <Filter>GameEngine\Modules\Animation</Filter>
     </ClCompile>
-    <ClCompile Include="ColliderObject.cpp">
+    <ClCompile Include="Application\ColliderObject\ColliderObject.cpp">
       <Filter>Application\ColiderObject</Filter>
     </ClCompile>
     <ClCompile Include="GameEngine\Modules\PrimitiveManager\PrimitiveBox.cpp">
       <Filter>GameEngine\Modules\PrimitiveManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Collider\Colliders.cpp">
+      <Filter>Application\Collider</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -558,7 +561,7 @@
     <ClInclude Include="GameEngine\Math\Shape\Circle.h">
       <Filter>GameEngine\Math\Shape</Filter>
     </ClInclude>
-    <ClInclude Include="ColliderObject.h">
+    <ClInclude Include="Application\ColliderObject\ColliderObject.h">
       <Filter>Application\ColiderObject</Filter>
     </ClInclude>
     <ClInclude Include="Application\Collider\CollisionID.h">
@@ -572,6 +575,9 @@
     </ClInclude>
     <ClInclude Include="GameEngine\Modules\PrimitiveManager\PrimitiveBox.h">
       <Filter>GameEngine\Modules\PrimitiveManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Collider\Collider.h">
+      <Filter>Application\Collider</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

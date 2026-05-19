@@ -387,7 +387,7 @@ void GameEngine::DrawObject_3D_(Object* object, shared_ptr<DirectionalLight> dir
 		std::vector<Bone> bones = object->GetBones();
 		for (int i = 0; i < bones.size(); i++) {
 			if (i > 128)break;
-			objectBoneData_[objectIndex_]->matrix[i] = bones[i].finalMatrix;
+			objectBoneData_[objectIndex_]->matrix[i] = *bones[i].finalMatrix;
 		}
 
 		objectBoneResource_[objectIndex_]->Unmap(0,nullptr);
@@ -488,7 +488,7 @@ void GameEngine::DrawParts_3D_(Object* object, uint32_t partsIndex, shared_ptr<D
 	std::vector<Bone> bones = object->GetBones();
 	for (int i = 0; i < bones.size(); i++) {
 		if (i > 128)break;
-		objectBoneData_[objectIndex_]->matrix[i] = bones[i].finalMatrix;
+		objectBoneData_[objectIndex_]->matrix[i] = *bones[i].finalMatrix;
 	}
 
 	objectBoneResource_[objectIndex_]->Unmap(0, nullptr);
@@ -588,7 +588,7 @@ void GameEngine::DrawObject_2D_(Object* object, shared_ptr<DirectionalLight> dir
 		std::vector<Bone> bones = object->GetBones();
 		for (int i = 0; i < bones.size(); i++) {
 			if (i > 128)break;
-			objectBoneData_[objectIndex_]->matrix[i] = bones[i].finalMatrix;
+			objectBoneData_[objectIndex_]->matrix[i] = *bones[i].finalMatrix;
 		}
 
 		objectBoneResource_[objectIndex_]->Unmap(0, nullptr);
@@ -683,7 +683,7 @@ void GameEngine::DrawParts_2D_(Object* object, uint32_t partsIndex, shared_ptr<D
 	std::vector<Bone> bones = object->GetBones();
 	for (int i = 0; i < bones.size(); i++) {
 		if (i > 128)break;
-		objectBoneData_[objectIndex_]->matrix[i] = bones[i].finalMatrix;
+		objectBoneData_[objectIndex_]->matrix[i] = *bones[i].finalMatrix;
 	}
 
 	objectBoneResource_[objectIndex_]->Unmap(0, nullptr);
@@ -771,7 +771,7 @@ void GameEngine::DrawInstancingObject_3D_(std::list<Object*> objects, shared_ptr
 	instancingObjectBoneResource_[instancingObjectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&instancingObjectBoneData_));
 	std::vector<Bone> bones = (*objectIterator)->GetBones();
 	for (int i = 0; i < bones.size(); i++) {
-		instancingObjectBoneData_[instancingObjectIndex_]->matrix[i] = bones[i].finalMatrix;
+		instancingObjectBoneData_[instancingObjectIndex_]->matrix[i] = *bones[i].finalMatrix;
 	}
 	instancingObjectBoneResource_[instancingObjectIndex_]->Unmap(0, nullptr);
 	commandList_->SetGraphicsRootConstantBufferView(7, instancingObjectBoneResource_[instancingObjectIndex_]->GetGPUVirtualAddress());
