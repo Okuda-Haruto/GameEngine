@@ -20,7 +20,7 @@ PixelShaderOutput ChangeGrayScale(float4 color, float intensity)
 {
     PixelShaderOutput output;
     
-    float gray = dot(color.rgb, float3(0.299, 0.587, 0.114));
+    float gray = dot(color.rgb, float3(0.2125f, 0.7154f, 0.0721f));
     
     float3 finalColor = lerp(color.rgb, gray, intensity);
     

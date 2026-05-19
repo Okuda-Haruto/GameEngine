@@ -49,6 +49,9 @@
     <FxCompile Include="resources\Shader\Cubemap.PS.hlsl">
       <Filter>GameEngine\Shader</Filter>
     </FxCompile>
+    <FxCompile Include="resources\Shader\ColorChange.PS.hlsl">
+      <Filter>GameEngine\Shader</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -578,6 +581,9 @@
     </ClInclude>
     <ClInclude Include="Application\Collider\Collider.h">
       <Filter>Application\Collider</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Data\ColorChange.h">
+      <Filter>GameEngine\Data</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
