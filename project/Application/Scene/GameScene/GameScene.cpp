@@ -418,61 +418,72 @@ void GameScene::Update() {
 #endif
 
 	colliderObject_->Update();
-}
 
-void GameScene::Draw() {
+	//セピア調にする範囲
+	GameEngine::RenderPreDraw("render");
+
 	//背景
 	skydome_->Draw();
 	ground_->Draw();
 
-	//プレイヤー
+	//ボス
 	boss_->Draw();
 
+	//弾
 	for (auto& bullet : playerBullet_) {
 		bullet->Draw();
 	}
-
 	for (auto& bullet : bossBullet_) {
 		bullet->Draw();
 	}
 
+	//プレイヤー
 	player_->Draw();
 
+	//障害物
 	colliderObject_->Draw();
 
+	//背景オブジェクト
 	for (auto& BG : backGrouds_) {
 		BG->Draw();
 	}
-
 	tumbleweed_->Draw();
-
 	fence_->Draw();
 
-
-
+	//パーティクル
 	editor_->Draw();
 	editor_2->Draw();
 	editor_3->Draw();
 	editor_4->Draw();
 
+	GameEngine::RenderPostDraw();
 
+}
 
+void GameScene::Draw() {
+	
+	GameEngine::DrawScreen("render", ColorChange::COLORMODE_SEPIATONE, gameCamera_->GetSepiaTone());
+
+	//シリンダー
 	int32_t remainingRounds = player_->GetRemainingRounds();
 	std::vector<Parts> parts = cylinder_->GetParts();
-	for (int32_t i = 1; i <= 6;i++) {
+	for (int32_t i = 1; i <= 6; i++) {
 		if (remainingRounds >= i) {
 			parts[i].material->color = { 1.0f,1.0f,1.0f,1.0f };
-		} else {
+		}
+		else {
 			parts[i].material->color = { 1.0f,1.0f,1.0f,0.0f };
 		}
 		cylinder_->SetParts(parts[i], i);
 	}
 	cylinder_->Draw2D();
 
+	//HUD
 	for (auto& sprite : sprite_) {
 		sprite->Draw2D();
 	}
 
+	//体力(ハット)
 	for (int32_t i = 0; i < player_->GetHP();i++) {
 		SRT transform = hatTransform_;
 		transform.translate.x += i * hatTransform_.scale.x * 2;
@@ -480,6 +491,7 @@ void GameScene::Draw() {
 		hat_->Draw2D();
 	}
 
+	//フェード
 	if (fade_ != Fade::None) {
 		fadeSprite_->Draw2D();
 	}

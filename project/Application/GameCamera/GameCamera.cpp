@@ -169,4 +169,7 @@ void GameCamera::Update() {
 		transform_->rotate = eventTransform_.rotate * (1.0f - powf(1.0f - eventShiftTime_ / kMaxEventShiftTime, 2))
 			+ transform_->rotate * (1.0f - (1.0f - powf(1.0f - eventShiftTime_ / kMaxEventShiftTime, 2)));
 	}
+
+
+	sepiaTone_ = eventShiftTime_ / kMaxEventShiftTime;
 }

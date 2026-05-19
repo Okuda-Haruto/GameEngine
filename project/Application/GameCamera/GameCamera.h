@@ -20,6 +20,9 @@ private:
 
 	float shakeTime_ = 0.0f;
 
+	//セピア調の強さ
+	float sepiaTone_ = 0.0f;
+
 	shared_ptr<SRT> transform_;
 	SRT lockonTransform_;
 	SRT normalTransform_;
@@ -66,4 +69,6 @@ public:
 
 	void SetIsTargeted(bool isTargeted) { isTargeted_ = isTargeted; }
 	void SetMoveVelocity(float velocity) { if(fabsf(velocity) > 0.5f)velocity_ = velocity; }
+
+	float GetSepiaTone() { return sepiaTone_; }
 };
