@@ -70,6 +70,7 @@ void TextureManager::LoadTexture(const std::string& filePath) {
 
 	dxCommon_->UploadTextureData(textureData.resource.Get(), mipImages);
 
+	textureData.rtvIndex = -1;
 	textureData.srvIndex = srvManager_->Allocate();
 	textureData.srvHandleCPU = srvManager_->GetCPUDescriptorHandle(textureData.srvIndex);
 	textureData.srvHandleGPU = srvManager_->GetGPUDescriptorHandle(textureData.srvIndex);
@@ -95,10 +96,10 @@ void TextureManager::MakeRenderTexture(const std::string& renderName) {
 
 	//textureData.metadata = mipImages.GetMetadata();
 	const Vector4 kRenderTargetClearValue{ 1.0f,0.0f,0.0f,1.0f };	//いったんわかりやすいように赤
-	textureData.resource = dxCommon_->CreateRenderTextureResource(1280,720,DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,kRenderTargetClearValue);
+	DirectXCommon::RTVResource rtvResource = dxCommon_->CreateRenderTextureResource(1280, 720, DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, kRenderTargetClearValue);
+	textureData.resource = rtvResource.resource;
 
-	//dxCommon_->UploadTextureData(textureData.resource.Get(), mipImages);
-
+	textureData.rtvIndex = rtvResource.rtvIndex;
 	textureData.srvIndex = srvManager_->Allocate();
 	textureData.srvHandleCPU = srvManager_->GetCPUDescriptorHandle(textureData.srvIndex);
 	textureData.srvHandleGPU = srvManager_->GetGPUDescriptorHandle(textureData.srvIndex);
@@ -122,6 +123,21 @@ uint32_t TextureManager::GetSrvIndex(const std::string& filePath) {
 	if (textureDatas.contains(filePath)) {
 		//読み込み済みなら要素番号を返す
 		uint32_t textureIndex = textureDatas[filePath].srvIndex;
+		return textureIndex;
+	}
+
+	assert(0);
+	return 0;
+}
+
+uint32_t TextureManager::GetRtvIndex(const std::string& filePath) {
+	//読み込み済みテクスチャを検索
+	if (textureDatas.contains(filePath)) {
+		//読み込み済みなら要素番号を返す
+		uint32_t textureIndex = textureDatas[filePath].rtvIndex;
+		//レンダーテクスチャ以外ははじく
+		assert(textureIndex != -1);
+
 		return textureIndex;
 	}
 

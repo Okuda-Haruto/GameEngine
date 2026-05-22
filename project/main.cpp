@@ -9,6 +9,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	GameEngine::Initialize(L"LE2A_03_オクダ_ハルト_GunKid", 1280, 720);
 
 	TextureManager::GetInstance()->MakeRenderTexture("render");
+	TextureManager::GetInstance()->MakeRenderTexture("ColorChange");
+	TextureManager::GetInstance()->MakeRenderTexture("BoxFilter");
+	TextureManager::GetInstance()->MakeRenderTexture("Vignette");
 
 	//unique_ptr<SampleScene> gameManager = make_unique<SampleScene>();
 	unique_ptr<GameManager> gameManager = make_unique<GameManager>();

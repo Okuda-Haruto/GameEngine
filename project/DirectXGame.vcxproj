@@ -147,6 +147,7 @@
     <ClInclude Include="GameEngine\Data\AnimationData.h" />
     <ClInclude Include="GameEngine\Data\AnimationInterpolation.h" />
     <ClInclude Include="GameEngine\Data\Bone.h" />
+    <ClInclude Include="GameEngine\Data\BoxFilterData.h" />
     <ClInclude Include="GameEngine\Data\CameraForGPU.h" />
     <ClInclude Include="GameEngine\Data\ColorChange.h" />
     <ClInclude Include="GameEngine\Data\Emitter.h" />
@@ -165,6 +166,7 @@
     <ClInclude Include="GameEngine\Data\SpotLightElement.h" />
     <ClInclude Include="GameEngine\Data\TransformationMatrix.h" />
     <ClInclude Include="GameEngine\Data\VertexData.h" />
+    <ClInclude Include="GameEngine\Data\VignetteData.h" />
     <ClInclude Include="GameEngine\DebugTool\ImGuiManager\ImGuiManager.h" />
     <ClInclude Include="GameEngine\Editor\ParticleEditor\ParticleEditor.h" />
     <ClInclude Include="GameEngine\Factory\AbstractSceneFactory\AbstractSceneFactory.h" />
@@ -246,6 +248,14 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="resources\Shader\BoxFilter.PS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Development|x64'">Pixel</ShaderType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
     <FxCompile Include="resources\Shader\ColorChange.PS.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
@@ -360,6 +370,14 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Development|x64'">Vertex</ShaderType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="resources\Shader\Vignette.PS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Development|x64'">Pixel</ShaderType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>

@@ -571,16 +571,7 @@ void SampleScene::Update() {
 	gltfs_[gltfIndex_]->Update();
 #endif
 
-
-}
-
-void SampleScene::Draw() {
-
-	//描画処理
-
-	//grid_->Draw(GameEngine::GetCommandList());
-
-	//axis_->Draw(GameEngine::GetCommandList());
+	GameEngine::RenderPreDraw("render");
 
 	skybox_->Draw();
 
@@ -601,5 +592,33 @@ void SampleScene::Draw() {
 			}
 		}
 	}
+
+	GameEngine::RenderPostDraw();
+
+
+
+	GameEngine::RenderPreDraw("BoxFilter");
+
+	BoxFilterData data;
+	data.scale = 5;
+
+	GameEngine::DrawScreen("render", data);
+
+	GameEngine::RenderPostDraw();
+}
+
+void SampleScene::Draw() {
+
+	//描画処理
+
+	//grid_->Draw(GameEngine::GetCommandList());
+
+	//axis_->Draw(GameEngine::GetCommandList());
+	
+	VignetteData data;
+	data.vignetteIntensity = 16.0f;
+	data.vignetteCurve = 6.0f;
+
+	GameEngine::DrawScreen("BoxFilter", data);
 
 }

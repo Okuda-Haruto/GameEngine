@@ -145,6 +145,8 @@ void GameScene::Initialize(shared_ptr<Input> input) {
 	PlayerBullet::SetCamera(gameCamera_->GetCamera());
 	BossBullet::SetCamera(gameCamera_->GetCamera());
 
+	boxFilterData_.scale = 5;
+
 	directionalLight_ = std::make_unique<DirectionalLight>();
 	directionalLight_->Initialize(GameEngine::GetDirectXCommon());
 	directionalLightElement_.color = Vector4{ 1.0f,1.0f,1.0f,1.0f };
@@ -268,6 +270,7 @@ void GameScene::Update() {
 	if (fadeTime_ < kMaxFadeTime) {
 		fadeTime_ += 1.0f / 60.0f;
 	}
+	boxFilterData_.scale = int(30 * (1.0f - (fadeTime_ / kMaxFadeTime))) + 1;
 
 	if (fade_ == Fade::FadeIn && fadeTime_ >= kMaxFadeTime) {
 		fade_ = Fade::None;
@@ -455,14 +458,6 @@ void GameScene::Update() {
 	editor_3->Draw();
 	editor_4->Draw();
 
-	GameEngine::RenderPostDraw();
-
-}
-
-void GameScene::Draw() {
-	
-	GameEngine::DrawScreen("render", ColorChange::COLORMODE_SEPIATONE, gameCamera_->GetSepiaTone());
-
 	//シリンダー
 	int32_t remainingRounds = player_->GetRemainingRounds();
 	std::vector<Parts> parts = cylinder_->GetParts();
@@ -483,7 +478,7 @@ void GameScene::Draw() {
 	}
 
 	//体力(ハット)
-	for (int32_t i = 0; i < player_->GetHP();i++) {
+	for (int32_t i = 0; i < player_->GetHP(); i++) {
 		SRT transform = hatTransform_;
 		transform.translate.x += i * hatTransform_.scale.x * 2;
 		hat_->SetTransform(transform);
@@ -494,6 +489,30 @@ void GameScene::Draw() {
 	if (fade_ != Fade::None) {
 		fadeSprite_->Draw2D();
 	}
+
+	GameEngine::RenderPostDraw();
+
+	GameEngine::RenderPreDraw("ColorChange");
+
+	GameEngine::DrawScreen("render", ColorChange::COLORMODE_SEPIATONE, gameCamera_->GetSepiaTone());
+
+	GameEngine::RenderPostDraw();
+
+	GameEngine::RenderPreDraw("BoxFilter");
+
+	GameEngine::DrawScreen("ColorChange", boxFilterData_);
+
+	GameEngine::RenderPostDraw();
+
+}
+
+void GameScene::Draw() {
+
+	VignetteData data;
+	data.vignetteIntensity = 16.0f;
+	data.vignetteCurve = 0.2f;
+	
+	GameEngine::DrawScreen("BoxFilter", data);
 }
 
 void GameScene::Collision() {

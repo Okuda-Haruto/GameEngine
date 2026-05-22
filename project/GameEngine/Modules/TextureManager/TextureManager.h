@@ -24,6 +24,7 @@ private:
 		DirectX::TexMetadata metadata;
 		Microsoft::WRL::ComPtr<ID3D12Resource> resource;
 		int32_t srvIndex;
+		int32_t rtvIndex = -1;
 		D3D12_CPU_DESCRIPTOR_HANDLE srvHandleCPU;
 		D3D12_GPU_DESCRIPTOR_HANDLE srvHandleGPU;
 	};
@@ -56,8 +57,10 @@ public:
 
 	//メタデータを取得
 	const DirectX::TexMetadata& GetMetaData(const std::string& filePath);
-	//SRVインデクスの取得
+	//SRVインデックスの取得
 	uint32_t GetSrvIndex(const std::string& filePath);
+	//RTVインデックスの取得
+	uint32_t GetRtvIndex(const std::string& filePath);
 	//リソースの取得
 	ID3D12Resource* GetResource(const std::string& renderName);
 	//GPUハンドルの取得

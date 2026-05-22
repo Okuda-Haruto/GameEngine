@@ -11,6 +11,7 @@
 #include "Character/Player/Player.h"
 #include "Character/Boss/Boss.h"
 #include <ColliderObject/ColliderObject.h>
+#include <BoxFilterData.h>
 
 #include "Sprite/Sprite.h"
 #include "Editor/ParticleEditor/ParticleEditor.h"
@@ -28,6 +29,8 @@ private:
 
 	//メインカメラ
 	std::unique_ptr<GameCamera> gameCamera_;
+	BoxFilterData boxFilterData_;
+
 	//背景
 	std::unique_ptr<Skydome> skydome_;
 	std::unique_ptr<Ground> ground_;
