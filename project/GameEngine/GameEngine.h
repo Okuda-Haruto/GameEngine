@@ -21,6 +21,8 @@
 #include "BoneMatrix.h"
 #include "Fog.h"
 #include "ColorChange.h"
+#include <VignetteData.h>
+#include <BoxFilterData.h>
 
 #include <Audio/Audio.h>
 #include "Input/Input.h"
@@ -74,6 +76,7 @@ private:
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> particle_RootSignature_;
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> screen_RootSignature_;
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> screen_ColorChange_RootSignature_;
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> screen_Vignette_RootSignature_;
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> cubemap_RootSignature_ = nullptr;
 
 	//Windowのメッセージ
@@ -91,6 +94,8 @@ private:
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> line_NoDepth_PipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> screen_PipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> screen_ColorChange_PipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> screen_Vignette_PipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> screen_BoxFilter_PipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> cubemap_PipelineState_ = nullptr;
 
 public:
@@ -187,6 +192,10 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> colorChangeStateResource_;
 	ColorChange::ColorChangeState* colorChangeStateData_;
+	Microsoft::WRL::ComPtr<ID3D12Resource> vignetteResource_;
+	VignetteData* vignetteData_;
+	Microsoft::WRL::ComPtr<ID3D12Resource> boxFilterResource_;
+	BoxFilterData* boxFilterData_;
 	
 	//XAudio2インスタンス
 	Microsoft::WRL::ComPtr<IXAudio2> xAudio2_;
@@ -225,6 +234,8 @@ private:
 
 	void DrawScreen_(std::string textureName);
 	void DrawScreen_(std::string textureName, ColorChange::ColorMode colorMode, float intensity);
+	void DrawScreen_(std::string textureName, VignetteData data);
+	void DrawScreen_(std::string textureName, BoxFilterData data);
 
 	void DrawLine_(std::list<Primitive3DManager::PrimitiveLine> lines, Primitive3DManager::PrimitiveResource primitiveResource);
 	void DrawPoint_(std::list<Primitive3DManager::PrimitivePoint> points, Primitive3DManager::PrimitiveResource primitiveResource);
@@ -318,6 +329,8 @@ public:
 
 	static void DrawScreen(std::string textureName) { return GetInstance()->DrawScreen_(textureName); }
 	static void DrawScreen(std::string textureName, ColorChange::ColorMode colorMode, float intensity) { return GetInstance()->DrawScreen_(textureName, colorMode, intensity); };
+	static void DrawScreen(std::string textureName, VignetteData data) { return GetInstance()->DrawScreen_(textureName, data); }
+	static void DrawScreen(std::string textureName, BoxFilterData data) { return GetInstance()->DrawScreen_(textureName, data); }
 
 	static void DrawLine(std::list<Primitive3DManager::PrimitiveLine> lines, Primitive3DManager::PrimitiveResource primitiveResource) { return GetInstance()->DrawLine_(lines, primitiveResource); }
 	static void DrawPoint(std::list<Primitive3DManager::PrimitivePoint> points, Primitive3DManager::PrimitiveResource primitiveResource) { return GetInstance()->DrawPoint_(points, primitiveResource); }

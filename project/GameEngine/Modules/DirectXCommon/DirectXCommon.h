@@ -22,9 +22,15 @@ public:
 	//スワップチェーンで使うRTVデスクリプタサイズ
 	static const uint32_t kSwapChainDescriptorSize_ = 2;
 	//オフスクリーンレンダリングで使うRTVデスクリプタサイズ
-	static const uint32_t kOffscreenDescriptorSize_ = 1;
+	static const uint32_t kOffscreenDescriptorSize_ = 10;
 	//全体RTVデスクリプタサイズ
-	static const uint32_t kRTVHandleSize_ = 3;
+	static const uint32_t kRTVHandleSize_ = 12;
+
+	struct RTVResource {
+		uint32_t rtvIndex;
+		Microsoft::WRL::ComPtr<ID3D12Resource> resource;
+	};
+
 private:
 	//WindowsAPI
 	WindowsAPI* winApp_ = nullptr;
@@ -102,6 +108,9 @@ private:
 	//1fあたりの経過時間
 	float deltaTime_;
 
+	//レンダリングで使用しているRTVインデックス
+	uint32_t renderDescriptorIndex_ = 0;
+
 public:
 
 	~DirectXCommon();
@@ -127,6 +136,7 @@ public:
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> Fog_RootSignatureInitialvalue();
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> Screen_RootSignatureInitialvalue();
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> Screen_ColorChange_RootSignatureInitialvalue();
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> Screen_Vignette_RootSignatureInitialvalue();
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> Cubemap_RootSignatureInitialvalue();
 
 	//シェーダーのコンパイル
@@ -136,7 +146,7 @@ public:
 	//テクスチャリソースの生成
 	Microsoft::WRL::ComPtr<ID3D12Resource> CreateTextureResource(const DirectX::TexMetadata& metadata);
 	//レンダーテクスチャリソースの生成
-	Microsoft::WRL::ComPtr<ID3D12Resource> CreateRenderTextureResource(uint32_t width,uint32_t height,DXGI_FORMAT format, const Vector4 clearColor);
+	RTVResource CreateRenderTextureResource(uint32_t width,uint32_t height,DXGI_FORMAT format, const Vector4 clearColor);
 	//テクスチャデータの転送
 	void UploadTextureData(ID3D12Resource* texture, const DirectX::ScratchImage& mipImages);
 

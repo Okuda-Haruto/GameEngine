@@ -52,6 +52,12 @@
     <FxCompile Include="resources\Shader\ColorChange.PS.hlsl">
       <Filter>GameEngine\Shader</Filter>
     </FxCompile>
+    <FxCompile Include="resources\Shader\Vignette.PS.hlsl">
+      <Filter>GameEngine\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="resources\Shader\BoxFilter.PS.hlsl">
+      <Filter>GameEngine\Shader</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -583,6 +589,12 @@
       <Filter>Application\Collider</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\Data\ColorChange.h">
+      <Filter>GameEngine\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Data\VignetteData.h">
+      <Filter>GameEngine\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Data\BoxFilterData.h">
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
   </ItemGroup>

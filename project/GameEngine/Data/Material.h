@@ -1,7 +1,6 @@
 #pragma once
 #include "Vector4.h"
 #include "Matrix4x4.h"
-#include <format>
 
 enum REFLECTION {
 	REFLECTION_None,		//反射しない
