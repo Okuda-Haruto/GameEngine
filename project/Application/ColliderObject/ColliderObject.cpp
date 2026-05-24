@@ -21,7 +21,7 @@ void ColliderObject::Initialize(std::shared_ptr<Model> model, SRT transform) {
 	obb.orientations[2] = { 0,0,1 };
 	obb.size = transform.scale;
 
-	colliders_->AddOBBCollider(obb, 0b100, 0b100, colliderParent_);
+	colliders_->AddOBBCollider(obb, CollisionID_Anything_Body, CollisionID_Anything_Body, colliderParent_);
 	colliders_->Update();
 }
 

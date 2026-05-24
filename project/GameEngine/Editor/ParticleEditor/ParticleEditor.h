@@ -8,6 +8,8 @@ private:
 	ParticleEmitter* particleEmitter_;
 	Emitter emitter_;
 	AccelerationField field_;
+
+	SRT transform_;
 public:
 	void Initialize(ParticleEmitter* particleEmitter);
 
@@ -19,4 +21,6 @@ public:
 	void SetEmitter(Emitter emitter) { emitter_ = emitter; }
 	AccelerationField GetField() { return field_; }
 	void SetField(AccelerationField field) { field_ = field; }
+	SRT GetTransform() { return transform_; }
+	void SetTransform(SRT transform) { transform_ = transform; }
 };

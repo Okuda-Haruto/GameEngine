@@ -18,8 +18,9 @@ struct ParticleGroup {
 	std::string TextureFilePath;
 	uint32_t textureIndex = 0;// テクスチャ番号
 	Emitter emitter;
-	AccelerationField accelerationField;
+	std::vector<AccelerationField> accelerationFields;
 	std::list<Particle> particles;
+	std::shared_ptr<Camera> camera;
 	uint32_t instancingIndex = 0;
 	Microsoft::WRL::ComPtr<ID3D12Resource> instancingResource;
 	uint32_t numInstance = 0;
@@ -48,8 +49,6 @@ private:
 	//インデックスデータ
 	uint32_t* indexData_ = nullptr;
 
-	shared_ptr<Camera> camera_;
-
 	std::unordered_map<std::string, ParticleGroup> particleGroups;
 
 	//メタデータ
@@ -76,12 +75,11 @@ public:
 
 	void CreateParticleGroup(const std::string name, const std::string textureFilePath);
 
-	void Emit(const std::string name, uint32_t count);
+	void Emit(const std::string name, SRT transform, uint32_t count);
 
 	void SetEmitter(const std::string name, Emitter emitter);
 	void SetField(const std::string name, AccelerationField accelerationField);
-
-	void SetCamera(shared_ptr<Camera> camera) { camera_ = camera; }
+	void SetCamera(const std::string name, std::shared_ptr<Camera> camera);
 
 	std::unordered_map<std::string, ParticleGroup> GetParticleGroups() { return particleGroups; }
 

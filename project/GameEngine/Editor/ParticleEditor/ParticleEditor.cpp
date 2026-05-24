@@ -6,11 +6,9 @@
 void ParticleEditor::Initialize(ParticleEmitter* particleEmitter) {
 	particleEmitter_ = particleEmitter;
 
-	emitter_.transform.scale = { 1.0f,1.0f,1.0f };
-	emitter_.transform.translate = { 0.0f,0.0f,0.0f };
 	emitter_.spawnRange.min = { -0.5f,-0.5f,-0.5f };
 	emitter_.spawnRange.max = { 0.5f,0.5f,0.5f };
-	emitter_.angleBase = {-1.0f,0.0f,0.0f};
+	emitter_.angleBase = { -1.0f,0.0f,0.0f };
 	emitter_.angleRange = {0.0f,0.0f,0.0f};	//方向範囲
 	emitter_.speedBase = 0.4f;	//基礎速度
 	emitter_.speedRange = 0.2f;	//速度範囲
@@ -25,6 +23,8 @@ void ParticleEditor::Initialize(ParticleEmitter* particleEmitter) {
 	field_.area.max = { 0.5f,0.5f,0.5f };
 	field_.acceleration = { 0.0f,0.0f,0.0f };
 	ParticleManager::GetInstance()->SetField(particleEmitter_->GetName(), field_);
+
+	transform_ = { {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
 }
 
 void ParticleEditor::Update() {
@@ -37,11 +37,11 @@ void ParticleEditor::Update() {
 		ImGui::DragFloat("Emitter LifeTime", &emitter_.lifeTime, 0.01f, 0.0f, 10.0f);
 		ImGui::DragFloat("Emitter Frequency", &emitter_.frequency, 0.01f, 0.0f, 10.0f);
 		if (ImGui::CollapsingHeader("Transform")) {
-			ImGui::DragFloat3("Emitter Transform Scale", &emitter_.transform.scale.x, 0.01f, 0.01f, 10.0f);
-			ImGui::SliderAngle("Emitter Transform RotateX", &emitter_.transform.rotate.x, 0.0f, 360.0f);
-			ImGui::SliderAngle("Emitter Transform RotateY", &emitter_.transform.rotate.y, 0.0f, 360.0f);
-			ImGui::SliderAngle("Emitter Transform RotateZ", &emitter_.transform.rotate.z, 0.0f, 360.0f);
-			ImGui::DragFloat3("Emitter Transform Translate", &emitter_.transform.translate.x, 0.01f);
+			ImGui::DragFloat3("Emitter Transform Scale", &transform_.scale.x, 0.01f, 0.01f, 10.0f);
+			ImGui::SliderAngle("Emitter Transform RotateX", &transform_.rotate.x, 0.0f, 360.0f);
+			ImGui::SliderAngle("Emitter Transform RotateY", &transform_.rotate.y, 0.0f, 360.0f);
+			ImGui::SliderAngle("Emitter Transform RotateZ", &transform_.rotate.z, 0.0f, 360.0f);
+			ImGui::DragFloat3("Emitter Transform Translate", &transform_.translate.x, 0.01f);
 		}
 		if (ImGui::CollapsingHeader("SpawnRange")) {
 			ImGui::DragFloat3("Emitter SpawnRange Min", &emitter_.spawnRange.min.x, 0.01f);
@@ -85,19 +85,20 @@ void ParticleEditor::Update() {
 
 	particleEmitter_->SetEmitter(emitter_);
 	particleEmitter_->SetField(field_);
+	particleEmitter_->SetTransform(transform_);
 
 	particleEmitter_->Update();
 }
 
 void ParticleEditor::Draw() {
 #ifdef USE_IMGUI
-	Primitive3DManager::GetInstance()->AddPoint(emitter_.transform.translate);
+	Primitive3DManager::GetInstance()->AddPoint(transform_.translate);
 	AABB aabb = emitter_.spawnRange;
-	aabb.min = emitter_.spawnRange.min + emitter_.transform.translate;
-	aabb.max = emitter_.spawnRange.max + emitter_.transform.translate;
+	aabb.min = emitter_.spawnRange.min + transform_.translate;
+	aabb.max = emitter_.spawnRange.max + transform_.translate;
 	Primitive3DManager::GetInstance()->AddAABB(aabb);
 	Line line;
-	line.origin = emitter_.transform.translate;
+	line.origin = transform_.translate;
 	line.diff = emitter_.angleBase * emitter_.speedBase;
 	Primitive3DManager::GetInstance()->AddLine(line);
 

@@ -247,6 +247,9 @@
     <ClCompile Include="Application\Collider\Colliders.cpp">
       <Filter>Application\Collider</Filter>
     </ClCompile>
+    <ClCompile Include="Application\Collider\GroundCollision.cpp">
+      <Filter>Application\Collider</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\BackGround\Ground\Ground.h">
@@ -596,6 +599,9 @@
     </ClInclude>
     <ClInclude Include="GameEngine\Data\BoxFilterData.h">
       <Filter>GameEngine\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Collider\GroundCollision.h">
+      <Filter>Application\Collider</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

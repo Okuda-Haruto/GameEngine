@@ -24,8 +24,6 @@ void Player::Initialize(GameScene* gameScene, GameCamera* gameCamera, shared_ptr
 	emitter_.lifeTime = 0.2f;
 	emitter_.frequency = 0.0f;
 	emitter_.frequencyTime = 0.0f;
-	emitter_.transform.scale = { 2.0f,2.0f,2.0f };
-	emitter_.transform.translate = { 0.0f,0.0f,0.0f };
 	emitter_.spawnRange.min = { -0.5f,0.0f,-0.5f };
 	emitter_.spawnRange.max = { 0.5f,0.0f,0.5f };
 	emitter_.angleBase = { 0.0f,0.0f,0.0f };
@@ -175,7 +173,7 @@ void Player::Update() {
 				angle = std::atan2(velocity_.x, velocity_.z);
 			}
 
-			particle_1->Emit();
+			particle_1->Emit(transform_);
 		}
 
 		//最短角度補完
@@ -255,10 +253,13 @@ void Player::Update() {
 				AudioHolder::GetInstance()->GetAudio(AudioIndex::Fence_Collision_SE).lock()->SoundPlayWave();
 			}
 
-			emitter_.transform.translate = transform_.translate;
-			emitter_.transform.translate.y = 0.0f;
-			particle_2->SetEmitter(emitter_);
-			particle_2->Emit();
+			SRT emitterTransform{};
+
+			emitterTransform.scale = { 1,1,1 };
+
+			emitterTransform.translate = transform_.translate;
+			emitterTransform.translate.y = 0.0f;
+			particle_2->Emit(emitterTransform);
 
 			//回避中じゃない
 		} else {
@@ -383,10 +384,16 @@ void Player::Draw() {
 }
 
 void Player::IsCollision(uint8_t targetId) {
-	if (invincibleTime_ <= 0.0f) {
-		HP_--;
-		gameCamera_->SetShakeTime(0.3f);
-		invincibleTime_ = kMaxInvincibleTime_;
-		AudioHolder::GetInstance()->GetAudio(AudioIndex::Player_Damage_SE).lock()->SoundPlayWave();
+	if (targetId & CollisionID_Enemy_Attack) {	//敵攻撃
+		if (invincibleTime_ <= 0.0f) {
+			HP_--;
+			gameCamera_->SetShakeTime(0.3f);
+			invincibleTime_ = kMaxInvincibleTime_;
+			AudioHolder::GetInstance()->GetAudio(AudioIndex::Player_Damage_SE).lock()->SoundPlayWave();
+		}
+	}
+
+	if (targetId & 0b1000) {	//衝突する
+
 	}
 }

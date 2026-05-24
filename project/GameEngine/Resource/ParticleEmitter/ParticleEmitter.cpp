@@ -13,6 +13,7 @@ void ParticleEmitter::Update() {
 		if (particleGroups[name_].emitter.frequencyTime >= particleGroups[name_].emitter.frequency) {
 			ParticleManager::GetInstance()->Emit(
 				name_,
+				transform_,
 				particleGroups[name_].emitter.count
 			);
 			particleGroups[name_].emitter.frequencyTime -= particleGroups[name_].emitter.frequency;
@@ -28,6 +29,17 @@ void ParticleEmitter::Emit() {
 	std::unordered_map<std::string, ParticleGroup> particleGroups = ParticleManager::GetInstance()->GetParticleGroups();
 	ParticleManager::GetInstance()->Emit(
 		name_,
+		transform_,
+		particleGroups[name_].emitter.count
+	);
+}
+
+
+void ParticleEmitter::Emit(SRT transform) {
+	std::unordered_map<std::string, ParticleGroup> particleGroups = ParticleManager::GetInstance()->GetParticleGroups();
+	ParticleManager::GetInstance()->Emit(
+		name_,
+		transform,
 		particleGroups[name_].emitter.count
 	);
 }

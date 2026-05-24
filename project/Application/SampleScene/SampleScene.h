@@ -30,6 +30,7 @@ private:
 
 	Emitter emitter_;
 	AccelerationField accelerationField_;
+	SRT particleTransform_;
 	std::unique_ptr<ParticleEmitter> particleEmitter_ = nullptr;
 
 	//2Dモデル

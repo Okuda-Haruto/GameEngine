@@ -58,5 +58,11 @@ void BossBullet::Draw() {
 }
 
 void BossBullet::IsCollision(uint8_t targetId) {
-	isDead = true;
+
+	if (!(targetId & 0b0010) &&	//敵側ではない
+			(targetId & 0b1000 ||	//衝突するもの
+			targetId & CollisionID_Player_Attack)) {	//プレイヤー攻撃
+
+		isDead = true;
+	}
 }
