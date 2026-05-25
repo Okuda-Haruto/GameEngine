@@ -65,6 +65,7 @@
     <ClCompile Include="Application\Character\Item\Item.cpp" />
     <ClCompile Include="Application\Character\Player\Player.cpp" />
     <ClCompile Include="Application\Collider\Colliders.cpp" />
+    <ClCompile Include="Application\Collider\GroundCollision.cpp" />
     <ClCompile Include="Application\GameManager\GameManager.cpp" />
     <ClCompile Include="Application\GameManager\SceneFactory\SceneFactory.cpp" />
     <ClCompile Include="Application\ModelHolder\ModelHolder.cpp" />
@@ -133,6 +134,7 @@
     <ClInclude Include="Application\Character\Player\Player.h" />
     <ClInclude Include="Application\Collider\Collider.h" />
     <ClInclude Include="Application\Collider\Colliders.h" />
+    <ClInclude Include="Application\Collider\GroundCollision.h" />
     <ClInclude Include="Application\Collider\OBBCollider.h" />
     <ClInclude Include="Application\Collider\SphereCollider.h" />
     <ClInclude Include="Application\GameManager\GameManager.h" />

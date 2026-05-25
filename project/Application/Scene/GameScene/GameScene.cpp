@@ -21,7 +21,7 @@ void GameScene::Initialize(shared_ptr<Input> input) {
 	input_ = input;
 
 	//パーティクル
-	ParticleManager::GetInstance()->CreateParticleGroup("particle_1", "resources/Particle/Sand.png");
+	ParticleManager::GetInstance()->CreateParticleGroup("particle_1", "resources/Particle/sand.png");
 	particle_ = std::make_unique<ParticleEmitter>("particle_1");
 	editor_ = std::make_unique<ParticleEditor>();
 	editor_->Initialize(particle_.get());
@@ -31,8 +31,6 @@ void GameScene::Initialize(shared_ptr<Input> input) {
 	emitter_.lifeTime = 3.0f;
 	emitter_.frequency = 0.1f;
 	emitter_.frequencyTime = 0.0f;
-	emitter_.transform.scale = { 10.0f,10.0f,10.0f };
-	emitter_.transform.translate = { 50.0f,0.0f,0.0f };
 	emitter_.spawnRange.min = { -5.0f,-0.5f,-50.0f };
 	emitter_.spawnRange.max = { 5.0f,0.5f,50.0f };
 	emitter_.angleBase = { -1.0f,0.0f,0.0f };
@@ -41,13 +39,20 @@ void GameScene::Initialize(shared_ptr<Input> input) {
 	emitter_.speedRange = 0.4f;	//速度範囲
 	emitter_.beforeColor = { 1.0f,1.0f,1.0f,1.0f };
 	emitter_.afterColor = { 1.0f,1.0f,1.0f,0.0f };
+	emitter_.rotateVelocity = 0.0f;
+	emitter_.rotateRate = std::numbers::pi_v<float>;
 	editor_->SetEmitter(emitter_);
 	AccelerationField field_;
 	field_.area.min = { -50.0f,-10.0f,-75.0f };
 	field_.area.max = { 10.0f,10.0f,75.0f };
 	field_.acceleration = {};
-	field_.acceleration.translate = { 0.005f,0.0f,0.00f };
+	field_.acceleration.translate = { -0.005f,0.0f,0.00f };
 	editor_->SetField(field_);
+	SRT emitterTransform;
+	emitterTransform.scale = { 10.0f, 10.0f, 10.0f };
+	emitterTransform.rotate = { 0, 0, 0 };
+	emitterTransform.translate = { 50.0f, 0.0f, 0.0f };
+	editor_->SetTransform(emitterTransform);
 
 	//パーティクル
 	ParticleManager::GetInstance()->CreateParticleGroup("particle_2", "resources/Particle/particle.png");
@@ -60,8 +65,6 @@ void GameScene::Initialize(shared_ptr<Input> input) {
 	emitter_2.lifeTime = 0.5f;
 	emitter_2.frequency = 0.0f;
 	emitter_2.frequencyTime = 0.0f;
-	emitter_2.transform.scale = { 1.0f,1.0f,1.0f };
-	emitter_2.transform.translate = { 0.0f,0.0f,0.0f };
 	emitter_2.spawnRange.min = { 0.0f,0.0f,0.0f };
 	emitter_2.spawnRange.max = { 0.0f,0.0f,0.0f };
 	emitter_2.angleBase = { 0.0f,0.0f,1.0f };
@@ -76,6 +79,11 @@ void GameScene::Initialize(shared_ptr<Input> input) {
 	field_2.area.max = { 1.0f,1.0f,1.0f };
 	field_2.acceleration = {};
 	editor_2->SetField(field_2);
+	SRT emitterTransform_2;
+	emitterTransform_2.scale = { 1.0f,1.0f,1.0f };
+	emitterTransform_2.rotate = { 0.0f,0.0f,0.0f };
+	emitterTransform_2.translate = { 0.0f,0.0f,0.0f };
+	editor_2->SetTransform(emitterTransform_2);
 
 	//パーティクル
 	ParticleManager::GetInstance()->CreateParticleGroup("particle_3", "resources/Particle/particle.png");
@@ -84,26 +92,27 @@ void GameScene::Initialize(shared_ptr<Input> input) {
 	editor_3->Initialize(particle_3.get());
 
 	Emitter emitter_3;
-	emitter_3.count = 32;
+	emitter_3.count = 16;
 	emitter_3.lifeTime = 0.5f;
 	emitter_3.frequency = 0.0f;
 	emitter_3.frequencyTime = 0.0f;
-	emitter_3.transform.scale = { 2.0f,2.0f,2.0f };
-	emitter_3.transform.translate = { 0.0f,0.0f,0.0f };
 	emitter_3.spawnRange.min = { 0.0f,0.0f,0.0f };
 	emitter_3.spawnRange.max = { 0.0f,0.0f,0.0f };
-	emitter_3.angleBase = { 0.0f,0.0f,1.0f };
-	emitter_3.angleRange = { 1.0f,1.0f,1.0f };	//方向範囲
-	emitter_3.speedBase = 0.3f;	//基礎速度
-	emitter_3.speedRange = 0.1f;	//速度範囲
 	emitter_3.beforeColor = { 1.0f,0.8f,0.6f,1.0f };
-	emitter_3.afterColor = { 1.0f,0.2f,0.2f,0.0f };
+	emitter_3.afterColor = { 1.0f,1.0f,1.0f,0.0f };
+	emitter_3.rotateVelocity = 0.0f;
+	emitter_3.rotateRate = std::numbers::pi_v<float>;
 	editor_3->SetEmitter(emitter_3);
 	AccelerationField field_3;
 	field_3.area.min = { 0.0f,0.0f,0.0f };
 	field_3.area.max = { 1.0f,1.0f,1.0f };
 	field_3.acceleration = {};
 	editor_3->SetField(field_3);
+	SRT emitterTransform_3;
+	emitterTransform_3.scale = { 2.0f,2.0f,2.0f };
+	emitterTransform_3.rotate = { 0.0f,0.0f,0.0f };
+	emitterTransform_3.translate = { 0.0f,0.0f,0.0f };
+	editor_3->SetTransform(emitterTransform_3);
 
 	//パーティクル
 	ParticleManager::GetInstance()->CreateParticleGroup("particle_4", "resources/Particle/sand.png");
@@ -116,8 +125,6 @@ void GameScene::Initialize(shared_ptr<Input> input) {
 	emitter_4.lifeTime = 0.2f;
 	emitter_4.frequency = 0.0f;
 	emitter_4.frequencyTime = 0.0f;
-	emitter_4.transform.scale = { 3.0f,3.0f,3.0f };
-	emitter_4.transform.translate = { 0.0f,0.0f,0.0f };
 	emitter_4.spawnRange.min = { 0.0f,0.0f,0.0f };
 	emitter_4.spawnRange.max = { 0.0f,0.0f,0.0f };
 	emitter_4.angleBase = { 0.0f,0.0f,1.0f };
@@ -132,6 +139,11 @@ void GameScene::Initialize(shared_ptr<Input> input) {
 	field_4.area.max = { 1.0f,1.0f,1.0f };
 	field_4.acceleration = {};
 	editor_4->SetField(field_4);
+	SRT emitterTransform_4;
+	emitterTransform_4.scale = { 3.0f,3.0f,3.0f };
+	emitterTransform_4.rotate = { 0.0f,0.0f,0.0f };
+	emitterTransform_4.translate = { 0.0f,0.0f,0.0f };
+	editor_4->SetTransform(emitterTransform_4);
 
 	//メインカメラ
 	gameCamera_ = std::make_unique<GameCamera>();
@@ -365,19 +377,22 @@ void GameScene::Update() {
 	pointLightElement_.position = player_->GetTransform()->translate + rotateMatrix * Vector3(0.0f, 0.0f, 1.0f);
 	pointLight_->SetPointLightElement(pointLightElement_);
 
+	SRT transform = editor_2->GetTransform();
 	Emitter emitter = editor_2->GetEmitter();
-	emitter.transform.translate = pointLightElement_.position;
+	transform.translate = pointLightElement_.position;
 	emitter.angleBase = Normalize(rotateMatrix * Vector3(0.0f, 0.0f, 0.8f) + Vector3(0.0f, 1.0f, 0.0f));
+	editor_2->SetTransform(transform);
 	editor_2->SetEmitter(emitter);
 
-	emitter = editor_3->GetEmitter();
-	emitter.transform.translate = boss_->GetTransform()->translate;
-	editor_3->SetEmitter(emitter);
+	transform = editor_3->GetTransform();
+	transform.translate = boss_->GetTransform()->translate;
+	transform.scale = { 1.0f,5.0f,5.0f };
+	editor_3->SetTransform(transform);
 
-	emitter = editor_4->GetEmitter();
-	emitter.transform.translate = player_->GetTransform()->translate;
-	emitter.transform.translate.y = 0.0f;
-	editor_4->SetEmitter(emitter);
+	transform = editor_4->GetTransform();
+	transform.translate = player_->GetTransform()->translate;
+	transform.translate.y = 0.0f;
+	editor_4->SetTransform(transform);
 
 
 #ifdef USE_IMGUI
@@ -392,7 +407,7 @@ void GameScene::Update() {
 	ImGui::Begin("背景オブジェクト");
 	static int cursor = 0;
 	ImGui::SliderInt("オブジェクト番号", &cursor, 0, int(backGrouds_.size() - 1));
-	SRT transform = { {1,1,1},{0,0,0},{0,0,0} };
+	transform = { {1,1,1},{0,0,0},{0,0,0} };
 	if (ImGui::Button("追加")) {
 
 		std::unique_ptr<BackGround> newBG = std::make_unique<BackGround>();
@@ -558,17 +573,9 @@ void GameScene::Collision() {
 							continue;
 						}
 
-						// A->B
-						if (!(sphereColliderA[a].sourceId_ & 0b100) && sphereColliderB[b].targetId_ & 0b100) {
-							if (IsCollision(sphereColliderA[a].colliderSphere_, sphereColliderB[b].colliderSphere_)) {
-								(*iteratorB)->IsCollision(sphereColliderA[a].sourceId_);
-							}
-						}
-						// B->A
-						if (!(sphereColliderB[b].sourceId_ & 0b100) && sphereColliderA[a].targetId_ & 0b100) {
-							if (IsCollision(sphereColliderA[a].colliderSphere_, sphereColliderB[b].colliderSphere_)) {
-								(*iteratorA)->IsCollision(sphereColliderB[b].sourceId_);
-							}
+						if (IsCollision(sphereColliderA[a].colliderSphere_, sphereColliderB[b].colliderSphere_)) {
+							(*iteratorA)->IsCollision(sphereColliderB[b].sourceId_);
+							(*iteratorB)->IsCollision(sphereColliderA[a].sourceId_);
 						}
 
 
@@ -581,7 +588,7 @@ void GameScene::Collision() {
 		for (int a = 0; a < sphereColliderA.size(); a++) {
 			for (int i = 0; i < obbCollider.size(); i++) {
 				if (IsCollision(obbCollider[i].colliderOBB_, (sphereColliderA[a].colliderSphere_))) {
-					(*iteratorA)->IsCollision(0b100);
+					(*iteratorA)->IsCollision(obbCollider[i].sourceId_);
 				}
 			}
 

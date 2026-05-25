@@ -884,7 +884,7 @@ void GameEngine::DrawParticle_(ParticleGroup particleGroup) {
 	commandList_->IASetVertexBuffers(0, 1, &ParticleManager::GetInstance()->GetVertexBufferView());	//VBVを設定
 	commandList_->IASetIndexBuffer(&ParticleManager::GetInstance()->GetIndexBufferView());	//IBVを設定
 
-	Camera* camera = Object::GetDefaultCamera().get();
+	std::shared_ptr<Camera> camera = particleGroup.camera;
 
 	//WVPデータを更新
 	InstancingTransformationMatrix* mappedBase = nullptr;
@@ -910,6 +910,13 @@ void GameEngine::DrawParticle_(ParticleGroup particleGroup) {
 		worldMatrix.m[3][0] = (*particleIterator).transform.translate.x;
 		worldMatrix.m[3][1] = (*particleIterator).transform.translate.y;
 		worldMatrix.m[3][2] = (*particleIterator).transform.translate.z;
+
+		Quaternion rotate;
+		rotate = MakeRotateAxisAngleQuaternion({ 1,0,0 }, (*particleIterator).transform.rotate.x);
+		rotate = rotate * MakeRotateAxisAngleQuaternion({ 0,0,1 }, (*particleIterator).transform.rotate.z);
+
+		worldMatrix = MakeRotateMatrix(rotate) * worldMatrix;
+
 		for (int i = 0; i < 3; i++) {
 			worldMatrix.m[0][i] *= (*particleIterator).transform.scale.x;
 		}

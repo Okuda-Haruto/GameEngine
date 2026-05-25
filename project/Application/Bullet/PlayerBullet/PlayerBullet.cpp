@@ -60,5 +60,11 @@ void PlayerBullet::Draw() {
 }
 
 void PlayerBullet::IsCollision(uint8_t targetId) {
-	isDead = true;
+
+	if (!(targetId & 0b0001) &&	//プレイヤー側ではない
+		(targetId & 0b1000 ||	//衝突するもの
+			targetId & CollisionID_Enemy_Attack)) {	//敵攻撃
+
+		isDead = true;
+	}
 }

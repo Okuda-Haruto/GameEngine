@@ -14,8 +14,6 @@ void Tumbleweed::Initialize(shared_ptr<Camera> camera, shared_ptr<DirectionalLig
 	emitter_.lifeTime = 0.2f;
 	emitter_.frequency = 0.0f;
 	emitter_.frequencyTime = 0.0f;
-	emitter_.transform.scale = { 5.0f,5.0f,5.0f };
-	emitter_.transform.translate = { 0.0f,0.0f,0.0f };
 	emitter_.spawnRange.min = { 0.0f,0.0f,0.0f };
 	emitter_.spawnRange.max = { 0.0f,0.0f,0.0f };
 	emitter_.angleBase = { 0.0f,0.0f,1.0f };
@@ -24,6 +22,7 @@ void Tumbleweed::Initialize(shared_ptr<Camera> camera, shared_ptr<DirectionalLig
 	emitter_.speedRange = 0.1f;	//速度範囲
 	emitter_.beforeColor = { 1.0f,1.0f,1.0f,1.0f };
 	emitter_.afterColor = { 1.0f,1.0f,1.0f,0.0f };
+	particle_->SetEmitter(emitter_);
 
 	SRT transform{};
 	transform.scale = { 1.0f,1.0f,1.0f };
@@ -58,10 +57,9 @@ void Tumbleweed::Update() {
 
 		objects_[i]->SetTransform(Transform);
 
-		emitter_.transform.translate = Transform.translate;
-		emitter_.transform.translate.y = 0.0f;
-		particle_->SetEmitter(emitter_);
-		particle_->Emit();
+		Transform.translate.y = 0.0f;
+		Transform.scale = { 5,5,5 };
+		particle_->Emit(Transform);
 	}
 
 }

@@ -58,8 +58,6 @@ void SampleScene::Initialize() {
 	//エフェクト
 	ParticleManager::GetInstance()->CreateParticleGroup("particle", "resources/DebugResources/circle.png");
 	particleEmitter_ = make_unique<ParticleEmitter>("particle");
-	emitter_.transform.scale = { 1.0f,1.0f,1.0f };
-	emitter_.transform.translate = {0.0f,0.0f,0.0f};
 	emitter_.count = 2;
 	emitter_.beforeColor = { 1.0f,1.0f,1.0f,1.0f };
 	emitter_.afterColor = { 1.0f,1.0f,1.0f,0.0f };
@@ -424,12 +422,15 @@ void SampleScene::Update() {
 		ImGui::SliderAngle("spotLight CosFalloutStart", &spotLightElement_.cosFalloutStart);
 	}
 
-	ImGui::DragFloat("パーティクル Scale", &emitter_.transform.scale.x, 0.1f);
-	emitter_.transform.scale = { emitter_.transform.scale.x ,emitter_.transform.scale.x ,emitter_.transform.scale.x };
-	ImGui::SliderAngle("パーティクル RotateX", &emitter_.transform.rotate.x);
-	ImGui::SliderAngle("パーティクル RotateY", &emitter_.transform.rotate.y);
-	ImGui::SliderAngle("パーティクル Rotatez", &emitter_.transform.rotate.z);
-	ImGui::DragFloat3("パーティクル Translate", &emitter_.transform.translate.x, 0.1f);
+	static SRT emitterTransform{};
+
+	emitterTransform = { 1,1,1 };
+
+	ImGui::DragFloat("パーティクル Scale", &emitterTransform.scale.x, 0.1f);
+	ImGui::SliderAngle("パーティクル RotateX", &emitterTransform.rotate.x);
+	ImGui::SliderAngle("パーティクル RotateY", &emitterTransform.rotate.y);
+	ImGui::SliderAngle("パーティクル Rotatez", &emitterTransform.rotate.z);
+	ImGui::DragFloat3("パーティクル Translate", &emitterTransform.translate.x, 0.1f);
 	ImGui::ColorPicker4("beforecolor", &emitter_.beforeColor.x);
 	ImGui::ColorPicker4("aftercolor", &emitter_.afterColor.x);
 	int count = int(emitter_.count);
