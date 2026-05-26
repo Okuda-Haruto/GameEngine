@@ -68,3 +68,9 @@ void PlayerBullet::IsCollision(uint8_t targetId) {
 		isDead = true;
 	}
 }
+
+void PlayerBullet::IsCollisionGround(OBB obb) {
+
+	isDead = true;
+
+}

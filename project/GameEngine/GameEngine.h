@@ -239,7 +239,7 @@ private:
 
 	void DrawLine_(std::list<Primitive3DManager::PrimitiveLine> lines, Primitive3DManager::PrimitiveResource primitiveResource);
 	void DrawPoint_(std::list<Primitive3DManager::PrimitivePoint> points, Primitive3DManager::PrimitiveResource primitiveResource);
-	void DrawAABB_(std::list<Primitive3DManager::PrimitiveAABB> aabbs, Primitive3DManager::PrimitiveResource primitiveResource);
+	void DrawOBB_(std::list<Primitive3DManager::PrimitiveOBB> obbs, Primitive3DManager::PrimitiveResource primitiveResource);
 	void DrawSphere_(std::list<Primitive3DManager::PrimitiveSphere> spheres, Primitive3DManager::PrimitiveResource primitiveResource);
 
 	void DrawPrimitiveBox_(PrimitiveBox* primitiveBox);
@@ -334,7 +334,7 @@ public:
 
 	static void DrawLine(std::list<Primitive3DManager::PrimitiveLine> lines, Primitive3DManager::PrimitiveResource primitiveResource) { return GetInstance()->DrawLine_(lines, primitiveResource); }
 	static void DrawPoint(std::list<Primitive3DManager::PrimitivePoint> points, Primitive3DManager::PrimitiveResource primitiveResource) { return GetInstance()->DrawPoint_(points, primitiveResource); }
-	static void DrawAABB(std::list<Primitive3DManager::PrimitiveAABB> aabbs, Primitive3DManager::PrimitiveResource primitiveResource) { return GetInstance()->DrawAABB_(aabbs, primitiveResource); }
+	static void DrawOBB(std::list<Primitive3DManager::PrimitiveOBB> obbs, Primitive3DManager::PrimitiveResource primitiveResource) { return GetInstance()->DrawOBB_(obbs, primitiveResource); }
 	static void DrawSphere(std::list<Primitive3DManager::PrimitiveSphere> spheres, Primitive3DManager::PrimitiveResource primitiveResource) { return GetInstance()->DrawSphere_(spheres, primitiveResource); }
 
 	static void DrawPrimitiveBox(PrimitiveBox* primitiveBox) { return GetInstance()->DrawPrimitiveBox_(primitiveBox); }

@@ -11,10 +11,13 @@
 
 #include "Line.h"
 #include "Plane.h"
+#include <OBB.h>
 #include "AABB.h"
 #include "Triangle.h"
 #include "Circle.h"
 #include "Sphere.h"
+
+#include <Operation/Operation.h>
 
 using namespace std;
 
@@ -29,7 +32,7 @@ public:
 		//SHAPE_Circle,
 		//SHAPE_Arrow
 
-		SHAPE_AABB,
+		SHAPE_OBB,
 		SHAPE_Sphere,
 
 		SHAPE_count
@@ -63,9 +66,9 @@ public:
 		Circle circle;
 		Vector4 color;
 	};
-	//色の要素を持つAABB
-	struct PrimitiveAABB {
-		AABB aabb;
+	//色の要素を持つOBB
+	struct PrimitiveOBB {
+		OBB obb;
 		Vector4 color;
 	};
 	//色の要素を持つ球
@@ -108,8 +111,8 @@ private:
 	std::array<PrimitiveCircle, kMaxNumPrimitive> circle_;
 	int32_t circleIndex_ = 0;
 	//AABBデータ
-	std::array<PrimitiveAABB, kMaxNumPrimitive> aabb_;
-	int32_t aabbIndex_ = 0;
+	std::array<PrimitiveOBB, kMaxNumPrimitive> obb_;
+	int32_t obbIndex_ = 0;
 	//球データ
 	std::array<PrimitiveSphere, kMaxNumPrimitive> sphere_;
 	int32_t sphereIndex_ = 0;
@@ -131,17 +134,64 @@ public:
 	void Draw();
 
 	//直線
-	void AddLine(Line line, Vector4 color = {1,0,0,1}) { line_[lineIndex_].line = line; line_[lineIndex_].color = color; lineIndex_++; };
+	void AddLine(Line line, Vector4 color = {1,0,0,1}) {
+		line_[lineIndex_].line = line;
+		line_[lineIndex_].color = color;
+		lineIndex_++; 
+	}
+
 	//半直線
-	void AddRay(Ray ray, Vector4 color = { 1,0,0,1 }) { Line line = { .origin = ray.origin,.diff = ray.diff }; AddLine(line, color); };
+	void AddRay(Ray ray, Vector4 color = { 1,0,0,1 }) {
+		Line line = {
+			.origin = ray.origin,
+			.diff = ray.diff 
+		}; 
+		AddLine(line, color); 
+	}
+
 	//線分
-	void AddSegment(Segment segment, Vector4 color = { 1,0,0,1 }) { Line line = { .origin = segment.origin,.diff = segment.diff }; AddLine(line, color); };
+	void AddSegment(Segment segment, Vector4 color = { 1,0,0,1 }) {
+		Line line = {
+			.origin = segment.origin,
+			.diff = segment.diff 
+		};
+		AddLine(line, color);
+	}
+
 	//点
-	void AddPoint(Vector3 point, Vector4 color = { 1,0,0,1 }) { point_[pointIndex_].point = point; point_[pointIndex_].color = color; pointIndex_++; };
+	void AddPoint(Vector3 point, Vector4 color = { 1,0,0,1 }) {
+		point_[pointIndex_].point = point;
+		point_[pointIndex_].color = color;
+		pointIndex_++;
+	}
+
+	//OBB
+	void AddOBB(OBB obb, Vector4 color = { 1,0,0,1 }) {
+		obb_[obbIndex_].obb = obb;
+		obb_[obbIndex_].color = color;
+		obbIndex_++;
+	}
+
 	//AABB
-	void AddAABB(AABB aabb, Vector4 color = { 1,0,0,1 }) { aabb_[aabbIndex_].aabb = aabb; aabb_[aabbIndex_].color = color; aabbIndex_++; };
+	void AddAABB(AABB aabb, Vector4 color = { 1,0,0,1 }) {
+		OBB obb = {
+			.center = {(aabb.min + aabb.max) / 2},
+			.orientations = {
+				{1.0f,0.0f,0.0f},
+				{0.0f,1.0f,0.0f},
+				{0.0f,0.0f,1.0f},
+			},
+			.size = {(aabb.max - aabb.min) / 2}
+		};
+		AddOBB(obb, color);
+	}
+
 	//球
-	void AddSphere(Sphere sphere, Vector4 color = { 1,0,0,1 }) { sphere_[sphereIndex_].sphere = sphere; sphere_[sphereIndex_].color = color; sphereIndex_++; };
+	void AddSphere(Sphere sphere, Vector4 color = { 1,0,0,1 }) {
+		sphere_[sphereIndex_].sphere = sphere;
+		sphere_[sphereIndex_].color = color;
+		sphereIndex_++; 
+	}
 
 	//リセット
 	void Reset();

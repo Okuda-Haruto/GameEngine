@@ -89,6 +89,8 @@ public:
 
 	void IsCollision(uint8_t targetId) override;
 
+	void IsCollisionGround(OBB obb) override;
+
 	SRT* GetTransform() { return targetTransform_.get(); }
 	void SetBossTransform(SRT* bossTransform) { bossTransform_ = bossTransform; }
 
