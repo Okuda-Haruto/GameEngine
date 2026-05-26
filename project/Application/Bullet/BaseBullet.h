@@ -20,7 +20,9 @@ public:
 	virtual void Update();
 	virtual void Draw();
 
-	virtual void IsCollision(uint8_t targetId) override { colliders_->IsCollision(targetId); }
+	virtual void IsCollision(uint8_t targetId) override {}
+
+	virtual void IsCollisionGround(OBB obb) override {}
 
 	Colliders* GetColliders() { return colliders_.get(); }
 };

@@ -197,8 +197,11 @@ void GameScene::Initialize(shared_ptr<Input> input) {
 	boss_->SetDirectionalLight(directionalLight_);
 	boss_->SetPointLight(pointLight_);
 
-	colliderObject_ = std::make_unique<ColliderObject>();
-	colliderObject_->Initialize(ModelHolder::GetInstance()->GetModel(ModelIndex::Tumbleweed), SRT{{2,2,2},{0,0,0},{20,2,0}});
+	colliderObjects_.resize(2);
+	colliderObjects_[0] = std::make_unique<ColliderObject>();
+	colliderObjects_[0]->Initialize(ModelHolder::GetInstance()->GetModel(ModelIndex::Tumbleweed), SRT{{2,2,2},{0,0,0},{20,2,0}});
+	colliderObjects_[1] = std::make_unique<ColliderObject>();
+	colliderObjects_[1]->Initialize(ModelHolder::GetInstance()->GetModel(ModelIndex::Tumbleweed), SRT{ {2,2,2},{0,0,0},{-20,2,0} });
 
 	cylinder_ = std::make_unique<Object>();
 	cylinder_->Initialize(ModelHolder::GetInstance()->GetModel(ModelIndex::Cylinder));
@@ -434,7 +437,14 @@ void GameScene::Update() {
 	ImGui::End();
 #endif
 
-	colliderObject_->Update();
+	for (auto i = 0; i < colliderObjects_.size(); i++) {
+		colliderObjects_[i]->Update();
+
+		std::vector<OBBCollider> colliders = colliderObjects_[i]->GetCollider()->GetOBBColliders();
+		for (auto& collider : colliders) {
+			Primitive3DManager::GetInstance()->AddOBB(collider.colliderOBB_);
+		}
+	}
 
 	//セピア調にする範囲
 	GameEngine::RenderPreDraw("render");
@@ -458,7 +468,9 @@ void GameScene::Update() {
 	player_->Draw();
 
 	//障害物
-	colliderObject_->Draw();
+	for (auto i = 0; i < colliderObjects_.size(); i++) {
+		colliderObjects_[i]->Draw();
+	}
 
 	//背景オブジェクト
 	for (auto& BG : backGrouds_) {
@@ -546,7 +558,13 @@ void GameScene::Collision() {
 	}
 
 	//障害物コライダー
-	std::vector<OBBCollider> obbCollider = colliderObject_->GetCollider()->GetOBBColliders();
+	std::vector<OBBCollider> obbCollider;
+	for (auto& colliderObject_ : colliderObjects_) {
+		std::vector<OBBCollider> colliders = colliderObject_->GetCollider()->GetOBBColliders();
+		for (auto& collider : colliders) {
+			obbCollider.push_back(collider);
+		}
+	}
 
 	for (std::list<Colliders*>::iterator iteratorA = colliders.begin();
 		iteratorA != colliders.end(); iteratorA++) {

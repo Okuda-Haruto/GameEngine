@@ -392,8 +392,9 @@ void Player::IsCollision(uint8_t targetId) {
 			AudioHolder::GetInstance()->GetAudio(AudioIndex::Player_Damage_SE).lock()->SoundPlayWave();
 		}
 	}
+}
 
-	if (targetId & 0b1000) {	//衝突する
 
-	}
+void Player::IsCollisionGround(OBB obb) {
+
 }

@@ -28,6 +28,8 @@ public:
 
 	virtual void IsCollision(uint8_t targetId) override {}
 
+	virtual void IsCollisionGround(OBB obb) override {}
+
 	Colliders* GetColliders() {	return colliders_.get();}
 };
 

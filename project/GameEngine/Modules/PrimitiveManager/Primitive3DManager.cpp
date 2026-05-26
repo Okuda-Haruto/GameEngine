@@ -138,57 +138,57 @@ void Primitive3DManager::Initialize(DirectXCommon* dxCommon, SRVManager* srvMana
 
 #pragma endregion
 
-#pragma region AABB
+#pragma region OBB
 
-	primitiveResource_[SHAPE_AABB].offset.vertexStart = primitiveResource_[SHAPE_Line].offset.vertexStart + primitiveResource_[SHAPE_Line].offset.vertexCount;
-	primitiveResource_[SHAPE_AABB].offset.vertexCount = 8;
+	primitiveResource_[SHAPE_OBB].offset.vertexStart = primitiveResource_[SHAPE_Line].offset.vertexStart + primitiveResource_[SHAPE_Line].offset.vertexCount;
+	primitiveResource_[SHAPE_OBB].offset.vertexCount = 8;
 
 	//左後下
-	vertexData_[primitiveResource_[SHAPE_AABB].offset.vertexStart + 0].position = { 0.0f,1.0f,0.0f,1.0f };
-	vertexData_[primitiveResource_[SHAPE_AABB].offset.vertexStart + 0].texcoord = { 0.0f,1.0f };
-	vertexData_[primitiveResource_[SHAPE_AABB].offset.vertexStart + 0].normal = { 0.0f,0.0f,-1.0f };
+	vertexData_[primitiveResource_[SHAPE_OBB].offset.vertexStart + 0].position = { -1.0f,1.0f,-1.0f,1.0f };
+	vertexData_[primitiveResource_[SHAPE_OBB].offset.vertexStart + 0].texcoord = { 0.0f,1.0f };
+	vertexData_[primitiveResource_[SHAPE_OBB].offset.vertexStart + 0].normal = { 0.0f,0.0f,-1.0f };
 	//左後上
-	vertexData_[primitiveResource_[SHAPE_AABB].offset.vertexStart + 1].position = { 0.0f,0.0f,0.0f,1.0f };
-	vertexData_[primitiveResource_[SHAPE_AABB].offset.vertexStart + 1].texcoord = { 0.0f,0.0f };
-	vertexData_[primitiveResource_[SHAPE_AABB].offset.vertexStart + 1].normal = { 0.0f,0.0f,-1.0f };
+	vertexData_[primitiveResource_[SHAPE_OBB].offset.vertexStart + 1].position = { -1.0f,-1.0f,-1.0f,1.0f };
+	vertexData_[primitiveResource_[SHAPE_OBB].offset.vertexStart + 1].texcoord = { 0.0f,0.0f };
+	vertexData_[primitiveResource_[SHAPE_OBB].offset.vertexStart + 1].normal = { 0.0f,0.0f,-1.0f };
 	//右後上
-	vertexData_[primitiveResource_[SHAPE_AABB].offset.vertexStart + 2].position = { 1.0f,0.0f,0.0f,1.0f };
-	vertexData_[primitiveResource_[SHAPE_AABB].offset.vertexStart + 2].texcoord = { 1.0f,0.0f };
-	vertexData_[primitiveResource_[SHAPE_AABB].offset.vertexStart + 2].normal = { 0.0f,0.0f,-1.0f };
+	vertexData_[primitiveResource_[SHAPE_OBB].offset.vertexStart + 2].position = { 1.0f,-1.0f,-1.0f,1.0f };
+	vertexData_[primitiveResource_[SHAPE_OBB].offset.vertexStart + 2].texcoord = { 1.0f,0.0f };
+	vertexData_[primitiveResource_[SHAPE_OBB].offset.vertexStart + 2].normal = { 0.0f,0.0f,-1.0f };
 	//右後下
-	vertexData_[primitiveResource_[SHAPE_AABB].offset.vertexStart + 3].position = { 1.0f,1.0f,0.0f,1.0f };
-	vertexData_[primitiveResource_[SHAPE_AABB].offset.vertexStart + 3].texcoord = { 1.0f,1.0f };
-	vertexData_[primitiveResource_[SHAPE_AABB].offset.vertexStart + 3].normal = { 0.0f,0.0f,-1.0f };
+	vertexData_[primitiveResource_[SHAPE_OBB].offset.vertexStart + 3].position = { 1.0f,1.0f,-1.0f,1.0f };
+	vertexData_[primitiveResource_[SHAPE_OBB].offset.vertexStart + 3].texcoord = { 1.0f,1.0f };
+	vertexData_[primitiveResource_[SHAPE_OBB].offset.vertexStart + 3].normal = { 0.0f,0.0f,-1.0f };
 	//左前下
-	vertexData_[primitiveResource_[SHAPE_AABB].offset.vertexStart + 4].position = { 0.0f,1.0f,1.0f,1.0f };
-	vertexData_[primitiveResource_[SHAPE_AABB].offset.vertexStart + 4].texcoord = { 0.0f,1.0f };
-	vertexData_[primitiveResource_[SHAPE_AABB].offset.vertexStart + 4].normal = { 0.0f,0.0f,-1.0f };
+	vertexData_[primitiveResource_[SHAPE_OBB].offset.vertexStart + 4].position = { -1.0f,1.0f,1.0f,1.0f };
+	vertexData_[primitiveResource_[SHAPE_OBB].offset.vertexStart + 4].texcoord = { 0.0f,1.0f };
+	vertexData_[primitiveResource_[SHAPE_OBB].offset.vertexStart + 4].normal = { 0.0f,0.0f,-1.0f };
 	//左前上
-	vertexData_[primitiveResource_[SHAPE_AABB].offset.vertexStart + 5].position = { 0.0f,0.0f,1.0f,1.0f };
-	vertexData_[primitiveResource_[SHAPE_AABB].offset.vertexStart + 5].texcoord = { 0.0f,0.0f };
-	vertexData_[primitiveResource_[SHAPE_AABB].offset.vertexStart + 5].normal = { 0.0f,0.0f,-1.0f };
+	vertexData_[primitiveResource_[SHAPE_OBB].offset.vertexStart + 5].position = { -1.0f,-1.0f,1.0f,1.0f };
+	vertexData_[primitiveResource_[SHAPE_OBB].offset.vertexStart + 5].texcoord = { 0.0f,0.0f };
+	vertexData_[primitiveResource_[SHAPE_OBB].offset.vertexStart + 5].normal = { 0.0f,0.0f,-1.0f };
 	//右前上
-	vertexData_[primitiveResource_[SHAPE_AABB].offset.vertexStart + 6].position = { 1.0f,0.0f,1.0f,1.0f };
-	vertexData_[primitiveResource_[SHAPE_AABB].offset.vertexStart + 6].texcoord = { 1.0f,0.0f };
-	vertexData_[primitiveResource_[SHAPE_AABB].offset.vertexStart + 6].normal = { 0.0f,0.0f,-1.0f };
+	vertexData_[primitiveResource_[SHAPE_OBB].offset.vertexStart + 6].position = { 1.0f,-1.0f,1.0f,1.0f };
+	vertexData_[primitiveResource_[SHAPE_OBB].offset.vertexStart + 6].texcoord = { 1.0f,0.0f };
+	vertexData_[primitiveResource_[SHAPE_OBB].offset.vertexStart + 6].normal = { 0.0f,0.0f,-1.0f };
 	//右前下
-	vertexData_[primitiveResource_[SHAPE_AABB].offset.vertexStart + 7].position = { 1.0f,1.0f,1.0f,1.0f };
-	vertexData_[primitiveResource_[SHAPE_AABB].offset.vertexStart + 7].texcoord = { 1.0f,1.0f };
-	vertexData_[primitiveResource_[SHAPE_AABB].offset.vertexStart + 7].normal = { 0.0f,0.0f,-1.0f };
+	vertexData_[primitiveResource_[SHAPE_OBB].offset.vertexStart + 7].position = { 1.0f,1.0f,1.0f,1.0f };
+	vertexData_[primitiveResource_[SHAPE_OBB].offset.vertexStart + 7].texcoord = { 1.0f,1.0f };
+	vertexData_[primitiveResource_[SHAPE_OBB].offset.vertexStart + 7].normal = { 0.0f,0.0f,-1.0f };
 
-	primitiveResource_[SHAPE_AABB].offset.indexStart = primitiveResource_[SHAPE_Line].offset.indexStart + primitiveResource_[SHAPE_Line].offset.indexCount;
-	primitiveResource_[SHAPE_AABB].offset.indexCount = 24;
+	primitiveResource_[SHAPE_OBB].offset.indexStart = primitiveResource_[SHAPE_Line].offset.indexStart + primitiveResource_[SHAPE_Line].offset.indexCount;
+	primitiveResource_[SHAPE_OBB].offset.indexCount = 24;
 
 	//頂点2つで線分を作る
 	for (int i = 0; i < 4; i++) {
-		indexData_[primitiveResource_[SHAPE_AABB].offset.indexStart + i * 2] = primitiveResource_[SHAPE_AABB].offset.vertexStart + i; 
-		indexData_[primitiveResource_[SHAPE_AABB].offset.indexStart + i * 2 + 1] = primitiveResource_[SHAPE_AABB].offset.vertexStart + (i + 1) % 4;
+		indexData_[primitiveResource_[SHAPE_OBB].offset.indexStart + i * 2] = primitiveResource_[SHAPE_OBB].offset.vertexStart + i; 
+		indexData_[primitiveResource_[SHAPE_OBB].offset.indexStart + i * 2 + 1] = primitiveResource_[SHAPE_OBB].offset.vertexStart + (i + 1) % 4;
 
-		indexData_[primitiveResource_[SHAPE_AABB].offset.indexStart + i * 2 + 8] = primitiveResource_[SHAPE_AABB].offset.vertexStart + i + 4;
-		indexData_[primitiveResource_[SHAPE_AABB].offset.indexStart + i * 2 + 9] = primitiveResource_[SHAPE_AABB].offset.vertexStart + (i + 1) % 4 + 4;
+		indexData_[primitiveResource_[SHAPE_OBB].offset.indexStart + i * 2 + 8] = primitiveResource_[SHAPE_OBB].offset.vertexStart + i + 4;
+		indexData_[primitiveResource_[SHAPE_OBB].offset.indexStart + i * 2 + 9] = primitiveResource_[SHAPE_OBB].offset.vertexStart + (i + 1) % 4 + 4;
 
-		indexData_[primitiveResource_[SHAPE_AABB].offset.indexStart + i * 2 + 16] = primitiveResource_[SHAPE_AABB].offset.vertexStart + i;
-		indexData_[primitiveResource_[SHAPE_AABB].offset.indexStart + i * 2 + 17] = primitiveResource_[SHAPE_AABB].offset.vertexStart + i + 4;
+		indexData_[primitiveResource_[SHAPE_OBB].offset.indexStart + i * 2 + 16] = primitiveResource_[SHAPE_OBB].offset.vertexStart + i;
+		indexData_[primitiveResource_[SHAPE_OBB].offset.indexStart + i * 2 + 17] = primitiveResource_[SHAPE_OBB].offset.vertexStart + i + 4;
 	}
 	
 #pragma endregion
@@ -200,7 +200,7 @@ void Primitive3DManager::Initialize(DirectXCommon* dxCommon, SRVManager* srvMana
 	//横方向の分割数
 	const int segmentNum = 32;
 
-	primitiveResource_[SHAPE_Sphere].offset.vertexStart = primitiveResource_[SHAPE_AABB].offset.vertexStart + primitiveResource_[SHAPE_AABB].offset.vertexCount;
+	primitiveResource_[SHAPE_Sphere].offset.vertexStart = primitiveResource_[SHAPE_OBB].offset.vertexStart + primitiveResource_[SHAPE_OBB].offset.vertexCount;
 	primitiveResource_[SHAPE_Sphere].offset.vertexCount = ringNum * segmentNum + 2;
 
 	//上下最大値は半径0なので複数作らない
@@ -234,7 +234,7 @@ void Primitive3DManager::Initialize(DirectXCommon* dxCommon, SRVManager* srvMana
 		}
 	}
 
-	primitiveResource_[SHAPE_Sphere].offset.indexStart = primitiveResource_[SHAPE_AABB].offset.indexStart + primitiveResource_[SHAPE_AABB].offset.indexCount;
+	primitiveResource_[SHAPE_Sphere].offset.indexStart = primitiveResource_[SHAPE_OBB].offset.indexStart + primitiveResource_[SHAPE_OBB].offset.indexCount;
 
 	int verticalLines = ringNum * segmentNum;
 	int horizontalLines = (ringNum - 1) * segmentNum;
@@ -302,11 +302,11 @@ void Primitive3DManager::Draw() {
 	}
 	if (!points.empty())GameEngine::DrawPoint(points, primitiveResource_[SHAPE_Point]);
 
-	std::list<PrimitiveAABB> aabbs;
-	for (int i = 0; i < aabbIndex_; i++) {
-		aabbs.push_back(aabb_[i]);
+	std::list<PrimitiveOBB> obbs;
+	for (int i = 0; i < obbIndex_; i++) {
+		obbs.push_back(obb_[i]);
 	}
-	if (!aabbs.empty())GameEngine::DrawAABB(aabbs, primitiveResource_[SHAPE_AABB]);
+	if (!obbs.empty())GameEngine::DrawOBB(obbs, primitiveResource_[SHAPE_OBB]);
 
 	std::list<PrimitiveSphere> spheres;
 	for (int i = 0; i < sphereIndex_; i++) {
@@ -321,6 +321,6 @@ void Primitive3DManager::Reset() {
 	lineIndex_ = 0;
 	triangleIndex_ = 0;
 	pointIndex_ = 0;
-	aabbIndex_ = 0;
+	obbIndex_ = 0;
 	sphereIndex_ = 0;
 }

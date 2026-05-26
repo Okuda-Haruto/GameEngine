@@ -26,5 +26,7 @@ public:
 
 	virtual void IsCollision(uint8_t targetId) override {}
 
+	virtual void IsCollisionGround(OBB obb) override {}
+
 	std::shared_ptr<Colliders> GetCollider() { return colliders_; }
 };

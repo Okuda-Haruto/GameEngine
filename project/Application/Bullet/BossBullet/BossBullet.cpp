@@ -66,3 +66,9 @@ void BossBullet::IsCollision(uint8_t targetId) {
 		isDead = true;
 	}
 }
+
+void BossBullet::IsCollisionGround(OBB obb) {
+
+	isDead = true;
+
+}

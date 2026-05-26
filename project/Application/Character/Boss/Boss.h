@@ -66,6 +66,29 @@ public:
 	void Finalize() override;
 };
 
+class BossAction_Shot_03 : public BossAction {
+private:
+	//行動に要する総時間
+	const float kMaxActionTime_ = 1.0f;
+	float actionTime_ = 0.0f;
+
+	//構えてから撃つ時間
+	const float kMaxShotCooltime_ = 0.01f;
+	float shotCooltime_ = 0.0f;
+
+	//狙って構えるまでの時間
+	const float kMaxTargetedCooltime_ = 0.2f;
+	float targetedCooltime_ = 0.0f;
+
+	bool isTargeted_ = false;
+
+public:
+	void Initialize(Boss* boss) override;
+	void Update() override;
+	void Finalize() override;
+};
+
+
 class BossAction_Jump : public BossAction {
 private:
 	//行動に要する総時間
@@ -143,6 +166,8 @@ public:
 	void Draw();
 
 	void IsCollision(uint8_t targetId) override;
+
+	void IsCollisionGround(OBB obb) override;
 
 	SRT* GetTransform() { return targetTransform_.get(); }
 	GameScene* GetGameScene() { return gameScene_; }

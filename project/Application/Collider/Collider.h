@@ -5,4 +5,6 @@
 class Collider {
 public:
 	virtual void IsCollision(uint8_t sourceId) = 0;
+
+	virtual void IsCollisionGround(OBB obb) = 0;
 };

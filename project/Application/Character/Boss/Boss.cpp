@@ -174,6 +174,92 @@ void BossAction_Shot_02::Finalize() {
 
 #pragma endregion
 
+#pragma region BossAction_Shot_03
+
+void BossAction_Shot_03::Initialize(Boss* boss) {
+	boss_ = boss;
+
+	actionTime_ = 0.0f;
+	shotCooltime_ = 0.0f;
+	targetedCooltime_ = 0.0f;
+
+	isTargeted_ = false;
+	isEnd_ = false;
+}
+
+void BossAction_Shot_03::Update() {
+	actionTime_ += 1.0f / 60.0f;
+	if (actionTime_ > kMaxActionTime_) {
+		isEnd_ = true;
+	}
+
+	if (isTargeted_) {	//狙って撃つ
+		shotCooltime_ += 1.0f / 60.0f;
+		if (shotCooltime_ >= kMaxShotCooltime_) {
+			SRT* BossTransform = boss_->GetTransform();
+			Vector3 rotate = BossTransform->rotate;
+			rotate.x += GameEngine::randomFloat(-0.01f, 0.01f);
+			rotate.y += GameEngine::randomFloat(-0.12f, 0.12f);
+
+			boss_->GetGameScene()->AddBossBullet(BossTransform->translate, rotate);
+			shotCooltime_ -= kMaxShotCooltime_;
+
+			boss_->GetGameCamera()->SetShakeTime(0.1f);
+		}
+	}
+	else {			//プレイヤーを狙う
+
+		//プレイヤー方向を向かせる
+		SRT* PlayerTransform = boss_->GetPlayer()->GetTransform();
+		SRT* BossTransform = boss_->GetTransform();
+		Vector3 diff = Normalize(Vector3(PlayerTransform->translate.x, 0.0f, PlayerTransform->translate.z) - Vector3(BossTransform->translate.x, 0.0f, BossTransform->translate.z));
+		float angle = std::atan2(diff.x, diff.z);
+
+		//最短角度補完
+		float d = angle - BossTransform->rotate.y;
+
+		if (d >= std::numbers::pi_v<float>*2) {
+			d = angle - BossTransform->rotate.y;
+		}
+
+		d = std::fmodf(d, std::numbers::pi_v<float> *2);
+
+		if (d > std::numbers::pi_v<float>) {
+			d -= std::numbers::pi_v<float> *2;
+		}
+		else if (d < -std::numbers::pi_v<float>) {
+			d += std::numbers::pi_v<float> *2;
+		}
+
+		if (d > std::numbers::pi_v<float>) {
+			d -= std::numbers::pi_v<float> *2;
+		}
+		else if (d < -std::numbers::pi_v<float>) {
+			d += std::numbers::pi_v<float> *2;
+		}
+
+		//正直あまりやりたくはない方法だが2πを超えると遠回りで回転してしまうので致し方無い
+		BossTransform->rotate.y = (BossTransform->rotate.y + d * 0.2f);
+		BossTransform->rotate.y = std::fmodf(BossTransform->rotate.y, std::numbers::pi_v<float> *2);
+
+		//開始時少しだけ何もしない
+		if (actionTime_ >= 0.5f) {
+			targetedCooltime_ += 1.0f / 60.0f;
+			if (targetedCooltime_ >= kMaxTargetedCooltime_) {
+				targetedCooltime_ -= kMaxTargetedCooltime_;
+				isTargeted_ = true;
+				AudioHolder::GetInstance()->GetAudio(AudioIndex::Reload_SE).lock()->SoundPlayWave();
+			}
+		}
+	}
+}
+
+void BossAction_Shot_03::Finalize() {
+
+}
+
+#pragma endregion
+
 #pragma region BossAction_Jump
 
 void BossAction_Jump::Initialize(Boss* boss) {
@@ -446,14 +532,13 @@ void Boss::Update() {
 				if (randInt <= weights_[0]) {
 					action_ = std::make_unique<BossAction_Shot_01>();
 				} else if (randInt <= weights_[0] + weights_[1]) {
-					action_ = std::make_unique<BossAction_Shot_02>();
+					action_ = std::make_unique<BossAction_Shot_03>();
 				} else if (randInt <= weights_[0] + weights_[1] + weights_[2]) {
 					action_ = std::make_unique<BossAction_Jump>();
 				} else if (randInt <= weights_[0] + weights_[1] + weights_[2] + weights_[3]) {
 					action_ = std::make_unique<BossAction_Move>();
 				}
 
-				action_ = std::make_unique<BossAction_Shot_01>();
 				action_->Initialize(this);
 			}
 			transform_ = *targetTransform_;
@@ -476,4 +561,8 @@ void Boss::IsCollision(uint8_t targetId) {
 		particle_->Emit();
 		gameCamera_->SetShakeTime(0.3f);
 	}
+}
+
+void Boss::IsCollisionGround(OBB obb) {
+
 }

@@ -44,7 +44,7 @@ private:
 	std::list<std::unique_ptr<PlayerBullet>> playerBullet_;
 	std::list<std::unique_ptr<BossBullet>> bossBullet_;
 
-	std::unique_ptr<ColliderObject> colliderObject_;
+	std::vector<std::unique_ptr<ColliderObject>> colliderObjects_;
 
 	std::unique_ptr<Object> cylinder_;
 	SRT cylinderTransform_;

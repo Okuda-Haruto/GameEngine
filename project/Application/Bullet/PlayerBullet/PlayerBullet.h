@@ -22,6 +22,8 @@ public:
 
 	void IsCollision(uint8_t targetId) override;
 
+	void IsCollisionGround(OBB obb) override;
+
 	static void SetCamera(weak_ptr<Camera> camera) { camera_ = camera; }
 	static void SetDirectionalLight(weak_ptr<DirectionalLight> directionalLight) { directionalLight_ = directionalLight; }
 	static void SetPointLight(weak_ptr<PointLight> pointLight) { pointLight_ = pointLight; }
