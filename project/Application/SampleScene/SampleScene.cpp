@@ -191,6 +191,13 @@ void SampleScene::Initialize() {
 
 	skybox_ = std::make_unique<PrimitiveBox>();
 	skybox_->Initialize(TextureManager::GetInstance()->GetSrvIndex("resources/BackGround/minedump_flats_1k.dds"),defaultCamera_,GameEngine::GetDirectXCommon());
+
+	ring_ = std::make_unique<PrimitiveRing>();
+	ring_->Initialize(TextureManager::GetInstance()->GetSrvIndex("resources/DebugResources/gradationLine.png"), defaultCamera_, GameEngine::GetDirectXCommon());
+	ringTransform_ = {};
+	ringTransform_.scale = { 1,1,1 };
+	ringMaterial_.color = { 1.0f,1.0f,1.0f,1.0f };
+	ringMaterial_.uvTransform = MakeTranslateMatrix({ 10,1.0f,1.0f });
 }
 
 void SampleScene::Update() {
@@ -593,6 +600,8 @@ void SampleScene::Update() {
 			}
 		}
 	}
+
+	ring_->DrawBillBoard(ringTransform_, ringMaterial_);
 
 	GameEngine::RenderPostDraw();
 

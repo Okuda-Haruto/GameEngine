@@ -8,6 +8,6 @@ struct ObjectVertexData {
 	Vector4 position;
 	Vector2 texcoord;
 	Vector3 normal;
-	UINT4 boneID;
-	Vector4 boneWeight;
+	UINT4 boneID{};
+	Vector4 boneWeight{};
 };

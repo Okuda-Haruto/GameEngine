@@ -238,6 +238,13 @@ void GameScene::Initialize(shared_ptr<Input> input) {
 	sprite_[3]->SetPosition(Vector2{ 1200,720 - 84 });
 	sprite_[3]->SetSize(Vector2{ 64,64 });
 
+	ring_ = std::make_unique<PrimitiveRing>();
+	ring_->Initialize(TextureManager::GetInstance()->GetSrvIndex("resources/DebugResources/gradationLine.png"), gameCamera_->GetCamera(), GameEngine::GetDirectXCommon());
+	ringTransform_ = {};
+	ringTransform_.scale = { 2,2,2 };
+	ringMaterial_.color = { 1.0f,1.0f,1.0f,1.0f };
+	ringMaterial_.uvTransform = MakeTranslateMatrix({ 1.0f,1.0f,1.0f });
+
 	//背景
 	skydome_ = std::make_unique<Skydome>();
 	skydome_->Initialize(gameCamera_->GetCamera());
@@ -397,6 +404,14 @@ void GameScene::Update() {
 	transform.translate.y = 0.0f;
 	editor_4->SetTransform(transform);
 
+	ringTransform_.translate = boss_->GetTransform()->translate;
+	if (ringMaterial_.color.w > 0.0f) {
+		ringMaterial_.color.w -= 5.0f / 60.0f;
+		if (ringMaterial_.color.w < 0.0f) {
+			ringMaterial_.color.w = 0.0f;
+		}
+	}
+
 
 #ifdef USE_IMGUI
 	ImGui::Begin("操作方法");
@@ -484,6 +499,8 @@ void GameScene::Update() {
 	editor_2->Draw();
 	editor_3->Draw();
 	editor_4->Draw();
+
+	ring_->DrawBillBoard(ringTransform_, ringMaterial_);
 
 	//シリンダー
 	int32_t remainingRounds = player_->GetRemainingRounds();

@@ -33,6 +33,10 @@ private:
 	SRT particleTransform_;
 	std::unique_ptr<ParticleEmitter> particleEmitter_ = nullptr;
 
+	std::unique_ptr<PrimitiveRing> ring_;
+	SRT ringTransform_;
+	Material ringMaterial_;
+
 	//2Dモデル
 	std::array<bool, 2> isSpriteDraw_ = { true,false };
 	std::array<std::unique_ptr<Sprite>,2> sprite_;
