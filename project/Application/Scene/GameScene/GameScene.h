@@ -12,6 +12,7 @@
 #include "Character/Boss/Boss.h"
 #include <ColliderObject/ColliderObject.h>
 #include <BoxFilterData.h>
+#include <PrimitiveManager/PrimitiveRing.h>
 
 #include "Sprite/Sprite.h"
 #include "Editor/ParticleEditor/ParticleEditor.h"
@@ -67,6 +68,11 @@ private:
 	std::array<std::unique_ptr<Sprite>, 4> sprite_;
 	std::array<SRT,4> spriteTransform;
 
+	std::unique_ptr<PrimitiveRing> ring_;
+	SRT ringTransform_;
+	Material ringMaterial_;
+
+
 
 	//光源
 	shared_ptr<DirectionalLight> directionalLight_;
@@ -93,5 +99,7 @@ public:
 
 	std::vector<std::unique_ptr<BackGround>> LoadBackGround(std::string csvfile);
 	void SaveBackGround(std::string csvfile);
+	
+	void SetRingColorA(float a) { ringMaterial_.color.w = a; }
 };
 

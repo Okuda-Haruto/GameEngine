@@ -250,6 +250,9 @@
     <ClCompile Include="Application\Collider\GroundCollision.cpp">
       <Filter>Application\Collider</Filter>
     </ClCompile>
+    <ClCompile Include="GameEngine\Modules\PrimitiveManager\PrimitiveRing.cpp">
+      <Filter>GameEngine\Modules\PrimitiveManager</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\BackGround\Ground\Ground.h">
@@ -602,6 +605,9 @@
     </ClInclude>
     <ClInclude Include="Application\Collider\GroundCollision.h">
       <Filter>Application\Collider</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Modules\PrimitiveManager\PrimitiveRing.h">
+      <Filter>GameEngine\Modules\PrimitiveManager</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

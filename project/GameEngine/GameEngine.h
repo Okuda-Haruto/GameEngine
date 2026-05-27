@@ -38,6 +38,7 @@
 #include "ParticleManager/ParticleManager.h"
 #include "PrimitiveManager/Primitive3DManager.h"
 #include <PrimitiveManager/PrimitiveBox.h>
+#include <PrimitiveManager/PrimitiveRing.h>
 #include "AudioManager/AudioManager.h"
 
 #include <vector>
@@ -243,6 +244,8 @@ private:
 	void DrawSphere_(std::list<Primitive3DManager::PrimitiveSphere> spheres, Primitive3DManager::PrimitiveResource primitiveResource);
 
 	void DrawPrimitiveBox_(PrimitiveBox* primitiveBox);
+	void DrawPrimitiveRing_(PrimitiveRing* primitiveRing, SRT transform, Material material);
+	void DrawPrimitiveRing_Billboard_(PrimitiveRing* primitiveRing, SRT transform, Material material);
 
 	WindowsAPI* GetWindowsAPI_() { return winApp_.get(); }
 
@@ -338,6 +341,8 @@ public:
 	static void DrawSphere(std::list<Primitive3DManager::PrimitiveSphere> spheres, Primitive3DManager::PrimitiveResource primitiveResource) { return GetInstance()->DrawSphere_(spheres, primitiveResource); }
 
 	static void DrawPrimitiveBox(PrimitiveBox* primitiveBox) { return GetInstance()->DrawPrimitiveBox_(primitiveBox); }
+	static void DrawPrimitiveRing(PrimitiveRing* primitiveRing, SRT transform, Material material) { return GetInstance()->DrawPrimitiveRing_(primitiveRing, transform, material); };
+	static void DrawPrimitiveRing_Billboard(PrimitiveRing* primitiveRing, SRT transform, Material material) { return GetInstance()->DrawPrimitiveRing_Billboard_(primitiveRing, transform, material); };
 
 	[[nodiscard]]
 	static WindowsAPI* GetWindowsAPI() { return GetInstance()->GetWindowsAPI_(); }
