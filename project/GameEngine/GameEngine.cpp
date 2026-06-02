@@ -169,6 +169,8 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	assert(VignettePSBlob != nullptr);
 	Microsoft::WRL::ComPtr<IDxcBlob> BoxFilterPSBlob = dxCommon_->CompileShader(L"./resources/Shader/BoxFilter.PS.hlsl", L"ps_6_0");
 	assert(BoxFilterPSBlob != nullptr);
+	Microsoft::WRL::ComPtr<IDxcBlob> GaussianFilterPSBlob = dxCommon_->CompileShader(L"./resources/Shader/GaussianFilter.PS.hlsl", L"ps_6_0");
+	assert(GaussianFilterPSBlob != nullptr);
 	Microsoft::WRL::ComPtr<IDxcBlob> CubemapVSBlob = dxCommon_->CompileShader(L"./resources/Shader/Cubemap.VS.hlsl", L"vs_6_0");
 	assert(CubemapVSBlob != nullptr);
 	Microsoft::WRL::ComPtr<IDxcBlob> CubemapPSBlob = dxCommon_->CompileShader(L"./resources/Shader/Cubemap.PS.hlsl", L"ps_6_0");
@@ -188,6 +190,7 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	screen_ColorChange_PipelineState_ = Screen_PipelineStateInitialvalue(device_, screen_RootSignature_, CopyImageVSBlob.Get(), ColorChangePSBlob.Get());
 	screen_Vignette_PipelineState_ = Screen_PipelineStateInitialvalue(device_, screen_Vignette_RootSignature_, CopyImageVSBlob.Get(), VignettePSBlob.Get());
 	screen_BoxFilter_PipelineState_ = Screen_PipelineStateInitialvalue(device_, screen_RootSignature_, CopyImageVSBlob.Get(), BoxFilterPSBlob.Get());
+	screen_GaussianFilter_PipelineState_ = Screen_PipelineStateInitialvalue(device_, screen_RootSignature_, CopyImageVSBlob.Get(), GaussianFilterPSBlob.Get());
 	cubemap_PipelineState_ = Cubemap_PipelineStateInitialvalue(device_, cubemap_RootSignature_, CubemapVSBlob.Get(), CubemapPSBlob.Get());
 	//XAudioエンジンのインスタンスを生成
 	hr = XAudio2Create(&xAudio2_, 0, XAUDIO2_DEFAULT_PROCESSOR);
@@ -1193,6 +1196,31 @@ void GameEngine::DrawScreen_(std::string textureName, BoxFilterData data) {
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList_->SetGraphicsRootSignature(screen_RootSignature_.Get());
 	commandList_->SetPipelineState(screen_BoxFilter_PipelineState_.Get());	//PSOを設定
+
+	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
+	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	boxFilterResource_->Map(0, nullptr, reinterpret_cast<void**>(&boxFilterData_));
+
+	*boxFilterData_ = data;
+
+	boxFilterResource_->Unmap(0, nullptr);
+
+	//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
+	commandList_->SetGraphicsRootDescriptorTable(1, srvManager_->GetGPUDescriptorHandle(TextureManager::GetInstance()->GetSrvIndex(textureName)));
+
+	commandList_->SetGraphicsRootConstantBufferView(0, boxFilterResource_->GetGPUVirtualAddress());
+
+	//描画(DrawCall)(頂点は勝手に入るのでIndexedじゃない)
+	commandList_->DrawInstanced(3, 1, 0, 0);
+
+}
+
+void GameEngine::DrawGaussianFillter_(std::string textureName, BoxFilterData data) {
+
+	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
+	commandList_->SetGraphicsRootSignature(screen_RootSignature_.Get());
+	commandList_->SetPipelineState(screen_GaussianFilter_PipelineState_.Get());	//PSOを設定
 
 	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
 	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

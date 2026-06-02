@@ -97,6 +97,7 @@ private:
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> screen_ColorChange_PipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> screen_Vignette_PipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> screen_BoxFilter_PipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> screen_GaussianFilter_PipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> cubemap_PipelineState_ = nullptr;
 
 public:
@@ -237,6 +238,7 @@ private:
 	void DrawScreen_(std::string textureName, ColorChange::ColorMode colorMode, float intensity);
 	void DrawScreen_(std::string textureName, VignetteData data);
 	void DrawScreen_(std::string textureName, BoxFilterData data);
+	void DrawGaussianFillter_(std::string textureName, BoxFilterData data);
 
 	void DrawLine_(std::list<Primitive3DManager::PrimitiveLine> lines, Primitive3DManager::PrimitiveResource primitiveResource);
 	void DrawPoint_(std::list<Primitive3DManager::PrimitivePoint> points, Primitive3DManager::PrimitiveResource primitiveResource);
@@ -334,6 +336,7 @@ public:
 	static void DrawScreen(std::string textureName, ColorChange::ColorMode colorMode, float intensity) { return GetInstance()->DrawScreen_(textureName, colorMode, intensity); };
 	static void DrawScreen(std::string textureName, VignetteData data) { return GetInstance()->DrawScreen_(textureName, data); }
 	static void DrawScreen(std::string textureName, BoxFilterData data) { return GetInstance()->DrawScreen_(textureName, data); }
+	static void DrawGaussiianFillter(std::string textureName, BoxFilterData data) { return GetInstance()->DrawGaussianFillter_(textureName, data); }
 
 	static void DrawLine(std::list<Primitive3DManager::PrimitiveLine> lines, Primitive3DManager::PrimitiveResource primitiveResource) { return GetInstance()->DrawLine_(lines, primitiveResource); }
 	static void DrawPoint(std::list<Primitive3DManager::PrimitivePoint> points, Primitive3DManager::PrimitiveResource primitiveResource) { return GetInstance()->DrawPoint_(points, primitiveResource); }

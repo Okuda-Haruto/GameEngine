@@ -37,26 +37,29 @@
     <FxCompile Include="resources\Shader\InstanceLine.PS.hlsl">
       <Filter>GameEngine\Shader</Filter>
     </FxCompile>
-    <FxCompile Include="resources\Shader\CopyImage.PS.hlsl">
-      <Filter>GameEngine\Shader</Filter>
-    </FxCompile>
-    <FxCompile Include="resources\Shader\CopyImage.VS.hlsl">
-      <Filter>GameEngine\Shader</Filter>
-    </FxCompile>
     <FxCompile Include="resources\Shader\Cubemap.VS.hlsl">
       <Filter>GameEngine\Shader</Filter>
     </FxCompile>
     <FxCompile Include="resources\Shader\Cubemap.PS.hlsl">
       <Filter>GameEngine\Shader</Filter>
     </FxCompile>
+    <FxCompile Include="resources\Shader\BoxFilter.PS.hlsl">
+      <Filter>GameEngine\Shader\Fillter</Filter>
+    </FxCompile>
     <FxCompile Include="resources\Shader\ColorChange.PS.hlsl">
-      <Filter>GameEngine\Shader</Filter>
+      <Filter>GameEngine\Shader\Fillter</Filter>
+    </FxCompile>
+    <FxCompile Include="resources\Shader\CopyImage.PS.hlsl">
+      <Filter>GameEngine\Shader\Fillter</Filter>
+    </FxCompile>
+    <FxCompile Include="resources\Shader\CopyImage.VS.hlsl">
+      <Filter>GameEngine\Shader\Fillter</Filter>
     </FxCompile>
     <FxCompile Include="resources\Shader\Vignette.PS.hlsl">
-      <Filter>GameEngine\Shader</Filter>
+      <Filter>GameEngine\Shader\Fillter</Filter>
     </FxCompile>
-    <FxCompile Include="resources\Shader\BoxFilter.PS.hlsl">
-      <Filter>GameEngine\Shader</Filter>
+    <FxCompile Include="resources\Shader\GaussianFilter.PS.hlsl">
+      <Filter>GameEngine\Shader\Fillter</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
@@ -627,11 +630,11 @@
     <None Include="resources\Shader\Material.hlsli">
       <Filter>GameEngine\Shader</Filter>
     </None>
-    <None Include="resources\Shader\CopyImage.hlsli">
-      <Filter>GameEngine\Shader</Filter>
-    </None>
     <None Include="resources\Shader\Cubemap.hlsli">
       <Filter>GameEngine\Shader</Filter>
+    </None>
+    <None Include="resources\Shader\CopyImage.hlsli">
+      <Filter>GameEngine\Shader\Fillter</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -859,6 +862,9 @@
     </Filter>
     <Filter Include="Application\ColiderObject">
       <UniqueIdentifier>{58bafceb-5255-4031-8a16-a8b99ea52f05}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\Shader\Fillter">
+      <UniqueIdentifier>{e99d946c-2ddf-4523-94b3-f7b1f3197576}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

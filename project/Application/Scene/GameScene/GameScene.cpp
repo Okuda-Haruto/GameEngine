@@ -544,7 +544,7 @@ void GameScene::Update() {
 
 	GameEngine::RenderPreDraw("BoxFilter");
 
-	GameEngine::DrawScreen("ColorChange", boxFilterData_);
+	GameEngine::DrawGaussiianFillter("ColorChange", boxFilterData_);
 
 	GameEngine::RenderPostDraw();
 

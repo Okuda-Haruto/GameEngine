@@ -612,7 +612,7 @@ void SampleScene::Update() {
 	BoxFilterData data;
 	data.scale = 5;
 
-	GameEngine::DrawScreen("render", data);
+	GameEngine::DrawGaussiianFillter("render", data);
 
 	GameEngine::RenderPostDraw();
 }
@@ -627,8 +627,8 @@ void SampleScene::Draw() {
 	
 	VignetteData data;
 	data.vignetteIntensity = 16.0f;
-	data.vignetteCurve = 6.0f;
+	data.vignetteCurve = 0.2f;
 
-	GameEngine::DrawScreen("BoxFilter", data);
+	GameEngine::DrawScreen("BoxFilter");
 
 }
