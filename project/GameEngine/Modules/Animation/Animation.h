@@ -6,5 +6,8 @@
 #include <memory>
 #include <vector>
 #include <windows.h>
+#include <Joint.h>
 
-QuaternionTransform GetAnimationTransform(std::weak_ptr<Node> node, std::vector<AnimationData> animationData, UINT animationIndex, AnimationInterpolation interpolation, float time);
+void ApplyAnimation(Skeleton& skeleton, AnimationData& animationData, AnimationInterpolation interpolation, float time);
+
+Skeleton CreateSkelton(std::shared_ptr<Node>& rootNode);

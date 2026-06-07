@@ -157,15 +157,15 @@
     <ClInclude Include="GameEngine\Data\Field.h" />
     <ClInclude Include="GameEngine\Data\Fog.h" />
     <ClInclude Include="GameEngine\Data\InstancingTransformationMatrix.h" />
-    <ClInclude Include="GameEngine\Data\KeyFrame.h" />
+    <ClInclude Include="GameEngine\Data\Keyframe.h" />
     <ClInclude Include="GameEngine\Data\MaterialData.h" />
     <ClInclude Include="GameEngine\Data\Node.h" />
+    <ClInclude Include="GameEngine\Data\NodeAnimation.h" />
     <ClInclude Include="GameEngine\Data\Offset.h" />
     <ClInclude Include="GameEngine\Data\Particle.h" />
     <ClInclude Include="GameEngine\Data\BoneMatrix.h" />
     <ClInclude Include="GameEngine\Data\Parts.h" />
     <ClInclude Include="GameEngine\Data\PointLightElement.h" />
-    <ClInclude Include="GameEngine\Data\QuaternionKeyFlame.h" />
     <ClInclude Include="GameEngine\Data\SpotLightElement.h" />
     <ClInclude Include="GameEngine\Data\TransformationMatrix.h" />
     <ClInclude Include="GameEngine\Data\VertexData.h" />
@@ -240,6 +240,7 @@
     <ClInclude Include="Application\BackGround\Ground\Ground.h" />
     <ClInclude Include="GameEngine\Math\Easing.h" />
     <ClInclude Include="GameEngine\Modules\ParticleManager\ParticleManager.h" />
+    <ClInclude Include="GameEngine\Data\Joint.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">

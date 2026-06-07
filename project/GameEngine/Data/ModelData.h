@@ -1,6 +1,8 @@
 #pragma once
 #include <vector>
 #include <string>
+#include <map>
+
 #include "ObjectVertexData.h"
 #include "Offset.h"
 #include "Bone.h"
@@ -13,8 +15,9 @@ struct ModelData {
 	std::vector<uint32_t> indexes;
 	std::vector<Offset> offset;
 	std::vector<UINT> textureIndex;
-	std::vector<AnimationData> animations;
+	std::map<std::string, AnimationData> animations;
 	std::vector<Bone> bones;
 	MaterialData material;
 	std::shared_ptr<Node> rootNode;
+	std::map<std::string, std::shared_ptr<Node>> nodeMap;
 };

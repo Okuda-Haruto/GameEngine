@@ -469,7 +469,7 @@ void Boss::Initialize(GameScene* gameScene, GameCamera* gameCamera, ParticleEmit
 	object_ = std::make_unique<Object>();
 	object_->Initialize(ModelHolder::GetInstance()->GetModel(ModelIndex::Boss));
 	object_->SetIsUseAnimation(true);
-	object_->SetAnimationIndex(1);
+	object_->SetAnimationName("Start");
 	object_->SetAnimationInterpolation(AnimationInterpolation::Cubic_Spline);
 	transform_.scale = { 0.562558f * 2,0.562558f * 2,0.562558f * 2 };
 	transform_.rotate = { 0.0f,0.0f,0.0f };
@@ -495,7 +495,7 @@ void Boss::Update() {
 
 	if (isStartAnimation_) {
 		if (object_->IsEndAnimation()) {
-			object_->SetAnimationIndex(0);
+			object_->SetAnimationName("Start");
 			object_->ResetAnimationTime();
 			object_->SetIsLoopAnimation(true);
 			isStartAnimation_ = false;
@@ -519,7 +519,7 @@ void Boss::Update() {
 				weights_[3] = 3;
 			}
 
-			action_->Update();
+			//action_->Update();
 			if (action_->IsEnd()) {
 				action_->Finalize();
 				action_.reset();
