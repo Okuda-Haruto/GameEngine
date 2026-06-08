@@ -1,5 +1,5 @@
 #pragma once
-#include "BaseScene/BaseScene.h"
+#include "../BaseScene.h"
 #include "Sprite/Sprite.h"
 #include "BackGround/Skydome/Skydome.h"
 #include "BackGround/Ground/Ground.h"
@@ -9,7 +9,7 @@
 
 using namespace std;
 
-class GameOverScene : public BaseScene
+class ClearScene : public BaseScene
 {
 private:
 
@@ -34,7 +34,7 @@ private:
 
 public:
 
-	~GameOverScene();
+	~ClearScene();
 
 	//初期化
 	void Initialize(shared_ptr<Input> input) override;

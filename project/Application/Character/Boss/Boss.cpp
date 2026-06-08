@@ -4,7 +4,7 @@
 #include <Matrix4x4.h>
 #include <numbers>
 #include <Math/Easing.h>
-#include "Scene/GameScene/GameScene.h"
+#include <GameManager/BaseScene/GameScene/GameScene.h>
 #include "Operation/Operation.h"
 
 #pragma region BossAction_Shot_01
