@@ -1,10 +1,9 @@
 #pragma once
 #include "KeyFrame.h"
-#include "QuaternionKeyFlame.h"
 #include "AnimationData.h"
 #include "AnimationInterpolation.h"
 #include <vector>
 
-Vector3 LerpKeyFrame(std::vector<KeyFrame> keyFrame, AnimationData animationData, AnimationInterpolation interpolation, float t);
+Vector3 LerpKeyFrame(std::vector<Keyframe_Vector3> keyFrame, AnimationInterpolation interpolation, float time);
 
-Quaternion LerpKeyFrame(std::vector<QuaternionKeyFlame> keyFrame, AnimationData animationData, AnimationInterpolation interpolation, float t);
+Quaternion LerpKeyFrame(std::vector<Keyframe_Quaternion> keyFrame, AnimationInterpolation interpolation, float time);

@@ -69,23 +69,40 @@ void Model::Initialize(const std::string& directoryPath, const std::string& file
 		bone.finalMatrix = std::make_shared<Matrix4x4>();
 		*bone.finalMatrix = Inverse(modelData_.rootNode->localMatrix) * bone.offsetMatrix * SetWorldMatrix(modelData_.rootNode, modelData_.bones, bone);
 	}
+
+	if (modelData_.rootNode) {
+		skeleton_ = CreateSkelton(modelData_.rootNode);
+	}
 }
 
 //ボーンアニメーション
-void Model::BoneAnimation(std::vector<Bone>& bones, float time, UINT animationIndex, AnimationInterpolation interpolation) {
-	assert(animationIndex < modelData_.animations.size());
+void Model::BoneAnimation(Skeleton& skeleton, float time, std::string animationName, AnimationInterpolation interpolation) {
+	//読み込み済みアニメーションを検索
+	if (modelData_.animations.contains(animationName)) {
+		ApplyAnimation(skeleton, modelData_.animations[animationName], interpolation, time);
 
-	//ローカル座標
-	for (Bone& bone : bones) {
-		QuaternionTransform animationTransform = GetAnimationTransform(bone.node, modelData_.animations, animationIndex, interpolation, time);
-		bone.localMatrix = MakeQuaternionMatrix(animationTransform.scale, animationTransform.rotate, animationTransform.translate);
+		for (Joint& joint : skeleton.joints) {
+			joint.localMatrix = MakeQuaternionMatrix(joint.transform.scale, joint.transform.rotate, joint.transform.translate);
+			if (joint.parent) {	//親がいれば親の行列を掛ける
+				joint.skeltonSpaceMatrix = joint.localMatrix * skeleton.joints[*joint.parent].skeltonSpaceMatrix;
+			}
+			else {
+				joint.skeltonSpaceMatrix = joint.localMatrix;
+			}
+		}
+
+		//ワールド座標
+		//for (Bone& bone : bones) {
+		//	*bone.finalMatrix = bone.offsetMatrix * SetWorldMatrix(modelData_.rootNode, bones, bone);
+		//}
+
+		return;
 	}
 
-	//ワールド座標
-	for (Bone& bone : bones) {
-		*bone.finalMatrix = bone.offsetMatrix * SetWorldMatrix(modelData_.rootNode, bones, bone);
-	}
+	//存在しない場合assert
+	assert(false);
 
+	return;
 }
 
 

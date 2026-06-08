@@ -534,7 +534,7 @@
     <ClInclude Include="GameEngine\Data\AnimationData.h">
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\Data\KeyFrame.h">
+    <ClInclude Include="GameEngine\Data\Keyframe.h">
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\Math\LerpKeyFrame\LerpKeyFrame.h">
@@ -556,9 +556,6 @@
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\Data\InstancingTransformationMatrix.h">
-      <Filter>GameEngine\Data</Filter>
-    </ClInclude>
-    <ClInclude Include="GameEngine\Data\QuaternionKeyFlame.h">
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\Math\Quaternion.h">
@@ -608,6 +605,12 @@
     </ClInclude>
     <ClInclude Include="GameEngine\Modules\PrimitiveManager\PrimitiveRing.h">
       <Filter>GameEngine\Modules\PrimitiveManager</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Data\Joint.h">
+      <Filter>GameEngine\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Data\NodeAnimation.h">
+      <Filter>GameEngine\Data</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

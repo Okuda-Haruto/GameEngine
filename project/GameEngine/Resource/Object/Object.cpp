@@ -43,22 +43,24 @@ void Object::Initialize(shared_ptr<Model> model) {
 	}
 
 	isUseAnimation_ = false;
-	animationIndex_ = 0;
+	animationName_ = {};
 	isLoopAnimation_ = false;
 	animationTime_ = 0.0f;
 
 	bones_ = model_->GetBones();
+
+	skeleton_ = model_->GetSkeleton();
 }
 
 void Object::Update() {
 	//アニメーションするなら
 	if (isUseAnimation_) {
 		animationTime_ += 1.0f / 60.0f;
-		if (isLoopAnimation_ && IsEndAnimation()) {
-			AnimationData animationData = model_->GetAnimationData(animationIndex_);
-			animationTime_ -= float(animationData.duration / animationData.FPS);
+		if (isLoopAnimation_) {
+			AnimationData animationData = model_->GetAnimationData(animationName_);
+			animationTime_ = std::fmod(animationTime_,animationData.duration);
 		}
-		model_->BoneAnimation(bones_, animationTime_, animationIndex_, interpolation_);
+		model_->BoneAnimation(skeleton_, animationTime_, animationName_, interpolation_);
 	}
 }
 

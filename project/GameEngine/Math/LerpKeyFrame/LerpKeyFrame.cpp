@@ -1,155 +1,132 @@
 #include "LerpKeyFrame.h"
 #include <Easing.h>
 #include "Operation/Operation.h"
+#include <cassert>
 
-Vector3 LerpKeyFrame(std::vector<KeyFrame> keyFrame, AnimationData animationData, AnimationInterpolation interpolation, float t) {
-	//60fpsからアニメーションに合わせる
-	float time = t * float(animationData.FPS);
+Vector3 LerpKeyFrame(std::vector<Keyframe_Vector3> keyframe, AnimationInterpolation interpolation, float time) {
 
-	//範囲内に合わせる
-	time = std::min(float(keyFrame[keyFrame.size() - 1].time), std::max(time, float(keyFrame[0].time)));
-
-	KeyFrame minKeyFrame = keyFrame[0];
-	uint32_t minIndex = 0;
-	KeyFrame maxKeyFrame = keyFrame[keyFrame.size() - 1];
-	uint32_t maxIndex = int(keyFrame.size()) - 1;
-	for (uint32_t index = 0; index < keyFrame.size();index++) {
-		//より近いフレームを選別
-		if (keyFrame[index].time < time &&
-			keyFrame[index].time > minKeyFrame.time) {
-			minKeyFrame = keyFrame[index];
-			minIndex = index;
-		} else if (keyFrame[index].time > time &&
-			keyFrame[index].time < maxKeyFrame.time) {
-			maxKeyFrame = keyFrame[index];
-			maxIndex = index;
-		}
-	}
-
-	//同値だとダメ
-	if (minKeyFrame.time == maxKeyFrame.time) {
-		if (minKeyFrame.time <= keyFrame[0].time + 1.0f) {
-			maxKeyFrame.time = keyFrame[1].time;
-			maxIndex = 1;
-		} else {
-			minKeyFrame.time = keyFrame[keyFrame.size() - 2].time;
-			minIndex = int(keyFrame.size()) - 2;
-		}
+	assert(!keyframe.empty());
+	//キーが一つか、開始前なら最初のキーフレームの値
+	if (keyframe.size() == 1 || time <= keyframe[0].time) {
+		return keyframe[0].value;
 	}
 
 	Vector3 result;
-	switch (interpolation)
-	{
-	case AnimationInterpolation::Linear:
-		result = Lerp(minKeyFrame.vector, maxKeyFrame.vector, float(time - minKeyFrame.time) / float(maxKeyFrame.time - minKeyFrame.time));
-		break;
-	case AnimationInterpolation::Step:
-		if (time - minKeyFrame.time <= maxKeyFrame.time - time) {
-			result = minKeyFrame.vector;
-		} else {
-			result = maxKeyFrame.vector;
-		}
-		break;
-	case AnimationInterpolation::Cubic_Spline:
-		Vector3 vector[4];
-		if (minIndex <= 0) {
-			vector[0] = keyFrame[minIndex].vector;
-			vector[1] = keyFrame[minIndex].vector;
-			vector[2] = keyFrame[maxIndex].vector;
-			vector[3] = keyFrame[maxIndex + 1].vector;
-		} else if (maxIndex >= keyFrame.size() - 1) {
-			vector[0] = keyFrame[minIndex - 1].vector;
-			vector[1] = keyFrame[minIndex].vector;
-			vector[2] = keyFrame[maxIndex].vector;
-			vector[3] = keyFrame[maxIndex].vector;
-		} else {
-			vector[0] = keyFrame[minIndex - 1].vector;
-			vector[1] = keyFrame[minIndex].vector;
-			vector[2] = keyFrame[maxIndex].vector;
-			vector[3] = keyFrame[maxIndex + 1].vector;
-		}
+	for (size_t index = 0; index < keyframe.size() - 1; ++index) {
+		size_t nextIndex = index + 1;
+		if (keyframe[index].time <= time && time <= keyframe[nextIndex].time) {
+			float t = (time - keyframe[index].time) / (keyframe[nextIndex].time - keyframe[index].time);
 
-		result = Spline(vector[0], vector[1], vector[2], vector[3], float(time - minKeyFrame.time) / float(maxKeyFrame.time - minKeyFrame.time));
-		break;
-	default:
-		break;
+			//範囲内を補完
+			switch (interpolation)
+			{
+			case AnimationInterpolation::Linear:
+				result = Lerp(keyframe[index].value, keyframe[nextIndex].value, t);
+				return result;
+				break;
+			case AnimationInterpolation::Step:
+				if (time - keyframe[index].time <= keyframe[nextIndex].time - time) {
+					result = keyframe[index].value;
+				}
+				else {
+					result = keyframe[nextIndex].value;
+				}
+				return result;
+				break;
+			case AnimationInterpolation::Cubic_Spline:
+				Vector3 vector[4];
+				if (index <= 0) {
+					vector[0] = keyframe[index].value;
+					vector[1] = keyframe[index].value;
+					vector[2] = keyframe[nextIndex].value;
+					vector[3] = keyframe[nextIndex + 1].value;
+				}
+				else if (nextIndex >= keyframe.size() - 1) {
+					vector[0] = keyframe[index - 1].value;
+					vector[1] = keyframe[index].value;
+					vector[2] = keyframe[nextIndex].value;
+					vector[3] = keyframe[nextIndex].value;
+				}
+				else {
+					vector[0] = keyframe[index - 1].value;
+					vector[1] = keyframe[index].value;
+					vector[2] = keyframe[nextIndex].value;
+					vector[3] = keyframe[nextIndex + 1].value;
+				}
+
+				result = Spline(vector[0], vector[1], vector[2], vector[3], t);
+				return result;
+				break;
+			default:
+				break;
+			}
+		}
 	}
 
-	return result;
+	//ここまで来たら最後の値を返す
+	return (*keyframe.rbegin()).value;
 }
 
-Quaternion LerpKeyFrame(std::vector<QuaternionKeyFlame> keyFrame, AnimationData animationData, AnimationInterpolation interpolation, float t) {
-	//60fpsからアニメーションに合わせる
-	float time = t * float(animationData.FPS);
+Quaternion LerpKeyFrame(std::vector<Keyframe_Quaternion> keyframe, AnimationInterpolation interpolation, float time) {
 
-	//範囲内に合わせる
-	time = std::min(float(animationData.duration), std::max(time, float(keyFrame[0].time)));
-
-	QuaternionKeyFlame minKeyFrame = keyFrame[0];
-	uint32_t minIndex = 0;
-	QuaternionKeyFlame maxKeyFrame = keyFrame[keyFrame.size() - 1];
-	uint32_t maxIndex = int(keyFrame.size()) - 1;
-	for (uint32_t index = 0; index < keyFrame.size(); index++) {
-		//より近いフレームを選別
-		if (keyFrame[index].time < time &&
-			keyFrame[index].time > minKeyFrame.time) {
-			minKeyFrame = keyFrame[index];
-			minIndex = index;
-		} else if (keyFrame[index].time > time &&
-			keyFrame[index].time < maxKeyFrame.time) {
-			maxKeyFrame = keyFrame[index];
-			maxIndex = index;
-		}
-	}
-
-	//同値だとダメ
-	if (minKeyFrame.time == maxKeyFrame.time) {
-		if (minKeyFrame.time <= keyFrame[0].time + 1.0f) {
-			maxKeyFrame.time = keyFrame[1].time;
-			maxIndex = 1;
-		} else {
-			minKeyFrame.time = keyFrame[keyFrame.size() - 2].time;
-			minIndex = int(keyFrame.size()) - 2;
-		}
+	assert(!keyframe.empty());
+	//キーが一つか、開始前なら最初のキーフレームの値
+	if (keyframe.size() == 1 || time <= keyframe[0].time) {
+		return keyframe[0].value;
 	}
 
 	Quaternion result;
-	switch (interpolation)
-	{
-	case AnimationInterpolation::Linear:
-		result = Slerp(minKeyFrame.quaternion, maxKeyFrame.quaternion, float(time - minKeyFrame.time) / float(maxKeyFrame.time - minKeyFrame.time));
-		break;
-	case AnimationInterpolation::Step:
-		if (time - minKeyFrame.time <= maxKeyFrame.time - time) {
-			result = minKeyFrame.quaternion;
-		} else {
-			result = maxKeyFrame.quaternion;
-		}
-		break;
-	case AnimationInterpolation::Cubic_Spline:
-		Quaternion quaternion[4];
-		if (minIndex <= 0) {
-			quaternion[0] = keyFrame[minIndex].quaternion;
-			quaternion[1] = keyFrame[minIndex].quaternion;
-			quaternion[2] = keyFrame[maxIndex].quaternion;
-			quaternion[3] = keyFrame[maxIndex + 1].quaternion;
-		} else if (maxIndex >= keyFrame.size() - 1) {
-			quaternion[0] = keyFrame[minIndex - 1].quaternion;
-			quaternion[1] = keyFrame[minIndex].quaternion;
-			quaternion[2] = keyFrame[maxIndex].quaternion;
-			quaternion[3] = keyFrame[maxIndex].quaternion;
-		} else {
-			quaternion[0] = keyFrame[minIndex - 1].quaternion;
-			quaternion[1] = keyFrame[minIndex].quaternion;
-			quaternion[2] = keyFrame[maxIndex].quaternion;
-			quaternion[3] = keyFrame[maxIndex + 1].quaternion;
-		}
+	for (size_t index = 0; index < keyframe.size() - 1; ++index) {
+		size_t nextIndex = index + 1;
+		if (keyframe[index].time <= time && time <= keyframe[nextIndex].time) {
+			float t = (time - keyframe[index].time) / (keyframe[nextIndex].time - keyframe[index].time);
 
-		result = Squad(quaternion[0], quaternion[1], quaternion[2], quaternion[3], float(time - minKeyFrame.time) / float(maxKeyFrame.time - minKeyFrame.time));
-		break;
-	default:
-		break;
+			//範囲内を補完
+			switch (interpolation)
+			{
+			case AnimationInterpolation::Linear:
+				result = Slerp(keyframe[index].value, keyframe[nextIndex].value, t);
+				return result;
+				break;
+			case AnimationInterpolation::Step:
+				if (time - keyframe[index].time <= keyframe[nextIndex].time - time) {
+					result = keyframe[index].value;
+				}
+				else {
+					result = keyframe[nextIndex].value;
+				}
+				return result;
+				break;
+			case AnimationInterpolation::Cubic_Spline:
+				Quaternion quaternion[4];
+				if (index <= 0) {
+					quaternion[0] = keyframe[index].value;
+					quaternion[1] = keyframe[index].value;
+					quaternion[2] = keyframe[nextIndex].value;
+					quaternion[3] = keyframe[nextIndex + 1].value;
+				}
+				else if (nextIndex >= keyframe.size() - 1) {
+					quaternion[0] = keyframe[index - 1].value;
+					quaternion[1] = keyframe[index].value;
+					quaternion[2] = keyframe[nextIndex].value;
+					quaternion[3] = keyframe[nextIndex].value;
+				}
+				else {
+					quaternion[0] = keyframe[index - 1].value;
+					quaternion[1] = keyframe[index].value;
+					quaternion[2] = keyframe[nextIndex].value;
+					quaternion[3] = keyframe[nextIndex + 1].value;
+				}
+
+				result = Squad(quaternion[0], quaternion[1], quaternion[2], quaternion[3], t);
+				return result;
+				break;
+			default:
+				break;
+			}
+		}
 	}
 
-	return result;
+	//ここまで来たら最後の値を返す
+	return (*keyframe.rbegin()).value;
 }

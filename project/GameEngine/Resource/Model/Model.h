@@ -9,6 +9,7 @@
 #include <Offset.h>
 #include <DirectXCommon/DirectXCommon.h>
 #include <TextureManager/TextureManager.h>
+#include <Joint.h>
 
 //モデル
 class Model {
@@ -32,6 +33,7 @@ private:
 
 	//モデルデータ
 	ModelData modelData_;
+	Skeleton skeleton_;
 
 	DirectXCommon* dxCommon_ = nullptr;
 public:
@@ -52,12 +54,15 @@ public:
 	UINT GetTextureIndex(UINT offsetNum) { if (modelData_.textureIndex.empty()) return TextureManager::GetInstance()->GetWhite2x2(); return modelData_.textureIndex[offsetNum]; }
 	//ボーン
 	std::vector<Bone> GetBones() { return modelData_.bones; }
+
+	Skeleton GetSkeleton() { return skeleton_; }
+
 	//ボーンアニメーション
-	void BoneAnimation(std::vector<Bone>& bones, float time, UINT animationIndex, AnimationInterpolation interpolation);
+	void BoneAnimation(Skeleton& skeleton, float time, std::string animationName, AnimationInterpolation interpolation);
 	//アニメーションが終了しているか
-	bool IsEndAnimation(float time, UINT index) { return time * modelData_.animations[index].FPS >= modelData_.animations[index].duration; }
+	bool IsEndAnimation(float time, std::string animationName) { return time  >= modelData_.animations[animationName].duration; }
 	//アニメーションデータ
-	AnimationData GetAnimationData(UINT index) { return modelData_.animations[index]; }
+	AnimationData GetAnimationData(std::string animationName) { return modelData_.animations[animationName]; }
 
 	DirectXCommon* GetDirectXCommon() { return dxCommon_; }
 private:
@@ -66,5 +71,4 @@ private:
 	Matrix4x4 SetWorldMatrix(std::shared_ptr<Node> node, std::vector<Bone>& bones, Bone bone);
 
 	Matrix4x4 FindBoneLocalMatrix(std::vector<Bone>& bones, std::string boneName);
-
 };
