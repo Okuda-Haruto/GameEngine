@@ -70,9 +70,9 @@
     <ClCompile Include="Application\GameManager\SceneFactory\SceneFactory.cpp" />
     <ClCompile Include="Application\ModelHolder\ModelHolder.cpp" />
     <ClCompile Include="Application\GameCamera\GameCamera.cpp" />
-    <ClCompile Include="Application\Scene\ClearScene\ClearScene.cpp" />
-    <ClCompile Include="Application\Scene\GameOverScene\GameOverScene.cpp" />
-    <ClCompile Include="Application\Scene\TitleScene\TitleScene.cpp" />
+    <ClCompile Include="Application\GameManager\BaseScene\ClearScene\ClearScene.cpp" />
+    <ClCompile Include="Application\GameManager\BaseScene\GameOverScene\GameOverScene.cpp" />
+    <ClCompile Include="Application\GameManager\BaseScene\TitleScene\TitleScene.cpp" />
     <ClCompile Include="Application\ColliderObject\ColliderObject.cpp" />
     <ClCompile Include="GameEngine\DebugTool\D3DResourceLeakChecker.cpp" />
     <ClCompile Include="GameEngine\DebugTool\DebugCamera.cpp" />
@@ -96,13 +96,13 @@
     <ClCompile Include="GameEngine\Modules\PrimitiveManager\Primitive3DManager.cpp" />
     <ClCompile Include="GameEngine\Modules\PrimitiveManager\PrimitiveBox.cpp" />
     <ClCompile Include="GameEngine\Modules\PrimitiveManager\PrimitiveRing.cpp" />
-    <ClCompile Include="GameEngine\Modules\SceneManager\SceneManager.cpp" />
+    <ClCompile Include="Application\GameManager\SceneManager\SceneManager.cpp" />
     <ClCompile Include="GameEngine\Modules\SpriteManager\SpriteManager.cpp" />
     <ClCompile Include="GameEngine\Modules\SRVManager\SRVManager.cpp" />
     <ClCompile Include="GameEngine\Modules\TextureManager\TextureManager.cpp" />
     <ClCompile Include="GameEngine\Modules\WindowsAPI\WindowsAPI.cpp" />
     <ClCompile Include="GameEngine\Resource\Audio\Audio.cpp" />
-    <ClCompile Include="GameEngine\Resource\BaseScene\BaseScene.cpp" />
+    <ClCompile Include="Application\GameManager\BaseScene\BaseScene.cpp" />
     <ClCompile Include="GameEngine\Resource\Camera\Camera.cpp" />
     <ClCompile Include="GameEngine\Resource\DirectionalLight\DirectionalLight.cpp" />
     <ClCompile Include="GameEngine\Resource\Model\Model.cpp" />
@@ -112,7 +112,7 @@
     <ClCompile Include="GameEngine\Resource\SpotLight\SpotLight.cpp" />
     <ClCompile Include="GameEngine\Resource\Sprite\Sprite.cpp" />
     <ClCompile Include="GameEngine\Modules\Input\Input.cpp" />
-    <ClCompile Include="Application\Scene\GameScene\GameScene.cpp" />
+    <ClCompile Include="Application\GameManager\BaseScene\GameScene\GameScene.cpp" />
     <ClCompile Include="Application\BackGround\Ground\Ground.cpp" />
     <ClCompile Include="main.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Development|x64'">MaxSpeed</Optimization>
@@ -142,9 +142,9 @@
     <ClInclude Include="Application\GameManager\SceneFactory\SceneFactory.h" />
     <ClInclude Include="Application\ModelHolder\ModelHolder.h" />
     <ClInclude Include="Application\GameCamera\GameCamera.h" />
-    <ClInclude Include="Application\Scene\ClearScene\ClearScene.h" />
-    <ClInclude Include="Application\Scene\GameOverScene\GameOverScene.h" />
-    <ClInclude Include="Application\Scene\TitleScene\TitleScene.h" />
+    <ClInclude Include="Application\GameManager\BaseScene\ClearScene\ClearScene.h" />
+    <ClInclude Include="Application\GameManager\BaseScene\GameOverScene\GameOverScene.h" />
+    <ClInclude Include="Application\GameManager\BaseScene\TitleScene\TitleScene.h" />
     <ClInclude Include="Application\ColliderObject\ColliderObject.h" />
     <ClInclude Include="Application\Collider\CollisionID.h" />
     <ClInclude Include="GameEngine\Data\AnimationData.h" />
@@ -218,13 +218,13 @@
     <ClInclude Include="GameEngine\Modules\PrimitiveManager\Primitive3DManager.h" />
     <ClInclude Include="GameEngine\Modules\PrimitiveManager\PrimitiveBox.h" />
     <ClInclude Include="GameEngine\Modules\PrimitiveManager\PrimitiveRing.h" />
-    <ClInclude Include="GameEngine\Modules\SceneManager\SceneManager.h" />
+    <ClInclude Include="Application\GameManager\SceneManager\SceneManager.h" />
     <ClInclude Include="GameEngine\Modules\SpriteManager\SpriteManager.h" />
     <ClInclude Include="GameEngine\Modules\SRVManager\SRVManager.h" />
     <ClInclude Include="GameEngine\Modules\TextureManager\TextureManager.h" />
     <ClInclude Include="GameEngine\Modules\WindowsAPI\WindowsAPI.h" />
     <ClInclude Include="GameEngine\Resource\Audio\Audio.h" />
-    <ClInclude Include="GameEngine\Resource\BaseScene\BaseScene.h" />
+    <ClInclude Include="Application\GameManager\BaseScene\BaseScene.h" />
     <ClInclude Include="GameEngine\Resource\Camera\Camera.h" />
     <ClInclude Include="GameEngine\Resource\DirectionalLight\DirectionalLight.h" />
     <ClInclude Include="GameEngine\Resource\Model\Model.h" />
@@ -236,7 +236,7 @@
     <ClInclude Include="GameEngine\Modules\Input\Input.h" />
     <ClInclude Include="Application\SampleScene\SampleScene.h" />
     <ClInclude Include="Application\BackGround\Skydome\Skydome.h" />
-    <ClInclude Include="Application\Scene\GameScene\GameScene.h" />
+    <ClInclude Include="Application\GameManager\BaseScene\GameScene\GameScene.h" />
     <ClInclude Include="Application\BackGround\Ground\Ground.h" />
     <ClInclude Include="GameEngine\Math\Easing.h" />
     <ClInclude Include="GameEngine\Modules\ParticleManager\ParticleManager.h" />

@@ -1,8 +1,8 @@
 #include "SceneFactory.h"
-#include "Scene/TitleScene/TitleScene.h"
-#include "Scene/GameScene/GameScene.h"
-#include "Scene/GameOverScene/GameOverScene.h"
-#include "Scene/ClearScene/ClearScene.h"
+#include "BaseScene/TitleScene/TitleScene.h"
+#include "BaseScene/GameScene/GameScene.h"
+#include "BaseScene/GameOverScene/GameOverScene.h"
+#include "BaseScene/ClearScene/ClearScene.h"
 
 unique_ptr<BaseScene> SceneFactory::CreateScene(const std::string& sceneName) {
 	//次のシーンを生成
