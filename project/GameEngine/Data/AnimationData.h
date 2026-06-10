@@ -1,7 +1,10 @@
 #pragma once
-#include "KeyFrame.h"
+#include <NodeAnimation.h>
+#include <map>
+#include <string>
 
 struct AnimationData {
-	double duration;//再生時間
-	double FPS;		//再生速度
+	float duration;	//再生時間(秒)
+	//NodeAnimation
+	std::map<std::string, NodeAnimation> nodeAnimations;
 };

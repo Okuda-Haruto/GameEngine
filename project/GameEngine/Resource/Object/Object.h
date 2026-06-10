@@ -11,6 +11,7 @@
 #include <DirectionalLight/DirectionalLight.h>
 #include <PointLight/PointLight.h>
 #include <SpotLight/SpotLight.h>
+#include <Joint.h>
 
 using namespace std;
 
@@ -36,15 +37,19 @@ private:
 	//アニメーションを使用するか
 	bool isUseAnimation_ = false;
 	//使用するアニメーション
-	UINT animationIndex_ = 0;
+	std::string animationName_;
 	//アニメーションをループさせるか
 	bool isLoopAnimation_ = false;
 	//アニメーション用時間
 	float animationTime_ = 0.0f;
 	//アニメーション補完方法
 	AnimationInterpolation interpolation_ = AnimationInterpolation::Linear;
+
 	//ボーン
 	std::vector<Bone> bones_;
+	
+	//ジョイント
+	Skeleton skeleton_;
 
 	//環境マップ用テクスチャキューブ
 	int32_t cubeTextureIndex_;
@@ -108,16 +113,18 @@ public:
 
 	//アニメーションを使用するか
 	void SetIsUseAnimation(bool isUseAnimation) { isUseAnimation_ = isUseAnimation; }
-	//使用するアニメーション番号
-	void SetAnimationIndex(UINT animationIndex) { animationIndex_ = animationIndex; }
+	//使用するアニメーション
+	void SetAnimationName(std::string animationName) { animationName_ = animationName; }
 	//アニメーションをループさせるか
 	void SetIsLoopAnimation(bool isLoopAnimation) { isLoopAnimation_ = isLoopAnimation; }
 	//アニメーション時間リセット
 	void ResetAnimationTime() { animationTime_ = 0.0f; }
 	//アニメーションが終了しているか
-	bool IsEndAnimation(){ return model_->IsEndAnimation(animationTime_, animationIndex_); }
+	bool IsEndAnimation(){ return model_->IsEndAnimation(animationTime_, animationName_); }
 	//アニメーション補完方法
 	void SetAnimationInterpolation(AnimationInterpolation interpolation) { interpolation_ = interpolation; }
+
+	Skeleton GetSleleton() { return skeleton_; }
 
 	//ボーン
 	std::vector<Bone> GetBones() { return bones_; }

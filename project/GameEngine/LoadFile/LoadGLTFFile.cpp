@@ -104,72 +104,62 @@ ModelData LoadGLTFFile(const std::string& directoryPath, const std::string& file
 	}
 
 	//ノードの取得
-	modelData.rootNode = ReadNode(scene->mRootNode);
+	modelData.rootNode = ReadNode(scene->mRootNode, modelData);
 	//ノードとボーンを関係付ける
 	for (Bone& bone : modelData.bones) {
-		bone.node = FindNode(modelData.rootNode, bone.name);
+		bone.node = modelData.nodeMap[bone.name];
 	}
 
 	//Animationの解析
 	for (uint32_t animationIndex = 0; animationIndex < scene->mNumAnimations; ++animationIndex) {
 		aiAnimation* animation = scene->mAnimations[animationIndex];
-		AnimationData animationData;
-		animationData.duration = animation->mDuration;
-		animationData.FPS = animation->mTicksPerSecond;
+		AnimationData& animationData = modelData.animations[animation->mName.C_Str()];
+		//時間の単位を秒に変換
+		animationData.duration = float(animation->mDuration / animation->mTicksPerSecond);
 
 		//Channelの解析
 		for (uint32_t channelIndex = 0; channelIndex < animation->mNumChannels; ++channelIndex) {
 			aiNodeAnim* channel = animation->mChannels[channelIndex];
-			std::shared_ptr<Node>& node = FindNode(modelData.rootNode, channel->mNodeName.C_Str());
-
-			std::vector<KeyFrame> scaleKeyFrame;
-			std::vector<QuaternionKeyFlame> rotateKeyFrame;
-			std::vector<KeyFrame> translateKeyFrame;
+			
+			NodeAnimation& nodeAnimation = animationData.nodeAnimations[channel->mNodeName.C_Str()];
 
 			//Scalingのキーフレームの解析
 			for (uint32_t scalingKeyIndex = 0; scalingKeyIndex < channel->mNumScalingKeys; ++scalingKeyIndex) {
 				aiVectorKey scalingKey = channel->mScalingKeys[scalingKeyIndex];
-				KeyFrame transformKeyFrame;
-				transformKeyFrame.time = scalingKey.mTime;
-				transformKeyFrame.vector = Vector3{ scalingKey.mValue.x,scalingKey.mValue.y,scalingKey.mValue.z };
+				Keyframe_Vector3 transformKeyFrame;
+				transformKeyFrame.time = float(scalingKey.mTime / animation->mTicksPerSecond);
+				transformKeyFrame.value = Vector3{ scalingKey.mValue.x,scalingKey.mValue.y,scalingKey.mValue.z };
 
-				scaleKeyFrame.push_back(transformKeyFrame);
+				nodeAnimation.scale.keyframes.push_back(transformKeyFrame);
 			}
-			node->scaleKeyFrame.push_back(scaleKeyFrame);
 
 			//Rotationのキーフレームの解析
 			for (uint32_t rotationKeyIndex = 0; rotationKeyIndex < channel->mNumRotationKeys; ++rotationKeyIndex) {
 				aiQuatKey rotationKey = channel->mRotationKeys[rotationKeyIndex];
-				QuaternionKeyFlame transformKeyFrame;
-				transformKeyFrame.time = rotationKey.mTime;
-				transformKeyFrame.quaternion = Quaternion{ -rotationKey.mValue.x,rotationKey.mValue.y,rotationKey.mValue.z,rotationKey.mValue.w };
+				Keyframe_Quaternion transformKeyFrame;
+				transformKeyFrame.time = float(rotationKey.mTime / animation->mTicksPerSecond);
+				transformKeyFrame.value = Quaternion{ -rotationKey.mValue.x,rotationKey.mValue.y,rotationKey.mValue.z,rotationKey.mValue.w };	//右手->左手
 
-				rotateKeyFrame.push_back(transformKeyFrame);
+				nodeAnimation.rotate.keyframes.push_back(transformKeyFrame);
 			}
-			node->rotateKeyFrame.push_back(rotateKeyFrame);
 
 			//Positionのキーフレームの解析
 			for (uint32_t positionKeyIndex = 0; positionKeyIndex < channel->mNumPositionKeys; ++positionKeyIndex) {
 				aiVectorKey positionKey = channel->mPositionKeys[positionKeyIndex];
-				KeyFrame transformKeyFrame;
-				transformKeyFrame.time = positionKey.mTime;
-				transformKeyFrame.vector = Vector3{ positionKey.mValue.x,positionKey.mValue.y,positionKey.mValue.z };
-				//右手→左手
-				transformKeyFrame.vector.x *= -1.0f;
+				Keyframe_Vector3 transformKeyFrame;
+				transformKeyFrame.time = float(positionKey.mTime / animation->mTicksPerSecond);
+				transformKeyFrame.value = Vector3{ -positionKey.mValue.x,positionKey.mValue.y,positionKey.mValue.z };	//右手->左手
 
-				translateKeyFrame.push_back(transformKeyFrame);
+				nodeAnimation.translate.keyframes.push_back(transformKeyFrame);
 			}
-			node->translateKeyFrame.push_back(translateKeyFrame);
 
 		}
-
-		modelData.animations.push_back(animationData);
 	}
 
 	return modelData;
 }
 
-std::shared_ptr<Node> ReadNode(aiNode* node) {
+std::shared_ptr<Node> ReadNode(aiNode* node, ModelData& modelData) {
 	std::shared_ptr<Node> result = std::make_shared<Node>();
 	aiMatrix4x4 aiLocalMatrix = node->mTransformation;	//nodeのlocalMatrixを取得
 	aiLocalMatrix.Transpose();	//列ベクトル形式を行ベクトル形式に転置
@@ -181,24 +171,12 @@ std::shared_ptr<Node> ReadNode(aiNode* node) {
 	result->localMatrix = mirrorX * result->localMatrix * mirrorX;
 	result->name = node->mName.C_Str();	//Node名を格納
 	result->children.resize(node->mNumChildren);	//子の数だけ確保
+	modelData.nodeMap[result->name] = result;
 	for (uint32_t childIndex = 0; childIndex < node->mNumChildren; childIndex++) {
 		//再帰的に読んで階層構造を作っていく
-		result->children[childIndex] = ReadNode(node->mChildren[childIndex]);
+		result->children[childIndex] = ReadNode(node->mChildren[childIndex], modelData);
 	}
 	return result;
-}
-
-std::shared_ptr<Node>& FindNode(std::shared_ptr<Node>& node, const std::string& name) {
-    if (node->name == name) {
-        return node;
-    }
-    for (std::shared_ptr<Node>& child : node->children) {
-		std::shared_ptr<Node>& result = FindNode(child, name);
-        if (result->name == name) {
-            return result;
-        }
-    }
-    return node;
 }
 
 void SetVertexWeight(UINT4& ids, Vector4& weights, UINT id, float weight) {
