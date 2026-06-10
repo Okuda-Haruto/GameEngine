@@ -4,6 +4,7 @@
 
 #include <Character/Boss/Boss.h>
 
+class BaseAction;
 //1つ単位の行動
 class BaseStep {
 private:
