@@ -66,6 +66,8 @@
     <ClCompile Include="Application\Character\Player\Player.cpp" />
     <ClCompile Include="Application\Collider\Colliders.cpp" />
     <ClCompile Include="Application\Collider\GroundCollision.cpp" />
+    <ClCompile Include="Application\Editor\BossEditor\BossEditor.cpp" />
+    <ClCompile Include="Application\Editor\StageEditor\StageEditor.cpp" />
     <ClCompile Include="Application\GameManager\GameManager.cpp" />
     <ClCompile Include="Application\GameManager\SceneFactory\SceneFactory.cpp" />
     <ClCompile Include="Application\ModelHolder\ModelHolder.cpp" />
@@ -74,6 +76,8 @@
     <ClCompile Include="Application\GameManager\BaseScene\GameOverScene\GameOverScene.cpp" />
     <ClCompile Include="Application\GameManager\BaseScene\TitleScene\TitleScene.cpp" />
     <ClCompile Include="Application\ColliderObject\ColliderObject.cpp" />
+    <ClCompile Include="Application\StageManager\StageManager.cpp" />
+    <ClCompile Include="Application\StageManager\Stage\Stage.cpp" />
     <ClCompile Include="GameEngine\DebugTool\D3DResourceLeakChecker.cpp" />
     <ClCompile Include="GameEngine\DebugTool\DebugCamera.cpp" />
     <ClCompile Include="GameEngine\DebugTool\ExportDump.cpp" />
@@ -138,6 +142,8 @@
     <ClInclude Include="Application\Collider\GroundCollision.h" />
     <ClInclude Include="Application\Collider\OBBCollider.h" />
     <ClInclude Include="Application\Collider\SphereCollider.h" />
+    <ClInclude Include="Application\Editor\BossEditor\BossEditor.h" />
+    <ClInclude Include="Application\Editor\StageEditor\StageEditor.h" />
     <ClInclude Include="Application\GameManager\GameManager.h" />
     <ClInclude Include="Application\GameManager\SceneFactory\SceneFactory.h" />
     <ClInclude Include="Application\ModelHolder\ModelHolder.h" />
@@ -147,6 +153,8 @@
     <ClInclude Include="Application\GameManager\BaseScene\TitleScene\TitleScene.h" />
     <ClInclude Include="Application\ColliderObject\ColliderObject.h" />
     <ClInclude Include="Application\Collider\CollisionID.h" />
+    <ClInclude Include="Application\StageManager\StageManager.h" />
+    <ClInclude Include="Application\StageManager\Stage\Stage.h" />
     <ClInclude Include="GameEngine\Data\AnimationData.h" />
     <ClInclude Include="GameEngine\Data\AnimationInterpolation.h" />
     <ClInclude Include="GameEngine\Data\Bone.h" />

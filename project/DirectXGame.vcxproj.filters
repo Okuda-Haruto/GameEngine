@@ -253,6 +253,18 @@
     <ClCompile Include="GameEngine\Modules\PrimitiveManager\PrimitiveRing.cpp">
       <Filter>GameEngine\Modules\PrimitiveManager</Filter>
     </ClCompile>
+    <ClCompile Include="Application\StageManager\Stage\Stage.cpp">
+      <Filter>Application\StageManager\Stage</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Editor\StageEditor\StageEditor.cpp">
+      <Filter>Application\Editor\StageEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\StageManager\StageManager.cpp">
+      <Filter>Application\StageManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Editor\BossEditor\BossEditor.cpp">
+      <Filter>Application\Editor\BossEditor</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\BackGround\Ground\Ground.h">
@@ -609,6 +621,18 @@
     <ClInclude Include="GameEngine\Modules\PrimitiveManager\PrimitiveRing.h">
       <Filter>GameEngine\Modules\PrimitiveManager</Filter>
     </ClInclude>
+    <ClInclude Include="Application\StageManager\Stage\Stage.h">
+      <Filter>Application\StageManager\Stage</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Editor\StageEditor\StageEditor.h">
+      <Filter>Application\Editor\StageEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\StageManager\StageManager.h">
+      <Filter>Application\StageManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Editor\BossEditor\BossEditor.h">
+      <Filter>Application\Editor\BossEditor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -856,6 +880,21 @@
     </Filter>
     <Filter Include="Application\GameManager\BaseScene\TitleScene">
       <UniqueIdentifier>{b6e9533b-9849-442a-a0d2-3d3dd2edb521}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Editor">
+      <UniqueIdentifier>{f14bf229-5736-41e4-a748-703d47fe959d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Editor\StageEditor">
+      <UniqueIdentifier>{70cc925c-2f89-48d5-a849-c776b56bc34a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\StageManager">
+      <UniqueIdentifier>{bd745901-9d25-4396-9962-ee30a643423c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\StageManager\Stage">
+      <UniqueIdentifier>{42ebb3b6-27db-4272-a3e0-8edd6a90f9d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Editor\BossEditor">
+      <UniqueIdentifier>{1c4d260b-fe34-4a32-a2a0-bc82675757f9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

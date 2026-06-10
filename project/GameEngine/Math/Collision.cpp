@@ -1,6 +1,7 @@
 #define NOMINMAX
 #include "Collision.h"
 #include "Vector3.h"
+#include "Matrix3x3.h"
 #include "Matrix4x4.h"
 #include "Operation/Operation.h"
 #include <cmath>
@@ -374,34 +375,149 @@ bool IsCollision(const OBB& obb, const Segment& segment) {
 //OBBとOBBの衝突
 bool IsCollision(const OBB& obb1, const OBB& obb2) {
 
-	Matrix4x4 obb1WorldMatrix{
-		.m{
-			{obb1.orientations[0].x	,obb1.orientations[0].y	,obb1.orientations[0].z	,0.0f},
-			{obb1.orientations[1].x	,obb1.orientations[1].y	,obb1.orientations[1].z	,0.0f},
-			{obb1.orientations[2].x	,obb1.orientations[2].y	,obb1.orientations[2].z	,0.0f},
-			{obb1.center.x			,obb1.center.y			,obb1.center.z			,1.0f},
+	constexpr float EPSILON = 1e-6f;
+
+	// OBBの軸
+	Vector3 A[3] = {
+		Normalize(obb1.orientations[0]),
+		Normalize(obb1.orientations[1]),
+		Normalize(obb1.orientations[2])
+	};
+	Vector3 B[3] = {
+		Normalize(obb2.orientations[0]),
+		Normalize(obb2.orientations[1]),
+		Normalize(obb2.orientations[2])
+	};
+
+	// 回転行列
+	Matrix3x3 R;
+	Matrix3x3 AbsR;
+
+	//各軸の向きの近さ
+	for (int i = 0; i < 3; i++) {
+		for (int j = 0; j < 3; j++) {
+			R.m[i][j] = Dot(A[i], B[j]);
+			AbsR.m[i][j] = std::abs(R.m[i][j]) + EPSILON;
 		}
-	};
-	Matrix4x4 obb1WorldMatrixInverse = Inverse(obb1WorldMatrix);
+	}
 
-	Matrix4x4 obb2WorldMatrix{
-		.m{
-			{obb2.orientations[0].x	,obb2.orientations[0].y	,obb2.orientations[0].z	,0.0f},
-			{obb2.orientations[1].x	,obb2.orientations[1].y	,obb2.orientations[1].z	,0.0f},
-			{obb2.orientations[2].x	,obb2.orientations[2].y	,obb2.orientations[2].z	,0.0f},
-			{obb2.center.x			,obb2.center.y			,obb2.center.z			,1.0f},
+	//OBB1からOBB2へのベクトル
+	Vector3 tWorld = obb1.center - obb2.center;
+
+	//OBB1の角度基準でOBB1からOBB2への距離
+	Vector3 t{
+		Dot(tWorld, A[0]),
+		Dot(tWorld, A[1]),
+		Dot(tWorld, A[2])
+	};
+
+	float ra, rb;
+
+	//-----------------------------
+	// Aの軸 (A0,A1,A2)
+	//-----------------------------
+	for (int i = 0; i < 3; i++) {
+
+		ra = (&obb1.size.x)[i];
+
+		rb =
+			obb2.size.x * AbsR.m[i][0] +
+			obb2.size.y * AbsR.m[i][1] +
+			obb2.size.z * AbsR.m[i][2];
+
+		if (std::abs((&t.x)[i]) > ra + rb) {
+			return false;
 		}
-	};
-	Matrix4x4 obb2WorldMatrixInverse = Inverse(obb2WorldMatrix);
+	}
 
-	AABB localAABB{
-		{-obb1.size.x,-obb1.size.y,-obb1.size.z},
-		{+obb1.size.x,+obb1.size.y,+obb1.size.z}
-	};
+	//-----------------------------
+	// Bの軸 (B0,B1,B2)
+	//-----------------------------
+	for (int j = 0; j < 3; j++) {
 
-	float min1 = std::min(localAABB.min.x, localAABB.max.x);
+		ra =
+			obb1.size.x * AbsR.m[0][j] +
+			obb1.size.y * AbsR.m[1][j] +
+			obb1.size.z * AbsR.m[2][j];
 
-	return false;
+		rb = (&obb2.size.x)[j];
+
+		float dist =
+			std::abs(
+				t.x * R.m[0][j] +
+				t.y * R.m[1][j] +
+				t.z * R.m[2][j]
+			);
+
+		if (dist > ra + rb) {
+			return false;
+		}
+	}
+
+	//-----------------------------
+	// A0 × B0
+	//-----------------------------
+	ra = obb1.size.y * AbsR.m[2][0] + obb1.size.z * AbsR.m[1][0];
+	rb = obb2.size.y * AbsR.m[0][2] + obb2.size.z * AbsR.m[0][1];
+	if (std::abs(t.z * R.m[1][0] - t.y * R.m[2][0]) > ra + rb) return false;
+
+	//-----------------------------
+	// A0 × B1
+	//-----------------------------
+	ra = obb1.size.y * AbsR.m[2][1] + obb1.size.z * AbsR.m[1][1];
+	rb = obb2.size.x * AbsR.m[0][2] + obb2.size.z * AbsR.m[0][0];
+	if (std::abs(t.z * R.m[1][1] - t.y * R.m[2][1]) > ra + rb) return false;
+
+	//-----------------------------
+	// A0 × B2
+	//-----------------------------
+	ra = obb1.size.y * AbsR.m[2][2] + obb1.size.z * AbsR.m[1][2];
+	rb = obb2.size.x * AbsR.m[0][1] + obb2.size.y * AbsR.m[0][0];
+	if (std::abs(t.z * R.m[1][2] - t.y * R.m[2][2]) > ra + rb) return false;
+
+	//-----------------------------
+	// A1 × B0
+	//-----------------------------
+	ra = obb1.size.x * AbsR.m[2][0] + obb1.size.z * AbsR.m[0][0];
+	rb = obb2.size.y * AbsR.m[1][2] + obb2.size.z * AbsR.m[1][1];
+	if (std::abs(t.x * R.m[2][0] - t.z * R.m[0][0]) > ra + rb) return false;
+
+	//-----------------------------
+	// A1 × B1
+	//-----------------------------
+	ra = obb1.size.x * AbsR.m[2][1] + obb1.size.z * AbsR.m[0][1];
+	rb = obb2.size.x * AbsR.m[1][2] + obb2.size.z * AbsR.m[1][0];
+	if (std::abs(t.x * R.m[2][1] - t.z * R.m[0][1]) > ra + rb) return false;
+
+	//-----------------------------
+	// A1 × B2
+	//-----------------------------
+	ra = obb1.size.x * AbsR.m[2][2] + obb1.size.z * AbsR.m[0][2];
+	rb = obb2.size.x * AbsR.m[1][1] + obb2.size.y * AbsR.m[1][0];
+	if (std::abs(t.x * R.m[2][2] - t.z * R.m[0][2]) > ra + rb) return false;
+
+	//-----------------------------
+	// A2 × B0
+	//-----------------------------
+	ra = obb1.size.x * AbsR.m[1][0] + obb1.size.y * AbsR.m[0][0];
+	rb = obb2.size.y * AbsR.m[2][2] + obb2.size.z * AbsR.m[2][1];
+	if (std::abs(t.y * R.m[0][0] - t.x * R.m[1][0]) > ra + rb) return false;
+
+	//-----------------------------
+	// A2 × B1
+	//-----------------------------
+	ra = obb1.size.x * AbsR.m[1][1] + obb1.size.y * AbsR.m[0][1];
+	rb = obb2.size.x * AbsR.m[2][2] + obb2.size.z * AbsR.m[2][0];
+	if (std::abs(t.y * R.m[0][1] - t.x * R.m[1][1]) > ra + rb) return false;
+
+	//-----------------------------
+	// A2 × B2
+	//-----------------------------
+	ra = obb1.size.x * AbsR.m[1][2] + obb1.size.y * AbsR.m[0][2];
+	rb = obb2.size.x * AbsR.m[2][1] + obb2.size.y * AbsR.m[2][0];
+	if (std::abs(t.y * R.m[0][2] - t.x * R.m[1][2]) > ra + rb) return false;
+
+	return true;
 }
 
 //objモデルと線分の衝突
