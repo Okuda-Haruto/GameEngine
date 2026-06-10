@@ -630,6 +630,12 @@
     <ClInclude Include="Application\Editor\BossEditor\BossEditor.h">
       <Filter>Application\Editor\BossEditor</Filter>
     </ClInclude>
+    <ClInclude Include="GameEngine\Data\Joint.h">
+      <Filter>GameEngine\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Data\NodeAnimation.h">
+      <Filter>GameEngine\Data</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />

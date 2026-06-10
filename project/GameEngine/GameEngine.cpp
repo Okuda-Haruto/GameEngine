@@ -109,7 +109,6 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	imguiManager_->Initialize(dxCommon_.get(), winApp_.get(), srvManager_.get());
 
 	dxCommon_->DepthBufferInitialize(srvManager_.get());
-	//dxCommon_->OffsceenRenderingInitialize(srvManager_.get());
 	
 	TextureManager::GetInstance()->Initialize(dxCommon_.get(), srvManager_.get());
 	ModelManager::GetInstance()->Initialize(dxCommon_.get());
@@ -124,6 +123,10 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 
 	device_ = dxCommon_->GetDevice();
 	commandList_ = dxCommon_->GetCommandList();
+
+#ifdef USE_IMGUI
+	TextureManager::GetInstance()->MakeRenderTexture("ImGui");
+#endif
 
 
 	//RootSignature作成
@@ -311,9 +314,13 @@ bool GameEngine::WindowState_() {
 
 void GameEngine::PreDraw_() {
 
+#ifdef USE_IMGUI
+	srvManager_->RenderPreDraw("ImGui");
+#else
 	imguiManager_->End();
 
 	srvManager_->PreDraw();
+#endif
 
 }
 
@@ -321,9 +328,21 @@ void GameEngine::PostDraw_() {
 
 	Primitive3DManager::GetInstance()->Draw();
 
+#ifdef USE_IMGUI
+	dxCommon_->RenderPostDraw();
+
+	imguiManager_->End();
+
+	srvManager_->PreDraw();
+
 	imguiManager_->Draw();
 
 	dxCommon_->PostDraw();
+#else
+	imguiManager_->Draw();
+
+	dxCommon_->PostDraw();
+#endif
 
 	//Index初期化
 	objectIndex_ = 0;

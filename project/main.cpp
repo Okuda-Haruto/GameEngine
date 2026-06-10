@@ -13,8 +13,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	TextureManager::GetInstance()->MakeRenderTexture("BoxFilter");
 	TextureManager::GetInstance()->MakeRenderTexture("Vignette");
 
-	//unique_ptr<SampleScene> gameManager = make_unique<SampleScene>();
-	unique_ptr<GameManager> gameManager = make_unique<GameManager>();
+	unique_ptr<SampleScene> gameManager = make_unique<SampleScene>();
+	//unique_ptr<GameManager> gameManager = make_unique<GameManager>();
 
 	gameManager->Initialize();
 

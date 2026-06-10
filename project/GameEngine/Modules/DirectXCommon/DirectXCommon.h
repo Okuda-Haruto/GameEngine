@@ -155,6 +155,7 @@ public:
 
 	ID3D12Device* GetDevice()const { return device_.Get(); };
 	ID3D12GraphicsCommandList* GetCommandList() const { return commandList_.Get(); }
+	ID3D12CommandQueue * GetCommandQueue() const { return commandQueue_.Get(); }
 
 	UINT SwapChainBufferCount() { return swapChainDesc_.BufferCount; }
 	DXGI_FORMAT GetRTVFormat() { return rtvDesc_.Format; }

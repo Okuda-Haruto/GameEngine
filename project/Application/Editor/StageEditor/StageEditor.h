@@ -115,7 +115,7 @@ public:
 	/// </summary>
 	/// <param name="index">番号</param>
 	/// <param name="direction">正面の向き</param>
-	void SetGroundObjectDirection(int32_t index, Quaternion direction);
+	void SetGroundObjectDirection(int32_t index, Vector3 direction);
 
 	/// <summary>
 	/// 接地オブジェクトの拡縮変更

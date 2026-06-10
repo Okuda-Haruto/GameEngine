@@ -12,10 +12,10 @@ void BossEditor::Draw() {
 
 }
 
-void BossEditor::ReadStageFile(std::string filePath) {
+void BossEditor::ReadBossFile(std::string filePath) {
 
 }
 
-void BossEditor::WriteStageFile(std::string filePath) {
+void BossEditor::WriteBossFile(std::string filePath) {
 
 }
