@@ -7,450 +7,99 @@
 #include <GameManager/BaseScene/GameScene/GameScene.h>
 #include "Operation/Operation.h"
 
-#pragma region BossAction_Shot_01
+#pragma region Step
 
-void BossAction_Shot_01::Initialize(Boss* boss) {
-	boss_ = boss;
-
-	actionTime_ = 0.0f;
-	shotCooltime_ = 0.0f;
-	targetedCooltime_ = 0.0f;
-
-	isTargeted_ = false;
-	isEnd_ = false;
+void Step_WaitTime::Activate(BossAction* action) {
+	action->SetWaitTime(time_);
 }
 
-void BossAction_Shot_01::Update() {
-	actionTime_ += 1.0f / 60.0f;
-	if (actionTime_ > kMaxActionTime_) {
-		isEnd_ = true;
-	}
-
-	if (isTargeted_) {	//狙って撃つ
-		shotCooltime_ += 1.0f / 60.0f;
-		if (shotCooltime_ >= kMaxShotCooltime_) {
-			SRT* BossTransform = boss_->GetTransform();
-			Vector3 rotate = BossTransform->rotate;
-			rotate.x += GameEngine::randomFloat(-0.01f, 0.01f);
-			rotate.y += GameEngine::randomFloat(-0.06f, 0.06f);
-
-			boss_->GetGameScene()->AddBossBullet(BossTransform->translate, rotate);
-			shotCooltime_ -= kMaxShotCooltime_;
-			isTargeted_ = false;
-
-			boss_->GetGameCamera()->SetShakeTime(0.1f);
-		}
-	} else {			//プレイヤーを狙う
-
-		//プレイヤー方向を向かせる
-		SRT* PlayerTransform = boss_->GetPlayer()->GetTransform();
-		SRT* BossTransform = boss_->GetTransform();
-		Vector3 diff = Normalize(Vector3(PlayerTransform->translate.x, 0.0f, PlayerTransform->translate.z) - Vector3(BossTransform->translate.x, 0.0f, BossTransform->translate.z));
-		float angle = std::atan2(diff.x, diff.z);
-
-		//最短角度補完
-		float d = angle - BossTransform->rotate.y;
-
-		if (d >= std::numbers::pi_v<float>*2) {
-			d = angle - BossTransform->rotate.y;
-		}
-
-		d = std::fmodf(d, std::numbers::pi_v<float> *2);
-
-		if (d > std::numbers::pi_v<float>) {
-			d -= std::numbers::pi_v<float> *2;
-		} else if (d < -std::numbers::pi_v<float>) {
-			d += std::numbers::pi_v<float> *2;
-		}
-
-		if (d > std::numbers::pi_v<float>) {
-			d -= std::numbers::pi_v<float> *2;
-		} else if (d < -std::numbers::pi_v<float>) {
-			d += std::numbers::pi_v<float> *2;
-		}
-
-		//正直あまりやりたくはない方法だが2πを超えると遠回りで回転してしまうので致し方無い
-		BossTransform->rotate.y = (BossTransform->rotate.y + d * 0.2f);
-		BossTransform->rotate.y = std::fmodf(BossTransform->rotate.y, std::numbers::pi_v<float> *2);
-
-		//開始時少しだけ何もしない
-		if (actionTime_ >= 0.5f) {
-			targetedCooltime_ += 1.0f / 60.0f;
-			if (targetedCooltime_ >= kMaxTargetedCooltime_) {
-				targetedCooltime_ -= kMaxTargetedCooltime_;
-				isTargeted_ = true;
-				AudioHolder::GetInstance()->GetAudio(AudioIndex::Reload_SE).lock()->SoundPlayWave();
-			}
-		}
-	}
+void Step_WaitStep::Activate(BossAction* action) {
+	action->SetWaitStep(true);
 }
 
-void BossAction_Shot_01::Finalize() {
-
+void Step_WaitAnimation::Activate(BossAction* action) {
+	action->SetWaitAnimation(true);
 }
+
+void Step_MoveFixedPsitionTime::Activate(BossAction* action) {
+	LerpPositionState state;
+	state.startVector = action->GetBoss()->GetTransform()->translate;
+	state.endVector = position_;
+	state.time = time_;
+	state.type = 0;
+	action->SetLerpPosition(state);
+}
+
+void Step_MoveFixedPsitionSpeed::Activate(BossAction* action) {
+	//距離
+	Vector3 diff = position_ - action->GetBoss()->GetTransform()->translate;
+	//その距離移動するににかかる時間
+	float lerpTime = Length(diff) / speed_;
+
+	LerpPositionState state;
+	state.startVector = action->GetBoss()->GetTransform()->translate;
+	state.endVector = position_;
+	state.time = lerpTime;
+	state.type = 0;
+	action->SetLerpPosition(state);
+}
+
+void Step_MoveFixedVelocity::Activate(BossAction* action) {
+	VelocityState state;
+	state.velocity = velocity_;
+	state.time = time_;
+	action->SetVelocityState(state);
+}
+
+void Step_MoveFront::Activate(BossAction* action) {
+	VelocityState state;
+	state.velocity = Vector3{ 0,0,speed_ } * MakeRotateXMatrix(action->GetBoss()->GetTransform()->rotate.x) * MakeRotateXMatrix(action->GetBoss()->GetTransform()->rotate.y);
+	state.time = time_;
+	action->SetVelocityState(state);
+}
+
+void Step_MoveToLockOn::Activate(BossAction* action) {
+	Vector3 diff = Normalize(action->GetBoss()->GetPlayerTransform()->translate - action->GetBoss()->GetTransform()->translate);
+
+	VelocityState state;
+	state.velocity = diff * speed_;
+	state.time = time_;
+	action->SetVelocityState(state);
+}
+
+void Step_LockOnPlayer::Activate(BossAction* action) {
+	action->SetIsLockOnPlayer(true);
+}
+
+void Step_LockOnRelease::Activate(BossAction* action) {
+	action->SetIsLockOnPlayer(false);
+}
+
+void Step_ShotBullet::Activate(BossAction* action) {
+	action->GetBoss()->ShotBullet(startPoint_, rotate_, speed_);
+};
 
 #pragma endregion
 
-#pragma region BossAction_Shot_02
-
-void BossAction_Shot_02::Initialize(Boss* boss) {
-	boss_ = boss;
-
-	actionTime_ = 0.0f;
-	shotCooltime_ = 0.0f;
-	targetedCooltime_ = 0.0f;
-
-	isTargeted_ = false;
-	isEnd_ = false;
-}
-
-void BossAction_Shot_02::Update() {
-	actionTime_ += 1.0f / 60.0f;
-	if (actionTime_ > kMaxActionTime_) {
-		isEnd_ = true;
+void BossAction::Update() {
+	while (GetIsStop() && stepIndex_ < steps_.size())
+	{
+		steps_[stepIndex_]->Activate(this);
+		stepIndex_++;
 	}
 
-	if (isTargeted_) {	//狙って撃つ
-		shotCooltime_ += 1.0f / 60.0f;
-		if (shotCooltime_ >= kMaxShotCooltime_) {
-			SRT* BossTransform = boss_->GetTransform();
-			Vector3 rotate = BossTransform->rotate;
-			rotate.x += GameEngine::randomFloat(-0.01f, 0.01f);
-			rotate.y += GameEngine::randomFloat(-0.12f, 0.12f);
+	if (waitTime_ > 0.0f) {
+		waitTime_ -= 1.0f / 60.0f;
+	}
 
-			boss_->GetGameScene()->AddBossBullet(BossTransform->translate, rotate);
-			shotCooltime_ -= kMaxShotCooltime_;
-
-			boss_->GetGameCamera()->SetShakeTime(0.1f);
-		}
-	} else {			//プレイヤーを狙う
-
-		//プレイヤー方向を向かせる
-		SRT* PlayerTransform = boss_->GetPlayer()->GetTransform();
-		SRT* BossTransform = boss_->GetTransform();
-		Vector3 diff = Normalize(Vector3(PlayerTransform->translate.x, 0.0f, PlayerTransform->translate.z) - Vector3(BossTransform->translate.x, 0.0f, BossTransform->translate.z));
-		float angle = std::atan2(diff.x, diff.z);
-
-		//最短角度補完
-		float d = angle - BossTransform->rotate.y;
-
-		if (d >= std::numbers::pi_v<float>*2) {
-			d = angle - BossTransform->rotate.y;
-		}
-
-		d = std::fmodf(d, std::numbers::pi_v<float> *2);
-
-		if (d > std::numbers::pi_v<float>) {
-			d -= std::numbers::pi_v<float> *2;
-		} else if (d < -std::numbers::pi_v<float>) {
-			d += std::numbers::pi_v<float> *2;
-		}
-
-		if (d > std::numbers::pi_v<float>) {
-			d -= std::numbers::pi_v<float> *2;
-		} else if (d < -std::numbers::pi_v<float>) {
-			d += std::numbers::pi_v<float> *2;
-		}
-
-		//正直あまりやりたくはない方法だが2πを超えると遠回りで回転してしまうので致し方無い
-		BossTransform->rotate.y = (BossTransform->rotate.y + d * 0.2f);
-		BossTransform->rotate.y = std::fmodf(BossTransform->rotate.y, std::numbers::pi_v<float> *2);
-
-		//開始時少しだけ何もしない
-		if (actionTime_ >= 0.5f) {
-			targetedCooltime_ += 1.0f / 60.0f;
-			if (targetedCooltime_ >= kMaxTargetedCooltime_) {
-				targetedCooltime_ -= kMaxTargetedCooltime_;
-				isTargeted_ = true;
-				AudioHolder::GetInstance()->GetAudio(AudioIndex::Reload_SE).lock()->SoundPlayWave();
-			}
-		}
+	if (isWaitStep_ && boss_->IsAction();) {
+		isWaitStep_ = false;
 	}
 }
 
-void BossAction_Shot_02::Finalize() {
-
+void BossPattern::Update() {
+	action_->Update();
 }
-
-#pragma endregion
-
-#pragma region BossAction_Shot_03
-
-void BossAction_Shot_03::Initialize(Boss* boss) {
-	boss_ = boss;
-
-	actionTime_ = 0.0f;
-	shotCooltime_ = 0.0f;
-	targetedCooltime_ = 0.0f;
-
-	isTargeted_ = false;
-	isEnd_ = false;
-}
-
-void BossAction_Shot_03::Update() {
-	actionTime_ += 1.0f / 60.0f;
-	if (actionTime_ > kMaxActionTime_) {
-		isEnd_ = true;
-	}
-
-	if (isTargeted_) {	//狙って撃つ
-		shotCooltime_ += 1.0f / 60.0f;
-		if (shotCooltime_ >= kMaxShotCooltime_) {
-			SRT* BossTransform = boss_->GetTransform();
-			Vector3 rotate = BossTransform->rotate;
-			rotate.x += GameEngine::randomFloat(-0.01f, 0.01f);
-			rotate.y += GameEngine::randomFloat(-0.12f, 0.12f);
-
-			boss_->GetGameScene()->AddBossBullet(BossTransform->translate, rotate);
-			shotCooltime_ -= kMaxShotCooltime_;
-
-			boss_->GetGameCamera()->SetShakeTime(0.1f);
-		}
-	}
-	else {			//プレイヤーを狙う
-
-		//プレイヤー方向を向かせる
-		SRT* PlayerTransform = boss_->GetPlayer()->GetTransform();
-		SRT* BossTransform = boss_->GetTransform();
-		Vector3 diff = Normalize(Vector3(PlayerTransform->translate.x, 0.0f, PlayerTransform->translate.z) - Vector3(BossTransform->translate.x, 0.0f, BossTransform->translate.z));
-		float angle = std::atan2(diff.x, diff.z);
-
-		//最短角度補完
-		float d = angle - BossTransform->rotate.y;
-
-		if (d >= std::numbers::pi_v<float>*2) {
-			d = angle - BossTransform->rotate.y;
-		}
-
-		d = std::fmodf(d, std::numbers::pi_v<float> *2);
-
-		if (d > std::numbers::pi_v<float>) {
-			d -= std::numbers::pi_v<float> *2;
-		}
-		else if (d < -std::numbers::pi_v<float>) {
-			d += std::numbers::pi_v<float> *2;
-		}
-
-		if (d > std::numbers::pi_v<float>) {
-			d -= std::numbers::pi_v<float> *2;
-		}
-		else if (d < -std::numbers::pi_v<float>) {
-			d += std::numbers::pi_v<float> *2;
-		}
-
-		//正直あまりやりたくはない方法だが2πを超えると遠回りで回転してしまうので致し方無い
-		BossTransform->rotate.y = (BossTransform->rotate.y + d * 0.2f);
-		BossTransform->rotate.y = std::fmodf(BossTransform->rotate.y, std::numbers::pi_v<float> *2);
-
-		//開始時少しだけ何もしない
-		if (actionTime_ >= 0.5f) {
-			targetedCooltime_ += 1.0f / 60.0f;
-			if (targetedCooltime_ >= kMaxTargetedCooltime_) {
-				targetedCooltime_ -= kMaxTargetedCooltime_;
-				isTargeted_ = true;
-				AudioHolder::GetInstance()->GetAudio(AudioIndex::Reload_SE).lock()->SoundPlayWave();
-			}
-		}
-	}
-}
-
-void BossAction_Shot_03::Finalize() {
-
-}
-
-#pragma endregion
-
-#pragma region BossAction_Jump
-
-void BossAction_Jump::Initialize(Boss* boss) {
-	boss_ = boss;
-
-	actionTime_ = 0.0f;
-	jumpingTime_ = 0.0f;
-	landingTime_ = 0.0f;
-	targetedCooltime_ = 0.0f;
-
-	startPosition_ = boss_->GetTransform()->translate;
-
-	nextPosition_.x = GameEngine::randomFloat(-(60.0f - 2.0f), (60.0f - 2.0f));
-	nextPosition_.y = 2.0f;
-	nextPosition_.z = GameEngine::randomFloat(-(60.0f - 2.0f), (60.0f - 2.0f));
-
-	isEnd_ = false;
-}
-
-void BossAction_Jump::Update() {
-	actionTime_ += 1.0f / 60.0f;
-	if (actionTime_ > kMaxActionTime_) {
-		isEnd_ = true;
-	}
-
-	if (targetedCooltime_ < kMaxTargetedCooltime_) {
-		targetedCooltime_ += 1.0f / 60.0f;
-		//移動方向を向かせる
-		SRT* BossTransform = boss_->GetTransform();
-		Vector3 diff = Normalize(Vector3(nextPosition_.x, 0.0f, nextPosition_.z) - Vector3(BossTransform->translate.x, 0.0f, BossTransform->translate.z));
-		float angle = std::atan2(diff.x, diff.z);
-
-		//最短角度補完
-		float d = angle - BossTransform->rotate.y;
-
-		if (d >= std::numbers::pi_v<float>*2) {
-			d = angle - BossTransform->rotate.y;
-		}
-
-		d = std::fmodf(d, std::numbers::pi_v<float> *2);
-
-		if (d > std::numbers::pi_v<float>) {
-			d -= std::numbers::pi_v<float> *2;
-		} else if (d < -std::numbers::pi_v<float>) {
-			d += std::numbers::pi_v<float> *2;
-		}
-
-		if (d > std::numbers::pi_v<float>) {
-			d -= std::numbers::pi_v<float> *2;
-		} else if (d < -std::numbers::pi_v<float>) {
-			d += std::numbers::pi_v<float> *2;
-		}
-
-		//正直あまりやりたくはない方法だが2πを超えると遠回りで回転してしまうので致し方無い
-		BossTransform->rotate.y = (BossTransform->rotate.y + d * 0.2f);
-		BossTransform->rotate.y = std::fmodf(BossTransform->rotate.y, std::numbers::pi_v<float> *2);
-
-		BossTransform->scale.x = 2.0f * Easing::Lerp(0.562558f, 0.562558f * 1.5f, targetedCooltime_ / kMaxTargetedCooltime_);
-		BossTransform->scale.y = 2.0f * Easing::Lerp(0.562558f, 0.562558f * 0.5f, targetedCooltime_ / kMaxTargetedCooltime_);
-		BossTransform->scale.z = 2.0f * Easing::Lerp(0.562558f, 0.562558f * 1.5f, targetedCooltime_ / kMaxTargetedCooltime_);
-
-		BossTransform->translate.y = BossTransform->scale.y;
-		startPosition_.y = BossTransform->translate.y;
-		nextPosition_.y = BossTransform->translate.y;
-
-	} else if (jumpingTime_ < kMaxJumpingTime_) {
-		jumpingTime_ += 1.0f / 60.0f;
-
-		SRT* BossTransform = boss_->GetTransform();
-
-		BossTransform->translate = Lerp(startPosition_, nextPosition_, (jumpingTime_ / kMaxJumpingTime_));
-
-		if (jumpingTime_ <= kMaxJumpingTime_ / 10) {
-			BossTransform->scale.x = 2.0f * Easing::Lerp(0.562558f * 1.5f, 0.562558f * 0.5f, jumpingTime_ / (kMaxJumpingTime_ / 10));
-			BossTransform->scale.y = 2.0f * Easing::Lerp(0.562558f * 0.5f, 0.562558f * 1.5f, jumpingTime_ / (kMaxJumpingTime_ / 10));
-			BossTransform->scale.z = 2.0f * Easing::Lerp(0.562558f * 1.5f, 0.562558f * 0.5f, jumpingTime_ / (kMaxJumpingTime_ / 10));
-		} else {
-			BossTransform->scale.x = 1.0f;
-			BossTransform->scale.y = 3.0f;
-			BossTransform->scale.z = 1.0f;
-		}
-
-		startPosition_.y = 1;
-		nextPosition_.y = 1;
-
-		if (jumpingTime_ <= kMaxJumpingTime_ / 2) {
-			BossTransform->translate.y = 2.0f * Easing::Lerp(startPosition_.y, 10.0f, 1.0f - powf(1.0f - jumpingTime_ / (kMaxJumpingTime_ / 2), 2));
-		} else {
-			BossTransform->translate.y = 2.0f * Easing::Lerp(nextPosition_.y, 10.0f, 1.0f - powf((jumpingTime_ - kMaxJumpingTime_ / 2) / (kMaxJumpingTime_ / 2), 2));
-		}
-
-	} else if (landingTime_ < kMaxLandingTime_) {
-
-		if (landingTime_ <= 0.0f) {
-			boss_->GetGameCamera()->SetShakeTime(0.4f);
-		}
-
-		landingTime_ += 1.0f / 60.0f;
-
-		SRT* BossTransform = boss_->GetTransform();
-		if (landingTime_ <= kMaxLandingTime_ / 2) {
-			BossTransform->scale.x = 2.0f * Easing::Lerp(0.562558f * 0.5f, 0.562558f * 1.5f, (landingTime_ / (kMaxLandingTime_ / 2)));
-			BossTransform->scale.y = 2.0f * Easing::Lerp(0.562558f * 1.5f, 0.562558f * 0.5f, (landingTime_ / (kMaxLandingTime_ / 2)));
-			BossTransform->scale.z = 2.0f * Easing::Lerp(0.562558f * 0.5f, 0.562558f * 1.5f, (landingTime_ / (kMaxLandingTime_ / 2)));
-		} else {
-			BossTransform->scale.x = 2.0f * Easing::Lerp(0.562558f * 1.5f, 0.562558f, ((landingTime_ - kMaxLandingTime_ / 2) / (kMaxLandingTime_ / 2)));
-			BossTransform->scale.y = 2.0f * Easing::Lerp(0.562558f * 0.5f, 0.562558f, ((landingTime_ - kMaxLandingTime_ / 2) / (kMaxLandingTime_ / 2)));
-			BossTransform->scale.z = 2.0f * Easing::Lerp(0.562558f * 1.5f, 0.562558f, ((landingTime_ - kMaxLandingTime_ / 2) / (kMaxLandingTime_ / 2)));
-		}
-
-		BossTransform->translate.y = 1;
-		startPosition_.y = BossTransform->translate.y;
-		nextPosition_.y = BossTransform->translate.y;
-	}
-}
-
-void BossAction_Jump::Finalize() {
-
-}
-
-#pragma endregion
-
-#pragma region BossAction_Move
-
-void BossAction_Move::Initialize(Boss* boss) {
-	boss_ = boss;
-
-	targetedCooltime_ = 0.0f;
-
-	SRT* PlayerTransform = boss_->GetPlayer()->GetTransform();
-	SRT* BossTransform = boss_->GetTransform();
-	move_ = Normalize(Vector3(PlayerTransform->translate.x, 0.0f, PlayerTransform->translate.z) - Vector3(BossTransform->translate.x, 0.0f, BossTransform->translate.z));
-
-	isEnd_ = false;
-}
-
-void BossAction_Move::Update() {
-
-	if (targetedCooltime_ < kMaxTargetedCooltime_) {
-		if (targetedCooltime_ <= 0) {
-			AudioHolder::GetInstance()->GetAudio(AudioIndex::Reload_SE).lock()->SoundPlayWave();
-		}
-
-		targetedCooltime_ += 1.0f / 60.0f;
-
-
-		float angle = std::atan2(move_.x, move_.z);
-
-		SRT* BossTransform = boss_->GetTransform();
-
-		//最短角度補完
-		float d = angle - BossTransform->rotate.y;
-
-		if (d >= std::numbers::pi_v<float>*2) {
-			d = angle - BossTransform->rotate.y;
-		}
-
-		d = std::fmodf(d, std::numbers::pi_v<float> *2);
-
-		if (d > std::numbers::pi_v<float>) {
-			d -= std::numbers::pi_v<float> *2;
-		} else if (d < -std::numbers::pi_v<float>) {
-			d += std::numbers::pi_v<float> *2;
-		}
-
-		if (d > std::numbers::pi_v<float>) {
-			d -= std::numbers::pi_v<float> *2;
-		} else if (d < -std::numbers::pi_v<float>) {
-			d += std::numbers::pi_v<float> *2;
-		}
-
-		//正直あまりやりたくはない方法だが2πを超えると遠回りで回転してしまうので致し方無い
-		BossTransform->rotate.y = (BossTransform->rotate.y + d * 0.2f);
-		BossTransform->rotate.y = std::fmodf(BossTransform->rotate.y, std::numbers::pi_v<float> *2);
-	} else {
-		SRT* BossTransform = boss_->GetTransform();
-		if ((BossTransform->translate.x + move_.x * speed_) > (60.0f - 2.0f) || (BossTransform->translate.x + move_.x * speed_) < -(60.0f - 2.0f) ||
-			(BossTransform->translate.z + move_.z * speed_) > (60.0f - 2.0f) || (BossTransform->translate.z + move_.z * speed_) < -(60.0f - 2.0f)) {
-			isEnd_ = true;
-			return;
-		}
-		BossTransform->translate += move_ * speed_;
-		boss_->GetGameCamera()->SetShakeTime(0.2f);
-	}
-}
-
-void BossAction_Move::Finalize() {
-
-}
-
-#pragma endregion
 
 Boss::~Boss() {
 
@@ -481,12 +130,26 @@ void Boss::Initialize(GameScene* gameScene, GameCamera* gameCamera, ParticleEmit
 	targetTransform_ = std::make_unique<SRT>();
 	*targetTransform_ = transform_;
 
-	action_ = std::make_unique<BossAction_Shot_01>();
-	action_->Initialize(this);
+	//action_ = std::make_unique<BossAction_Shot_01>();
+	//action_->Initialize(this);
 
-	for (int& weight : weights_) {
-		weight = 5;
-	}
+	std::vector<std::unique_ptr<BaseStep>> steps;
+	std::unique_ptr<BaseStep> step;
+	steps.push_back(make_unique<Step_LockOnPlayer>());
+	steps.push_back(make_unique<Step_WaitTime>(1.0f));
+
+	std::unique_ptr<BossAction> action = std::make_unique<BossAction>();
+	action->SetSteps(move(steps));
+
+	PatternCondition condition{};
+	condition.farDistance = 50.0f;
+	condition.priority = 5;
+
+	std::unique_ptr<BossPattern> pattern = std::make_unique<BossPattern>();
+	pattern->Initialize(this);
+	pattern->SetAction(move(action));
+	pattern->SetCondition(condition);
+	patterns_.push_back(move(pattern));
 
 	BaseCharacter::Initialize(2.0f, CollisionID_Enemy_Body);
 }
@@ -508,7 +171,7 @@ void Boss::Update() {
 			color = { (HP_ / maxHP_), (HP_ / maxHP_), (HP_ / maxHP_), 1.0f };
 			object_->SetColor(color);
 
-			if (HP_ / maxHP_ < 0.2f) {
+			/*if (HP_ / maxHP_ < 0.2f) {
 				weights_[2] = 8;
 				weights_[3] = 3;
 			} else if (HP_ / maxHP_ < 0.5f) {
@@ -540,7 +203,7 @@ void Boss::Update() {
 				}
 
 				action_->Initialize(this);
-			}
+			}*/
 			transform_ = *targetTransform_;
 		}
 	}
@@ -566,4 +229,8 @@ void Boss::IsCollision(uint8_t targetId) {
 
 void Boss::IsCollisionGround(OBB obb) {
 
+}
+
+void Boss::ShotBullet(Vector3 startPoint, Vector3 rotate, float speed) {
+	gameScene_->AddBossBullet(startPoint, rotate);
 }

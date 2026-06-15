@@ -1,6 +1,9 @@
 #include "GameEngine.h"
 #include "SampleScene/SampleScene.h"
 #include "GameManager.h"
+#include <iostream>
+#include <fstream>
+#include <nlohmann/json.hpp>
 
 using namespace std;
 
@@ -17,6 +20,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//unique_ptr<GameManager> gameManager = make_unique<GameManager>();
 
 	gameManager->Initialize();
+
+
+
+	nlohmann::json config;
+
+	config["WindowWidth"] = 1280;
+	config["WindowHeight"] = 720;
+	config["Fullscreen"] = false;
+
+	std::cout << config.dump(4) << std::endl;
+
+	std::ofstream file("Config.json");
+	file << config.dump(4);
+	file.close();
 
 	//ウィンドウの×ボタンが押されるまでループ
 	while (GameEngine::WindowState()) {
