@@ -22,6 +22,7 @@ struct Material {
 	int32_t enableEnviromentMap;		//環境マップを使用するか(trueかfalse)
 	float padding0[3];
 	Matrix4x4 uvTransform;				//UV行列
+	Matrix4x4 projectionInverse;
 	float shininess;				//反射輝度
 	int32_t shading;					//フォンシェーディング
 	float enviromentCoefficient;		//環境マップ映りこみ度合

@@ -618,7 +618,7 @@ void SampleScene::Update() {
 	BoxFilterData data;
 	data.scale = 5;
 
-	GameEngine::DrawScreen("render", data);
+	GameEngine::DrawOutline("render", defaultCamera_);
 
 	GameEngine::RenderPostDraw();
 }

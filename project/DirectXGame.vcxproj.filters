@@ -58,6 +58,12 @@
     <FxCompile Include="resources\Shader\BoxFilter.PS.hlsl">
       <Filter>GameEngine\Shader</Filter>
     </FxCompile>
+    <FxCompile Include="resources\Shader\GaussianFilter.PS.hlsl">
+      <Filter>GameEngine\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="resources\Shader\LuminanceBasedOutline.PS.hlsl">
+      <Filter>GameEngine\Shader</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
