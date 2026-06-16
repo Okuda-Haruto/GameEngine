@@ -137,6 +137,7 @@ public:
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> Screen_RootSignatureInitialvalue();
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> Screen_ColorChange_RootSignatureInitialvalue();
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> Screen_Vignette_RootSignatureInitialvalue();
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> Screen_Outline_RootSignatureInitialvalue();
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> Cubemap_RootSignatureInitialvalue();
 
 	//シェーダーのコンパイル
@@ -164,8 +165,11 @@ public:
 
 	//SRVManagerはDirectXCommonの後に初期化しないといけないので分ける
 	void DepthBufferInitialize(SRVManager* srvManager);
-	//深度バッファSRVをセット
-	void SetDepthTexture(UINT RootParameterIndex);
+	//深度バッファSRVを更新
+	void UpdateDepthTexture();
+	//描画用深度バッファIndex
+	uint32_t GetDepthBufferIndex() { return depthBufferIndex_; }
+
 
 private:
 	//ログファイルの生成

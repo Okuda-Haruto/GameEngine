@@ -536,9 +536,15 @@ void GameScene::Update() {
 
 	GameEngine::RenderPostDraw();
 
+	GameEngine::RenderPreDraw("Outline");
+
+	GameEngine::DrawOutline("render", gameCamera_->GetCamera());
+
+	GameEngine::RenderPostDraw();
+
 	GameEngine::RenderPreDraw("ColorChange");
 
-	GameEngine::DrawScreen("render", ColorChange::COLORMODE_SEPIATONE, gameCamera_->GetSepiaTone());
+	GameEngine::DrawScreen("Outline", ColorChange::COLORMODE_SEPIATONE, gameCamera_->GetSepiaTone());
 
 	GameEngine::RenderPostDraw();
 
