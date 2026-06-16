@@ -119,14 +119,13 @@ public:
 	void Activate(BossAction* action) override;
 };
 
-//弾発射
-class Step_ShotBullet : public BaseStep {
+//向いてる方向に弾発射
+class Step_ShotBulletToFront : public BaseStep {
 private:
-	Vector3 startPoint_;
-	Vector3 rotate_;
+	float spread_;
 	float speed_;
 public:
-	Step_ShotBullet(Vector3 startPoint, Vector3 rotate, float speed) { startPoint_ = startPoint; rotate_ = rotate; speed_ = speed; }
+	Step_ShotBulletToFront(float spread, float speed) { spread_ = spread; speed_ = speed; }
 	void Activate(BossAction* action) override;
 };
 
@@ -154,12 +153,16 @@ private:
 	//線形補完移動
 	std::optional<VelocityState> velocityState_;
 
+	//終了
+	bool isEnd_;
 
 public:
-	void Initialize(Boss* boss) { boss_ = boss; }
+	void Initialize(Boss* boss) { boss_ = boss; isEnd_ = false; stepIndex_ = 0; }
 	void Update();
 
 	Boss* GetBoss() { return boss_; }
+
+	bool IsEnd() { return isEnd_; }
 
 	//ステップ
 	std::vector<BaseStep*> GetSteps() {
@@ -193,10 +196,12 @@ public:
 	//線形補完位置
 	std::optional<LerpPositionState> GetLerpPosition() { return lerpPosition_; }
 	void SetLerpPosition(LerpPositionState lerpPosition) { lerpPosition_ = lerpPosition; }
+	void ResetLerpPosition() { lerpPosition_.reset(); }
 
 	//線形補完移動
 	std::optional<VelocityState> GetVelocityState() { return velocityState_; }
 	void SetVelocityState(VelocityState velocityState) { velocityState_ = velocityState; }
+	void ResetVelocityState() { velocityState_.reset(); }
 };
 
 //パターン条件
@@ -220,9 +225,14 @@ private:
 	PatternCondition condition_;
 	//ボス行動
 	std::unique_ptr<BossAction> action_;
+
+	//終了
+	bool isEnd_;
 public:
-	void Initialize(Boss* boss) { boss_ = boss; }
+	void Initialize(Boss* boss) { boss_ = boss; isEnd_ = false; action_->Initialize(boss); }
 	void Update();
+
+	bool IsEnd() { return isEnd_; }
 
 	//パターン条件
 	PatternCondition GetCondition() { return condition_; }
@@ -241,6 +251,7 @@ private:
 
 	float angle;
 
+
 	std::unique_ptr<SRT> targetTransform_;
 
 	float maxHP_;
@@ -252,10 +263,21 @@ private:
 	GameScene* gameScene_ = nullptr;
 	Player* player_ = nullptr;
 
-	//ボス行動パターン
 	std::vector<std::unique_ptr<BossPattern>> patterns_;
+	uint32_t patternIndex_;
+
+	//線形補完位置
+	std::optional<LerpPositionState> lerpPosition_{};
+	float lerpPositionTime_;
+	//線形補完移動
+	std::optional<VelocityState> velocityState_{};
+	float velocityStateTime_;
 
 	bool isStartAnimation_ = false;
+
+	Vector3 lockOnPosition_;
+
+	bool isAction_;
 
 public:
 
@@ -287,6 +309,8 @@ public:
 	bool IsDead() { return HP_ <= 0; }
 
 	bool IsStartAnimation() { return isStartAnimation_; }
+
+	bool IsAction() { return isAction_; }
 
 	void ShotBullet(Vector3 startPoint, Vector3 rotate, float speed);
 };
