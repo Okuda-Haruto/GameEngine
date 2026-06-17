@@ -4,36 +4,6 @@
 
 #include <Character/Boss/Boss.h>
 
-class BaseAction;
-//1つ単位の行動
-class BaseStep {
-private:
-	BaseAction* action_;
-public:
-	virtual void Activate(BaseAction* action) = 0;
-};
-
-//ボスのアクション
-class BaseAction {
-private:
-	Boss* boss_;
-	//ボス行動ステップ
-	std::vector<std::unique_ptr<BaseStep>> steps;
-public:
-	virtual void Initialize(Boss* boss) = 0;
-	virtual void Update() = 0;
-};
-
-//ボスの行動パターン
-class BasePattern {
-private:
-	//ボス行動
-	std::vector<std::unique_ptr<BaseAction>> actions;
-public:
-	virtual void Initialize(Boss* boss) = 0;
-	virtual void Update() = 0;
-};
-
 class BossEditor {
 private:
 
@@ -56,10 +26,12 @@ private:
 
 	//ボス名
 	std::string bossName_;
-	//描画するモデル名
-	std::string modelName_;
+	//描画するモデルファイルへのパス
+	std::string modelPath_;
+	//最大HP
+	uint32_t maxHP_;
 	//ボス行動パターン
-	std::vector<std::unique_ptr<BasePattern>> patterns;
+	std::vector<std::unique_ptr<BossPattern>> patterns;
 
 
 	//ボス

@@ -34,6 +34,7 @@ void GameOverScene::Initialize(shared_ptr<Input> input) {
 	player_->Initialize(ModelHolder::GetInstance()->GetModel(ModelIndex::Boss));
 	player_->SetDirectionalLight(directionalLight_);
 	player_->SetCamera(camera_);
+	player_->SetAnimationName("Idle");
 	player_->SetIsLoopAnimation(true);
 	player_->SetIsUseAnimation(true);
 	SRT PlayerTransform{};

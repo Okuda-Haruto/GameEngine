@@ -151,7 +151,7 @@ void GameScene::Initialize(shared_ptr<Input> input) {
 	gameCamera_->SetOffset(Vector3{ 0.0f,6.0f,-60.0f });
 	gameCamera_->SetRotate(Vector3{ std::numbers::pi_v<float> / 180 * 10,0.0f,0.0f });
 	SRT event{};
-	event.translate = { 0.0f,2.0f,-30.0f };
+	event.translate = { 0.0f,5.0f,-35.0f };
 	gameCamera_->SetEventTransform(event);
 	gameCamera_->SetIsEvent(true);
 	PlayerBullet::SetCamera(gameCamera_->GetCamera());
@@ -190,7 +190,7 @@ void GameScene::Initialize(shared_ptr<Input> input) {
 
 	//ボス
 	boss_ = std::make_unique<Boss>();
-	boss_->Initialize(this,gameCamera_.get(), particle_3.get(), player_.get(), 60.0f);
+	boss_->Initialize(this,gameCamera_.get(), particle_3.get(), player_.get(), 30.0f);
 	gameCamera_->SetTarget(boss_->GetTransform());
 	player_->SetBossTransform(boss_->GetTransform());
 	boss_->SetCamera(gameCamera_->GetCamera());

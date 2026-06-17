@@ -37,9 +37,9 @@ void Player::Initialize(GameScene* gameScene, GameCamera* gameCamera, shared_ptr
 	//モデルの生成
 	object_ = std::make_unique<Object>();
 	object_->Initialize(ModelHolder::GetInstance()->GetModel(ModelIndex::Player));
-	transform_.scale = { 1.0f,1.0f,1.0f };
+	transform_.scale = { 1.5f,1.5f,1.5f };
 	transform_.rotate = { 0.0f,0.0f,0.0f };
-	transform_.translate = { 0.0f,1.0f,-20.0f };
+	transform_.translate = { 0.0f,1.5f,-20.0f };
 	object_->SetTransform(transform_);
 
 	targetTransform_ = std::make_unique<SRT>();
@@ -58,7 +58,7 @@ void Player::Initialize(GameScene* gameScene, GameCamera* gameCamera, shared_ptr
 
 	isTargeted_ = false;
 
-	BaseCharacter::Initialize(1.0f, CollisionID_Player_Body);
+	BaseCharacter::Initialize(1.5f, CollisionID_Player_Body);
 }
 
 void Player::Update() {
@@ -166,8 +166,8 @@ void Player::Update() {
 			//移動
 			transform_.translate += velocity_;
 
-			transform_.translate.x = std::clamp(transform_.translate.x, -59.0f, 59.0f);
-			transform_.translate.z = std::clamp(transform_.translate.z, -59.0f, 59.0f);
+			transform_.translate.x = std::clamp(transform_.translate.x, -58.5f, 58.5f);
+			transform_.translate.z = std::clamp(transform_.translate.z, -58.5f, 58.5f);
 
 			if (!(isTargeted_ && bossTransform_)) {
 				angle = std::atan2(velocity_.x, velocity_.z);
@@ -244,10 +244,10 @@ void Player::Update() {
 			//移動
 			transform_.translate += velocity_;
 
-			if (transform_.translate.x > 59.0f || transform_.translate.x < -59.0f ||
-				transform_.translate.z > 59.0f || transform_.translate.z < -59.0f) {
-				transform_.translate.x = std::clamp(transform_.translate.x, -59.0f, 59.0f);
-				transform_.translate.z = std::clamp(transform_.translate.z, -59.0f, 59.0f);
+			if (transform_.translate.x > 58.5f || transform_.translate.x < -58.5f ||
+				transform_.translate.z > 58.5f || transform_.translate.z < -58.5f) {
+				transform_.translate.x = std::clamp(transform_.translate.x, -58.5f, 58.5f);
+				transform_.translate.z = std::clamp(transform_.translate.z, -58.5f, 58.5f);
 				stunTime = kMaxHitFenceStunTime;
 				dodgeActiveTime = kMaxDodgeActiveTime;
 				AudioHolder::GetInstance()->GetAudio(AudioIndex::Fence_Collision_SE).lock()->SoundPlayWave();
@@ -314,7 +314,7 @@ void Player::Update() {
 		}
 		if (keys.hold[DIK_Z] || keys.hold[DIK_X] || pad.Button[PAD_BUTTON_RT].hold && dodgeActiveTime >= kMaxDodgeActiveTime) {
 			if (remainingRounds_ > 0.0f) {
-				if (shotCooltime_ >= kMaxShotCooltime * Easing::Lerp<float>(1.0f, 0.2f, stopTime_ / kMaxStopTime_)) {
+				if (shotCooltime_ >= kMaxShotCooltime) {
 					gameScene_->AddPlayerBullet(transform_.translate, transform_.rotate);
 					shotCooltime_ = 0.0f;
 					remainingRounds_--;
@@ -329,9 +329,9 @@ void Player::Update() {
 #pragma region 注目行動
 
 		if (keys.hold[DIK_LSHIFT] || keys.hold[DIK_RSHIFT] || pad.Button[PAD_BUTTON_LT].hold) {
-			isTargeted_ = true;
-		} else {
 			isTargeted_ = false;
+		} else {
+			isTargeted_ = true;
 		}
 
 #pragma endregion
