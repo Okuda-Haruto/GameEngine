@@ -58,7 +58,7 @@ void Player::Initialize(GameScene* gameScene, GameCamera* gameCamera, shared_ptr
 
 	isTargeted_ = false;
 
-	BaseCharacter::Initialize(1.0f, CollisionID_Player_Body);
+	BaseCharacter::Initialize(1.5f, CollisionID_Player_Body);
 }
 
 void Player::Update() {

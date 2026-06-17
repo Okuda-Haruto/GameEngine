@@ -419,14 +419,8 @@ void GameEngine::DrawObject_3D_(Object* object, shared_ptr<DirectionalLight> dir
 		for (int i = 0; i < bones.size(); i++) {
 			if (i > 128)break;
 			objectBoneData_[objectIndex_]->matrix[i] = bones[i].offsetMatrix * skeleton.joints[skeleton.jointMap[bones[i].name]].skeltonSpaceMatrix;
-			Primitive3DManager::GetInstance()->AddPoint(Vector3{ 0,0,0 } * skeleton.joints[skeleton.jointMap[bones[i].name]].skeltonSpaceMatrix * worldMatrix);
+			//Primitive3DManager::GetInstance()->AddPoint(Vector3{ 0,0,0 } * skeleton.joints[skeleton.jointMap[bones[i].name]].skeltonSpaceMatrix * worldMatrix);
 		}
-
-		//std::vector<Bone> bones = object->GetBones();
-		//for (int i = 0; i < bones.size(); i++) {
-		//	if (i > 128)break;
-		//	objectBoneData_[objectIndex_]->matrix[i] = *bones[i].finalMatrix;
-		//}
 
 		objectBoneResource_[objectIndex_]->Unmap(0,nullptr);
 
@@ -468,7 +462,7 @@ void GameEngine::DrawObject_3D_(Object* object, shared_ptr<DirectionalLight> dir
 		commandList_->SetGraphicsRootConstantBufferView(7, objectBoneResource_[objectIndex_]->GetGPUVirtualAddress());
 
 		//描画(DrawCall)
-		commandList_->DrawIndexedInstanced(offsets[i].indexCount, 1, 0, offsets[i].vertexStart, 0);
+		commandList_->DrawIndexedInstanced(offsets[i].indexCount, 1, offsets[i].indexStart, 0, 0);
 
 		objectIndex_++;
 	}
@@ -565,7 +559,7 @@ void GameEngine::DrawParts_3D_(Object* object, uint32_t partsIndex, shared_ptr<D
 	commandList_->SetGraphicsRootConstantBufferView(7, objectBoneResource_[objectIndex_]->GetGPUVirtualAddress());
 
 	//描画(DrawCall)
-	commandList_->DrawIndexedInstanced(offsets[partsIndex].indexCount, 1, 0, offsets[partsIndex].vertexStart, 0);
+	commandList_->DrawIndexedInstanced(offsets[partsIndex].indexCount, 1, offsets[partsIndex].indexStart, 0, 0);
 
 	objectIndex_++;
 }
@@ -659,7 +653,7 @@ void GameEngine::DrawObject_2D_(Object* object, shared_ptr<DirectionalLight> dir
 		commandList_->SetGraphicsRootConstantBufferView(7, objectBoneResource_[objectIndex_]->GetGPUVirtualAddress());
 
 		//描画(DrawCall)
-		commandList_->DrawIndexedInstanced(offsets[i].indexCount, 1, 0, offsets[i].vertexStart, 0);
+		commandList_->DrawIndexedInstanced(offsets[i].indexCount, 1, offsets[i].indexStart, 0, 0);
 
 		objectIndex_++;
 	}
@@ -754,7 +748,7 @@ void GameEngine::DrawParts_2D_(Object* object, uint32_t partsIndex, shared_ptr<D
 	commandList_->SetGraphicsRootConstantBufferView(7, objectBoneResource_[objectIndex_]->GetGPUVirtualAddress());
 
 	//描画(DrawCall)
-	commandList_->DrawIndexedInstanced(offsets[partsIndex].indexCount, 1, 0, offsets[partsIndex].vertexStart, 0);
+	commandList_->DrawIndexedInstanced(offsets[partsIndex].indexCount, 1, offsets[partsIndex].indexStart, 0, 0);
 
 	objectIndex_++;
 }
@@ -893,7 +887,7 @@ void GameEngine::DrawInstancingObject_3D_(std::list<Object*> objects, shared_ptr
 		commandList_->SetGraphicsRootConstantBufferView(0, objectMaterialResource_[instancingObjectIndex_]->GetGPUVirtualAddress());
 		
 		//描画(DrawCall)
-		commandList_->DrawIndexedInstanced(offsets[i].indexCount, numInstance, 0, offsets[i].vertexStart, 0);
+		commandList_->DrawIndexedInstanced(offsets[i].indexCount, numInstance, offsets[i].indexStart, 0, 0);
 
 		instancingObjectIndex_++;
 	}

@@ -141,16 +141,23 @@ ModelData LoadObjFile(const std::string& directoryPath, const std::string& filen
 	//頂点数
 	offset.vertexCount = UINT(modelData.vertices.size()) - offset.vertexStart;
 
-	//インデックスと頂点の要素は同一
-	offset.indexStart = offset.vertexStart;
-	offset.indexCount = offset.vertexCount;
-
-	modelData.offset.push_back(offset);
-
 	//3角形2つを組合わせ4角形にする
 	for (uint32_t i = 0; i < modelData.vertices.size(); i++) {
 		modelData.indexes.push_back(i);
 	}
+
+	//開始地点
+	if (modelData.offset.size() > 0) {
+		size_t offsetIndex = modelData.offset.size() - 1;
+		offset.indexStart = modelData.offset[offsetIndex].indexStart + modelData.offset[offsetIndex].indexCount;
+	}
+	else {
+		offset.vertexStart = 0;
+	}
+
+	offset.indexCount = UINT(modelData.indexes.size()) - offset.indexStart;
+
+	modelData.offset.push_back(offset);
 
 	return modelData;
 }
