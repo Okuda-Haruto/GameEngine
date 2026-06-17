@@ -138,6 +138,7 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	screen_ColorChange_RootSignature_ = dxCommon_->Screen_ColorChange_RootSignatureInitialvalue();
 	screen_Vignette_RootSignature_ = dxCommon_->Screen_Vignette_RootSignatureInitialvalue();
 	screen_Outline_RootSignature_ = dxCommon_->Screen_Outline_RootSignatureInitialvalue();
+	screen_RadialBlur_RootSignature_ = dxCommon_->Screen_RadialBlur_RootSignatureInitialvalue();
 	cubemap_RootSignature_ = dxCommon_->Cubemap_RootSignatureInitialvalue();
 
 	//Shaderをコンパイルする
@@ -177,6 +178,8 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	assert(GaussianFilterPSBlob != nullptr);
 	Microsoft::WRL::ComPtr<IDxcBlob> LuminanceBasedOutlinePSBlob = dxCommon_->CompileShader(L"./resources/Shader/LuminanceBasedOutline.PS.hlsl", L"ps_6_0");
 	assert(LuminanceBasedOutlinePSBlob != nullptr);
+	Microsoft::WRL::ComPtr<IDxcBlob> RadialBlurPSBlob = dxCommon_->CompileShader(L"./resources/Shader/RadialBlur.PS.hlsl", L"ps_6_0");
+	assert(RadialBlurPSBlob != nullptr);
 	Microsoft::WRL::ComPtr<IDxcBlob> CubemapVSBlob = dxCommon_->CompileShader(L"./resources/Shader/Cubemap.VS.hlsl", L"vs_6_0");
 	assert(CubemapVSBlob != nullptr);
 	Microsoft::WRL::ComPtr<IDxcBlob> CubemapPSBlob = dxCommon_->CompileShader(L"./resources/Shader/Cubemap.PS.hlsl", L"ps_6_0");
@@ -198,6 +201,7 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	screen_BoxFilter_PipelineState_ = Screen_PipelineStateInitialvalue(device_, screen_RootSignature_, CopyImageVSBlob.Get(), BoxFilterPSBlob.Get());
 	screen_GaussianFilter_PipelineState_ = Screen_PipelineStateInitialvalue(device_, screen_RootSignature_, CopyImageVSBlob.Get(), GaussianFilterPSBlob.Get());
 	screen_Outline_PipelineState_ = Screen_PipelineStateInitialvalue(device_, screen_Outline_RootSignature_, CopyImageVSBlob.Get(), LuminanceBasedOutlinePSBlob.Get());
+	screen_RadialBlur_PipelineState_ = Screen_PipelineStateInitialvalue(device_, screen_RadialBlur_RootSignature_, CopyImageVSBlob.Get(), RadialBlurPSBlob.Get());
 	cubemap_PipelineState_ = Cubemap_PipelineStateInitialvalue(device_, cubemap_RootSignature_, CubemapVSBlob.Get(), CubemapPSBlob.Get());
 	//XAudioエンジンのインスタンスを生成
 	hr = XAudio2Create(&xAudio2_, 0, XAUDIO2_DEFAULT_PROCESSOR);
@@ -254,6 +258,7 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	vignetteResource_ = dxCommon_->CreateBufferResources(sizeof(VignetteData));
 	boxFilterResource_ = dxCommon_->CreateBufferResources(sizeof(BoxFilterData));
 	outlineMaterialFilterResource_ = dxCommon_->CreateBufferResources(sizeof(Material));
+	radialBlurResource_ = dxCommon_->CreateBufferResources(sizeof(RadialBlurData));
 }
 
 
@@ -1240,6 +1245,31 @@ void GameEngine::DrawScreen_(std::string textureName, BoxFilterData data) {
 	commandList_->SetGraphicsRootDescriptorTable(1, srvManager_->GetGPUDescriptorHandle(TextureManager::GetInstance()->GetSrvIndex(textureName)));
 
 	commandList_->SetGraphicsRootConstantBufferView(0, boxFilterResource_->GetGPUVirtualAddress());
+
+	//描画(DrawCall)(頂点は勝手に入るのでIndexedじゃない)
+	commandList_->DrawInstanced(3, 1, 0, 0);
+
+}
+
+void GameEngine::DrawScreen_(std::string textureName, RadialBlurData data) {
+
+	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
+	commandList_->SetGraphicsRootSignature(screen_RadialBlur_RootSignature_.Get());
+	commandList_->SetPipelineState(screen_RadialBlur_PipelineState_.Get());	//PSOを設定
+
+	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
+	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	radialBlurResource_->Map(0, nullptr, reinterpret_cast<void**>(&radialBlurData_));
+
+	*radialBlurData_ = data;
+
+	radialBlurResource_->Unmap(0, nullptr);
+
+	//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
+	commandList_->SetGraphicsRootDescriptorTable(1, srvManager_->GetGPUDescriptorHandle(TextureManager::GetInstance()->GetSrvIndex(textureName)));
+
+	commandList_->SetGraphicsRootConstantBufferView(0, radialBlurResource_->GetGPUVirtualAddress());
 
 	//描画(DrawCall)(頂点は勝手に入るのでIndexedじゃない)
 	commandList_->DrawInstanced(3, 1, 0, 0);

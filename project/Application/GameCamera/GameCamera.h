@@ -31,7 +31,7 @@ private:
 	const SRT* player_ = nullptr;
 	const SRT* target_ = nullptr;
 
-	const float kMaxCameraPos = 2.0f;
+	const float kMaxCameraPos = 3.0f;
 	float cameraPos_ = 1.0f;
 	float velocity_ = 0.0f;
 

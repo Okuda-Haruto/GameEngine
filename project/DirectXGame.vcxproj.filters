@@ -64,6 +64,9 @@
     <FxCompile Include="resources\Shader\LuminanceBasedOutline.PS.hlsl">
       <Filter>GameEngine\Shader</Filter>
     </FxCompile>
+    <FxCompile Include="resources\Shader\RadialBlur.PS.hlsl">
+      <Filter>GameEngine\Shader</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -640,6 +643,9 @@
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\Data\NodeAnimation.h">
+      <Filter>GameEngine\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Data\RadialBlurData.h">
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
   </ItemGroup>

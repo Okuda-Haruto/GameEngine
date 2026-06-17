@@ -53,17 +53,20 @@ PixelShaderOutput LuminanceBasedOutline(float2 texcoord)
             float4 viewSpace = mul(float4(0.0f, 0.0f, ndcDepth, 1.0f), gMaterial.projectionInverse);
             float viewZ = viewSpace.z * rcp(viewSpace.w);
             
-            difference.x += viewZ * kPrewittHrizonKernel[x][y];
-            difference.y += viewZ * kPrewittVerticalKernel[x][y];
+            difference.x += ndcDepth * kPrewittHrizonKernel[x][y];
+            difference.y += ndcDepth * kPrewittVerticalKernel[x][y];
         }
 
     }
     
-    float weight = length(difference);
-    weight = saturate(weight);
+    float weight = smoothstep(
+        0.0001f,
+        0.0002f,
+        length(difference)
+    );
     
     PixelShaderOutput output;
-    output.color.rgb = (1.0f - weight) * gTexture.Sample(gSampler,texcoord).rgb;
+    output.color.rgb = (1.0f - weight) * gTexture.Sample(gSampler, texcoord).rgb;
     output.color.a = 1.0f;
     
     return output;
