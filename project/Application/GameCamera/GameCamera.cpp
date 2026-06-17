@@ -87,7 +87,7 @@ void GameCamera::Update() {
 	lockonTransform_.rotate.x = 0;
 
 	Matrix4x4 rotateMatrix = MakeRotateYMatrix(lockonTransform_.rotate.y);
-	lockonTransform_.translate = player_->translate + rotateMatrix * Vector3{ cameraPos_,0.0f,0.0f } + Normalize(diff) * -8.0f;
+	lockonTransform_.translate = player_->translate + rotateMatrix * Vector3{ cameraPos_,0.0f,0.0f } + Normalize(diff) * -12.0f;
 	lockonTransform_.translate.y = 3.0f;
 
 	lockonTransform_.scale = {};

@@ -50,6 +50,11 @@ void Object::Initialize(shared_ptr<Model> model) {
 	bones_ = model_->GetBones();
 
 	skeleton_ = model_->GetSkeleton();
+
+	//アニメーションがあるなら得る
+	if (model_->GetAnimationDatas().size() > 0) {
+		animationName_ = model_->GetAnimationDatas().begin()->first;
+	}
 }
 
 void Object::Update() {

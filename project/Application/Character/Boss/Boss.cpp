@@ -154,17 +154,17 @@ void Boss::Initialize(GameScene* gameScene, GameCamera* gameCamera, ParticleEmit
 	steps.push_back(make_unique<Step_LockOnPlayer>());
 	steps.push_back(make_unique<Step_WaitTime>(0.5f));
 	steps.push_back(make_unique<Step_LockOnRelease>());
-	steps.push_back(make_unique<Step_WaitTime>(0.5f));
+	steps.push_back(make_unique<Step_WaitTime>(0.25f));
 	steps.push_back(make_unique<Step_ShotBulletToFront>(0.05f,1.0f));
 	steps.push_back(make_unique<Step_LockOnPlayer>());
 	steps.push_back(make_unique<Step_WaitTime>(0.5f));
 	steps.push_back(make_unique<Step_LockOnRelease>());
-	steps.push_back(make_unique<Step_WaitTime>(0.5f));
+	steps.push_back(make_unique<Step_WaitTime>(0.25f));
 	steps.push_back(make_unique<Step_ShotBulletToFront>(0.05f, 1.0f));
 	steps.push_back(make_unique<Step_LockOnPlayer>());
-	steps.push_back(make_unique<Step_WaitTime>(1.5f));
+	steps.push_back(make_unique<Step_WaitTime>(0.75f));
 	steps.push_back(make_unique<Step_LockOnRelease>());
-	steps.push_back(make_unique<Step_WaitTime>(0.5f));
+	steps.push_back(make_unique<Step_WaitTime>(0.25f));
 	for (int i = 0; i < 10; i++) {
 		steps.push_back(make_unique<Step_ShotBulletToFront>(0.05f, 1.0f));
 		steps.push_back(make_unique<Step_WaitTime>(0.01f));
@@ -191,7 +191,7 @@ void Boss::Initialize(GameScene* gameScene, GameCamera* gameCamera, ParticleEmit
 	steps.push_back(make_unique<Step_LockOnPlayer>());
 	steps.push_back(make_unique<Step_WaitTime>(2.0f));
 	steps.push_back(make_unique<Step_LockOnRelease>());
-	steps.push_back(make_unique<Step_MoveToLockOn>(0.2f, 1.0f));
+	steps.push_back(make_unique<Step_MoveFront>(0.8f, 0.5f));
 	steps.push_back(make_unique<Step_WaitStep>());
 
 	action.reset();
@@ -199,7 +199,7 @@ void Boss::Initialize(GameScene* gameScene, GameCamera* gameCamera, ParticleEmit
 	action->SetSteps(move(steps));
 
 	condition = {};
-	condition.nearDistance = 20.0f;
+	condition.nearDistance = 30.0f;
 	condition.priority = 5;
 
 	pattern.reset();
@@ -237,19 +237,19 @@ void Boss::Initialize(GameScene* gameScene, GameCamera* gameCamera, ParticleEmit
 	steps.push_back(make_unique<Step_LockOnPlayer>());
 	steps.push_back(make_unique<Step_WaitTime>(1.0f));
 	steps.push_back(make_unique<Step_LockOnRelease>());
-	steps.push_back(make_unique<Step_MoveFront>(1.8f, 1.0f));
+	steps.push_back(make_unique<Step_MoveFront>(1.8f, 0.75f));
 	steps.push_back(make_unique<Step_WaitStep>());
 	steps.push_back(make_unique<Step_LockOnPlayer>());
-	steps.push_back(make_unique<Step_WaitTime>(1.0f));
+	steps.push_back(make_unique<Step_WaitTime>(0.5f));
 	steps.push_back(make_unique<Step_LockOnRelease>());
-	steps.push_back(make_unique<Step_MoveFront>(1.8f, 1.0f));
+	steps.push_back(make_unique<Step_MoveFront>(1.8f, 0.75f));
 	steps.push_back(make_unique<Step_WaitStep>());
 	steps.push_back(make_unique<Step_LockOnPlayer>());
-	steps.push_back(make_unique<Step_WaitTime>(1.0f));
+	steps.push_back(make_unique<Step_WaitTime>(0.5f));
 	steps.push_back(make_unique<Step_LockOnRelease>());
-	steps.push_back(make_unique<Step_MoveFront>(1.8f, 1.0f));
+	steps.push_back(make_unique<Step_MoveFront>(1.8f, 0.75f));
 	steps.push_back(make_unique<Step_WaitStep>());
-	steps.push_back(make_unique<Step_WaitTime>(1.0f));
+	steps.push_back(make_unique<Step_WaitTime>(0.5f));
 
 	action.reset();
 	action = std::make_unique<BossAction>();
