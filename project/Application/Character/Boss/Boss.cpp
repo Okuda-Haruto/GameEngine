@@ -4,7 +4,7 @@
 #include <Matrix4x4.h>
 #include <numbers>
 #include <Math/Easing.h>
-#include <GameManager/BaseScene/GameScene/GameScene.h>
+#include <StageManager/Stage/Stage.h>
 #include "Operation/Operation.h"
 
 #pragma region Step
@@ -89,6 +89,20 @@ void Step_ShotBulletToFront::Activate(BossAction* action) {
 
 #pragma endregion
 
+std::unique_ptr<BaseStep> ReadStepJson(const nlohmann::json_abi_v3_12_0::json& stepJson) {
+
+	auto it = creators.find(stepJson["step"]);
+
+	if (it == creators.end()) {
+		return nullptr;
+	}
+
+	std::unique_ptr<BaseStep> step = it->second();
+	step->ReadStep(stepJson);
+
+	return step;
+}
+
 void BossAction::Update() {
 	if (!isEnd_) {
 
@@ -122,24 +136,21 @@ Boss::~Boss() {
 
 }
 
-void Boss::Initialize(GameScene* gameScene, GameCamera* gameCamera, ParticleEmitter* particle, Player* player, float maxHP) {
-	maxHP_ = maxHP;
-	HP_ = maxHP_;
+void Boss::Initialize(std::string filepath, Stage* stage, std::shared_ptr<GameCamera> gameCamera, Player* player, Vector3 startPosition) {
 
-	gameScene_ = gameScene;
+	ReadBossFile(filepath);
+
+	stage_ = stage;
 	gameCamera_ = gameCamera;
-	particle_ = particle;
 	player_ = player;
 
 	//モデルの生成
-	object_ = std::make_unique<Object>();
-	object_->Initialize(ModelHolder::GetInstance()->GetModel(ModelIndex::Boss));
 	object_->SetIsUseAnimation(true);
 	object_->SetAnimationName("Start");
 	object_->SetAnimationInterpolation(AnimationInterpolation::Cubic_Spline);
 	transform_.scale = { 0.562558f * 2,0.562558f * 2,0.562558f * 2 };
 	transform_.rotate = { 0.0f,0.0f,0.0f };
-	transform_.translate = { 0.0f,1.0f,0.0f };
+	transform_.translate = startPosition;
 	object_->SetTransform(transform_);
 
 	isStartAnimation_ = true;
@@ -292,7 +303,7 @@ void Boss::Initialize(GameScene* gameScene, GameCamera* gameCamera, ParticleEmit
 	pattern->Initialize(this);
 	patterns_.push_back(move(pattern));
 
-	patternIndex_ = 0;
+	patternName_ = {};
 	lerpPositionTime_ = 0;
 	velocityStateTime_ = 0;
 
@@ -316,10 +327,10 @@ void Boss::Update() {
 			color = { (HP_ / maxHP_), (HP_ / maxHP_), (HP_ / maxHP_), 1.0f };
 			object_->SetColor(color);
 
-			patterns_[patternIndex_]->Update();
+			patterns_[patternName_]->Update();
 
 			velocity_ = {};
-			BossAction* action = patterns_[patternIndex_]->GetAction();
+			BossAction* action = patterns_[patternName_]->GetAction();
 			isAction_ = false;
 			if (!action->IsEnd()) {
 				//位置線形補完
@@ -387,9 +398,9 @@ void Boss::Update() {
 				int8_t maxPriority = 0;
 
 				float distance = Length(player_->GetTransform()->translate - transform_.translate);
-				std::vector<int> indexes;
-				for (int i = 0; i < patterns_.size(); i++) {
-					PatternCondition condition = patterns_[i]->GetCondition();
+				std::vector<std::string> patternNames;
+				for (auto& pattern : patterns_) {
+					PatternCondition condition = pattern.second->GetCondition();
 
 					//優先度が同じ場合も通す
 					if (condition.priority >= maxPriority) {
@@ -413,24 +424,24 @@ void Boss::Update() {
 						//優先度がより高い場合それまでの候補を消す
 						if (condition.priority > maxPriority) {
 							maxPriority = condition.priority;
-							indexes.clear();
+							patternNames.clear();
 						}
 						//どれにも該当しないなら候補に加える
-						indexes.push_back(i);
+						patternNames.push_back(pattern.first);
 					}
 				}
 
-				if (indexes.empty()) {
-					patternIndex_ = 0;
+				if (patternNames.empty()) {
+					patternName_ = {};
 				}
-				else if(indexes.size() == 1){
-					patternIndex_ = indexes[0];
+				else if(patternNames.size() == 1){
+					patternName_ = patternNames[0];
 				}
 				else {
-					patternIndex_ = indexes[GameEngine::randomInt(0, int(indexes.size()) - 1)];
+					patternName_ = patternNames[GameEngine::randomInt(0, int(patternNames.size()) - 1)];
 				}
 
-				patterns_[patternIndex_]->Initialize(this);
+				patterns_[patternName_]->Initialize(this);
 			}
 
 			transform_.translate += velocity_;
@@ -458,7 +469,6 @@ void Boss::IsCollision(uint8_t targetId) {
 		HP_--;
 		particle_->Emit();
 		gameCamera_->SetShakeTime(0.3f);
-		gameScene_->SetRingColorA(1.0f);
 	}
 }
 
@@ -467,5 +477,50 @@ void Boss::IsCollisionGround(OBB obb) {
 }
 
 void Boss::ShotBullet(Vector3 startPoint, Vector3 rotate, float speed) {
-	gameScene_->AddBossBullet(startPoint, rotate);
+	stage_->AddBossBullet(startPoint, rotate);
+}
+
+void Boss::ReadBossFile(std::string filePath) {
+
+	//読み込むJsonファイル
+	std::ifstream file(filePath.c_str());
+	nlohmann::json bossJson;
+	file >> bossJson;
+	file.close();
+
+	//基本ステータス
+	bossName_ = bossJson["name"];
+
+	object_ = std::make_unique<Object>();
+	object_->Initialize(ModelManager::GetInstance()->GetModel(bossJson["name"]["directoryPath"], bossJson["name"]["modelname"]));
+
+	maxHP_ = bossJson["name"]["maxHP"];
+	HP_ = maxHP_;
+
+
+
+	nlohmann::json& patternJson = bossJson["name"]["pattern"];
+
+	//読み込んだパターン
+	for (auto iterator = patternJson.begin(); iterator != patternJson.end(); ++iterator) {
+		const std::string& name = iterator.key();
+		const auto& stepArray = iterator.value();
+
+		auto pattern = std::make_unique<BossPattern>();
+		auto action = std::make_unique<BossAction>();
+
+		//Actionを複数にするときに変える
+
+		//ステップ読み込み
+		std::vector<std::unique_ptr<BaseStep>> steps;
+		for (const auto& stepJson : stepArray)
+		{
+			steps.push_back(ReadStepJson(stepJson["name"]["pattern"][name]));
+		}
+		action->SetSteps(move(steps));
+
+		pattern->SetAction(std::move(action));
+
+		patterns_.emplace(name, std::move(pattern));
+	}
 }

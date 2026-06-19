@@ -1,4 +1,5 @@
 #include "StageEditor.h"
+#include <imgui.h>
 #include <cassert>
 
 void StageEditor::Initialize() {

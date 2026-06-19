@@ -1,5 +1,8 @@
 #pragma once
 #include <memory>
+#include <unordered_map>
+#include <nlohmann/json.hpp>
+
 #include "../BaseCharacter.h"
 #include "../Player/Player.h"
 #include "GameCamera/GameCamera.h"
@@ -33,6 +36,8 @@ private:
 
 public:
 	virtual void Activate(BossAction* action) = 0;
+	virtual nlohmann::json WriteStep() = 0;
+	virtual void ReadStep(const nlohmann::json_abi_v3_12_0::json& stepJson) = 0;
 };
 
 //指定時間待つ
@@ -40,8 +45,19 @@ class Step_WaitTime : public BaseStep {
 private:
 	float time_;
 public:
-	Step_WaitTime(float time) { time_ = time; }
+	void Initialize(float time) { time_ = time; }
 	void Activate(BossAction* action) override;
+
+	nlohmann::json WriteStep() override {
+		return{
+			{"step","Step_WaitTime"},
+			{"time",time_},
+		};
+	}
+
+	void ReadStep(const nlohmann::json_abi_v3_12_0::json& stepJson) override {
+		Initialize(stepJson["time"]);
+	}
 };
 //他同時進行中のステップが終わるまで待つ
 class Step_WaitStep : public BaseStep {
@@ -49,6 +65,16 @@ private:
 
 public:
 	void Activate(BossAction* action) override;
+
+	nlohmann::json WriteStep() override {
+		return{
+			{"step","Step_WaitStep"},
+		};
+	}
+
+	void ReadStep(const nlohmann::json_abi_v3_12_0::json& stepJson) override {
+
+	}
 };
 //アニメーション終了まで待つ
 class Step_WaitAnimation : public BaseStep {
@@ -56,16 +82,49 @@ private:
 
 public:
 	void Activate(BossAction* action) override;
+
+	nlohmann::json WriteStep() override {
+		return{
+			{"step","Step_WaitAnimation"},
+		};
+	}
+
+	void ReadStep(const nlohmann::json_abi_v3_12_0::json& stepJson) override {
+
+	}
 };
 
 //指定時間で指定位置に移動する
 class Step_MoveFixedPsitionTime : public BaseStep {
 private:
-	float time_;
 	Vector3 position_;
+	float time_;
 public:
-	Step_MoveFixedPsitionTime(Vector3 position, float time) { position_ = position;  time_ = time; }
+	void Initialize(Vector3 position, float time) { position_ = position;  time_ = time; }
 	void Activate(BossAction* action) override;
+
+	nlohmann::json WriteStep() override {
+		return{
+			{"step","Step_MoveFixedPsitionTime"},
+			{"position",
+				{
+					{"x",position_.x},
+					{"y",position_.y},
+					{"z",position_.z},
+				}
+			},
+			{"time",time_},
+		};
+	}
+
+	void ReadStep(const nlohmann::json_abi_v3_12_0::json& stepJson) override {
+		Initialize(Vector3{ 
+				stepJson["position"]["x"],
+				stepJson["position"]["y"],
+				stepJson["position"]["z"],
+			}, 
+			stepJson["time"]);
+	}
 };
 //指定速度で指定位置に移動する
 class Step_MoveFixedPsitionSpeed : public BaseStep {
@@ -73,8 +132,31 @@ private:
 	float speed_;
 	Vector3 position_;
 public:
-	Step_MoveFixedPsitionSpeed(Vector3 position, float speed) { position_ = position;  speed_ = speed; }
+	void Initialize(float speed, Vector3 position) { speed_ = speed; position_ = position; }
 	void Activate(BossAction* action) override;
+
+	nlohmann::json WriteStep() override {
+		return{
+			{"step","Step_MoveFixedPsitionSpeed"},
+			{"speed",speed_},
+			{"position",
+				{
+					{"x",position_.x},
+					{"y",position_.y},
+					{"z",position_.z},
+				}
+			},
+		};
+	}
+
+	void ReadStep(const nlohmann::json_abi_v3_12_0::json& stepJson) override {
+		Initialize(stepJson["speed"],
+			Vector3{
+				stepJson["position"]["x"],
+				stepJson["position"]["y"],
+				stepJson["position"]["z"],
+			});
+	}
 };
 //指定速度で移動する
 class Step_MoveFixedVelocity : public BaseStep {
@@ -82,8 +164,31 @@ private:
 	Vector3 velocity_;
 	float time_;
 public:
-	Step_MoveFixedVelocity(Vector3 velocity, float time) { velocity_ = velocity;  time_ = time; }
+	void Initialize(Vector3 velocity, float time) { velocity_ = velocity;  time_ = time; }
 	void Activate(BossAction* action) override;
+
+	nlohmann::json WriteStep() override {
+		return{
+			{"step","Step_MoveFixedVelocity"},
+			{"velocity",
+				{
+					{"x",velocity_.x},
+					{"y",velocity_.y},
+					{"z",velocity_.z},
+				}
+			},
+			{"time",time_},
+		};
+	}
+
+	void ReadStep(const nlohmann::json_abi_v3_12_0::json& stepJson) override {
+		Initialize(Vector3{
+				stepJson["position"]["x"],
+				stepJson["position"]["y"],
+				stepJson["position"]["z"],
+			},
+			stepJson["time"]);
+	}
 };
 //向いてる方向に移動する
 class Step_MoveFront : public BaseStep {
@@ -91,8 +196,20 @@ private:
 	float speed_;
 	float time_;
 public:
-	Step_MoveFront(float speed, float time) { speed_ = speed;  time_ = time; }
+	void Initialize(float speed, float time) { speed_ = speed;  time_ = time; }
 	void Activate(BossAction* action) override;
+
+	nlohmann::json WriteStep() override {
+		return{
+			{"step","Step_MoveFront"},
+			{"speed",speed_},
+			{"time",time_},
+		};
+	}
+
+	void ReadStep(const nlohmann::json_abi_v3_12_0::json& stepJson) override {
+		Initialize(stepJson["speed"], stepJson["time"]);
+	}
 };
 //LockOn対象に向けて移動する
 class Step_MoveToLockOn : public BaseStep {
@@ -100,8 +217,20 @@ private:
 	float speed_;
 	float time_;
 public:
-	Step_MoveToLockOn(float speed, float time) { speed_ = speed;  time_ = time; }
+	void Initialize(float speed, float time) { speed_ = speed;  time_ = time; }
 	void Activate(BossAction* action) override;
+
+	nlohmann::json WriteStep() override {
+		return{
+			{"step","Step_MoveToLockOn"},
+			{"speed",speed_},
+			{"time",time_},
+		};
+	}
+
+	void ReadStep(const nlohmann::json_abi_v3_12_0::json& stepJson) override {
+		Initialize(stepJson["speed"], stepJson["time"]);
+	}
 };
 
 //プレイヤーをロックオンする
@@ -110,6 +239,16 @@ private:
 
 public:
 	void Activate(BossAction* action) override;
+
+	nlohmann::json WriteStep() override {
+		return{
+			{"step","Step_LockOnPlayer"},
+		};
+	}
+
+	void ReadStep(const nlohmann::json_abi_v3_12_0::json& stepJson) override {
+
+	}
 };
 //ロックオン解除
 class Step_LockOnRelease : public BaseStep {
@@ -117,6 +256,16 @@ private:
 
 public:
 	void Activate(BossAction* action) override;
+
+	nlohmann::json WriteStep() override {
+		return{
+			{"step","Step_LockOnRelease"},
+		};
+	}
+
+	void ReadStep(const nlohmann::json_abi_v3_12_0::json& stepJson) override {
+
+	}
 };
 
 //向いてる方向に弾発射
@@ -125,11 +274,42 @@ private:
 	float spread_;
 	float speed_;
 public:
-	Step_ShotBulletToFront(float spread, float speed) { spread_ = spread; speed_ = speed; }
+	void Initialize(float spread, float speed) { spread_ = spread; speed_ = speed; }
 	void Activate(BossAction* action) override;
+
+	nlohmann::json WriteStep() override {
+		return{
+			{"step","Step_ShotBulletToFront"},
+			{"spread",spread_},
+			{"speed",speed_},
+		};
+	}
+
+	void ReadStep(const nlohmann::json_abi_v3_12_0::json& stepJson) override {
+		Initialize(stepJson["spread"], stepJson["speed"]);
+	}
 };
 
 #pragma endregion
+
+using StepCreator = std::function<std::unique_ptr<BaseStep>()>;
+
+std::unordered_map<std::string, StepCreator> creators =
+{
+	{ "Step_WaitTime",   [] { return std::make_unique<Step_WaitTime>(); }},
+	{ "Step_WaitStep", [] { return std::make_unique<Step_WaitStep>(); } },
+	{ "Step_WaitAnimation",   [] { return std::make_unique<Step_WaitAnimation>(); } },
+	{ "Step_MoveFixedPsitionTime",   [] { return std::make_unique<Step_MoveFixedPsitionTime>(); } },
+	{ "Step_MoveFixedPsitionSpeed",   [] { return std::make_unique<Step_MoveFixedPsitionSpeed>(); } },
+	{ "Step_MoveFixedVelocity",   [] { return std::make_unique<Step_MoveFixedVelocity>(); } },
+	{ "Step_MoveFront",   [] { return std::make_unique<Step_MoveFront>(); } },
+	{ "Step_MoveToLockOn",   [] { return std::make_unique<Step_MoveToLockOn>(); } },
+	{ "Step_LockOnPlayer",   [] { return std::make_unique<Step_LockOnPlayer>(); } },
+	{ "Step_LockOnRelease",   [] { return std::make_unique<Step_LockOnRelease>(); } },
+	{ "Step_ShotBulletToFront",   [] { return std::make_unique<Step_ShotBulletToFront>(); } },
+};
+
+std::unique_ptr<BaseStep> ReadStepJson(const nlohmann::json_abi_v3_12_0::json& stepJson);
 
 //ボスのアクション
 class BossAction {
@@ -243,7 +423,7 @@ public:
 	void SetAction(std::unique_ptr<BossAction> action) { action_ = move(action); }
 };
 
-class GameScene;
+class Stage;
 
 class Boss : public BaseCharacter
 {
@@ -251,20 +431,25 @@ private:
 
 	float angle;
 
-
 	std::unique_ptr<SRT> targetTransform_;
 
+	//いらないかも
+	std::string bossName_;
+
+	//体力
 	float maxHP_;
 	float HP_;
 
-	GameCamera* gameCamera_ = nullptr;
+	std::shared_ptr<GameCamera> gameCamera_ = nullptr;
 	ParticleEmitter* particle_ = nullptr;
 
-	GameScene* gameScene_ = nullptr;
+	Stage* stage_ = nullptr;
 	Player* player_ = nullptr;
 
-	std::vector<std::unique_ptr<BossPattern>> patterns_;
-	uint32_t patternIndex_;
+	//ボスの行動map
+	std::unordered_map<std::string, std::unique_ptr<BossPattern>> patterns_;
+	//map用パターン名
+	std::string patternName_;
 
 	//線形補完位置
 	std::optional<LerpPositionState> lerpPosition_{};
@@ -275,6 +460,7 @@ private:
 
 	bool isStartAnimation_ = false;
 
+	//ロックオンする場合の相手の座標
 	Vector3 lockOnPosition_;
 
 	bool isAction_;
@@ -284,7 +470,7 @@ public:
 	~Boss();
 
 	//初期化
-	void Initialize(GameScene* gameScene, GameCamera* gameCamera, ParticleEmitter* particle, Player* player, float maxHP);
+	void Initialize(std::string filepath, Stage* stage_, std::shared_ptr<GameCamera> gameCamera, Player* player, Vector3 startPosition);
 	//更新
 	void Update();
 	//描画
@@ -297,11 +483,13 @@ public:
 	SRT* GetTransform() { return targetTransform_.get(); }
 	SRT* GetPlayerTransform() { return player_->GetTransform(); }
 	Vector3 GetVelocity() { return velocity_; }
-	GameScene* GetGameScene() { return gameScene_; }
+	Stage* GetStage() { return stage_; }
 	Player* GetPlayer() { return player_; }
-	GameCamera* GetGameCamera() { return gameCamera_; }
+	std::shared_ptr<GameCamera> GetGameCamera() { return gameCamera_; }
 
 	void SetCamera(shared_ptr<Camera> camera) { object_->SetCamera(camera); }
+
+	void SetPatterns(std::string name, std::unique_ptr<BossPattern> pattern) { patterns_[name] = move(pattern); }
 
 	void SetDirectionalLight(shared_ptr<DirectionalLight> directionalLight) { object_->SetDirectionalLight(directionalLight); }
 	void SetPointLight(shared_ptr<PointLight> pointLight) { object_->SetPointLight(pointLight); }
@@ -313,5 +501,9 @@ public:
 	bool IsAction() { return isAction_; }
 
 	void ShotBullet(Vector3 startPoint, Vector3 rotate, float speed);
+
+private:
+
+	void ReadBossFile(std::string filePath);
 };
 

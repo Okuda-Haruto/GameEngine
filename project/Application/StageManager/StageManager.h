@@ -2,10 +2,20 @@
 #include <memory>
 #include <map>
 #include <string>
+#include <Vector3.h>
+
+//ボスに関するデータ
+struct BossData {
+	std::string filepath;
+	Vector3 spownPosition;
+};
 
 //ステージのデータ
 struct StageData {
-
+	//ボスに関するデータ
+	BossData bossData;
+	//プレイヤー出現位置
+	Vector3 playerSpownPosition;
 };
 
 //ステージ管理

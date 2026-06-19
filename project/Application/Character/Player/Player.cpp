@@ -4,42 +4,26 @@
 #include <Matrix4x4.h>
 #include <numbers>
 #include <Math/Easing.h>
-#include <GameManager/BaseScene/GameScene/GameScene.h>
+#include <StageManager/Stage/Stage.h>
+#include <AudioHolder/AudioHolder.h>
 #include "Input/Input.h"
+
 
 Player::~Player() {
 
 }
 
-void Player::Initialize(GameScene* gameScene, GameCamera* gameCamera, shared_ptr<Input> input, ParticleEmitter* particle1) {
-	gameScene_ = gameScene;
+void Player::Initialize(Stage* stage, std::shared_ptr<GameCamera> gameCamera, shared_ptr<Input> input, Vector3 startPosition) {
+	stage_ = stage;
 	gameCamera_ = gameCamera;
 	input_ = input;
-	particle_1 = particle1;
-	//パーティクル
-	ParticleManager::GetInstance()->CreateParticleGroup("particle_5", "resources/Particle/Sand.png");
-	particle_2 = std::make_unique<ParticleEmitter>("particle_5");
-
-	emitter_.count = 8;
-	emitter_.lifeTime = 0.2f;
-	emitter_.frequency = 0.0f;
-	emitter_.frequencyTime = 0.0f;
-	emitter_.spawnRange.min = { -0.5f,0.0f,-0.5f };
-	emitter_.spawnRange.max = { 0.5f,0.0f,0.5f };
-	emitter_.angleBase = { 0.0f,0.0f,0.0f };
-	emitter_.angleRange = { 1.0f,0.0f,1.0f };	//方向範囲
-	emitter_.speedBase = 0.2f;	//基礎速度
-	emitter_.speedRange = 0.1f;	//速度範囲
-	emitter_.beforeColor = { 0.2f,0.2f,0.2f,0.2f };
-	emitter_.afterColor = { 0.0f,0.0f,0.0f,0.0f };
-	particle_2->SetEmitter(emitter_);
 
 	//モデルの生成
 	object_ = std::make_unique<Object>();
 	object_->Initialize(ModelHolder::GetInstance()->GetModel(ModelIndex::Player));
 	transform_.scale = { 1.5f,1.5f,1.5f };
 	transform_.rotate = { 0.0f,0.0f,0.0f };
-	transform_.translate = { 0.0f,1.5f,-20.0f };
+	transform_.translate = startPosition;
 	object_->SetTransform(transform_);
 
 	targetTransform_ = std::make_unique<SRT>();
@@ -315,7 +299,7 @@ void Player::Update() {
 		if (keys.hold[DIK_Z] || keys.hold[DIK_X] || pad.Button[PAD_BUTTON_RT].hold && dodgeActiveTime >= kMaxDodgeActiveTime) {
 			if (remainingRounds_ > 0.0f) {
 				if (shotCooltime_ >= kMaxShotCooltime) {
-					gameScene_->AddPlayerBullet(transform_.translate, transform_.rotate);
+					stage_->AddPlayerBullet(transform_.translate, transform_.rotate);
 					shotCooltime_ = 0.0f;
 					remainingRounds_--;
 					gameCamera_->SetShakeTime(0.1f);

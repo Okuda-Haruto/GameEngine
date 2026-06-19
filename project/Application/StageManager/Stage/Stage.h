@@ -5,12 +5,13 @@
 #include <Character/Boss/Boss.h>
 #include <Bullet/PlayerBullet/PlayerBullet.h>
 #include <Bullet/BossBullet/BossBullet.h>
+#include <ColliderObject/ColliderObject.h>
 
 //ステージ
 class Stage {
-private:
+protected:
 	//メインカメラ
-	std::unique_ptr<GameCamera> gameCamera_;
+	std::shared_ptr<GameCamera> gameCamera_;
 
 	//背景
 	std::vector<std::unique_ptr<Object>> backGroundObject_;
@@ -22,6 +23,9 @@ private:
 	//弾
 	std::list<std::unique_ptr<PlayerBullet>> playerBullet_;
 	std::list<std::unique_ptr<BossBullet>> bossBullet_;
+
+	//接触判定オブジェクト
+	std::vector<std::unique_ptr<ColliderObject>> colliderObjects_;
 
 	//入力
 	std::shared_ptr<Input> input_;
@@ -42,4 +46,10 @@ public:
 	/// 描画処理
 	/// </summary>
 	void Draw();
+
+	void Collision();
+
+	//後でクォータニオンにしたい
+	void AddPlayerBullet(Vector3 translate, Vector3 rotate);
+	void AddBossBullet(Vector3 translate, Vector3 rotate);
 };

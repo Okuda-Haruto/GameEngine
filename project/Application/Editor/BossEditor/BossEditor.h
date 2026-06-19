@@ -2,9 +2,9 @@
 #include <memory>
 #include <string>
 
-#include <Character/Boss/Boss.h>
+#include <StageManager/Stage/Stage.h>
 
-class BossEditor {
+class BossEditor : public Stage {
 private:
 
 #pragma region Command
@@ -27,22 +27,23 @@ private:
 	//ボス名
 	std::string bossName_;
 	//描画するモデルファイルへのパス
-	std::string modelPath_;
+	std::string directoryPath_;
+	std::string modelname_;
 	//最大HP
 	uint32_t maxHP_;
 	//ボス行動パターン
-	std::vector<std::unique_ptr<BossPattern>> patterns;
+	std::unordered_map<std::string, std::unique_ptr<BossPattern>> patterns_;
 
 
-	//ボス
-	std::unique_ptr<Boss> boss_;
 
 	enum class EditorState {
 		None,			//ボスを選択していない状態
 		CreateNewFile,	//新しく作成するファイルの設定
-		OpenFile,		//
+		OpenFile,		//ボスファイルを開いた状態
 		Edit,
 	};
+
+	EditorState state_;
 
 public:
 
