@@ -11,11 +11,12 @@ Player::~Player() {
 
 }
 
-void Player::Initialize(GameScene* gameScene, GameCamera* gameCamera, shared_ptr<Input> input, ParticleEmitter* particle1) {
+void Player::Initialize(GameScene* gameScene, GameCamera* gameCamera, shared_ptr<Input> input, ParticleEmitter* particle1, ParticleEmitter* particle_damage) {
 	gameScene_ = gameScene;
 	gameCamera_ = gameCamera;
 	input_ = input;
 	particle_1 = particle1;
+	particle_damage_ = particle_damage;
 	//パーティクル
 	ParticleManager::GetInstance()->CreateParticleGroup("particle_5", "resources/Particle/Sand.png");
 	particle_2 = std::make_unique<ParticleEmitter>("particle_5");
@@ -389,6 +390,7 @@ void Player::IsCollision(uint8_t targetId) {
 			HP_--;
 			gameCamera_->SetShakeTime(0.3f);
 			invincibleTime_ = kMaxInvincibleTime_;
+			particle_damage_->Emit();
 			AudioHolder::GetInstance()->GetAudio(AudioIndex::Player_Damage_SE).lock()->SoundPlayWave();
 		}
 	}

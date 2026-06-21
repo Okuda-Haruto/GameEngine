@@ -456,7 +456,6 @@ void Boss::Draw() {
 void Boss::IsCollision(uint8_t targetId) {
 	if (targetId == CollisionID_Player_Attack) {	//プレイヤー攻撃
 		HP_--;
-		particle_->Emit();
 		gameCamera_->SetShakeTime(0.3f);
 		gameScene_->SetRingColorA(1.0f);
 	}
