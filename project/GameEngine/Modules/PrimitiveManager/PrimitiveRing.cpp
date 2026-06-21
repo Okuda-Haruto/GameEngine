@@ -74,7 +74,7 @@ void PrimitiveRing::Initialize(uint32_t textureIndex, std::shared_ptr<Camera> ca
 			vertexData_[index * 4 + 3].normal = { 0.0f,0.0f,1.0f };
 
 			indexData_[index * 6 + 0] = index * 4 + 0; indexData_[index * 6 + 1] = index * 4 + 1; indexData_[index * 6 + 2] = index * 4 + 2;
-			indexData_[index * 6 + 3] = index * 4 + 1; indexData_[index * 6 + 4] = index * 4 + 2; indexData_[index * 6 + 5] = index * 4 + 3;
+			indexData_[index * 6 + 3] = index * 4 + 1; indexData_[index * 6 + 4] = index * 4 + 3; indexData_[index * 6 + 5] = index * 4 + 2;
 		}
 
 #pragma endregion

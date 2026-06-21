@@ -71,6 +71,7 @@ private:
 	GameCamera* gameCamera_ = nullptr;
 
 	ParticleEmitter* particle_1 = nullptr;
+	ParticleEmitter* particle_damage_ = nullptr;
 	std::unique_ptr<ParticleEmitter> particle_2;
 	Emitter emitter_;
 
@@ -81,7 +82,7 @@ public:
 	~Player();
 
 	//初期化
-	void Initialize(GameScene* gameScene, GameCamera* gameCamera, shared_ptr<Input> input, ParticleEmitter* particle1);
+	void Initialize(GameScene* gameScene, GameCamera* gameCamera, shared_ptr<Input> input, ParticleEmitter* particle1, ParticleEmitter* particle_damage);
 	//更新
 	void Update();
 	//描画
