@@ -5,6 +5,8 @@
 #include "../TitleScene/TitleScene.h"
 #include <cmath>
 #include <Collision.h>
+#include <RadialBlurData.h>
+#include <TextureManager/TextureManager.h>
 
 GameScene::~GameScene() {
 	playerBullet_.clear();
@@ -257,13 +259,16 @@ void GameScene::Initialize(shared_ptr<Input> input) {
 	tumbleweed_ = std::make_unique<Tumbleweed>();
 	tumbleweed_->Initialize(gameCamera_->GetCamera(),directionalLight_,pointLight_,particle_4.get());
 
-	fence_ = std::make_unique<Fence>();
-	fence_->Initialize(gameCamera_->GetCamera(),directionalLight_,pointLight_);
-
 	fadeSprite_ = std::make_unique<Sprite>();
 	fadeSprite_->Initialize("resources/DebugResources/white2x2.png");
 	fadeSprite_->SetSize({ 1280,720 });
 	fadeSprite_->SetColor({ 0.0f,0.0f,0.0f,1.0f });
+
+	fence_ = std::make_unique<Fence>();
+	fence_->Initialize(gameCamera_->GetCamera(),directionalLight_,pointLight_);
+
+	dissolveData_.threshold = 0.0f;
+	dissolveData_.edgeWidth = 0.03f;
 
 	fade_ = Fade::FadeIn;
 	fadeTime_ = 0.0f;
@@ -364,9 +369,8 @@ void GameScene::Update() {
 	} else if (fade_ == Fade::FadeOut) {
 		a = fadeTime_ / kMaxFadeTime;
 	}
-	fadeSprite_->SetColor({ 0.0f,0.0f,0.0f,a });
+	dissolveData_.threshold = a;
 	fadeSprite_->Update();
-
 
 
 	hatTransform_.rotate.z = std::numbers::pi_v<float> / 180 * (-15 + 15 * cosf(std::numbers::pi_v<float> *2 * (animationTime_ / kMaxAnimationTime)));
@@ -531,20 +535,24 @@ void GameScene::Update() {
 
 	//フェード
 	if (fade_ != Fade::None) {
-		fadeSprite_->Draw2D();
+		
 	}
 
 	GameEngine::RenderPostDraw();
 
-	//GameEngine::RenderPreDraw("Outline");
+	GameEngine::RenderPreDraw("Outline");
 
-	//GameEngine::DrawOutline("render", gameCamera_->GetCamera());
+	RadialBlurData blurdata;
+	blurdata.blurWidth = lerp(0.01f,0.0f,1.0f - a);
+	blurdata.center = { 0.5f,0.5f };
 
-	//GameEngine::RenderPostDraw();
+	GameEngine::DrawScreen("render", blurdata);
+
+	GameEngine::RenderPostDraw();
 
 	GameEngine::RenderPreDraw("ColorChange");
 
-	GameEngine::DrawScreen("render", ColorChange::COLORMODE_SEPIATONE, gameCamera_->GetSepiaTone());
+	GameEngine::DrawScreen("Outline", ColorChange::COLORMODE_SEPIATONE, gameCamera_->GetSepiaTone());
 
 	GameEngine::RenderPostDraw();
 
@@ -554,15 +562,22 @@ void GameScene::Update() {
 
 	GameEngine::RenderPostDraw();
 
+	GameEngine::RenderPreDraw("Vignette");
+
+	VignetteData vignettedata;
+	vignettedata.vignetteIntensity = 16.0f;
+	vignettedata.vignetteCurve = 0.2f;
+
+	GameEngine::DrawScreen("BoxFilter", vignettedata);
+
+	GameEngine::RenderPostDraw();
 }
 
 void GameScene::Draw() {
 
-	VignetteData data;
-	data.vignetteIntensity = 16.0f;
-	data.vignetteCurve = 0.2f;
-	
-	GameEngine::DrawScreen("BoxFilter", data);
+	fadeSprite_->Draw2D();
+	//フェード
+		GameEngine::DrawScreen("Vignette", dissolveData_, TextureManager::GetInstance()->GetSrvIndex("resources/DebugResources/noise0.png"));
 }
 
 void GameScene::Collision() {

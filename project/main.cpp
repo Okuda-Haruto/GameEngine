@@ -16,6 +16,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	TextureManager::GetInstance()->MakeRenderTexture("ColorChange");
 	TextureManager::GetInstance()->MakeRenderTexture("BoxFilter");
 	TextureManager::GetInstance()->MakeRenderTexture("Vignette");
+	TextureManager::GetInstance()->MakeRenderTexture("Dissolve");
+
+	TextureManager::GetInstance()->LoadTexture("resources/DebugResources/noise0.png");
 
 	//unique_ptr<SampleScene> gameManager = make_unique<SampleScene>();
 	unique_ptr<GameManager> gameManager = make_unique<GameManager>();
