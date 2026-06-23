@@ -25,7 +25,7 @@ PixelShaderOutput main(VertexShaderOutput input)
     for (int sampleIndex = 0; sampleIndex < kNumSamples; ++sampleIndex)
     {
         float2 texcoord = input.texcoord + direction * gRadialBlurData.blurWidth * float(sampleIndex);
-        outputColor.rgb += gTexture.Sample(gSampler, texcoord).rgb;
+        outputColor.rgb += gTexture.Sample(gSampler, saturate(texcoord)).rgb;
     }
     outputColor.rgb *= rcp(float(kNumSamples));
 

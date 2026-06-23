@@ -13,6 +13,8 @@
 #include <ColliderObject/ColliderObject.h>
 #include <BoxFilterData.h>
 #include <PrimitiveManager/PrimitiveRing.h>
+#include <DissolveData.h>
+#include <RadialBlurData.h>
 
 #include "Sprite/Sprite.h"
 #include "Editor/ParticleEditor/ParticleEditor.h"
@@ -54,6 +56,7 @@ private:
 	const float kMaxAnimationTime = 2.0f;
 	float animationTime_ = 0.0f;
 
+	DissolveData dissolveData_;
 	std::unique_ptr<Sprite>fadeSprite_;
 
 	std::unique_ptr<ParticleEmitter> particle_;
@@ -71,7 +74,6 @@ private:
 	std::unique_ptr<PrimitiveRing> ring_;
 	SRT ringTransform_;
 	Material ringMaterial_;
-
 
 
 	//光源
