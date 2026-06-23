@@ -32,7 +32,7 @@ struct StageData {
 	//接触可能オブジェクト
 	std::vector<ColliderObjectData> colliderObjects;
 
-	std::string filePath_;
+	std::string filePath;
 };
 
 //ステージ管理
@@ -66,4 +66,11 @@ public:
 	/// </summary>
 	/// <param name="filePath">ステージファイルへのパス</param>
 	void ReadStage(std::string filePath);
+
+	/// <summary>
+	/// ステージデータの保存
+	/// </summary>
+	/// <param name="stageName">ステージ名</param>
+	/// <param name="stageData">データ</param>
+	void WriteStage(std::string stageName, StageData stageData);
 };

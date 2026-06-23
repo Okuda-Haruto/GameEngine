@@ -16,9 +16,9 @@
 struct EditorObject {
 	//描画オブジェクト(nullptrなら表示しない)
 	std::shared_ptr<Object> object;
-
+	//ファイルパス
 	std::string directoryPath;
-	std::string fileName;
+	std::string filename;
 	//Transform
 	SRT transform;
 	//接触判定
@@ -33,6 +33,8 @@ struct EditorBossData {
 	std::shared_ptr<Boss> boss;
 	//出現位置
 	Vector3 spawnPosition;
+	//ボスファイルへのパス
+	std::string filePath;
 };
 
 
@@ -71,13 +73,14 @@ private:
 	int32_t commandIndex_;
 
 	//接地、壁判定を取るオブジェクト
-	std::vector<EditorObject> groundObjects_;
+	std::vector<EditorObject> colliderObjects_;
 	//ボス
 	EditorBossData bossData_;
 	//プレイヤー出現位置
 	Vector3 playerSpownPosition_;
 
-	int32_t currentGroundIndex_;
+	//接地、壁判定を取るオブジェクトの最終番号
+	int32_t currentColliderIndex_;
 
 	std::unique_ptr<Stage> stage_;
 
@@ -87,6 +90,7 @@ private:
 	int32_t choiceObject_ = 0;
 
 	StageData stageData_;
+	std::string stageName_;
 	
 public:
 
@@ -114,14 +118,13 @@ public:
 	/// <summary>
 	/// ステージファイルを書き出す
 	/// </summary>
-	/// <param name="stageName">ステージファイルへのパス</param>
-	void WriteStageFile(std::string stageName);
+	void WriteStageFile();
 
 	/// <summary>
 	/// 接地オブジェクトの追加
 	/// </summary>
 	/// <param name="index">番号</param>
-	void AddGroundObject(int32_t index, std::shared_ptr<Model> model, SRT transform);	//順番は常に一定
+	void AddColliderObject(int32_t index, std::string directoryPath, std::string filename, SRT transform);	//順番は常に一定
 
 	/// <summary>
 	/// 接地オブジェクトの削除

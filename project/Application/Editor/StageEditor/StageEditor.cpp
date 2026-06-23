@@ -42,7 +42,7 @@ void StageEditor::Update() {
 
 		ImGui::Begin("ファイル操作");
 		if (ImGui::Button("保存")) {
-			WriteStageFile("Stage");
+			WriteStageFile();
 		}
 		ImGui::End();
 	}
@@ -52,94 +52,78 @@ void StageEditor::Draw() {
 	if (stage_) {
 		stage_->Draw();
 	}
-	for (auto& object : groundObjects_) {
+	for (auto& object : colliderObjects_) {
 		object.object->Draw3D();
 	}
 }
 
 void StageEditor::ReadStageFile(std::string stageName) {
+	stageName_ = stageName;
 	stage_ = std::make_unique<Stage>();
-	stage_->Initialize(stageName, input_);
+	stage_->Initialize(stageName_, input_);
 	stage_->SetDebugCamera(debugCamera_);
-	stageData_ = StageManager::GetInstance()->GetStageData(stageName);
+	stageData_ = StageManager::GetInstance()->GetStageData(stageName_);
+
 	state_ = EditorState::Edit;
 }
 
-void StageEditor::WriteStageFile(std::string stageName) {
-	//書き出すJsonファイル
-	nlohmann::json stageJson;
+void StageEditor::WriteStageFile() {
+	//データ入力
+	stageData_.bossData.filepath = bossData_.filePath;
+	stageData_.bossData.spawnPosition = bossData_.spawnPosition;
 
-	//基本ステータス
-	stageJson["name"] = stageName.c_str();
-	stageJson["boss"]["filePath"] = stageData_.bossData.filepath;
-	stageJson["boss"]["spawnPosition"]["x"] = stageData_.bossData.spawnPosition.x;
-	stageJson["boss"]["spawnPosition"]["y"] = stageData_.bossData.spawnPosition.y;
-	stageJson["boss"]["spawnPosition"]["z"] = stageData_.bossData.spawnPosition.z;
-	stageJson["playerSpawnPosition"]["x"] = stageData_.playerSpawnPosition.x;
-	stageJson["playerSpawnPosition"]["y"] = stageData_.playerSpawnPosition.y;
-	stageJson["playerSpawnPosition"]["z"] = stageData_.playerSpawnPosition.z;
+	stageData_.playerSpawnPosition = playerSpownPosition_;
 
-	int index = 0;
+	stageData_.colliderObjects.clear();
+	for (auto& object : colliderObjects_) {
+		//無効化されているオブジェクトは使用しない
+		if (object.enableObject)continue;
 
-	//パターン出力
-	for (auto& object : groundObjects_)
-	{
-		if (!object.enableObject) {
-			continue;
-		}
-		stageJson["colliderObject"][std::to_string(index)]["directoryPath"] = object.directoryPath;
-		stageJson["colliderObject"][std::to_string(index)]["fileName"] = object.fileName;
-		stageJson["colliderObject"][std::to_string(index)]["transform"]["scale"]["x"] = object.transform.scale.x;
-		stageJson["colliderObject"][std::to_string(index)]["transform"]["scale"]["y"] = object.transform.scale.y;
-		stageJson["colliderObject"][std::to_string(index)]["transform"]["scale"]["z"] = object.transform.scale.z;
-		stageJson["colliderObject"][std::to_string(index)]["transform"]["rotate"]["x"] = object.transform.rotate.x;
-		stageJson["colliderObject"][std::to_string(index)]["transform"]["rotate"]["y"] = object.transform.rotate.y;
-		stageJson["colliderObject"][std::to_string(index)]["transform"]["rotate"]["z"] = object.transform.rotate.z;
-		stageJson["colliderObject"][std::to_string(index)]["transform"]["translate"]["x"] = object.transform.translate.x;
-		stageJson["colliderObject"][std::to_string(index)]["transform"]["translate"]["y"] = object.transform.translate.y;
-		stageJson["colliderObject"][std::to_string(index)]["transform"]["translate"]["z"] = object.transform.translate.z;
-
-		index++;
+		//一旦衝突判定無し
+		ColliderObjectData data;
+		data.directoryPath = object.directoryPath;
+		data.filename = object.filename;
+		data.transform = object.transform;
+		stageData_.colliderObjects.push_back(data);
 	}
 
-	//ファイル書き出し部分
-	std::ofstream file(stageData_.filePath_);
-	file << stageJson.dump(4);
-	file.close();
+	StageManager::GetInstance()->WriteStage(stageName_, stageData_);
 }
 
-void StageEditor::AddGroundObject(int32_t index, std::shared_ptr<Model> model, SRT transform){
-	//新しく作った場合のみmodelを追加
-	if (groundObjects_.size() <= index) {
+void StageEditor::AddColliderObject(int32_t index, std::string directoryPath, std::string filename, SRT transform) {
+	//新しく作った場合のみobjectを追加
+	if (colliderObjects_.size() <= index) {
 		EditorObject editorObject;
 		editorObject.object = std::make_shared<Object>();
-		editorObject.object->Initialize(model);
+		editorObject.object->Initialize(ModelManager::GetInstance()->GetModel(directoryPath, filename));
 
-		groundObjects_.push_back(std::move(editorObject));
+		colliderObjects_.push_back(std::move(editorObject));
 	}
 
-	groundObjects_[index].transform = transform;
-	groundObjects_[index].enableObject = true;
+	colliderObjects_[index].directoryPath = directoryPath;
+	colliderObjects_[index].filename = filename;
+	colliderObjects_[index].transform = transform;
+	colliderObjects_[index].enableObject = true;
 }
 
 void StageEditor::DeleteGroundObject(int32_t index) {
-	assert(groundObjects_.size() <= index);
-	groundObjects_[index].enableObject = false;
+	assert(colliderObjects_.size() <= index);
+	colliderObjects_[index].enableObject = false;
 }
 
 void StageEditor::SetGroundObjectPosition(int32_t index, Vector3 position) {
-	assert(groundObjects_.size() <= index);
-	groundObjects_[index].transform.translate = position;
+	assert(colliderObjects_.size() <= index);
+	colliderObjects_[index].transform.translate = position;
 }
 
 void StageEditor::SetGroundObjectDirection(int32_t index, Vector3 direction) {
-	assert(groundObjects_.size() <= index);
-	groundObjects_[index].transform.rotate = direction;	//後でクォータニオンにしよう
+	assert(colliderObjects_.size() <= index);
+	colliderObjects_[index].transform.rotate = direction;	//後でクォータニオンにしよう
 }
 
 void StageEditor::SetGroundObjectScale(int32_t index, Vector3 scale) {
-	assert(groundObjects_.size() <= index);
-	groundObjects_[index].transform.scale = scale;
+	assert(colliderObjects_.size() <= index);
+	colliderObjects_[index].transform.scale = scale;
 }
 
 void StageEditor::ChangeBoss(std::string name) {
@@ -166,8 +150,8 @@ void StageEditor::ImGuiFileTree(std::string path, std::string name) {
 				if (entry.path().extension() == ".obj")
 				{
 					if (ImGui::Button(entry.path().filename().string().c_str())) {
-						AddGroundObject(currentGroundIndex_, ModelManager::GetInstance()->GetModel(path, entry.path().filename().string()) , { {1,1,1},{0,0,0},{0,0,0} });
-						currentGroundIndex_++;
+						AddColliderObject(currentColliderIndex_, path, entry.path().filename().string() , { {1,1,1},{0,0,0},{0,0,0} });
+						currentColliderIndex_++;
 					}
 				}
 			}

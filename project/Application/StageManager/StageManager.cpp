@@ -42,7 +42,7 @@ void StageManager::ReadStage(std::string filePath) {
 
 	//基本ステータス
 	std::string stageName = stagejson["name"];
-	stageDatas_[stageName].filePath_ = filePath;
+	stageDatas_[stageName].filePath = filePath;
 	stageDatas_[stageName].bossData.filepath = stagejson["boss"]["filePath"];
 	stageDatas_[stageName].bossData.spawnPosition = {
 		stagejson["boss"]["spawnPosition"]["x"],
@@ -81,4 +81,43 @@ void StageManager::ReadStage(std::string filePath) {
 
 		stageDatas_[stageName].colliderObjects.push_back(data);
 	}
+}
+
+void StageManager::WriteStage(std::string stageName, StageData stageData) {
+	//書き出すJsonファイル
+	nlohmann::json stageJson;
+
+	//基本ステータス
+	stageJson["name"] = stageName;
+	stageJson["boss"]["filePath"] = stageData.bossData.filepath;
+	stageJson["boss"]["spawnPosition"]["x"] = stageData.bossData.spawnPosition.x;
+	stageJson["boss"]["spawnPosition"]["y"] = stageData.bossData.spawnPosition.y;
+	stageJson["boss"]["spawnPosition"]["z"] = stageData.bossData.spawnPosition.z;
+	stageJson["playerSpawnPosition"]["x"] = stageData.playerSpawnPosition.x;
+	stageJson["playerSpawnPosition"]["y"] = stageData.playerSpawnPosition.y;
+	stageJson["playerSpawnPosition"]["z"] = stageData.playerSpawnPosition.z;
+
+	int index = 0;
+	//パターン出力
+	for (auto& object : stageData.colliderObjects)
+	{
+		stageJson["colliderObject"][std::to_string(index)]["directoryPath"] = object.directoryPath;
+		stageJson["colliderObject"][std::to_string(index)]["filename"] = object.filename;
+		stageJson["colliderObject"][std::to_string(index)]["transform"]["scale"]["x"] = object.transform.scale.x;
+		stageJson["colliderObject"][std::to_string(index)]["transform"]["scale"]["y"] = object.transform.scale.y;
+		stageJson["colliderObject"][std::to_string(index)]["transform"]["scale"]["z"] = object.transform.scale.z;
+		stageJson["colliderObject"][std::to_string(index)]["transform"]["rotate"]["x"] = object.transform.rotate.x;
+		stageJson["colliderObject"][std::to_string(index)]["transform"]["rotate"]["y"] = object.transform.rotate.y;
+		stageJson["colliderObject"][std::to_string(index)]["transform"]["rotate"]["z"] = object.transform.rotate.z;
+		stageJson["colliderObject"][std::to_string(index)]["transform"]["translate"]["x"] = object.transform.translate.x;
+		stageJson["colliderObject"][std::to_string(index)]["transform"]["translate"]["y"] = object.transform.translate.y;
+		stageJson["colliderObject"][std::to_string(index)]["transform"]["translate"]["z"] = object.transform.translate.z;
+
+		index++;
+	}
+
+	//ファイル書き出し部分
+	std::ofstream file(stageData.filePath);
+	file << stageJson.dump(4);
+	file.close();
 }
