@@ -1,5 +1,6 @@
 #include "GameManager.h"
 #include "GameEngine.h"
+#include <StageManager/StageManager.h>
 
 GameManager::~GameManager() {
 	ModelHolder::GetInstance()->Finalize();
@@ -18,6 +19,8 @@ void GameManager::Initialize() {
 	SceneManager::GetInstance()->SetInput(input_);
 	SceneManager::GetInstance()->SetSceneFactory(sceneFactory_.get());
 	SceneManager::GetInstance()->ChangeScene("Title");
+
+	StageManager::GetInstance()->ReadStage("reosurces/CSV/Stage.json");
 }
 
 void GameManager::Update() {

@@ -70,9 +70,9 @@ private:
 	Stage* stage_ = nullptr;
 	std::shared_ptr<GameCamera> gameCamera_ = nullptr;
 
-	ParticleEmitter* particle_1 = nullptr;
-	std::unique_ptr<ParticleEmitter> particle_2;
-	Emitter emitter_;
+	//ParticleEmitter* particle_1 = nullptr;
+	//std::unique_ptr<ParticleEmitter> particle_2;
+	//Emitter emitter_;
 
 	bool isTargeted_ = false;
 

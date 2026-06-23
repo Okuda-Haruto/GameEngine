@@ -226,9 +226,6 @@
     <ClCompile Include="Application\GameManager\GameManager.cpp">
       <Filter>Application\GameManager</Filter>
     </ClCompile>
-    <ClCompile Include="Application\BackGround\BackGround\BackGround.cpp">
-      <Filter>Application\BackGround\BackGround</Filter>
-    </ClCompile>
     <ClCompile Include="Application\BackGround\Tumbleweed\Tumbleweed.cpp">
       <Filter>Application\BackGround\Tumbleweed</Filter>
     </ClCompile>
@@ -273,6 +270,12 @@
     </ClCompile>
     <ClCompile Include="Application\Editor\BossEditor\BossEditor.cpp">
       <Filter>Application\Editor\BossEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\HUD\HUD.cpp">
+      <Filter>Application\HUD</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\BackGround\BackGround.cpp">
+      <Filter>Application\BackGround</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -537,9 +540,6 @@
     <ClInclude Include="GameEngine\Data\Fog.h">
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
-    <ClInclude Include="Application\BackGround\BackGround\BackGround.h">
-      <Filter>Application\BackGround\BackGround</Filter>
-    </ClInclude>
     <ClInclude Include="Application\BackGround\Tumbleweed\Tumbleweed.h">
       <Filter>Application\BackGround\Tumbleweed</Filter>
     </ClInclude>
@@ -648,6 +648,12 @@
     <ClInclude Include="GameEngine\Data\RadialBlurData.h">
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
+    <ClInclude Include="Application\HUD\HUD.h">
+      <Filter>Application\HUD</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\BackGround\BackGround.h">
+      <Filter>Application\BackGround</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -679,12 +685,6 @@
     </Filter>
     <Filter Include="Application\BackGround">
       <UniqueIdentifier>{e309db45-ad38-4d1b-bebf-41b07c47dc28}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\BackGround\Ground">
-      <UniqueIdentifier>{1328bcfd-c37d-4ba5-8490-0f0c0b0c374a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\BackGround\Skydome">
-      <UniqueIdentifier>{3513f97a-7647-4244-bbf8-c2189ae96e81}</UniqueIdentifier>
     </Filter>
     <Filter Include="Application\Bullet">
       <UniqueIdentifier>{9729b52e-e5bf-4191-828b-59e12b459e7e}</UniqueIdentifier>
@@ -821,9 +821,6 @@
     <Filter Include="Application\Bullet\BossBullet">
       <UniqueIdentifier>{4aa5fe03-41ea-49c0-94d6-731469498c92}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Application\BackGround\Fence">
-      <UniqueIdentifier>{6e980b69-b0ae-4218-a2d9-927e327b3fc5}</UniqueIdentifier>
-    </Filter>
     <Filter Include="GameEngine\Factory">
       <UniqueIdentifier>{f6a8960a-68c9-4af8-9582-b66f0d2c11da}</UniqueIdentifier>
     </Filter>
@@ -835,9 +832,6 @@
     </Filter>
     <Filter Include="GameEngine\Factory\AbstractSceneFactory">
       <UniqueIdentifier>{6694e463-239f-49ff-a797-bf37f828eaaf}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\BackGround\BackGround">
-      <UniqueIdentifier>{8624c25a-ddc0-4d79-a292-407c297b5444}</UniqueIdentifier>
     </Filter>
     <Filter Include="Application\BackGround\Tumbleweed">
       <UniqueIdentifier>{91e1ebee-a127-41cc-85db-cc128ecbde71}</UniqueIdentifier>
@@ -910,6 +904,18 @@
     </Filter>
     <Filter Include="Application\Editor\BossEditor">
       <UniqueIdentifier>{1c4d260b-fe34-4a32-a2a0-bc82675757f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\HUD">
+      <UniqueIdentifier>{d873f354-afc2-4475-a9b9-7e4084151ac0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\BackGround\Skydome">
+      <UniqueIdentifier>{3513f97a-7647-4244-bbf8-c2189ae96e81}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\BackGround\Ground">
+      <UniqueIdentifier>{1328bcfd-c37d-4ba5-8490-0f0c0b0c374a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\BackGround\Fence">
+      <UniqueIdentifier>{6e980b69-b0ae-4218-a2d9-927e327b3fc5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

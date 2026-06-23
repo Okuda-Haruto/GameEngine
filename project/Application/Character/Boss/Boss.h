@@ -292,23 +292,6 @@ public:
 
 #pragma endregion
 
-using StepCreator = std::function<std::unique_ptr<BaseStep>()>;
-
-std::unordered_map<std::string, StepCreator> creators =
-{
-	{ "Step_WaitTime",   [] { return std::make_unique<Step_WaitTime>(); }},
-	{ "Step_WaitStep", [] { return std::make_unique<Step_WaitStep>(); } },
-	{ "Step_WaitAnimation",   [] { return std::make_unique<Step_WaitAnimation>(); } },
-	{ "Step_MoveFixedPsitionTime",   [] { return std::make_unique<Step_MoveFixedPsitionTime>(); } },
-	{ "Step_MoveFixedPsitionSpeed",   [] { return std::make_unique<Step_MoveFixedPsitionSpeed>(); } },
-	{ "Step_MoveFixedVelocity",   [] { return std::make_unique<Step_MoveFixedVelocity>(); } },
-	{ "Step_MoveFront",   [] { return std::make_unique<Step_MoveFront>(); } },
-	{ "Step_MoveToLockOn",   [] { return std::make_unique<Step_MoveToLockOn>(); } },
-	{ "Step_LockOnPlayer",   [] { return std::make_unique<Step_LockOnPlayer>(); } },
-	{ "Step_LockOnRelease",   [] { return std::make_unique<Step_LockOnRelease>(); } },
-	{ "Step_ShotBulletToFront",   [] { return std::make_unique<Step_ShotBulletToFront>(); } },
-};
-
 std::unique_ptr<BaseStep> ReadStepJson(const nlohmann::json_abi_v3_12_0::json& stepJson);
 
 //ボスのアクション
@@ -505,5 +488,7 @@ public:
 private:
 
 	void ReadBossFile(std::string filePath);
+
+	void NextPattern();
 };
 

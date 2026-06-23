@@ -4,6 +4,11 @@
 #include <Object/Object.h>
 #include <Collider/Colliders.h>
 #include <Character/Boss/Boss.h>
+#include <StageManager/Stage/Stage.h>
+#include <GameManager/BaseScene/BaseScene.h>
+#include <Math/Shape/Line.h>
+#include <StageManager/StageManager.h>
+
 
 //struct内std::unique_ptrだとコピー不可になってコマンドで扱えないのでstd::shared_ptr。よく考えたらStageEditor外に出さないかも
 
@@ -11,6 +16,9 @@
 struct EditorObject {
 	//描画オブジェクト(nullptrなら表示しない)
 	std::shared_ptr<Object> object;
+
+	std::string directoryPath;
+	std::string fileName;
 	//Transform
 	SRT transform;
 	//接触判定
@@ -20,16 +28,16 @@ struct EditorObject {
 };
 
 //エディター用ボスデータ
-struct BossData {
+struct EditorBossData {
 	//ボス
 	std::shared_ptr<Boss> boss;
 	//出現位置
-	Vector3 spownPosition;
+	Vector3 spawnPosition;
 };
 
 
 //ステージオブジェクト配置
-class StageEditor {
+class StageEditor : public BaseScene {
 private:
 
 #pragma region Command
@@ -49,6 +57,15 @@ private:
 
 #pragma endregion
 
+	enum class EditorState {
+		None,			//ステージを選択していない状態
+		CreateNewFile,	//新しく作成するファイルの設定
+		OpenFile,		//ステージファイルを開いた状態
+		Edit,
+	};
+
+	EditorState state_;
+
 	//実行コマンド
 	std::vector<BaseCommand> commands_;
 	int32_t commandIndex_;
@@ -56,18 +73,27 @@ private:
 	//接地、壁判定を取るオブジェクト
 	std::vector<EditorObject> groundObjects_;
 	//ボス
-	BossData bossData_;
+	EditorBossData bossData_;
 	//プレイヤー出現位置
 	Vector3 playerSpownPosition_;
 
 	int32_t currentGroundIndex_;
 
+	std::unique_ptr<Stage> stage_;
+
+	std::shared_ptr<Input> input_;
+	std::shared_ptr<DebugCamera> debugCamera_;
+
+	int32_t choiceObject_ = 0;
+
+	StageData stageData_;
+	
 public:
 
 	/// <summary>
 	/// 初期化
 	/// </summary>
-	void Initialize();
+	void Initialize(std::shared_ptr<Input> input);
 
 	/// <summary>
 	/// 更新処理
@@ -82,14 +108,14 @@ public:
 	/// <summary>
 	/// ステージファイルを読み込む
 	/// </summary>
-	/// <param name="filePath">ステージファイルへのパス</param>
-	void ReadStageFile(std::string filePath);
+	/// <param name="stageName">ステージファイルへのパス</param>
+	void ReadStageFile(std::string stageName);
 
 	/// <summary>
 	/// ステージファイルを書き出す
 	/// </summary>
-	/// <param name="filePath">ステージファイルへのパス</param>
-	void WriteStageFile(std::string filePath);
+	/// <param name="stageName">ステージファイルへのパス</param>
+	void WriteStageFile(std::string stageName);
 
 	/// <summary>
 	/// 接地オブジェクトの追加
@@ -141,4 +167,6 @@ public:
 	/// </summary>
 	/// <param name="spownPosition">開始地点</param>
 	void SetPlayerSpownPosition(Vector3 spownPosition);
+
+	void ImGuiFileTree(std::string path, std::string name);
 };

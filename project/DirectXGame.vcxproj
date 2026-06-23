@@ -54,7 +54,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Application\AudioHolder\AudioHolder.cpp" />
-    <ClCompile Include="Application\BackGround\BackGround\BackGround.cpp" />
+    <ClCompile Include="Application\BackGround\BackGround.cpp" />
     <ClCompile Include="Application\BackGround\Fence\Fence.cpp" />
     <ClCompile Include="Application\BackGround\Tumbleweed\Tumbleweed.cpp" />
     <ClCompile Include="Application\Bullet\BaseBullet.cpp" />
@@ -70,6 +70,7 @@
     <ClCompile Include="Application\Editor\StageEditor\StageEditor.cpp" />
     <ClCompile Include="Application\GameManager\GameManager.cpp" />
     <ClCompile Include="Application\GameManager\SceneFactory\SceneFactory.cpp" />
+    <ClCompile Include="Application\HUD\HUD.cpp" />
     <ClCompile Include="Application\ModelHolder\ModelHolder.cpp" />
     <ClCompile Include="Application\GameCamera\GameCamera.cpp" />
     <ClCompile Include="Application\GameManager\BaseScene\ClearScene\ClearScene.cpp" />
@@ -127,7 +128,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\AudioHolder\AudioHolder.h" />
-    <ClInclude Include="Application\BackGround\BackGround\BackGround.h" />
+    <ClInclude Include="Application\BackGround\BackGround.h" />
     <ClInclude Include="Application\BackGround\Fence\Fence.h" />
     <ClInclude Include="Application\BackGround\Tumbleweed\Tumbleweed.h" />
     <ClInclude Include="Application\Bullet\BaseBullet.h" />
@@ -146,6 +147,7 @@
     <ClInclude Include="Application\Editor\StageEditor\StageEditor.h" />
     <ClInclude Include="Application\GameManager\GameManager.h" />
     <ClInclude Include="Application\GameManager\SceneFactory\SceneFactory.h" />
+    <ClInclude Include="Application\HUD\HUD.h" />
     <ClInclude Include="Application\ModelHolder\ModelHolder.h" />
     <ClInclude Include="Application\GameCamera\GameCamera.h" />
     <ClInclude Include="Application\GameManager\BaseScene\ClearScene\ClearScene.h" />

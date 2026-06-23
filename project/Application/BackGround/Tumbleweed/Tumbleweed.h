@@ -14,15 +14,12 @@ private:
 	shared_ptr<DirectionalLight> directionalLight_;
 	shared_ptr<PointLight> pointLight_;
 
-	ParticleEmitter* particle_ = nullptr;
-	Emitter emitter_;
-
 	const float kMaxMoveTime = 60.0f;
 	float moveTime_ = 0.0f;
 public:
 	~Tumbleweed();
 	//初期化
-	void Initialize(shared_ptr<Camera> camera, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, ParticleEmitter* particle);
+	void Initialize(shared_ptr<Camera> camera, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight);
 	//更新処理
 	void Update();
 	//描画

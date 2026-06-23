@@ -31,9 +31,9 @@ void BossEditor::ReadBossFile(std::string filePath) {
 	modelname_ = bossJson["name"]["modelname"];
 	maxHP_ = bossJson["name"]["maxHP"];
 
+
+
 	nlohmann::json& patternJson = bossJson["name"]["pattern"];
-
-
 
 	//読み込んだパターン
 	for (auto iterator = patternJson.begin(); iterator != patternJson.end(); ++iterator) {

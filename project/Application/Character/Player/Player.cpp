@@ -108,8 +108,10 @@ void Player::Update() {
 
 		//注目中は角度をつける
 		if (isTargeted_ && bossTransform_) {
-			Vector3 diff = Normalize(bossTransform_->translate - transform_.translate);
-			angle = std::atan2(diff.x, diff.z);
+			if (Length(bossTransform_->translate - transform_.translate) > 0.0f) {
+				Vector3 diff = Normalize(bossTransform_->translate - transform_.translate);
+				angle = std::atan2(diff.x, diff.z);
+			}
 		}
 
 		acceleration_ = {};
@@ -157,7 +159,7 @@ void Player::Update() {
 				angle = std::atan2(velocity_.x, velocity_.z);
 			}
 
-			particle_1->Emit(transform_);
+			//particle_1->Emit(transform_);
 		}
 
 		//最短角度補完
@@ -243,7 +245,7 @@ void Player::Update() {
 
 			emitterTransform.translate = transform_.translate;
 			emitterTransform.translate.y = 0.0f;
-			particle_2->Emit(emitterTransform);
+			//particle_2->Emit(emitterTransform);
 
 			//回避中じゃない
 		} else {
@@ -352,11 +354,11 @@ void Player::Update() {
 
 	object_->SetTransform(transform_);
 	BaseCharacter::Update();
-	particle_2->Update();
+	//particle_2->Update();
 }
 
 void Player::Draw() {
-	particle_2->Draw();
+	//particle_2->Draw();
 	if (HP_ > 0.0f) {
 		if (invincibleTime_ > 0.0f) {
 			object_->SetColor(Vector4{ 0.3f,0.3f,0.3f,1.0f });

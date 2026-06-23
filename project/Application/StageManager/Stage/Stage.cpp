@@ -2,6 +2,17 @@
 #include "../StageManager.h"
 #include <AudioHolder/AudioHolder.h>
 #include <Math/Collision.h>
+#include <GameEngine.h>
+#include <numbers>
+
+Stage::~Stage() {
+	playerBullet_.clear();
+	bossBullet_.clear();
+
+#ifdef USE_IMGUI
+	backGround_->SaveBackGround("resources/CSV/BackGround.csv");
+#endif
+}
 
 void Stage::Initialize(std::string stageName, std::shared_ptr<Input> input) {
 	input_ = input;
@@ -9,43 +20,151 @@ void Stage::Initialize(std::string stageName, std::shared_ptr<Input> input) {
 	//ステージ名からステージデータを得る
 	StageData stageData = StageManager::GetInstance()->GetStageData(stageName);
 
+	//メインカメラ
+	gameCamera_ = std::make_unique<GameCamera>();
+	gameCamera_->Initialize(input_);
+	gameCamera_->SetOffset(Vector3{ 0.0f,6.0f,-60.0f });
+	gameCamera_->SetRotate(Vector3{ std::numbers::pi_v<float> / 180 * 10,0.0f,0.0f });
+	SRT event{};
+	event.translate = { 0.0f,5.0f,-35.0f };
+	gameCamera_->SetEventTransform(event);
+	gameCamera_->SetIsEvent(true);
+	PlayerBullet::SetCamera(gameCamera_->GetCamera());
+	BossBullet::SetCamera(gameCamera_->GetCamera());
+
+	directionalLight_ = std::make_unique<DirectionalLight>();
+	directionalLight_->Initialize(GameEngine::GetDirectXCommon());
+	directionalLightElement_.color = Vector4{ 1.0f,1.0f,1.0f,1.0f };
+	directionalLightElement_.direction = Normalize(Vector3{ 0.0f,-1.0f,1.0f });
+	directionalLightElement_.intensity = 1.0f;
+	directionalLight_->SetDirectionalLightElement(directionalLightElement_);
+	PlayerBullet::SetDirectionalLight(directionalLight_);
+	BossBullet::SetDirectionalLight(directionalLight_);
+
+	pointLight_ = std::make_unique<PointLight>();
+	pointLight_->Initialize(GameEngine::GetDirectXCommon());
+	pointLightElement_.color = Vector4{ 1.0f,0.8f,0.6f,1.0f };
+	pointLightElement_.intensity = 0.0f;
+	pointLightElement_.radius = 4.0f;
+	pointLightElement_.position = {};
+	pointLightElement_.decay = 1.0f;
+	pointLight_->SetPointLightElement(pointLightElement_);
+	PlayerBullet::SetPointLight(pointLight_);
+	BossBullet::SetPointLight(pointLight_);
+
+	//背景
+	backGround_ = std::make_unique<BackGround>();
+	backGround_->Initialize("resources/CSV/BackGround.csv",gameCamera_,directionalLight_,pointLight_);
+
 	//プレイヤー
-	player_->Initialize(this, gameCamera_, input_, stageData.playerSpownPosition);
+	player_ = std::make_unique<Player>();
+	player_->Initialize(this, gameCamera_, input_, stageData.playerSpawnPosition);
+	gameCamera_->SetPlayer(player_->GetTransform());
+	player_->SetCameraTransform(gameCamera_->GetTransform());
+	player_->SetCamera(gameCamera_->GetCamera());
+	player_->SetDirectionalLight(directionalLight_);
+	player_->SetPointLight(pointLight_);
 
 	//ボス
-	boss_ = std::unique_ptr<Boss>();
-	boss_->Initialize(stageData.bossData.filepath, this, gameCamera_, player_.get(), stageData.bossData.spownPosition);
+	boss_ = std::make_unique<Boss>();
+	boss_->Initialize(stageData.bossData.filepath, this, gameCamera_, player_.get(), stageData.bossData.spawnPosition);
+	gameCamera_->SetTarget(boss_->GetTransform());
+	player_->SetBossTransform(boss_->GetTransform());
+	boss_->SetCamera(gameCamera_->GetCamera());
+	boss_->SetDirectionalLight(directionalLight_);
+	boss_->SetPointLight(pointLight_);
+
+	//接触可能オブジェクト
+	for (auto& object : stageData.colliderObjects) {
+		std::unique_ptr<ColliderObject> colliderObject = std::make_unique<ColliderObject>();
+		colliderObject->Initialize(ModelManager::GetInstance()->GetModel(object.directoryPath, object.filename), object.transform);
+		colliderObjects_.push_back(move(colliderObject));
+	}
+
+	//情報表示
+	hud_ = std::make_unique<HUD>();
+	hud_->Initialize(directionalLight_, player_.get());
 }
 
 void Stage::Update() {
 
-	player_->Update();
+	backGround_->Update();
+	hud_->Update();
 
-	boss_->Update();
-
-	for (auto& bullet : playerBullet_) {
-		bullet->Update();
+	if (!boss_->IsStartAnimation()) {
+		gameCamera_->SetIsEvent(false);
+		if (!debugCamera_) {
+			player_->Update();
+		}
 	}
 
-	for (auto& bullet : bossBullet_) {
-		bullet->Update();
+	if (!isClear_) {
+		gameCamera_->SetMoveVelocity(player_->GetMove().x);
+		gameCamera_->SetIsTargeted(player_->GetIsTargeted());
+		gameCamera_->Update();
+
+		if (boss_->IsDead()) {
+			isClear_ = true;
+		}
+		if (player_->IsDead()) {
+			isClear_ = false;
+		}
+		if (pointLightElement_.intensity > 0.0f) {
+			pointLightElement_.intensity -= 0.05f;
+			if (pointLightElement_.intensity < 0.0f)pointLightElement_.intensity = 0.0f;
+			Matrix4x4 rotateMatrix = MakeRotateYMatrix(player_->GetTransform()->rotate.y);
+			pointLightElement_.position = player_->GetTransform()->translate + rotateMatrix * Vector3(0.0f, 0.0f, 1.0f);
+			pointLight_->SetPointLightElement(pointLightElement_);
+		}
+
+		for (auto& bullet : playerBullet_) {
+			bullet->Update();
+		}
+		for (auto& bullet : bossBullet_) {
+			bullet->Update();
+		}
+		for (auto& object : colliderObjects_) {
+			object->Update();
+		}
+
+		if (!debugCamera_) {
+			boss_->Update();
+		}
+
+		Collision();
+
+		std::erase_if(playerBullet_, [](const auto& bullet) {
+			return bullet->IsDead();
+			});
+
+		std::erase_if(bossBullet_, [](const auto& bullet) {
+			return bullet->IsDead();
+			});
 	}
 
-	boss_->Update();
-
-	Collision();
-
-	std::erase_if(playerBullet_, [](const auto& bullet) {
-		return bullet->IsDead();
-		});
-
-	std::erase_if(bossBullet_, [](const auto& bullet) {
-		return bullet->IsDead();
-		});
 }
 
 void Stage::Draw() {
 
+	backGround_->Draw();
+
+	player_->Draw();
+
+	boss_->Draw();
+
+	for (auto& bullet : playerBullet_) {
+		bullet->Draw();
+	}
+
+	for (auto& bullet : bossBullet_) {
+		bullet->Draw();
+	}
+
+	for (auto& object : colliderObjects_) {
+		object->Draw();
+	}
+
+	hud_->Draw();
 }
 
 void Stage::Collision() {

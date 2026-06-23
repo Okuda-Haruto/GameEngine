@@ -91,6 +91,23 @@ void Step_ShotBulletToFront::Activate(BossAction* action) {
 
 std::unique_ptr<BaseStep> ReadStepJson(const nlohmann::json_abi_v3_12_0::json& stepJson) {
 
+	using StepCreator = std::function<std::unique_ptr<BaseStep>()>;
+
+	static const std::unordered_map<std::string, StepCreator> creators =
+	{
+		{ "Step_WaitTime",   [] { return std::make_unique<Step_WaitTime>(); }},
+		{ "Step_WaitStep", [] { return std::make_unique<Step_WaitStep>(); } },
+		{ "Step_WaitAnimation",   [] { return std::make_unique<Step_WaitAnimation>(); } },
+		{ "Step_MoveFixedPsitionTime",   [] { return std::make_unique<Step_MoveFixedPsitionTime>(); } },
+		{ "Step_MoveFixedPsitionSpeed",   [] { return std::make_unique<Step_MoveFixedPsitionSpeed>(); } },
+		{ "Step_MoveFixedVelocity",   [] { return std::make_unique<Step_MoveFixedVelocity>(); } },
+		{ "Step_MoveFront",   [] { return std::make_unique<Step_MoveFront>(); } },
+		{ "Step_MoveToLockOn",   [] { return std::make_unique<Step_MoveToLockOn>(); } },
+		{ "Step_LockOnPlayer",   [] { return std::make_unique<Step_LockOnPlayer>(); } },
+		{ "Step_LockOnRelease",   [] { return std::make_unique<Step_LockOnRelease>(); } },
+		{ "Step_ShotBulletToFront",   [] { return std::make_unique<Step_ShotBulletToFront>(); } },
+	};
+
 	auto it = creators.find(stepJson["step"]);
 
 	if (it == creators.end()) {
@@ -158,15 +175,12 @@ void Boss::Initialize(std::string filepath, Stage* stage, std::shared_ptr<GameCa
 	targetTransform_ = std::make_unique<SRT>();
 	*targetTransform_ = transform_;
 
-	//action_ = std::make_unique<BossAction_Shot_01>();
-	//action_->Initialize(this);
-
-	std::vector<std::unique_ptr<BaseStep>> steps;
+	/*std::vector<std::unique_ptr<BaseStep>> steps;
 	steps.push_back(make_unique<Step_LockOnPlayer>());
 	steps.push_back(make_unique<Step_WaitTime>(0.5f));
 	steps.push_back(make_unique<Step_LockOnRelease>());
 	steps.push_back(make_unique<Step_WaitTime>(0.25f));
-	steps.push_back(make_unique<Step_ShotBulletToFront>(0.05f,1.0f));
+	steps.push_back(make_unique<Step_ShotBulletToFront>(0.05f, 1.0f));
 	steps.push_back(make_unique<Step_LockOnPlayer>());
 	steps.push_back(make_unique<Step_WaitTime>(0.5f));
 	steps.push_back(make_unique<Step_LockOnRelease>());
@@ -195,7 +209,7 @@ void Boss::Initialize(std::string filepath, Stage* stage, std::shared_ptr<GameCa
 	pattern->SetAction(move(action));
 	pattern->SetCondition(condition);
 	pattern->Initialize(this);
-	patterns_.push_back(move(pattern));
+	patterns_["3shot"] = move(pattern);
 
 	//2
 	steps.clear();
@@ -218,13 +232,13 @@ void Boss::Initialize(std::string filepath, Stage* stage, std::shared_ptr<GameCa
 	pattern->SetAction(move(action));
 	pattern->SetCondition(condition);
 	pattern->Initialize(this);
-	patterns_.push_back(move(pattern));
+	patterns_["FrontMove"] = move(pattern);
 
 	//3
 	steps.clear();
 	steps.push_back(make_unique<Step_LockOnPlayer>());
 	steps.push_back(make_unique<Step_WaitTime>(0.2f));
-	steps.push_back(make_unique<Step_MoveFront>(0.4f,1.0f));
+	steps.push_back(make_unique<Step_MoveFront>(0.4f, 1.0f));
 	steps.push_back(make_unique<Step_WaitStep>());
 	steps.push_back(make_unique<Step_LockOnRelease>());
 
@@ -241,7 +255,7 @@ void Boss::Initialize(std::string filepath, Stage* stage, std::shared_ptr<GameCa
 	pattern->SetAction(move(action));
 	pattern->SetCondition(condition);
 	pattern->Initialize(this);
-	patterns_.push_back(move(pattern));
+	patterns_["FarPlayer_01"] = move(pattern);
 
 	//4
 	steps.clear();
@@ -275,7 +289,7 @@ void Boss::Initialize(std::string filepath, Stage* stage, std::shared_ptr<GameCa
 	pattern->SetAction(move(action));
 	pattern->SetCondition(condition);
 	pattern->Initialize(this);
-	patterns_.push_back(move(pattern));
+	patterns_["Dash"] = move(pattern);
 
 	//5
 	steps.clear();
@@ -301,7 +315,7 @@ void Boss::Initialize(std::string filepath, Stage* stage, std::shared_ptr<GameCa
 	pattern->SetAction(move(action));
 	pattern->SetCondition(condition);
 	pattern->Initialize(this);
-	patterns_.push_back(move(pattern));
+	patterns_["FarPlayer_02"] = move(pattern);*/
 
 	patternName_ = {};
 	lerpPositionTime_ = 0;
@@ -327,121 +341,75 @@ void Boss::Update() {
 			color = { (HP_ / maxHP_), (HP_ / maxHP_), (HP_ / maxHP_), 1.0f };
 			object_->SetColor(color);
 
-			patterns_[patternName_]->Update();
-
-			velocity_ = {};
-			BossAction* action = patterns_[patternName_]->GetAction();
-			isAction_ = false;
-			if (!action->IsEnd()) {
-				//位置線形補完
-				lerpPosition_ = action->GetLerpPosition();
-				if (lerpPosition_) {
-					transform_.translate = Lerp(lerpPosition_->startVector, lerpPosition_->endVector, lerpPositionTime_);
-					lerpPositionTime_ += 1.0f / 60.0f;
-					if (lerpPositionTime_ > lerpPosition_->time) {
-						action->ResetLerpPosition();
-						lerpPositionTime_ = 0.0f;
-					}
-					isAction_ = true;
-				}
-
-				//速度
-				velocityState_ = action->GetVelocityState();
-				if (velocityState_) {
-					velocity_ = velocityState_->velocity;
-					velocityStateTime_ += 1.0f / 60.0f;
-					if (velocityStateTime_ > velocityState_->time) {
-						action->ResetVelocityState();
-						velocityStateTime_ = 0.0f;
-					}
-					isAction_ = true;
-				}
-
-				//ロックオン中か
-				if (action->GetIsLockOnPlayer()) {
-					SRT playerTransform = *player_->GetTransform();
-					lockOnPosition_ = playerTransform.translate;
-
-					//プレイヤー方向を向かせる
-					Vector3 diff = Normalize(Vector3(playerTransform.translate.x, 0.0f, playerTransform.translate.z) - Vector3(transform_.translate.x, 0.0f, transform_.translate.z));
-					float angle = std::atan2(diff.x, diff.z);
-
-					//最短角度補完
-					float d = angle - transform_.rotate.y;
-
-					if (d >= std::numbers::pi_v<float>*2) {
-						d = angle - transform_.rotate.y;
-					}
-
-					d = std::fmodf(d, std::numbers::pi_v<float> *2);
-
-					if (d > std::numbers::pi_v<float>) {
-						d -= std::numbers::pi_v<float> *2;
-					}
-					else if (d < -std::numbers::pi_v<float>) {
-						d += std::numbers::pi_v<float> *2;
-					}
-
-					if (d > std::numbers::pi_v<float>) {
-						d -= std::numbers::pi_v<float> *2;
-					}
-					else if (d < -std::numbers::pi_v<float>) {
-						d += std::numbers::pi_v<float> *2;
-					}
-
-					//正直あまりやりたくはない方法だが2πを超えると遠回りで回転してしまうので致し方無い
-					transform_.rotate.y = (transform_.rotate.y + d * 0.2f);
-					transform_.rotate.y = std::fmodf(transform_.rotate.y, std::numbers::pi_v<float> * 2);
-				}
-			}
-			else {
-				int8_t maxPriority = 0;
-
-				float distance = Length(player_->GetTransform()->translate - transform_.translate);
-				std::vector<std::string> patternNames;
-				for (auto& pattern : patterns_) {
-					PatternCondition condition = pattern.second->GetCondition();
-
-					//優先度が同じ場合も通す
-					if (condition.priority >= maxPriority) {
-						//近距離判定
-						if (condition.nearDistance && condition.nearDistance < distance) {
-							continue;
+			if (!patternName_.empty()) {
+				patterns_[patternName_]->Update();
+				velocity_ = {};
+				BossAction* action = patterns_[patternName_]->GetAction();
+				isAction_ = false;
+				if (!action->IsEnd()) {
+					//位置線形補完
+					lerpPosition_ = action->GetLerpPosition();
+					if (lerpPosition_) {
+						transform_.translate = Lerp(lerpPosition_->startVector, lerpPosition_->endVector, lerpPositionTime_);
+						lerpPositionTime_ += 1.0f / 60.0f;
+						if (lerpPositionTime_ > lerpPosition_->time) {
+							action->ResetLerpPosition();
+							lerpPositionTime_ = 0.0f;
 						}
-						//遠距離判定
-						if (condition.farDistance && condition.farDistance > distance) {
-							continue;
+						isAction_ = true;
+					}
+
+					//速度
+					velocityState_ = action->GetVelocityState();
+					if (velocityState_) {
+						velocity_ = velocityState_->velocity;
+						velocityStateTime_ += 1.0f / 60.0f;
+						if (velocityStateTime_ > velocityState_->time) {
+							action->ResetVelocityState();
+							velocityStateTime_ = 0.0f;
 						}
-						//少HP判定
-						if (condition.minHpRate && condition.minHpRate > HP_ / maxHP_) {
-							continue;
-						}
-						//多HP判定
-						if (condition.maxHpRate && condition.maxHpRate < HP_ / maxHP_) {
-							continue;
+						isAction_ = true;
+					}
+
+					//ロックオン中か
+					if (action->GetIsLockOnPlayer()) {
+						SRT playerTransform = *player_->GetTransform();
+						lockOnPosition_ = playerTransform.translate;
+
+						//プレイヤー方向を向かせる
+						Vector3 diff = Normalize(Vector3(playerTransform.translate.x, 0.0f, playerTransform.translate.z) - Vector3(transform_.translate.x, 0.0f, transform_.translate.z));
+						float angle = std::atan2(diff.x, diff.z);
+
+						//最短角度補完
+						float d = angle - transform_.rotate.y;
+
+						if (d >= std::numbers::pi_v<float>*2) {
+							d = angle - transform_.rotate.y;
 						}
 
-						//優先度がより高い場合それまでの候補を消す
-						if (condition.priority > maxPriority) {
-							maxPriority = condition.priority;
-							patternNames.clear();
+						d = std::fmodf(d, std::numbers::pi_v<float> *2);
+
+						if (d > std::numbers::pi_v<float>) {
+							d -= std::numbers::pi_v<float> *2;
+						} else if (d < -std::numbers::pi_v<float>) {
+							d += std::numbers::pi_v<float> *2;
 						}
-						//どれにも該当しないなら候補に加える
-						patternNames.push_back(pattern.first);
+
+						if (d > std::numbers::pi_v<float>) {
+							d -= std::numbers::pi_v<float> *2;
+						} else if (d < -std::numbers::pi_v<float>) {
+							d += std::numbers::pi_v<float> *2;
+						}
+
+						//正直あまりやりたくはない方法だが2πを超えると遠回りで回転してしまうので致し方無い
+						transform_.rotate.y = (transform_.rotate.y + d * 0.2f);
+						transform_.rotate.y = std::fmodf(transform_.rotate.y, std::numbers::pi_v<float> *2);
 					}
+				} else {
+					NextPattern();
 				}
-
-				if (patternNames.empty()) {
-					patternName_ = {};
-				}
-				else if(patternNames.size() == 1){
-					patternName_ = patternNames[0];
-				}
-				else {
-					patternName_ = patternNames[GameEngine::randomInt(0, int(patternNames.size()) - 1)];
-				}
-
-				patterns_[patternName_]->Initialize(this);
+			} else {
+				NextPattern();
 			}
 
 			transform_.translate += velocity_;
@@ -484,6 +452,16 @@ void Boss::ReadBossFile(std::string filePath) {
 
 	//読み込むJsonファイル
 	std::ifstream file(filePath.c_str());
+	if (!file.is_open()) {
+		//エラー処理
+		object_ = std::make_unique<Object>();
+		object_->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/sphere","sphere.obj"));
+		maxHP_ = 1;
+		HP_ = maxHP_;
+
+		return;
+	}
+
 	nlohmann::json bossJson;
 	file >> bossJson;
 	file.close();
@@ -523,4 +501,54 @@ void Boss::ReadBossFile(std::string filePath) {
 
 		patterns_.emplace(name, std::move(pattern));
 	}
+}
+
+void Boss::NextPattern() {
+	int8_t maxPriority = 0;
+
+	float distance = Length(player_->GetTransform()->translate - transform_.translate);
+	std::vector<std::string> patternNames;
+	for (auto& pattern : patterns_) {
+		PatternCondition condition = pattern.second->GetCondition();
+
+		//優先度が同じ場合も通す
+		if (condition.priority >= maxPriority) {
+			//近距離判定
+			if (condition.nearDistance && condition.nearDistance < distance) {
+				continue;
+			}
+			//遠距離判定
+			if (condition.farDistance && condition.farDistance > distance) {
+				continue;
+			}
+			//少HP判定
+			if (condition.minHpRate && condition.minHpRate > HP_ / maxHP_) {
+				continue;
+			}
+			//多HP判定
+			if (condition.maxHpRate && condition.maxHpRate < HP_ / maxHP_) {
+				continue;
+			}
+
+			//優先度がより高い場合それまでの候補を消す
+			if (condition.priority > maxPriority) {
+				maxPriority = condition.priority;
+				patternNames.clear();
+			}
+			//どれにも該当しないなら候補に加える
+			patternNames.push_back(pattern.first);
+		}
+	}
+
+	//空白のまま送る
+	if (patternNames.empty()) {
+		patternName_ = {};
+		return;
+	} else if (patternNames.size() == 1) {
+		patternName_ = patternNames[0];
+	} else {
+		patternName_ = patternNames[GameEngine::randomInt(0, int(patternNames.size()) - 1)];
+	}
+
+	patterns_[patternName_]->Initialize(this);
 }

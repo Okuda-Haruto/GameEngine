@@ -3,11 +3,24 @@
 #include <map>
 #include <string>
 #include <Vector3.h>
+#include <Object/Object.h>
+#include <Collider/Colliders.h>
+
+//エディター用オブジェクトデータ
+struct ColliderObjectData {
+	//モデルパス
+	std::string directoryPath;
+	std::string filename;
+	//Transform
+	SRT transform;
+};
 
 //ボスに関するデータ
 struct BossData {
+	//ボスファイルのパス
 	std::string filepath;
-	Vector3 spownPosition;
+	//出現位置
+	Vector3 spawnPosition;
 };
 
 //ステージのデータ
@@ -15,7 +28,11 @@ struct StageData {
 	//ボスに関するデータ
 	BossData bossData;
 	//プレイヤー出現位置
-	Vector3 playerSpownPosition;
+	Vector3 playerSpawnPosition;
+	//接触可能オブジェクト
+	std::vector<ColliderObjectData> colliderObjects;
+
+	std::string filePath_;
 };
 
 //ステージ管理
@@ -42,7 +59,7 @@ public:
 	/// ステージデータを得る
 	/// </summary>
 	/// <param name="stageName">ステージ名</param>
-	StageData GetStageData(std::string stageName) { return stageDatas_[stageName]; }
+	StageData GetStageData(std::string stageName);
 
 	/// <summary>
 	/// ステージファイルを読み込む

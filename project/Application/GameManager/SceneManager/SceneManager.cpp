@@ -47,7 +47,6 @@ void SceneManager::Draw() {
 
 void SceneManager::ChangeScene(string sceneName) {
 	assert(sceneFactory_);
-	assert(nextScene_ == nullptr);
 
 	//次のシーンを生成
 	nextScene_ = sceneFactory_->CreateScene(sceneName);
