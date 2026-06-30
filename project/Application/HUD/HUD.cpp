@@ -26,19 +26,19 @@ void HUD::Initialize(std::shared_ptr<DirectionalLight> directionalLight, Player*
 
 	sprite_[0] = make_unique<Sprite>();
 	sprite_[0]->Initialize("resources/Sprite/LT.png");
-	sprite_[0]->SetPosition(Vector2{ 990,720 - 148 });
+	sprite_[0]->SetPosition(Vector2{ 1280 - 148 * 4,720 - 148 });
 	sprite_[0]->SetSize(Vector2{ 128,128 });
 	sprite_[1] = make_unique<Sprite>();
 	sprite_[1]->Initialize("resources/Sprite/RT.png");
-	sprite_[1]->SetPosition(Vector2{ 1060,720 - 148 });
+	sprite_[1]->SetPosition(Vector2{ 1280 - 148 * 3,720 - 148 });
 	sprite_[1]->SetSize(Vector2{ 128,128 });
 	sprite_[2] = make_unique<Sprite>();
 	sprite_[2]->Initialize("resources/Sprite/B.png");
-	sprite_[2]->SetPosition(Vector2{ 1130,720 - 148 });
+	sprite_[2]->SetPosition(Vector2{ 1280 - 148 * 2,720 - 148 });
 	sprite_[2]->SetSize(Vector2{ 128,128 });
 	sprite_[3] = make_unique<Sprite>();
 	sprite_[3]->Initialize("resources/Sprite/Reload_UI.png");
-	sprite_[3]->SetPosition(Vector2{ 1200,720 - 148 });
+	sprite_[3]->SetPosition(Vector2{ 1280 - 148,720 - 148 });
 	sprite_[3]->SetSize(Vector2{ 128,128 });
 }
 
@@ -48,6 +48,10 @@ void HUD::Update() {
 		if (animationTime_ > kMaxAnimationTime) {
 			animationTime_ -= kMaxAnimationTime;
 		}
+	}
+
+	for (int i = 0; i <= 3; i++) {
+		sprite_[i]->Update();
 	}
 
 	hatTransform_.rotate.z = std::numbers::pi_v<float> / 180 * (-15 + 15 * cosf(std::numbers::pi_v<float> *2 * (animationTime_ / kMaxAnimationTime)));
@@ -76,6 +80,9 @@ void HUD::Draw() {
 		hat_->Draw2D();
 	}
 
+}
+
+void HUD::DrawSprite() {
 	//操作説明
 	for (auto& sprite : sprite_) {
 		sprite->Draw2D();

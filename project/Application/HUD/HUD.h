@@ -28,4 +28,5 @@ public:
 	void Update();
 
 	void Draw();
+	void DrawSprite();
 };

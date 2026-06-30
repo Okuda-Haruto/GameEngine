@@ -4,6 +4,32 @@
 #include <Matrix4x4.h>
 #include <numbers>
 
+#pragma region LockOnCamera
+
+void LockOnCamera::Initialize(GameCamera* gameCamera) {
+	gameCamera_ = gameCamera;
+}
+
+void LockOnCamera::Update() {
+	Vector3 diff = gameCamera_->GetTargetTransform().translate - gameCamera_->GetPlayerTransform().translate;
+	if (Length(diff) <= 0.0f) {
+		diff = { 0.0f,0.0f,1.0f };
+	}
+
+	//  Y軸回り回転(θy)
+	transform_.rotate.y = std::atan2(diff.x, diff.z);
+	float length = Length(Vector3{ diff.x, 0.0f, diff.z });
+	// X軸回り回転(θx)
+	transform_.rotate.x = 0;
+
+	Matrix4x4 rotateMatrix = MakeRotateYMatrix(transform_.rotate.y);
+	transform_.translate = gameCamera_->GetPlayerTransform().translate + rotateMatrix * Vector3{ gameCamera_->GetCameraHorizontalOffset(),0.0f,0.0f} + Normalize(diff) * -12.0f;
+	transform_.translate.y = 3.0f;
+}
+
+#pragma endregion
+
+
 GameCamera::~GameCamera(){
 
 }
@@ -63,14 +89,14 @@ void GameCamera::Update() {
 
 	if (fabsf(velocity_) > 0.5f) {
 		if (velocity_ > 0.0f) {
-			cameraPos_ += (kMaxCameraPos - cameraPos_) / 3;
-			if (cameraPos_ > kMaxCameraPos) {
-				cameraPos_ = kMaxCameraPos;
+			cameraHorizontalOffset_ += (kMaxCameraPos - cameraHorizontalOffset_) / 3;
+			if (cameraHorizontalOffset_ > kMaxCameraPos) {
+				cameraHorizontalOffset_ = kMaxCameraPos;
 			}
 		} else {
-			cameraPos_ += (-kMaxCameraPos - cameraPos_) / 3;
-			if (cameraPos_ < -kMaxCameraPos) {
-				cameraPos_ = -kMaxCameraPos;
+			cameraHorizontalOffset_ += (-kMaxCameraPos - cameraHorizontalOffset_) / 3;
+			if (cameraHorizontalOffset_ < -kMaxCameraPos) {
+				cameraHorizontalOffset_ = -kMaxCameraPos;
 			}
 		}
 	} else {
@@ -90,7 +116,7 @@ void GameCamera::Update() {
 	lockonTransform_.rotate.x = 0;
 
 	Matrix4x4 rotateMatrix = MakeRotateYMatrix(lockonTransform_.rotate.y);
-	lockonTransform_.translate = player_->translate + rotateMatrix * Vector3{ cameraPos_,0.0f,0.0f } + Normalize(diff) * -12.0f;
+	lockonTransform_.translate = player_->translate + rotateMatrix * Vector3{ cameraHorizontalOffset_,0.0f,0.0f } + Normalize(diff) * -12.0f;
 	lockonTransform_.translate.y = 3.0f;
 
 	lockonTransform_.scale = {};

@@ -38,6 +38,7 @@ private:
 	SRT ringTransform_;
 	Material ringMaterial_;
 
+	DissolveData dissolveData_;
 	BoxFilterData boxFilterData_;
 
 public:

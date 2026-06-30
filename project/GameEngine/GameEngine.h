@@ -25,6 +25,7 @@
 #include <BoxFilterData.h>
 #include <RadialBlurData.h>
 #include <DissolveData.h>
+#include <GPURandomSeed.h>
 
 #include <Audio/Audio.h>
 #include "Input/Input.h"

@@ -1,7 +1,10 @@
 #include "ParticleEditor.h"
-#include "imgui.h"
 #include "PrimitiveManager/Primitive3DManager.h"
 #include "Operation/Operation.h"
+#ifdef USE_IMGUI
+#include <imgui/imgui.h>
+#endif // USE_IMGUI
+
 
 void ParticleEditor::Initialize(ParticleEmitter* particleEmitter) {
 	particleEmitter_ = particleEmitter;

@@ -68,6 +68,8 @@ public:
 	/// </summary>
 	void Draw();
 
+	void DrawSprite();
+
 	void Collision();
 
 	//後でクォータニオンにしたい
