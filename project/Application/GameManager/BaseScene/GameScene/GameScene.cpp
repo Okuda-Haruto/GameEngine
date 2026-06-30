@@ -159,9 +159,6 @@ void GameScene::Initialize(shared_ptr<Input> input) {
 	fadeSprite_->SetSize({ 1280,720 });
 	fadeSprite_->SetColor({ 0.0f,0.0f,0.0f,1.0f });
 
-	fence_ = std::make_unique<Fence>();
-	fence_->Initialize(gameCamera_->GetCamera(),directionalLight_,pointLight_);
-
 	dissolveData_.threshold = 0.0f;
 	dissolveData_.edgeWidth = 0.03f;
 
@@ -281,6 +278,8 @@ void GameScene::Update() {
 	VignetteData vignettedata;
 	vignettedata.vignetteIntensity = 16.0f;
 	vignettedata.vignetteCurve = 0.2f;
+	vignettedata.isUseRandom = 1;
+	vignettedata.seed = GameEngine::randomFloat(1.0f,100.0f);
 
 	GameEngine::DrawScreen("BoxFilter", vignettedata);
 
@@ -291,6 +290,9 @@ void GameScene::Draw() {
 	VignetteData data;
 	data.vignetteIntensity = 16.0f;
 	data.vignetteCurve = 0.2f;
+	data.isUseRandom = 0;
 	
-	GameEngine::DrawScreen("BoxFilter", data);
+	GameEngine::DrawScreen("Vignette");
+
+	stage_->DrawSprite();
 }

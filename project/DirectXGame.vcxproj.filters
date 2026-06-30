@@ -70,6 +70,9 @@
     <FxCompile Include="resources\Shader\Dissolve.PS.hlsl">
       <Filter>GameEngine\Shader</Filter>
     </FxCompile>
+    <FxCompile Include="resources\Shader\Random.PS.hlsl">
+      <Filter>GameEngine\Shader</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -660,6 +663,12 @@
     <ClInclude Include="GameEngine\LoadFile\JsonUtils.h">
       <Filter>GameEngine\LoadFile\Json</Filter>
     </ClInclude>
+    <ClInclude Include="GameEngine\Data\DissolveData.h">
+      <Filter>GameEngine\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Data\GPURandomSeed.h">
+      <Filter>GameEngine\Data</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -682,6 +691,9 @@
       <Filter>GameEngine\Shader</Filter>
     </None>
     <None Include="resources\Shader\Cubemap.hlsli">
+      <Filter>GameEngine\Shader</Filter>
+    </None>
+    <None Include="resources\Shader\Random.hlsli">
       <Filter>GameEngine\Shader</Filter>
     </None>
   </ItemGroup>

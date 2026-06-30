@@ -6,6 +6,32 @@
 
 using namespace std;
 
+class GameCamera;
+
+class BaseCamera {
+protected:
+	SRT transform_;
+	GameCamera* gameCamera_;
+public:
+	virtual void Initialize(GameCamera* gameCamera) = 0;
+	virtual void Update() = 0;
+	SRT GetTransform() { return transform_; }
+};
+
+class LockOnCamera : public BaseCamera {
+private:
+	//プレイヤーから前後方向にどれだけ離れるか
+	const float kCameraOffsetZ = -12.0f;
+	//肩越しカメラの最大左右位置
+	const float kMaxCameraOffsetX = 3.0f;
+	//プレイヤーからカメラへのローカル座標
+	Vector3 offset_;
+public:
+	void Initialize(GameCamera* gameCamera) override;
+	void Update() override;
+	SRT GetTransform() { return transform_; }
+};
+
 class GameCamera
 {
 private:
@@ -34,7 +60,8 @@ private:
 	const SRT* target_ = nullptr;
 
 	const float kMaxCameraPos = 3.0f;
-	float cameraPos_ = 1.0f;
+	//肩越しカメラ水平位置
+	float cameraHorizontalOffset_ = 3.0f;
 	float velocity_ = 0.0f;
 
 	//追従対象からカメラ位置までのオフセット
@@ -54,6 +81,13 @@ public:
 	//Transformのゲッター
 	SRT* GetTransform() { return transform_.get(); }
 
+	SRT GetPlayerTransform(){ return *player_; }
+	SRT GetTargetTransform() { return *target_; }
+	float GetCameraHorizontalOffset() { return cameraHorizontalOffset_; }
+
+	shared_ptr<Camera> GetCamera() { return camera_; }
+	float GetSepiaTone() { return sepiaTone_; }
+
 	//オフセット
 	void SetOffset(Vector3 offset) { offset_ = offset; }
 	void SetRotate(Vector3 rotate) { normalTransform_.rotate = rotate; }
@@ -69,10 +103,6 @@ public:
 
 	void SetDebugCamera(std::shared_ptr<DebugCamera> debugCamera) { debugCamera_ = debugCamera; }
 
-	shared_ptr<Camera> GetCamera() { return camera_; }
-
 	void SetIsTargeted(bool isTargeted) { isTargeted_ = isTargeted; }
 	void SetMoveVelocity(float velocity) { if(fabsf(velocity) > 0.5f)velocity_ = velocity; }
-
-	float GetSepiaTone() { return sepiaTone_; }
 };

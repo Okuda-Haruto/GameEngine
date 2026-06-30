@@ -391,7 +391,7 @@ void Player::IsCollision(uint8_t targetId) {
 			HP_--;
 			gameCamera_->SetShakeTime(0.3f);
 			invincibleTime_ = kMaxInvincibleTime_;
-			particle_damage_->Emit();
+			//particle_damage_->Emit();
 			AudioHolder::GetInstance()->GetAudio(AudioIndex::Player_Damage_SE).lock()->SoundPlayWave();
 		}
 	}

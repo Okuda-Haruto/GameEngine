@@ -166,6 +166,10 @@ void Stage::Draw() {
 	hud_->Draw();
 }
 
+void Stage::DrawSprite() {
+	hud_->DrawSprite();
+}
+
 void Stage::Collision() {
 	std::list<BaseCharacter*> characterList;
 	characterList.push_back(player_.get());
