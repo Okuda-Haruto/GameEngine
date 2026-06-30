@@ -139,6 +139,7 @@ public:
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> Screen_Vignette_RootSignatureInitialvalue();
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> Screen_Outline_RootSignatureInitialvalue();
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> Screen_RadialBlur_RootSignatureInitialvalue();
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> Screen_Dissolve_RootSignatureInitialvalue();
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> Cubemap_RootSignatureInitialvalue();
 
 	//シェーダーのコンパイル

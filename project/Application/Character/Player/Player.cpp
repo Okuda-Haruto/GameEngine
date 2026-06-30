@@ -17,6 +17,24 @@ void Player::Initialize(Stage* stage, std::shared_ptr<GameCamera> gameCamera, sh
 	stage_ = stage;
 	gameCamera_ = gameCamera;
 	input_ = input;
+  
+  //パーティクル
+	//ParticleManager::GetInstance()->CreateParticleGroup("particle_5", "resources/Particle/Sand.png");
+	//particle_2 = std::make_unique<ParticleEmitter>("particle_5");
+
+	//emitter_.count = 8;
+	//emitter_.lifeTime = 0.2f;
+	//emitter_.frequency = 0.0f;
+	//emitter_.frequencyTime = 0.0f;
+	//emitter_.spawnRange.min = { -0.5f,0.0f,-0.5f };
+	//emitter_.spawnRange.max = { 0.5f,0.0f,0.5f };
+	//emitter_.angleBase = { 0.0f,0.0f,0.0f };
+	//emitter_.angleRange = { 1.0f,0.0f,1.0f };	//方向範囲
+	//emitter_.speedBase = 0.2f;	//基礎速度
+	//emitter_.speedRange = 0.1f;	//速度範囲
+	//emitter_.beforeColor = { 0.2f,0.2f,0.2f,0.2f };
+	//emitter_.afterColor = { 0.0f,0.0f,0.0f,0.0f };
+	//particle_2->SetEmitter(emitter_);
 
 	//モデルの生成
 	object_ = std::make_unique<Object>();
@@ -373,6 +391,7 @@ void Player::IsCollision(uint8_t targetId) {
 			HP_--;
 			gameCamera_->SetShakeTime(0.3f);
 			invincibleTime_ = kMaxInvincibleTime_;
+			particle_damage_->Emit();
 			AudioHolder::GetInstance()->GetAudio(AudioIndex::Player_Damage_SE).lock()->SoundPlayWave();
 		}
 	}

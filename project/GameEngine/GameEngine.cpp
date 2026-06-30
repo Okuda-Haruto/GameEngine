@@ -139,6 +139,7 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	screen_Vignette_RootSignature_ = dxCommon_->Screen_Vignette_RootSignatureInitialvalue();
 	screen_Outline_RootSignature_ = dxCommon_->Screen_Outline_RootSignatureInitialvalue();
 	screen_RadialBlur_RootSignature_ = dxCommon_->Screen_RadialBlur_RootSignatureInitialvalue();
+	screen_Dissolve_RootSignature_ = dxCommon_->Screen_Dissolve_RootSignatureInitialvalue();
 	cubemap_RootSignature_ = dxCommon_->Cubemap_RootSignatureInitialvalue();
 
 	//Shaderをコンパイルする
@@ -180,6 +181,8 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	assert(LuminanceBasedOutlinePSBlob != nullptr);
 	Microsoft::WRL::ComPtr<IDxcBlob> RadialBlurPSBlob = dxCommon_->CompileShader(L"./resources/Shader/RadialBlur.PS.hlsl", L"ps_6_0");
 	assert(RadialBlurPSBlob != nullptr);
+	Microsoft::WRL::ComPtr<IDxcBlob> DissolvePSBlob = dxCommon_->CompileShader(L"./resources/Shader/Dissolve.PS.hlsl", L"ps_6_0");
+	assert(DissolvePSBlob != nullptr);
 	Microsoft::WRL::ComPtr<IDxcBlob> CubemapVSBlob = dxCommon_->CompileShader(L"./resources/Shader/Cubemap.VS.hlsl", L"vs_6_0");
 	assert(CubemapVSBlob != nullptr);
 	Microsoft::WRL::ComPtr<IDxcBlob> CubemapPSBlob = dxCommon_->CompileShader(L"./resources/Shader/Cubemap.PS.hlsl", L"ps_6_0");
@@ -202,6 +205,7 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	screen_GaussianFilter_PipelineState_ = Screen_PipelineStateInitialvalue(device_, screen_RootSignature_, CopyImageVSBlob.Get(), GaussianFilterPSBlob.Get());
 	screen_Outline_PipelineState_ = Screen_PipelineStateInitialvalue(device_, screen_Outline_RootSignature_, CopyImageVSBlob.Get(), LuminanceBasedOutlinePSBlob.Get());
 	screen_RadialBlur_PipelineState_ = Screen_PipelineStateInitialvalue(device_, screen_RadialBlur_RootSignature_, CopyImageVSBlob.Get(), RadialBlurPSBlob.Get());
+	screen_Dissolve_PipelineState_ = Screen_PipelineStateInitialvalue(device_, screen_Dissolve_RootSignature_, CopyImageVSBlob.Get(), DissolvePSBlob.Get());
 	cubemap_PipelineState_ = Cubemap_PipelineStateInitialvalue(device_, cubemap_RootSignature_, CubemapVSBlob.Get(), CubemapPSBlob.Get());
 	//XAudioエンジンのインスタンスを生成
 	hr = XAudio2Create(&xAudio2_, 0, XAUDIO2_DEFAULT_PROCESSOR);
@@ -259,6 +263,7 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	boxFilterResource_ = dxCommon_->CreateBufferResources(sizeof(BoxFilterData));
 	outlineMaterialFilterResource_ = dxCommon_->CreateBufferResources(sizeof(Material));
 	radialBlurResource_ = dxCommon_->CreateBufferResources(sizeof(RadialBlurData));
+	dissolveResource_ = dxCommon_->CreateBufferResources(sizeof(DissolveData));
 }
 
 
@@ -1273,6 +1278,32 @@ void GameEngine::DrawScreen_(std::string textureName, RadialBlurData data) {
 	commandList_->SetGraphicsRootDescriptorTable(1, srvManager_->GetGPUDescriptorHandle(TextureManager::GetInstance()->GetSrvIndex(textureName)));
 
 	commandList_->SetGraphicsRootConstantBufferView(0, radialBlurResource_->GetGPUVirtualAddress());
+
+	//描画(DrawCall)(頂点は勝手に入るのでIndexedじゃない)
+	commandList_->DrawInstanced(3, 1, 0, 0);
+
+}
+
+void GameEngine::DrawScreen_(std::string textureName, DissolveData data, uint32_t maskTextureIndex) {
+
+	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
+	commandList_->SetGraphicsRootSignature(screen_Dissolve_RootSignature_.Get());
+	commandList_->SetPipelineState(screen_Dissolve_PipelineState_.Get());	//PSOを設定
+
+	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
+	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	dissolveResource_->Map(0, nullptr, reinterpret_cast<void**>(&dissolveData_));
+
+	*dissolveData_ = data;
+
+	dissolveResource_->Unmap(0, nullptr);
+
+	//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
+	commandList_->SetGraphicsRootDescriptorTable(1, srvManager_->GetGPUDescriptorHandle(TextureManager::GetInstance()->GetSrvIndex(textureName)));
+	commandList_->SetGraphicsRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(maskTextureIndex));
+
+	commandList_->SetGraphicsRootConstantBufferView(0, dissolveResource_->GetGPUVirtualAddress());
 
 	//描画(DrawCall)(頂点は勝手に入るのでIndexedじゃない)
 	commandList_->DrawInstanced(3, 1, 0, 0);

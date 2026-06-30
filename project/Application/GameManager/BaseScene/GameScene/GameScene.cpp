@@ -5,6 +5,8 @@
 #include "../TitleScene/TitleScene.h"
 #include <cmath>
 #include <Collision.h>
+#include <RadialBlurData.h>
+#include <TextureManager/TextureManager.h>
 
 GameScene::~GameScene() {
 
@@ -94,8 +96,8 @@ void GameScene::Initialize(shared_ptr<Input> input) {
 	emitter_3.frequencyTime = 0.0f;
 	emitter_3.spawnRange.min = { 0.0f,0.0f,0.0f };
 	emitter_3.spawnRange.max = { 0.0f,0.0f,0.0f };
-	emitter_3.beforeColor = { 1.0f,0.8f,0.6f,1.0f };
-	emitter_3.afterColor = { 1.0f,1.0f,1.0f,0.0f };
+	emitter_3.beforeColor = { 1.0f,1.0f,0.6f,1.0f };
+	emitter_3.afterColor = { 0.6f,0.2f,0.2f,0.0f };
 	emitter_3.rotateVelocity = 0.0f;
 	emitter_3.rotateRate = std::numbers::pi_v<float>;
 	editor_3->SetEmitter(emitter_3);
@@ -105,7 +107,7 @@ void GameScene::Initialize(shared_ptr<Input> input) {
 	field_3.acceleration = {};
 	editor_3->SetField(field_3);
 	SRT emitterTransform_3;
-	emitterTransform_3.scale = { 2.0f,2.0f,2.0f };
+	emitterTransform_3.scale = { 2.0f,0.1f,0.1f };
 	emitterTransform_3.rotate = { 0.0f,0.0f,0.0f };
 	emitterTransform_3.translate = { 0.0f,0.0f,0.0f };
 	editor_3->SetTransform(emitterTransform_3);
@@ -140,6 +142,14 @@ void GameScene::Initialize(shared_ptr<Input> input) {
 	emitterTransform_4.rotate = { 0.0f,0.0f,0.0f };
 	emitterTransform_4.translate = { 0.0f,0.0f,0.0f };
 	editor_4->SetTransform(emitterTransform_4);*/
+  
+  //ring_ = std::make_unique<PrimitiveRing>();
+	//ring_->Initialize(TextureManager::GetInstance()->GetSrvIndex("resources/Particle/gradationLine.png"), gameCamera_->GetCamera(), GameEngine::GetDirectXCommon());
+	//ringTransform_ = {};
+	//ringTransform_.scale = { 4,4,4 };
+	//ringMaterial_.color = { 1.0f,1.0f,1.0f,0.0f };
+	//ringMaterial_.uvTransform = MakeTranslateMatrix({ 1.0f,1.0f,1.0f });
+
 
 	stage_ = std::make_unique<Stage>();
 	stage_->Initialize(StageManager::GetInstance()->ReadStage("resources/Data/Stage/Stage.json"), input_);
@@ -148,6 +158,12 @@ void GameScene::Initialize(shared_ptr<Input> input) {
 	fadeSprite_->Initialize("resources/DebugResources/white2x2.png");
 	fadeSprite_->SetSize({ 1280,720 });
 	fadeSprite_->SetColor({ 0.0f,0.0f,0.0f,1.0f });
+
+	fence_ = std::make_unique<Fence>();
+	fence_->Initialize(gameCamera_->GetCamera(),directionalLight_,pointLight_);
+
+	dissolveData_.threshold = 0.0f;
+	dissolveData_.edgeWidth = 0.03f;
 
 	fade_ = Fade::FadeIn;
 	fadeTime_ = 0.0f;
@@ -192,9 +208,8 @@ void GameScene::Update() {
 	} else if (fade_ == Fade::FadeOut) {
 		a = fadeTime_ / kMaxFadeTime;
 	}
-	fadeSprite_->SetColor({ 0.0f,0.0f,0.0f,a });
+	dissolveData_.threshold = a;
 	fadeSprite_->Update();
-
 
 
 	/*editor_->Update();
@@ -214,7 +229,7 @@ void GameScene::Update() {
 	editor_2->SetEmitter(emitter);
 
 	transform = editor_3->GetTransform();
-	transform.translate = boss_->GetTransform()->translate;
+	transform.translate = player_->GetTransform()->translate;
 	transform.scale = { 1.0f,5.0f,5.0f };
 	editor_3->SetTransform(transform);
 
@@ -223,9 +238,9 @@ void GameScene::Update() {
 	transform.translate.y = 0.0f;
 	editor_4->SetTransform(transform);
 
-	ringTransform_.translate = boss_->GetTransform()->translate;
+	ringTransform_.translate = boss_->GetTransform()->translate + Vector3{ 0,0,1 } * MakeRotateYMatrix(boss_->GetTransform()->rotate.y);
 	if (ringMaterial_.color.w > 0.0f) {
-		ringMaterial_.color.w -= 5.0f / 60.0f;
+		ringMaterial_.color.w -= 2.0f / 60.0f;
 		if (ringMaterial_.color.w < 0.0f) {
 			ringMaterial_.color.w = 0.0f;
 		}
@@ -238,7 +253,7 @@ void GameScene::Update() {
 
 	//フェード
 	if (fade_ != Fade::None) {
-		fadeSprite_->Draw2D();
+		
 	}
 
 	GameEngine::RenderPostDraw();
@@ -261,10 +276,18 @@ void GameScene::Update() {
 
 	GameEngine::RenderPostDraw();
 
+	GameEngine::RenderPreDraw("Vignette");
+
+	VignetteData vignettedata;
+	vignettedata.vignetteIntensity = 16.0f;
+	vignettedata.vignetteCurve = 0.2f;
+
+	GameEngine::DrawScreen("BoxFilter", vignettedata);
+
+	GameEngine::RenderPostDraw();
 }
 
 void GameScene::Draw() {
-
 	VignetteData data;
 	data.vignetteIntensity = 16.0f;
 	data.vignetteCurve = 0.2f;

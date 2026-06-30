@@ -2,6 +2,8 @@
 #include "../BaseScene.h"
 #include <BoxFilterData.h>
 #include <PrimitiveManager/PrimitiveRing.h>
+#include <DissolveData.h>
+#include <RadialBlurData.h>
 
 #include <StageManager/Stage/Stage.h>
 
@@ -37,6 +39,7 @@ private:
 	Material ringMaterial_;
 
 	BoxFilterData boxFilterData_;
+
 public:
 
 	~GameScene();
