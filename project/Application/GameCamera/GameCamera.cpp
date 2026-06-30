@@ -79,6 +79,9 @@ void GameCamera::Update() {
 
 
 	Vector3 diff = target_->translate - player_->translate;
+	if (Length(diff) <= 0.0f) {
+		diff = { 0.0f,0.0f,1.0f };
+	}
 
 	//  Y軸回り回転(θy)
 	lockonTransform_.rotate.y = std::atan2(diff.x, diff.z);
@@ -170,6 +173,9 @@ void GameCamera::Update() {
 			+ transform_->rotate * (1.0f - (1.0f - powf(1.0f - eventShiftTime_ / kMaxEventShiftTime, 2)));
 	}
 
+	if (debugCamera_) {
+		debugCamera_->UpdateCamera(camera_.get());
+	}
 
 	sepiaTone_ = eventShiftTime_ / kMaxEventShiftTime;
 }

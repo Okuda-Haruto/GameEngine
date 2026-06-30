@@ -4,43 +4,42 @@
 #include <Matrix4x4.h>
 #include <numbers>
 #include <Math/Easing.h>
-#include <GameManager/BaseScene/GameScene/GameScene.h>
+#include <StageManager/Stage/Stage.h>
+#include <AudioHolder/AudioHolder.h>
 #include "Input/Input.h"
+
 
 Player::~Player() {
 
 }
 
-void Player::Initialize(GameScene* gameScene, GameCamera* gameCamera, shared_ptr<Input> input, ParticleEmitter* particle1, ParticleEmitter* particle_damage) {
-	gameScene_ = gameScene;
+void Player::Initialize(Stage* stage, std::shared_ptr<GameCamera> gameCamera, shared_ptr<Input> input, SRT startTransform) {
+	stage_ = stage;
 	gameCamera_ = gameCamera;
 	input_ = input;
-	particle_1 = particle1;
-	particle_damage_ = particle_damage;
-	//パーティクル
-	ParticleManager::GetInstance()->CreateParticleGroup("particle_5", "resources/Particle/Sand.png");
-	particle_2 = std::make_unique<ParticleEmitter>("particle_5");
+  
+  //パーティクル
+	//ParticleManager::GetInstance()->CreateParticleGroup("particle_5", "resources/Particle/Sand.png");
+	//particle_2 = std::make_unique<ParticleEmitter>("particle_5");
 
-	emitter_.count = 8;
-	emitter_.lifeTime = 0.2f;
-	emitter_.frequency = 0.0f;
-	emitter_.frequencyTime = 0.0f;
-	emitter_.spawnRange.min = { -0.5f,0.0f,-0.5f };
-	emitter_.spawnRange.max = { 0.5f,0.0f,0.5f };
-	emitter_.angleBase = { 0.0f,0.0f,0.0f };
-	emitter_.angleRange = { 1.0f,0.0f,1.0f };	//方向範囲
-	emitter_.speedBase = 0.2f;	//基礎速度
-	emitter_.speedRange = 0.1f;	//速度範囲
-	emitter_.beforeColor = { 0.2f,0.2f,0.2f,0.2f };
-	emitter_.afterColor = { 0.0f,0.0f,0.0f,0.0f };
-	particle_2->SetEmitter(emitter_);
+	//emitter_.count = 8;
+	//emitter_.lifeTime = 0.2f;
+	//emitter_.frequency = 0.0f;
+	//emitter_.frequencyTime = 0.0f;
+	//emitter_.spawnRange.min = { -0.5f,0.0f,-0.5f };
+	//emitter_.spawnRange.max = { 0.5f,0.0f,0.5f };
+	//emitter_.angleBase = { 0.0f,0.0f,0.0f };
+	//emitter_.angleRange = { 1.0f,0.0f,1.0f };	//方向範囲
+	//emitter_.speedBase = 0.2f;	//基礎速度
+	//emitter_.speedRange = 0.1f;	//速度範囲
+	//emitter_.beforeColor = { 0.2f,0.2f,0.2f,0.2f };
+	//emitter_.afterColor = { 0.0f,0.0f,0.0f,0.0f };
+	//particle_2->SetEmitter(emitter_);
 
 	//モデルの生成
 	object_ = std::make_unique<Object>();
 	object_->Initialize(ModelHolder::GetInstance()->GetModel(ModelIndex::Player));
-	transform_.scale = { 1.5f,1.5f,1.5f };
-	transform_.rotate = { 0.0f,0.0f,0.0f };
-	transform_.translate = { 0.0f,1.5f,-20.0f };
+	transform_ = startTransform;
 	object_->SetTransform(transform_);
 
 	targetTransform_ = std::make_unique<SRT>();
@@ -64,7 +63,7 @@ void Player::Initialize(GameScene* gameScene, GameCamera* gameCamera, shared_ptr
 
 void Player::Update() {
 	Pad pad = input_->GetPad(0);
-	Keybord keys = input_->GetKeyBord();
+	Keyboard keyboard = input_->GetKeyboard();
 
 	move_ = {};
 	isMove = false;
@@ -104,16 +103,16 @@ void Player::Update() {
 		}
 
 		if (!isMove) {
-			if (keys.hold[DIK_W] || keys.hold[DIK_UP]) {
+			if (keyboard.keys[DIK_W].hold || keyboard.keys[DIK_UP].hold) {
 				move_.z = 1.0f;
 			}
-			if (keys.hold[DIK_S] || keys.hold[DIK_DOWN]) {
+			if (keyboard.keys[DIK_S].hold || keyboard.keys[DIK_DOWN].hold) {
 				move_.z = -1.0f;
 			}
-			if (keys.hold[DIK_D] || keys.hold[DIK_RIGHT]) {
+			if (keyboard.keys[DIK_D].hold || keyboard.keys[DIK_RIGHT].hold) {
 				move_.x = 1.0f;
 			}
-			if (keys.hold[DIK_A] || keys.hold[DIK_LEFT]) {
+			if (keyboard.keys[DIK_A].hold || keyboard.keys[DIK_LEFT].hold) {
 				move_.x = -1.0f;
 			}
 			if (Length(move_) > deadZone) {
@@ -125,8 +124,10 @@ void Player::Update() {
 
 		//注目中は角度をつける
 		if (isTargeted_ && bossTransform_) {
-			Vector3 diff = Normalize(bossTransform_->translate - transform_.translate);
-			angle = std::atan2(diff.x, diff.z);
+			if (Length(bossTransform_->translate - transform_.translate) > 0.0f) {
+				Vector3 diff = Normalize(bossTransform_->translate - transform_.translate);
+				angle = std::atan2(diff.x, diff.z);
+			}
 		}
 
 		acceleration_ = {};
@@ -174,7 +175,7 @@ void Player::Update() {
 				angle = std::atan2(velocity_.x, velocity_.z);
 			}
 
-			particle_1->Emit(transform_);
+			//particle_1->Emit(transform_);
 		}
 
 		//最短角度補完
@@ -260,7 +261,7 @@ void Player::Update() {
 
 			emitterTransform.translate = transform_.translate;
 			emitterTransform.translate.y = 0.0f;
-			particle_2->Emit(emitterTransform);
+			//particle_2->Emit(emitterTransform);
 
 			//回避中じゃない
 		} else {
@@ -272,7 +273,7 @@ void Player::Update() {
 
 		//回避インターバル
 		if (dodgeCoolTime >= kMaxDodgeCoolTime) {
-			if ((keys.trigger[DIK_C] || keys.trigger[DIK_SPACE] || pad.Button[PAD_BUTTON_B].trigger) && isMove) {
+			if ((keyboard.keys[DIK_C].trigger || keyboard.keys[DIK_SPACE].trigger || pad.Button[PAD_BUTTON_B].trigger) && isMove) {
 				dodgeActiveTime = 0.0f;
 				dodgeCoolTime = 0.0f;
 				//注視中は他の方にも回避できる
@@ -313,10 +314,10 @@ void Player::Update() {
 		if (shotCooltime_ < kMaxShotCooltime) {
 			shotCooltime_ += 1.0f / 60.0f;
 		}
-		if (keys.hold[DIK_Z] || keys.hold[DIK_X] || pad.Button[PAD_BUTTON_RT].hold && dodgeActiveTime >= kMaxDodgeActiveTime) {
+		if (keyboard.keys[DIK_Z].hold || keyboard.keys[DIK_X].hold || pad.Button[PAD_BUTTON_RT].hold && dodgeActiveTime >= kMaxDodgeActiveTime) {
 			if (remainingRounds_ > 0.0f) {
 				if (shotCooltime_ >= kMaxShotCooltime) {
-					gameScene_->AddPlayerBullet(transform_.translate, transform_.rotate);
+					stage_->AddPlayerBullet(transform_.translate, transform_.rotate);
 					shotCooltime_ = 0.0f;
 					remainingRounds_--;
 					gameCamera_->SetShakeTime(0.1f);
@@ -329,7 +330,7 @@ void Player::Update() {
 
 #pragma region 注目行動
 
-		if (keys.hold[DIK_LSHIFT] || keys.hold[DIK_RSHIFT] || pad.Button[PAD_BUTTON_LT].hold) {
+		if (keyboard.keys[DIK_LSHIFT].hold || keyboard.keys[DIK_RSHIFT].hold || pad.Button[PAD_BUTTON_LT].hold) {
 			isTargeted_ = false;
 		} else {
 			isTargeted_ = true;
@@ -369,11 +370,11 @@ void Player::Update() {
 
 	object_->SetTransform(transform_);
 	BaseCharacter::Update();
-	particle_2->Update();
+	//particle_2->Update();
 }
 
 void Player::Draw() {
-	particle_2->Draw();
+	//particle_2->Draw();
 	if (HP_ > 0.0f) {
 		if (invincibleTime_ > 0.0f) {
 			object_->SetColor(Vector4{ 0.3f,0.3f,0.3f,1.0f });

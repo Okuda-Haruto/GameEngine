@@ -5,7 +5,7 @@
 #include "GameCamera/GameCamera.h"
 #include "ParticleEmitter/ParticleEmitter.h"
 
-class GameScene;
+class Stage;
 
 class Player : public BaseCharacter
 {
@@ -67,13 +67,12 @@ private:
 	const float kMaxStopTime_ = 1.2f;
 	float stopTime_ = 0.0f;
 
-	GameScene* gameScene_ = nullptr;
-	GameCamera* gameCamera_ = nullptr;
+	Stage* stage_ = nullptr;
+	std::shared_ptr<GameCamera> gameCamera_ = nullptr;
 
-	ParticleEmitter* particle_1 = nullptr;
-	ParticleEmitter* particle_damage_ = nullptr;
-	std::unique_ptr<ParticleEmitter> particle_2;
-	Emitter emitter_;
+	//ParticleEmitter* particle_1 = nullptr;
+	//std::unique_ptr<ParticleEmitter> particle_2;
+	//Emitter emitter_;
 
 	bool isTargeted_ = false;
 
@@ -82,7 +81,7 @@ public:
 	~Player();
 
 	//初期化
-	void Initialize(GameScene* gameScene, GameCamera* gameCamera, shared_ptr<Input> input, ParticleEmitter* particle1, ParticleEmitter* particle_damage);
+	void Initialize(Stage* stage, std::shared_ptr<GameCamera> gameCamera, shared_ptr<Input> input, SRT startTransform);
 	//更新
 	void Update();
 	//描画
@@ -93,6 +92,8 @@ public:
 	void IsCollisionGround(OBB obb) override;
 
 	SRT* GetTransform() { return targetTransform_.get(); }
+
+	void SetTransfrom(SRT transfrom) { transform_ = transfrom; *targetTransform_ = transform_; object_->SetTransform(transform_); }
 	void SetBossTransform(SRT* bossTransform) { bossTransform_ = bossTransform; }
 
 	void SetCameraTransform(const SRT* transform) { cameraTransform_ = transform; }

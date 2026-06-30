@@ -9,7 +9,7 @@ using namespace std;
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//ゲームエンジン
-	GameEngine::Initialize(L"LE2A_03_オクダ_ハルト_GunKid", 1280, 720);
+	GameEngine::Initialize(L"LE3A_03_オクダ_ハルト_GunKid", 1280, 720);
 
 	TextureManager::GetInstance()->MakeRenderTexture("render");
 	TextureManager::GetInstance()->MakeRenderTexture("Outline");
@@ -25,19 +25,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	gameManager->Initialize();
 
-
-
-	nlohmann::json config;
-
-	config["WindowWidth"] = 1280;
-	config["WindowHeight"] = 720;
-	config["Fullscreen"] = false;
-
-	std::cout << config.dump(4) << std::endl;
-
-	std::ofstream file("Config.json");
-	file << config.dump(4);
-	file.close();
+	//SceneManager::GetInstance()->ChangeScene("StageEditor");
 
 	//ウィンドウの×ボタンが押されるまでループ
 	while (GameEngine::WindowState()) {

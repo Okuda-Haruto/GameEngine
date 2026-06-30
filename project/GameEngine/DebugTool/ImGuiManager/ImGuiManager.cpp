@@ -63,6 +63,8 @@ void ImGuiManager::Initialize([[maybe_unused]] DirectXCommon* dxCommon, [[maybe_
 		ImGuiDockNodeFlags_PassthruCentralNode;
 
 	ImGui_ImplDX12_Init(&init_info);
+
+	currentGizmoOperation_ = ImGuizmo::TRANSLATE;
 #endif
 }
 
@@ -71,6 +73,7 @@ void ImGuiManager::Begin() {
 	ImGui_ImplDX12_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
+	ImGuizmo::BeginFrame();
 
 	ImGui::DockSpaceOverViewport();
 #endif
@@ -85,17 +88,19 @@ void ImGuiManager::End() {
 
 	ImGui::Begin("Game");
 
+	ImGuizmo::SetDrawlist();
+
 	ImVec2 avail = ImGui::GetContentRegionAvail();
 
 	float aspect = 16.0f / 9.0f;
 
-	float width = avail.x;
-	float height = width / aspect;
+	gameScreenSize_.x = avail.x;
+	gameScreenSize_.y = gameScreenSize_.x / aspect;
 
-	if (height > avail.y)
+	if (gameScreenSize_.x > avail.y)
 	{
-		height = avail.y;
-		width = height * aspect;
+		gameScreenSize_.y = avail.y;
+		gameScreenSize_.x = gameScreenSize_.y * aspect;
 	}
 
 	auto gpuHandle =
@@ -104,11 +109,51 @@ void ImGuiManager::End() {
 	ImTextureRef tex_ref(
 		(ImTextureID)gpuHandle.ptr
 	);
+	
+	//guizmo用pos
+	ImVec2 imagePos = ImGui::GetCursorScreenPos();
+	gameScreenPosition_ = { imagePos.x,imagePos.y };
 
 	ImGui::Image(
 		tex_ref,
-		ImVec2(width, height)
+		ImVec2(gameScreenSize_.x, gameScreenSize_.y)
 	);
+
+	//上記のゲーム画面から範囲を取得
+	ImGuizmo::SetRect(
+		imagePos.x,
+		imagePos.y,
+		gameScreenSize_.x,
+		gameScreenSize_.y
+	);
+
+	if (guizmoData_.isNew) {
+		Matrix4x4 matrix{};
+
+		ImGuizmo::RecomposeMatrixFromComponents(
+			&guizmoData_.transform->translate.x,
+			&guizmoData_.transform->rotate.x,
+			&guizmoData_.transform->scale.x,
+			&matrix.m[0][0]
+		);
+
+		ImGuizmo::Manipulate(
+			(float*)&guizmoData_.camera.lock()->GetViewMatrix().m[0][0],
+			(float*)&guizmoData_.camera.lock()->GetProjectionMatrix().m[0][0],
+			currentGizmoOperation_,
+			ImGuizmo::LOCAL,
+			(float*)&matrix.m[0][0]
+		);
+
+		ImGuizmo::DecomposeMatrixToComponents(
+			&matrix.m[0][0],
+			&guizmoData_.transform->translate.x,
+			&guizmoData_.transform->rotate.x,
+			&guizmoData_.transform->scale.x
+		);
+
+		guizmoData_.isNew = false;
+	}
 
 	ImGui::End();
 

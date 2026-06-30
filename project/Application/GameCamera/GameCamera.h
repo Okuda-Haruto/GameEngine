@@ -1,5 +1,6 @@
 #pragma once
 #include <Camera/Camera.h>
+#include <DebugCamera.h>
 #include <memory>
 #include <Input/Input.h>
 
@@ -10,6 +11,7 @@ class GameCamera
 private:
 	//カメラ
 	shared_ptr<Camera> camera_;
+	shared_ptr<DebugCamera> debugCamera_;
 
 	const float kMaxShiftTime = 0.25f;
 	float shiftTime_ = 0.0f;
@@ -64,6 +66,8 @@ public:
 	void SetIsEvent(bool IsEvent) { isEvent_ = IsEvent; if (isEvent_)eventShiftTime_ = kMaxEventShiftTime; }
 
 	void SetShakeTime(float shakeTime) { shakeTime_ = shakeTime; }
+
+	void SetDebugCamera(std::shared_ptr<DebugCamera> debugCamera) { debugCamera_ = debugCamera; }
 
 	shared_ptr<Camera> GetCamera() { return camera_; }
 

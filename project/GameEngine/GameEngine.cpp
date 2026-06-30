@@ -411,6 +411,9 @@ void GameEngine::DrawObject_3D_(Object* object, shared_ptr<DirectionalLight> dir
 	//変更が必要な部分だけ変える
 	for (int i = 0; i < parts.size();i++) {
 
+		//上限に達していたら描画しない
+		if (objectIndex_ >= kMaxIndex)return;
+
 		//WVPデータを更新
 		objectWvpResource_[objectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&objectWvpData_[objectIndex_]));
 

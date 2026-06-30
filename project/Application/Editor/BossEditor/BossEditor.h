@@ -2,24 +2,38 @@
 #include <memory>
 #include <string>
 
-#include <Character/Boss/Boss.h>
+#include <StageManager/Stage/Stage.h>
+#include <GameManager/BaseScene/BaseScene.h>
 
-class BossEditor {
+class BossEditor : public BaseScene {
 private:
 
 #pragma region Command
 
 	class BaseCommand {
-	private:
+	protected:
 		//エディター
 		BossEditor* editor_;
 	public:
-		//コマンド実行
-		virtual void DoCommand(BossEditor* editor) = 0;
 		//コマンド再実行
-		virtual void ReDoCommand() = 0;
+		virtual void RedoCommand() = 0;
 		//コマンド取消
 		virtual void UndoCommand() = 0;
+	};
+
+	class SetModelCommand : public BaseCommand {
+	private:
+		std::string beforeDirectoryPath_;
+		std::string beforeFileName_;
+		std::string afterDirectoryPath_;
+		std::string afterFileName_;
+	public:
+		//コマンド実行
+		SetModelCommand(BossEditor* editor, std::string beforeDirectoryPath, std::string beforeFileName, std::string afterDirectoryPath, std::string afterFileName);
+		//コマンド再実行
+		void RedoCommand() override;
+		//コマンド取消
+		void UndoCommand() override;
 	};
 
 #pragma endregion
@@ -27,22 +41,36 @@ private:
 	//ボス名
 	std::string bossName_;
 	//描画するモデルファイルへのパス
-	std::string modelPath_;
+	std::string directoryPath_;
+	std::string modelname_;
 	//最大HP
 	uint32_t maxHP_;
 	//ボス行動パターン
-	std::vector<std::unique_ptr<BossPattern>> patterns;
+	std::unordered_map<std::string, std::unique_ptr<BossPattern>> patterns_;
 
-
-	//ボス
-	std::unique_ptr<Boss> boss_;
+	//実行コマンド
+	std::vector<std::unique_ptr<BaseCommand>> commands_;
+	int32_t commandIndex_;
 
 	enum class EditorState {
 		None,			//ボスを選択していない状態
 		CreateNewFile,	//新しく作成するファイルの設定
-		OpenFile,		//
+		OpenFile,		//ボスファイルを開いた状態
 		Edit,
 	};
+
+	EditorState state_;
+
+	//出力用データ
+	StageData stageData_;
+	std::string filePath_;
+	//ImGui用
+	char filePathText_[256] = {};
+
+	std::unique_ptr<Stage> stage_;
+
+	std::shared_ptr<Input> input_;
+	std::shared_ptr<DebugCamera> debugCamera_;
 
 public:
 
@@ -71,5 +99,19 @@ public:
 	/// ボスファイルファイルを書き出す
 	/// </summary>
 	/// <param name="filePath">ボスファイルファイルへのパス</param>
-	void WriteBossFile(std::string filePath);
+	void WriteBossFile();
+
+private:
+
+	void SetBossData(std::string directoryPath = "resources", std::string modelname = "resources");
+
+	/// <summary>
+	/// ファイル参照ツリー
+	/// </summary>
+	/// <param name="path">探索するフォルダパス</param>
+	/// <param name="name">ノードにつける名称</param>
+	void ImGuiFileTree_obj(std::string path = "resources", std::string name = "resources");
+	void ImGuiFileTree_json(std::string path = "resources", std::string name = "resources");
+
+	void ImGuiFolderTree(std::string path = "resources", std::string name = "resources");
 };

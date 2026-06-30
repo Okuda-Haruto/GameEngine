@@ -48,10 +48,10 @@ void Input::Update() {
 	keyboardDevice_->GetDeviceState(sizeof(BYTE) * 256, keys_);
 
 	for (int i = 0; i < 256; i++) {
-		keybord_.hold[i] = keys_[i];
-		keybord_.idle[i] = ~keys_[i];
-		keybord_.trigger[i] = keys_[i] & ~preKeys_[i];
-		keybord_.release[i] = ~keys_[i] & preKeys_[i];
+		keyboard_.keys[i].hold = keys_[i];
+		keyboard_.keys[i].idle = ~keys_[i];
+		keyboard_.keys[i].trigger = keys_[i] & ~preKeys_[i];
+		keyboard_.keys[i].release = ~keys_[i] & preKeys_[i];
 	}
 
 	//前frame処理
@@ -70,7 +70,10 @@ void Input::Update() {
 	mouse_.Position = { float(p.x),float(p.y) };
 	mouse_.Movement = { float(mouseState_.lX),float(mouseState_.lY),float(mouseState_.lZ) };
 	for (int i = 0; i < 3; i++) {
-		mouse_.click[i] = mouseState_.rgbButtons[i];
+		mouse_.click[i].hold = mouseState_.rgbButtons[i];
+		mouse_.click[i].idle = ~mouseState_.rgbButtons[i];
+		mouse_.click[i].trigger = mouseState_.rgbButtons[i] & ~preMouseState_.rgbButtons[i];
+		mouse_.click[i].release = ~mouseState_.rgbButtons[i] & preMouseState_.rgbButtons[i];
 	}
 
 	//パッド入力

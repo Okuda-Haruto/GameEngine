@@ -54,7 +54,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Application\AudioHolder\AudioHolder.cpp" />
-    <ClCompile Include="Application\BackGround\BackGround\BackGround.cpp" />
+    <ClCompile Include="Application\BackGround\BackGround.cpp" />
     <ClCompile Include="Application\BackGround\Fence\Fence.cpp" />
     <ClCompile Include="Application\BackGround\Tumbleweed\Tumbleweed.cpp" />
     <ClCompile Include="Application\Bullet\BaseBullet.cpp" />
@@ -70,6 +70,7 @@
     <ClCompile Include="Application\Editor\StageEditor\StageEditor.cpp" />
     <ClCompile Include="Application\GameManager\GameManager.cpp" />
     <ClCompile Include="Application\GameManager\SceneFactory\SceneFactory.cpp" />
+    <ClCompile Include="Application\HUD\HUD.cpp" />
     <ClCompile Include="Application\ModelHolder\ModelHolder.cpp" />
     <ClCompile Include="Application\GameCamera\GameCamera.cpp" />
     <ClCompile Include="Application\GameManager\BaseScene\ClearScene\ClearScene.cpp" />
@@ -127,7 +128,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\AudioHolder\AudioHolder.h" />
-    <ClInclude Include="Application\BackGround\BackGround\BackGround.h" />
+    <ClInclude Include="Application\BackGround\BackGround.h" />
     <ClInclude Include="Application\BackGround\Fence\Fence.h" />
     <ClInclude Include="Application\BackGround\Tumbleweed\Tumbleweed.h" />
     <ClInclude Include="Application\Bullet\BaseBullet.h" />
@@ -146,6 +147,7 @@
     <ClInclude Include="Application\Editor\StageEditor\StageEditor.h" />
     <ClInclude Include="Application\GameManager\GameManager.h" />
     <ClInclude Include="Application\GameManager\SceneFactory\SceneFactory.h" />
+    <ClInclude Include="Application\HUD\HUD.h" />
     <ClInclude Include="Application\ModelHolder\ModelHolder.h" />
     <ClInclude Include="Application\GameCamera\GameCamera.h" />
     <ClInclude Include="Application\GameManager\BaseScene\ClearScene\ClearScene.h" />
@@ -183,6 +185,7 @@
     <ClInclude Include="GameEngine\DebugTool\ImGuiManager\ImGuiManager.h" />
     <ClInclude Include="GameEngine\Editor\ParticleEditor\ParticleEditor.h" />
     <ClInclude Include="GameEngine\Factory\AbstractSceneFactory\AbstractSceneFactory.h" />
+    <ClInclude Include="GameEngine\LoadFile\JsonUtils.h" />
     <ClInclude Include="GameEngine\LoadFile\LoadGLTFFile.h" />
     <ClInclude Include="GameEngine\Math\LerpKeyFrame\LerpKeyFrame.h" />
     <ClInclude Include="GameEngine\Math\Operation\Operation.h" />
@@ -255,6 +258,9 @@
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">
       <Project>{371b9fa9-4c90-4ac6-a123-aced756d6c77}</Project>
+    </ProjectReference>
+    <ProjectReference Include="externals\ImGuizmo\ImGuizmo.vcxproj">
+      <Project>{690ae87d-471c-4a38-94ea-dbc0324e9abc}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)|$(Platform)'!='Release|x64'">
@@ -474,17 +480,17 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)externals\DirectXTex;$(SolutionDir)externals\imgui;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)externals\DirectXTex;$(SolutionDir)externals\imgui;$(SolutionDir)externals\ImGuizmo;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)..\generated\outputs\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)..\generated\obj\$(ProjectName)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)externals\DirectXTex;$(SolutionDir)externals\imgui;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)externals\DirectXTex;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)..\generated\outputs\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)..\generated\obj\$(ProjectName)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Development|x64'">
-    <IncludePath>$(SolutionDir)externals\DirectXTex;$(SolutionDir)externals\imgui;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)externals\DirectXTex;$(SolutionDir)externals\imgui;$(SolutionDir)externals\ImGuizmo;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)..\generated\outputs\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)..\generated\obj\$(ProjectName)\$(Configuration)\</IntDir>
   </PropertyGroup>

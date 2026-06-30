@@ -4,7 +4,7 @@
 #include <Matrix4x4.h>
 #include <numbers>
 #include <Math/Easing.h>
-#include <GameManager/BaseScene/GameScene/GameScene.h>
+#include <StageManager/Stage/Stage.h>
 #include "Operation/Operation.h"
 
 #pragma region Step
@@ -89,6 +89,37 @@ void Step_ShotBulletToFront::Activate(BossAction* action) {
 
 #pragma endregion
 
+std::unique_ptr<BaseStep> ReadStepJson(const nlohmann::json_abi_v3_12_0::json& stepJson) {
+
+	using StepCreator = std::function<std::unique_ptr<BaseStep>()>;
+
+	static const std::unordered_map<std::string, StepCreator> creators =
+	{
+		{ "Step_WaitTime",   [] { return std::make_unique<Step_WaitTime>(); }},
+		{ "Step_WaitStep", [] { return std::make_unique<Step_WaitStep>(); } },
+		{ "Step_WaitAnimation",   [] { return std::make_unique<Step_WaitAnimation>(); } },
+		{ "Step_MoveFixedPsitionTime",   [] { return std::make_unique<Step_MoveFixedPsitionTime>(); } },
+		{ "Step_MoveFixedPsitionSpeed",   [] { return std::make_unique<Step_MoveFixedPsitionSpeed>(); } },
+		{ "Step_MoveFixedVelocity",   [] { return std::make_unique<Step_MoveFixedVelocity>(); } },
+		{ "Step_MoveFront",   [] { return std::make_unique<Step_MoveFront>(); } },
+		{ "Step_MoveToLockOn",   [] { return std::make_unique<Step_MoveToLockOn>(); } },
+		{ "Step_LockOnPlayer",   [] { return std::make_unique<Step_LockOnPlayer>(); } },
+		{ "Step_LockOnRelease",   [] { return std::make_unique<Step_LockOnRelease>(); } },
+		{ "Step_ShotBulletToFront",   [] { return std::make_unique<Step_ShotBulletToFront>(); } },
+	};
+
+	auto it = creators.find(stepJson["step"]);
+
+	if (it == creators.end()) {
+		return nullptr;
+	}
+
+	std::unique_ptr<BaseStep> step = it->second();
+	step->ReadStep(stepJson);
+
+	return step;
+}
+
 void BossAction::Update() {
 	if (!isEnd_) {
 
@@ -122,24 +153,24 @@ Boss::~Boss() {
 
 }
 
-void Boss::Initialize(GameScene* gameScene, GameCamera* gameCamera, ParticleEmitter* particle, Player* player, float maxHP) {
-	maxHP_ = maxHP;
-	HP_ = maxHP_;
+void Boss::Initialize(std::string filepath, Stage* stage, std::shared_ptr<GameCamera> gameCamera, Player* player, SRT startTransform) {
 
-	gameScene_ = gameScene;
+	//ReadBossFile(filepath);
+	
+	maxHP_ = 50;
+	HP_ = 50;
+
+	stage_ = stage;
 	gameCamera_ = gameCamera;
-	particle_ = particle;
 	player_ = player;
 
-	//モデルの生成
+	//モデルの生成		とりあえずプレイヤーと同じ
 	object_ = std::make_unique<Object>();
-	object_->Initialize(ModelHolder::GetInstance()->GetModel(ModelIndex::Boss));
-	object_->SetIsUseAnimation(true);
-	object_->SetAnimationName("Start");
+	object_->Initialize(ModelHolder::GetInstance()->GetModel(ModelIndex::Player));
+	//object_->SetIsUseAnimation(true);
+	//object_->SetAnimationName("Start");
 	object_->SetAnimationInterpolation(AnimationInterpolation::Cubic_Spline);
-	transform_.scale = { 0.562558f * 2,0.562558f * 2,0.562558f * 2 };
-	transform_.rotate = { 0.0f,0.0f,0.0f };
-	transform_.translate = { 0.0f,1.0f,0.0f };
+	transform_ = startTransform;
 	object_->SetTransform(transform_);
 
 	isStartAnimation_ = true;
@@ -147,29 +178,52 @@ void Boss::Initialize(GameScene* gameScene, GameCamera* gameCamera, ParticleEmit
 	targetTransform_ = std::make_unique<SRT>();
 	*targetTransform_ = transform_;
 
-	//action_ = std::make_unique<BossAction_Shot_01>();
-	//action_->Initialize(this);
-
+	std::unique_ptr<Step_WaitTime> step_WaitTime;
+	std::unique_ptr<Step_ShotBulletToFront> step_ShotBulletToFront;
+	std::unique_ptr<Step_MoveFront> step_MoveFront;
+	//1
 	std::vector<std::unique_ptr<BaseStep>> steps;
 	steps.push_back(make_unique<Step_LockOnPlayer>());
-	steps.push_back(make_unique<Step_WaitTime>(0.5f));
+	step_WaitTime = std::make_unique<Step_WaitTime>();
+	step_WaitTime->Initialize(0.5f);
+	steps.push_back(move(step_WaitTime));
 	steps.push_back(make_unique<Step_LockOnRelease>());
-	steps.push_back(make_unique<Step_WaitTime>(0.25f));
-	steps.push_back(make_unique<Step_ShotBulletToFront>(0.05f,1.0f));
+	step_WaitTime = std::make_unique<Step_WaitTime>();
+	step_WaitTime->Initialize(0.25f);
+	steps.push_back(move(step_WaitTime));
+	step_ShotBulletToFront = make_unique<Step_ShotBulletToFront>();
+	step_ShotBulletToFront->Initialize(0.05f, 1.0f);
+	steps.push_back(move(step_ShotBulletToFront));
 	steps.push_back(make_unique<Step_LockOnPlayer>());
-	steps.push_back(make_unique<Step_WaitTime>(0.5f));
+	step_WaitTime = std::make_unique<Step_WaitTime>();
+	step_WaitTime->Initialize(0.5f);
+	steps.push_back(move(step_WaitTime));
 	steps.push_back(make_unique<Step_LockOnRelease>());
-	steps.push_back(make_unique<Step_WaitTime>(0.25f));
-	steps.push_back(make_unique<Step_ShotBulletToFront>(0.05f, 1.0f));
+	step_WaitTime = std::make_unique<Step_WaitTime>();
+	step_WaitTime->Initialize(0.25f);
+	steps.push_back(move(step_WaitTime));
+	step_ShotBulletToFront = make_unique<Step_ShotBulletToFront>();
+	step_ShotBulletToFront->Initialize(0.05f, 1.0f);
+	steps.push_back(move(step_ShotBulletToFront));
 	steps.push_back(make_unique<Step_LockOnPlayer>());
-	steps.push_back(make_unique<Step_WaitTime>(0.75f));
+	step_WaitTime = std::make_unique<Step_WaitTime>();
+	step_WaitTime->Initialize(0.75f);
+	steps.push_back(move(step_WaitTime));
 	steps.push_back(make_unique<Step_LockOnRelease>());
-	steps.push_back(make_unique<Step_WaitTime>(0.25f));
+	step_WaitTime = std::make_unique<Step_WaitTime>();
+	step_WaitTime->Initialize(0.25f);
+	steps.push_back(move(step_WaitTime));
 	for (int i = 0; i < 10; i++) {
-		steps.push_back(make_unique<Step_ShotBulletToFront>(0.05f, 1.0f));
-		steps.push_back(make_unique<Step_WaitTime>(0.01f));
+		step_ShotBulletToFront = make_unique<Step_ShotBulletToFront>();
+		step_ShotBulletToFront->Initialize(0.05f, 1.0f);
+		steps.push_back(move(step_ShotBulletToFront));
+		step_WaitTime = std::make_unique<Step_WaitTime>();
+		step_WaitTime->Initialize(0.01f);
+		steps.push_back(move(step_WaitTime));
 	}
-	steps.push_back(make_unique<Step_WaitTime>(1.0f));
+	step_WaitTime = std::make_unique<Step_WaitTime>();
+	step_WaitTime->Initialize(1.0f);
+	steps.push_back(move(step_WaitTime));
 
 
 
@@ -184,14 +238,18 @@ void Boss::Initialize(GameScene* gameScene, GameCamera* gameCamera, ParticleEmit
 	pattern->SetAction(move(action));
 	pattern->SetCondition(condition);
 	pattern->Initialize(this);
-	patterns_.push_back(move(pattern));
+	patterns_["3shot"] = move(pattern);
 
 	//2
 	steps.clear();
 	steps.push_back(make_unique<Step_LockOnPlayer>());
-	steps.push_back(make_unique<Step_WaitTime>(2.0f));
+	step_WaitTime = std::make_unique<Step_WaitTime>();
+	step_WaitTime->Initialize(2.0f);
+	steps.push_back(move(step_WaitTime));
 	steps.push_back(make_unique<Step_LockOnRelease>());
-	steps.push_back(make_unique<Step_MoveFront>(0.8f, 0.5f));
+	step_MoveFront = std::make_unique<Step_MoveFront>();
+	step_MoveFront->Initialize(0.8f, 0.5f);
+	steps.push_back(move(step_MoveFront));
 	steps.push_back(make_unique<Step_WaitStep>());
 
 	action.reset();
@@ -207,13 +265,17 @@ void Boss::Initialize(GameScene* gameScene, GameCamera* gameCamera, ParticleEmit
 	pattern->SetAction(move(action));
 	pattern->SetCondition(condition);
 	pattern->Initialize(this);
-	patterns_.push_back(move(pattern));
+	patterns_["FrontMove"] = move(pattern);
 
 	//3
 	steps.clear();
 	steps.push_back(make_unique<Step_LockOnPlayer>());
-	steps.push_back(make_unique<Step_WaitTime>(0.2f));
-	steps.push_back(make_unique<Step_MoveFront>(0.4f,1.0f));
+	step_WaitTime = std::make_unique<Step_WaitTime>();
+	step_WaitTime->Initialize(0.2f);
+	steps.push_back(move(step_WaitTime));
+	step_MoveFront = std::make_unique<Step_MoveFront>();
+	step_MoveFront->Initialize(0.4f, 1.0f);
+	steps.push_back(move(step_MoveFront));
 	steps.push_back(make_unique<Step_WaitStep>());
 	steps.push_back(make_unique<Step_LockOnRelease>());
 
@@ -230,26 +292,40 @@ void Boss::Initialize(GameScene* gameScene, GameCamera* gameCamera, ParticleEmit
 	pattern->SetAction(move(action));
 	pattern->SetCondition(condition);
 	pattern->Initialize(this);
-	patterns_.push_back(move(pattern));
+	patterns_["FarPlayer_01"] = move(pattern);
 
 	//4
 	steps.clear();
 	steps.push_back(make_unique<Step_LockOnPlayer>());
-	steps.push_back(make_unique<Step_WaitTime>(1.0f));
+	step_WaitTime = std::make_unique<Step_WaitTime>();
+	step_WaitTime->Initialize(1.0f);
+	steps.push_back(move(step_WaitTime));
 	steps.push_back(make_unique<Step_LockOnRelease>());
-	steps.push_back(make_unique<Step_MoveFront>(1.8f, 0.75f));
+	step_MoveFront = std::make_unique<Step_MoveFront>();
+	step_MoveFront->Initialize(1.8f, 0.75f);
+	steps.push_back(move(step_MoveFront));
 	steps.push_back(make_unique<Step_WaitStep>());
 	steps.push_back(make_unique<Step_LockOnPlayer>());
-	steps.push_back(make_unique<Step_WaitTime>(0.5f));
+	step_WaitTime = std::make_unique<Step_WaitTime>();
+	step_WaitTime->Initialize(0.5f);
+	steps.push_back(move(step_WaitTime));
 	steps.push_back(make_unique<Step_LockOnRelease>());
-	steps.push_back(make_unique<Step_MoveFront>(1.8f, 0.75f));
+	step_MoveFront = std::make_unique<Step_MoveFront>();
+	step_MoveFront->Initialize(1.8f, 0.75f);
+	steps.push_back(move(step_MoveFront));
 	steps.push_back(make_unique<Step_WaitStep>());
 	steps.push_back(make_unique<Step_LockOnPlayer>());
-	steps.push_back(make_unique<Step_WaitTime>(0.5f));
+	step_WaitTime = std::make_unique<Step_WaitTime>();
+	step_WaitTime->Initialize(0.5f);
+	steps.push_back(move(step_WaitTime));
 	steps.push_back(make_unique<Step_LockOnRelease>());
-	steps.push_back(make_unique<Step_MoveFront>(1.8f, 0.75f));
+	step_MoveFront = std::make_unique<Step_MoveFront>();
+	step_MoveFront->Initialize(1.8f, 0.75f);
+	steps.push_back(move(step_MoveFront));
 	steps.push_back(make_unique<Step_WaitStep>());
-	steps.push_back(make_unique<Step_WaitTime>(0.5f));
+	step_WaitTime = std::make_unique<Step_WaitTime>();
+	step_WaitTime->Initialize(0.5f);
+	steps.push_back(move(step_WaitTime));
 
 	action.reset();
 	action = std::make_unique<BossAction>();
@@ -264,17 +340,25 @@ void Boss::Initialize(GameScene* gameScene, GameCamera* gameCamera, ParticleEmit
 	pattern->SetAction(move(action));
 	pattern->SetCondition(condition);
 	pattern->Initialize(this);
-	patterns_.push_back(move(pattern));
+	patterns_["Dash"] = move(pattern);
 
 	//5
 	steps.clear();
 	steps.push_back(make_unique<Step_LockOnPlayer>());
-	steps.push_back(make_unique<Step_WaitTime>(0.2f));
-	steps.push_back(make_unique<Step_MoveFront>(0.6f, 0.8f));
+	step_WaitTime = std::make_unique<Step_WaitTime>();
+	step_WaitTime->Initialize(0.2f);
+	steps.push_back(move(step_WaitTime));
+	step_MoveFront = std::make_unique<Step_MoveFront>();
+	step_MoveFront->Initialize(0.6f, 0.8f);
+	steps.push_back(move(step_MoveFront));
 	steps.push_back(make_unique<Step_WaitStep>());
-	steps.push_back(make_unique<Step_WaitTime>(0.2f));
+	step_WaitTime = std::make_unique<Step_WaitTime>();
+	step_WaitTime->Initialize(0.2f);
+	steps.push_back(move(step_WaitTime));
 	steps.push_back(make_unique<Step_LockOnRelease>());
-	steps.push_back(make_unique<Step_ShotBulletToFront>(0.05f, 1.0f));
+	step_ShotBulletToFront = make_unique<Step_ShotBulletToFront>();
+	step_ShotBulletToFront->Initialize(0.05f, 1.0f);
+	steps.push_back(move(step_ShotBulletToFront));
 
 	action.reset();
 	action = std::make_unique<BossAction>();
@@ -290,13 +374,13 @@ void Boss::Initialize(GameScene* gameScene, GameCamera* gameCamera, ParticleEmit
 	pattern->SetAction(move(action));
 	pattern->SetCondition(condition);
 	pattern->Initialize(this);
-	patterns_.push_back(move(pattern));
+	patterns_["FarPlayer_02"] = move(pattern);
 
-	patternIndex_ = 0;
+	patternName_ = {};
 	lerpPositionTime_ = 0;
 	velocityStateTime_ = 0;
 
-	BaseCharacter::Initialize(2.0f, CollisionID_Enemy_Body);
+	BaseCharacter::Initialize(1.5f, CollisionID_Enemy_Body);
 }
 
 void Boss::Update() {
@@ -313,124 +397,78 @@ void Boss::Update() {
 		if (HP_ > 0.0f) {
 
 			Vector4 color;
-			color = { (HP_ / maxHP_), (HP_ / maxHP_), (HP_ / maxHP_), 1.0f };
+			color = { (HP_ / maxHP_) / 2, (HP_ / maxHP_) / 2, (HP_ / maxHP_), 1.0f };
 			object_->SetColor(color);
 
-			patterns_[patternIndex_]->Update();
-
-			velocity_ = {};
-			BossAction* action = patterns_[patternIndex_]->GetAction();
-			isAction_ = false;
-			if (!action->IsEnd()) {
-				//位置線形補完
-				lerpPosition_ = action->GetLerpPosition();
-				if (lerpPosition_) {
-					transform_.translate = Lerp(lerpPosition_->startVector, lerpPosition_->endVector, lerpPositionTime_);
-					lerpPositionTime_ += 1.0f / 60.0f;
-					if (lerpPositionTime_ > lerpPosition_->time) {
-						action->ResetLerpPosition();
-						lerpPositionTime_ = 0.0f;
-					}
-					isAction_ = true;
-				}
-
-				//速度
-				velocityState_ = action->GetVelocityState();
-				if (velocityState_) {
-					velocity_ = velocityState_->velocity;
-					velocityStateTime_ += 1.0f / 60.0f;
-					if (velocityStateTime_ > velocityState_->time) {
-						action->ResetVelocityState();
-						velocityStateTime_ = 0.0f;
-					}
-					isAction_ = true;
-				}
-
-				//ロックオン中か
-				if (action->GetIsLockOnPlayer()) {
-					SRT playerTransform = *player_->GetTransform();
-					lockOnPosition_ = playerTransform.translate;
-
-					//プレイヤー方向を向かせる
-					Vector3 diff = Normalize(Vector3(playerTransform.translate.x, 0.0f, playerTransform.translate.z) - Vector3(transform_.translate.x, 0.0f, transform_.translate.z));
-					float angle = std::atan2(diff.x, diff.z);
-
-					//最短角度補完
-					float d = angle - transform_.rotate.y;
-
-					if (d >= std::numbers::pi_v<float>*2) {
-						d = angle - transform_.rotate.y;
-					}
-
-					d = std::fmodf(d, std::numbers::pi_v<float> *2);
-
-					if (d > std::numbers::pi_v<float>) {
-						d -= std::numbers::pi_v<float> *2;
-					}
-					else if (d < -std::numbers::pi_v<float>) {
-						d += std::numbers::pi_v<float> *2;
-					}
-
-					if (d > std::numbers::pi_v<float>) {
-						d -= std::numbers::pi_v<float> *2;
-					}
-					else if (d < -std::numbers::pi_v<float>) {
-						d += std::numbers::pi_v<float> *2;
-					}
-
-					//正直あまりやりたくはない方法だが2πを超えると遠回りで回転してしまうので致し方無い
-					transform_.rotate.y = (transform_.rotate.y + d * 0.2f);
-					transform_.rotate.y = std::fmodf(transform_.rotate.y, std::numbers::pi_v<float> * 2);
-				}
-			}
-			else {
-				int8_t maxPriority = 0;
-
-				float distance = Length(player_->GetTransform()->translate - transform_.translate);
-				std::vector<int> indexes;
-				for (int i = 0; i < patterns_.size(); i++) {
-					PatternCondition condition = patterns_[i]->GetCondition();
-
-					//優先度が同じ場合も通す
-					if (condition.priority >= maxPriority) {
-						//近距離判定
-						if (condition.nearDistance && condition.nearDistance < distance) {
-							continue;
+			if (!patternName_.empty()) {
+				patterns_[patternName_]->Update();
+				velocity_ = {};
+				BossAction* action = patterns_[patternName_]->GetAction();
+				isAction_ = false;
+				if (!action->IsEnd()) {
+					//位置線形補完
+					lerpPosition_ = action->GetLerpPosition();
+					if (lerpPosition_) {
+						transform_.translate = Lerp(lerpPosition_->startVector, lerpPosition_->endVector, lerpPositionTime_);
+						lerpPositionTime_ += 1.0f / 60.0f;
+						if (lerpPositionTime_ > lerpPosition_->time) {
+							action->ResetLerpPosition();
+							lerpPositionTime_ = 0.0f;
 						}
-						//遠距離判定
-						if (condition.farDistance && condition.farDistance > distance) {
-							continue;
+						isAction_ = true;
+					}
+
+					//速度
+					velocityState_ = action->GetVelocityState();
+					if (velocityState_) {
+						velocity_ = velocityState_->velocity;
+						velocityStateTime_ += 1.0f / 60.0f;
+						if (velocityStateTime_ > velocityState_->time) {
+							action->ResetVelocityState();
+							velocityStateTime_ = 0.0f;
 						}
-						//少HP判定
-						if (condition.minHpRate && condition.minHpRate > HP_ / maxHP_) {
-							continue;
-						}
-						//多HP判定
-						if (condition.maxHpRate && condition.maxHpRate < HP_ / maxHP_) {
-							continue;
+						isAction_ = true;
+					}
+
+					//ロックオン中か
+					if (action->GetIsLockOnPlayer()) {
+						SRT playerTransform = *player_->GetTransform();
+						lockOnPosition_ = playerTransform.translate;
+
+						//プレイヤー方向を向かせる
+						Vector3 diff = Normalize(Vector3(playerTransform.translate.x, 0.0f, playerTransform.translate.z) - Vector3(transform_.translate.x, 0.0f, transform_.translate.z));
+						float angle = std::atan2(diff.x, diff.z);
+
+						//最短角度補完
+						float d = angle - transform_.rotate.y;
+
+						if (d >= std::numbers::pi_v<float>*2) {
+							d = angle - transform_.rotate.y;
 						}
 
-						//優先度がより高い場合それまでの候補を消す
-						if (condition.priority > maxPriority) {
-							maxPriority = condition.priority;
-							indexes.clear();
+						d = std::fmodf(d, std::numbers::pi_v<float> *2);
+
+						if (d > std::numbers::pi_v<float>) {
+							d -= std::numbers::pi_v<float> *2;
+						} else if (d < -std::numbers::pi_v<float>) {
+							d += std::numbers::pi_v<float> *2;
 						}
-						//どれにも該当しないなら候補に加える
-						indexes.push_back(i);
+
+						if (d > std::numbers::pi_v<float>) {
+							d -= std::numbers::pi_v<float> *2;
+						} else if (d < -std::numbers::pi_v<float>) {
+							d += std::numbers::pi_v<float> *2;
+						}
+
+						//正直あまりやりたくはない方法だが2πを超えると遠回りで回転してしまうので致し方無い
+						transform_.rotate.y = (transform_.rotate.y + d * 0.2f);
+						transform_.rotate.y = std::fmodf(transform_.rotate.y, std::numbers::pi_v<float> *2);
 					}
+				} else {
+					NextPattern();
 				}
-
-				if (indexes.empty()) {
-					patternIndex_ = 0;
-				}
-				else if(indexes.size() == 1){
-					patternIndex_ = indexes[0];
-				}
-				else {
-					patternIndex_ = indexes[GameEngine::randomInt(0, int(indexes.size()) - 1)];
-				}
-
-				patterns_[patternIndex_]->Initialize(this);
+			} else {
+				NextPattern();
 			}
 
 			transform_.translate += velocity_;
@@ -443,7 +481,7 @@ void Boss::Update() {
 		}
 	}
 	SRT displayTransform = transform_;
-	displayTransform.translate.y -= 1.0f;
+	displayTransform.translate.y = 1.5f;
 	object_->SetTransform(displayTransform);
 	object_->Update();
 	BaseCharacter::Update();
@@ -456,8 +494,10 @@ void Boss::Draw() {
 void Boss::IsCollision(uint8_t targetId) {
 	if (targetId == CollisionID_Player_Attack) {	//プレイヤー攻撃
 		HP_--;
+
+		//particle_->Emit();
+
 		gameCamera_->SetShakeTime(0.3f);
-		gameScene_->SetRingColorA(1.0f);
 	}
 }
 
@@ -466,5 +506,110 @@ void Boss::IsCollisionGround(OBB obb) {
 }
 
 void Boss::ShotBullet(Vector3 startPoint, Vector3 rotate, float speed) {
-	gameScene_->AddBossBullet(startPoint, rotate);
+	stage_->AddBossBullet(startPoint, rotate);
+}
+
+void Boss::ReadBossFile(std::string filePath) {
+
+	//読み込むJsonファイル
+	std::ifstream file(filePath.c_str());
+	if (!file.is_open()) {
+		//エラー処理
+		object_ = std::make_unique<Object>();
+		object_->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/sphere","sphere.obj"));
+		maxHP_ = 1;
+		HP_ = maxHP_;
+
+		return;
+	}
+
+	nlohmann::json bossJson;
+	file >> bossJson;
+	file.close();
+
+	//基本ステータス
+	bossName_ = bossJson["name"];
+
+	object_ = std::make_unique<Object>();
+	object_->Initialize(ModelManager::GetInstance()->GetModel(bossJson["name"]["directoryPath"], bossJson["name"]["modelname"]));
+
+	maxHP_ = bossJson["name"]["maxHP"];
+	HP_ = maxHP_;
+
+
+
+	nlohmann::json& patternJson = bossJson["name"]["pattern"];
+
+	//読み込んだパターン
+	for (auto iterator = patternJson.begin(); iterator != patternJson.end(); ++iterator) {
+		const std::string& name = iterator.key();
+		const auto& stepArray = iterator.value();
+
+		auto pattern = std::make_unique<BossPattern>();
+		auto action = std::make_unique<BossAction>();
+
+		//Actionを複数にするときに変える
+
+		//ステップ読み込み
+		std::vector<std::unique_ptr<BaseStep>> steps;
+		for (const auto& stepJson : stepArray)
+		{
+			steps.push_back(ReadStepJson(stepJson["name"]["pattern"][name]));
+		}
+		action->SetSteps(move(steps));
+
+		pattern->SetAction(std::move(action));
+
+		patterns_.emplace(name, std::move(pattern));
+	}
+}
+
+void Boss::NextPattern() {
+	int8_t maxPriority = 0;
+
+	float distance = Length(player_->GetTransform()->translate - transform_.translate);
+	std::vector<std::string> patternNames;
+	for (auto& pattern : patterns_) {
+		PatternCondition condition = pattern.second->GetCondition();
+
+		//優先度が同じ場合も通す
+		if (condition.priority >= maxPriority) {
+			//近距離判定
+			if (condition.nearDistance && condition.nearDistance < distance) {
+				continue;
+			}
+			//遠距離判定
+			if (condition.farDistance && condition.farDistance > distance) {
+				continue;
+			}
+			//少HP判定
+			if (condition.minHpRate && condition.minHpRate > HP_ / maxHP_) {
+				continue;
+			}
+			//多HP判定
+			if (condition.maxHpRate && condition.maxHpRate < HP_ / maxHP_) {
+				continue;
+			}
+
+			//優先度がより高い場合それまでの候補を消す
+			if (condition.priority > maxPriority) {
+				maxPriority = condition.priority;
+				patternNames.clear();
+			}
+			//どれにも該当しないなら候補に加える
+			patternNames.push_back(pattern.first);
+		}
+	}
+
+	//空白のまま送る
+	if (patternNames.empty()) {
+		patternName_ = {};
+		return;
+	} else if (patternNames.size() == 1) {
+		patternName_ = patternNames[0];
+	} else {
+		patternName_ = patternNames[GameEngine::randomInt(0, int(patternNames.size()) - 1)];
+	}
+
+	patterns_[patternName_]->Initialize(this);
 }
