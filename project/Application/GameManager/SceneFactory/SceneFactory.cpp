@@ -4,6 +4,7 @@
 #include "BaseScene/GameOverScene/GameOverScene.h"
 #include "BaseScene/ClearScene/ClearScene.h"
 #include <Editor/StageEditor/StageEditor.h>
+#include <Editor/BossEditor/BossEditor.h>
 
 unique_ptr<BaseScene> SceneFactory::CreateScene(const std::string& sceneName) {
 	//次のシーンを生成
@@ -19,6 +20,8 @@ unique_ptr<BaseScene> SceneFactory::CreateScene(const std::string& sceneName) {
 		newScene = make_unique<ClearScene>();
 	} else if (sceneName == "StageEditor") {
 		newScene = make_unique<StageEditor>();
+	} else if (sceneName == "BossEditor") {
+		newScene = make_unique<BossEditor>();
 	}
 
 	return newScene;

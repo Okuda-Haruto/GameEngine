@@ -153,21 +153,24 @@ Boss::~Boss() {
 
 }
 
-void Boss::Initialize(std::string filepath, Stage* stage, std::shared_ptr<GameCamera> gameCamera, Player* player, Vector3 startPosition) {
+void Boss::Initialize(std::string filepath, Stage* stage, std::shared_ptr<GameCamera> gameCamera, Player* player, SRT startTransform) {
 
-	ReadBossFile(filepath);
+	//ReadBossFile(filepath);
+	
+	maxHP_ = 50;
+	HP_ = 50;
 
 	stage_ = stage;
 	gameCamera_ = gameCamera;
 	player_ = player;
 
-	//モデルの生成
-	object_->SetIsUseAnimation(true);
-	object_->SetAnimationName("Start");
+	//モデルの生成		とりあえずプレイヤーと同じ
+	object_ = std::make_unique<Object>();
+	object_->Initialize(ModelHolder::GetInstance()->GetModel(ModelIndex::Player));
+	//object_->SetIsUseAnimation(true);
+	//object_->SetAnimationName("Start");
 	object_->SetAnimationInterpolation(AnimationInterpolation::Cubic_Spline);
-	transform_.scale = { 0.562558f * 2,0.562558f * 2,0.562558f * 2 };
-	transform_.rotate = { 0.0f,0.0f,0.0f };
-	transform_.translate = startPosition;
+	transform_ = startTransform;
 	object_->SetTransform(transform_);
 
 	isStartAnimation_ = true;
@@ -175,26 +178,52 @@ void Boss::Initialize(std::string filepath, Stage* stage, std::shared_ptr<GameCa
 	targetTransform_ = std::make_unique<SRT>();
 	*targetTransform_ = transform_;
 
-	/*std::vector<std::unique_ptr<BaseStep>> steps;
+	std::unique_ptr<Step_WaitTime> step_WaitTime;
+	std::unique_ptr<Step_ShotBulletToFront> step_ShotBulletToFront;
+	std::unique_ptr<Step_MoveFront> step_MoveFront;
+	//1
+	std::vector<std::unique_ptr<BaseStep>> steps;
 	steps.push_back(make_unique<Step_LockOnPlayer>());
-	steps.push_back(make_unique<Step_WaitTime>(0.5f));
+	step_WaitTime = std::make_unique<Step_WaitTime>();
+	step_WaitTime->Initialize(0.5f);
+	steps.push_back(move(step_WaitTime));
 	steps.push_back(make_unique<Step_LockOnRelease>());
-	steps.push_back(make_unique<Step_WaitTime>(0.25f));
-	steps.push_back(make_unique<Step_ShotBulletToFront>(0.05f, 1.0f));
+	step_WaitTime = std::make_unique<Step_WaitTime>();
+	step_WaitTime->Initialize(0.25f);
+	steps.push_back(move(step_WaitTime));
+	step_ShotBulletToFront = make_unique<Step_ShotBulletToFront>();
+	step_ShotBulletToFront->Initialize(0.05f, 1.0f);
+	steps.push_back(move(step_ShotBulletToFront));
 	steps.push_back(make_unique<Step_LockOnPlayer>());
-	steps.push_back(make_unique<Step_WaitTime>(0.5f));
+	step_WaitTime = std::make_unique<Step_WaitTime>();
+	step_WaitTime->Initialize(0.5f);
+	steps.push_back(move(step_WaitTime));
 	steps.push_back(make_unique<Step_LockOnRelease>());
-	steps.push_back(make_unique<Step_WaitTime>(0.25f));
-	steps.push_back(make_unique<Step_ShotBulletToFront>(0.05f, 1.0f));
+	step_WaitTime = std::make_unique<Step_WaitTime>();
+	step_WaitTime->Initialize(0.25f);
+	steps.push_back(move(step_WaitTime));
+	step_ShotBulletToFront = make_unique<Step_ShotBulletToFront>();
+	step_ShotBulletToFront->Initialize(0.05f, 1.0f);
+	steps.push_back(move(step_ShotBulletToFront));
 	steps.push_back(make_unique<Step_LockOnPlayer>());
-	steps.push_back(make_unique<Step_WaitTime>(0.75f));
+	step_WaitTime = std::make_unique<Step_WaitTime>();
+	step_WaitTime->Initialize(0.75f);
+	steps.push_back(move(step_WaitTime));
 	steps.push_back(make_unique<Step_LockOnRelease>());
-	steps.push_back(make_unique<Step_WaitTime>(0.25f));
+	step_WaitTime = std::make_unique<Step_WaitTime>();
+	step_WaitTime->Initialize(0.25f);
+	steps.push_back(move(step_WaitTime));
 	for (int i = 0; i < 10; i++) {
-		steps.push_back(make_unique<Step_ShotBulletToFront>(0.05f, 1.0f));
-		steps.push_back(make_unique<Step_WaitTime>(0.01f));
+		step_ShotBulletToFront = make_unique<Step_ShotBulletToFront>();
+		step_ShotBulletToFront->Initialize(0.05f, 1.0f);
+		steps.push_back(move(step_ShotBulletToFront));
+		step_WaitTime = std::make_unique<Step_WaitTime>();
+		step_WaitTime->Initialize(0.01f);
+		steps.push_back(move(step_WaitTime));
 	}
-	steps.push_back(make_unique<Step_WaitTime>(1.0f));
+	step_WaitTime = std::make_unique<Step_WaitTime>();
+	step_WaitTime->Initialize(1.0f);
+	steps.push_back(move(step_WaitTime));
 
 
 
@@ -214,9 +243,13 @@ void Boss::Initialize(std::string filepath, Stage* stage, std::shared_ptr<GameCa
 	//2
 	steps.clear();
 	steps.push_back(make_unique<Step_LockOnPlayer>());
-	steps.push_back(make_unique<Step_WaitTime>(2.0f));
+	step_WaitTime = std::make_unique<Step_WaitTime>();
+	step_WaitTime->Initialize(2.0f);
+	steps.push_back(move(step_WaitTime));
 	steps.push_back(make_unique<Step_LockOnRelease>());
-	steps.push_back(make_unique<Step_MoveFront>(0.8f, 0.5f));
+	step_MoveFront = std::make_unique<Step_MoveFront>();
+	step_MoveFront->Initialize(0.8f, 0.5f);
+	steps.push_back(move(step_MoveFront));
 	steps.push_back(make_unique<Step_WaitStep>());
 
 	action.reset();
@@ -237,8 +270,12 @@ void Boss::Initialize(std::string filepath, Stage* stage, std::shared_ptr<GameCa
 	//3
 	steps.clear();
 	steps.push_back(make_unique<Step_LockOnPlayer>());
-	steps.push_back(make_unique<Step_WaitTime>(0.2f));
-	steps.push_back(make_unique<Step_MoveFront>(0.4f, 1.0f));
+	step_WaitTime = std::make_unique<Step_WaitTime>();
+	step_WaitTime->Initialize(0.2f);
+	steps.push_back(move(step_WaitTime));
+	step_MoveFront = std::make_unique<Step_MoveFront>();
+	step_MoveFront->Initialize(0.4f, 1.0f);
+	steps.push_back(move(step_MoveFront));
 	steps.push_back(make_unique<Step_WaitStep>());
 	steps.push_back(make_unique<Step_LockOnRelease>());
 
@@ -260,21 +297,35 @@ void Boss::Initialize(std::string filepath, Stage* stage, std::shared_ptr<GameCa
 	//4
 	steps.clear();
 	steps.push_back(make_unique<Step_LockOnPlayer>());
-	steps.push_back(make_unique<Step_WaitTime>(1.0f));
+	step_WaitTime = std::make_unique<Step_WaitTime>();
+	step_WaitTime->Initialize(1.0f);
+	steps.push_back(move(step_WaitTime));
 	steps.push_back(make_unique<Step_LockOnRelease>());
-	steps.push_back(make_unique<Step_MoveFront>(1.8f, 0.75f));
+	step_MoveFront = std::make_unique<Step_MoveFront>();
+	step_MoveFront->Initialize(1.8f, 0.75f);
+	steps.push_back(move(step_MoveFront));
 	steps.push_back(make_unique<Step_WaitStep>());
 	steps.push_back(make_unique<Step_LockOnPlayer>());
-	steps.push_back(make_unique<Step_WaitTime>(0.5f));
+	step_WaitTime = std::make_unique<Step_WaitTime>();
+	step_WaitTime->Initialize(0.5f);
+	steps.push_back(move(step_WaitTime));
 	steps.push_back(make_unique<Step_LockOnRelease>());
-	steps.push_back(make_unique<Step_MoveFront>(1.8f, 0.75f));
+	step_MoveFront = std::make_unique<Step_MoveFront>();
+	step_MoveFront->Initialize(1.8f, 0.75f);
+	steps.push_back(move(step_MoveFront));
 	steps.push_back(make_unique<Step_WaitStep>());
 	steps.push_back(make_unique<Step_LockOnPlayer>());
-	steps.push_back(make_unique<Step_WaitTime>(0.5f));
+	step_WaitTime = std::make_unique<Step_WaitTime>();
+	step_WaitTime->Initialize(0.5f);
+	steps.push_back(move(step_WaitTime));
 	steps.push_back(make_unique<Step_LockOnRelease>());
-	steps.push_back(make_unique<Step_MoveFront>(1.8f, 0.75f));
+	step_MoveFront = std::make_unique<Step_MoveFront>();
+	step_MoveFront->Initialize(1.8f, 0.75f);
+	steps.push_back(move(step_MoveFront));
 	steps.push_back(make_unique<Step_WaitStep>());
-	steps.push_back(make_unique<Step_WaitTime>(0.5f));
+	step_WaitTime = std::make_unique<Step_WaitTime>();
+	step_WaitTime->Initialize(0.5f);
+	steps.push_back(move(step_WaitTime));
 
 	action.reset();
 	action = std::make_unique<BossAction>();
@@ -294,12 +345,20 @@ void Boss::Initialize(std::string filepath, Stage* stage, std::shared_ptr<GameCa
 	//5
 	steps.clear();
 	steps.push_back(make_unique<Step_LockOnPlayer>());
-	steps.push_back(make_unique<Step_WaitTime>(0.2f));
-	steps.push_back(make_unique<Step_MoveFront>(0.6f, 0.8f));
+	step_WaitTime = std::make_unique<Step_WaitTime>();
+	step_WaitTime->Initialize(0.2f);
+	steps.push_back(move(step_WaitTime));
+	step_MoveFront = std::make_unique<Step_MoveFront>();
+	step_MoveFront->Initialize(0.6f, 0.8f);
+	steps.push_back(move(step_MoveFront));
 	steps.push_back(make_unique<Step_WaitStep>());
-	steps.push_back(make_unique<Step_WaitTime>(0.2f));
+	step_WaitTime = std::make_unique<Step_WaitTime>();
+	step_WaitTime->Initialize(0.2f);
+	steps.push_back(move(step_WaitTime));
 	steps.push_back(make_unique<Step_LockOnRelease>());
-	steps.push_back(make_unique<Step_ShotBulletToFront>(0.05f, 1.0f));
+	step_ShotBulletToFront = make_unique<Step_ShotBulletToFront>();
+	step_ShotBulletToFront->Initialize(0.05f, 1.0f);
+	steps.push_back(move(step_ShotBulletToFront));
 
 	action.reset();
 	action = std::make_unique<BossAction>();
@@ -315,13 +374,13 @@ void Boss::Initialize(std::string filepath, Stage* stage, std::shared_ptr<GameCa
 	pattern->SetAction(move(action));
 	pattern->SetCondition(condition);
 	pattern->Initialize(this);
-	patterns_["FarPlayer_02"] = move(pattern);*/
+	patterns_["FarPlayer_02"] = move(pattern);
 
 	patternName_ = {};
 	lerpPositionTime_ = 0;
 	velocityStateTime_ = 0;
 
-	BaseCharacter::Initialize(2.0f, CollisionID_Enemy_Body);
+	BaseCharacter::Initialize(1.5f, CollisionID_Enemy_Body);
 }
 
 void Boss::Update() {
@@ -338,7 +397,7 @@ void Boss::Update() {
 		if (HP_ > 0.0f) {
 
 			Vector4 color;
-			color = { (HP_ / maxHP_), (HP_ / maxHP_), (HP_ / maxHP_), 1.0f };
+			color = { (HP_ / maxHP_) / 2, (HP_ / maxHP_) / 2, (HP_ / maxHP_), 1.0f };
 			object_->SetColor(color);
 
 			if (!patternName_.empty()) {
@@ -422,7 +481,7 @@ void Boss::Update() {
 		}
 	}
 	SRT displayTransform = transform_;
-	displayTransform.translate.y -= 1.0f;
+	displayTransform.translate.y = 1.5f;
 	object_->SetTransform(displayTransform);
 	object_->Update();
 	BaseCharacter::Update();
@@ -435,7 +494,7 @@ void Boss::Draw() {
 void Boss::IsCollision(uint8_t targetId) {
 	if (targetId == CollisionID_Player_Attack) {	//プレイヤー攻撃
 		HP_--;
-		particle_->Emit();
+		//particle_->Emit();
 		gameCamera_->SetShakeTime(0.3f);
 	}
 }

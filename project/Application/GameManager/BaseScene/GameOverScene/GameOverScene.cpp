@@ -59,7 +59,7 @@ void GameOverScene::Initialize(shared_ptr<Input> input) {
 }
 
 void GameOverScene::Update() {
-	Keybord key = input_->GetKeyBord();
+	Keyboard keyboard = input_->GetKeyboard();
 	Pad pad = input_->GetPad(0);
 
 	if (!AudioHolder::GetInstance()->GetAudio(AudioIndex::Title_BGM).lock()->IsSoundPlayingWave()) {
@@ -83,7 +83,7 @@ void GameOverScene::Update() {
 		SceneManager::GetInstance()->ChangeScene("Title");
 	}
 
-	if ((key.trigger[DIK_SPACE] || key.trigger[DIK_C] || pad.Button[PAD_BUTTON_B].trigger) && fade_ == Fade::None) {
+	if ((keyboard.keys[DIK_SPACE].trigger || keyboard.keys[DIK_C].trigger || pad.Button[PAD_BUTTON_B].trigger) && fade_ == Fade::None) {
 		fade_ = Fade::FadeOut;
 		fadeTime_ = 0.0f;
 	}

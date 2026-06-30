@@ -8,6 +8,10 @@
 #include "GameCamera/GameCamera.h"
 #include "ParticleEmitter/ParticleEmitter.h"
 
+#ifdef USE_IMGUI
+#include <imgui.h>
+#endif
+
 class Boss;
 class BossAction;
 
@@ -38,6 +42,8 @@ public:
 	virtual void Activate(BossAction* action) = 0;
 	virtual nlohmann::json WriteStep() = 0;
 	virtual void ReadStep(const nlohmann::json_abi_v3_12_0::json& stepJson) = 0;
+	virtual void EditorItem() = 0;
+	virtual std::string GetName() = 0;
 };
 
 //指定時間待つ
@@ -58,6 +64,15 @@ public:
 	void ReadStep(const nlohmann::json_abi_v3_12_0::json& stepJson) override {
 		Initialize(stepJson["time"]);
 	}
+
+	void EditorItem() override {
+#ifdef USE_IMGUI
+		ImGui::DragFloat("指定時間", &time_);
+#endif
+	}
+	std::string GetName() override {
+		return "Step_WaitTime";
+	}
 };
 //他同時進行中のステップが終わるまで待つ
 class Step_WaitStep : public BaseStep {
@@ -75,6 +90,13 @@ public:
 	void ReadStep(const nlohmann::json_abi_v3_12_0::json& stepJson) override {
 
 	}
+
+	void EditorItem() override {
+
+	}
+	std::string GetName() override {
+		return "Step_WaitStep";
+	}
 };
 //アニメーション終了まで待つ
 class Step_WaitAnimation : public BaseStep {
@@ -91,6 +113,13 @@ public:
 
 	void ReadStep(const nlohmann::json_abi_v3_12_0::json& stepJson) override {
 
+	}
+
+	void EditorItem() override {
+		
+	}
+	std::string GetName() override {
+		return "Step_WaitAnimation";
 	}
 };
 
@@ -125,6 +154,16 @@ public:
 			}, 
 			stepJson["time"]);
 	}
+
+	void EditorItem() override {
+#ifdef USE_IMGUI
+		ImGui::DragFloat3("指定位置", &position_.x);
+		ImGui::DragFloat("指定時間", &time_);
+#endif
+	}
+	std::string GetName() override {
+		return "Step_MoveFixedPsitionTime";
+	}
 };
 //指定速度で指定位置に移動する
 class Step_MoveFixedPsitionSpeed : public BaseStep {
@@ -156,6 +195,16 @@ public:
 				stepJson["position"]["y"],
 				stepJson["position"]["z"],
 			});
+	}
+
+	void EditorItem() override {
+#ifdef USE_IMGUI
+		ImGui::DragFloat("指定速度", &speed_);
+		ImGui::DragFloat3("指定位置", &position_.x);
+#endif
+	}
+	std::string GetName() override {
+		return "Step_MoveFixedPsitionSpeed";
 	}
 };
 //指定速度で移動する
@@ -189,6 +238,15 @@ public:
 			},
 			stepJson["time"]);
 	}
+	void EditorItem() override {
+#ifdef USE_IMGUI
+		ImGui::DragFloat3("指定速度", &velocity_.x);
+		ImGui::DragFloat("指定時間", &time_);
+#endif
+	}
+	std::string GetName() override {
+		return "Step_MoveFixedVelocity";
+	}
 };
 //向いてる方向に移動する
 class Step_MoveFront : public BaseStep {
@@ -209,6 +267,15 @@ public:
 
 	void ReadStep(const nlohmann::json_abi_v3_12_0::json& stepJson) override {
 		Initialize(stepJson["speed"], stepJson["time"]);
+	}
+	void EditorItem() override {
+#ifdef USE_IMGUI
+		ImGui::DragFloat("指定速度", &speed_);
+		ImGui::DragFloat("指定時間", &time_);
+#endif
+	}
+	std::string GetName() override {
+		return "Step_MoveFront";
 	}
 };
 //LockOn対象に向けて移動する
@@ -231,6 +298,15 @@ public:
 	void ReadStep(const nlohmann::json_abi_v3_12_0::json& stepJson) override {
 		Initialize(stepJson["speed"], stepJson["time"]);
 	}
+	void EditorItem() override {
+#ifdef USE_IMGUI
+		ImGui::DragFloat("指定速度", &speed_);
+		ImGui::DragFloat("指定時間", &time_);
+#endif
+	}
+	std::string GetName() override {
+		return "Step_MoveToLockOn";
+	}
 };
 
 //プレイヤーをロックオンする
@@ -249,6 +325,12 @@ public:
 	void ReadStep(const nlohmann::json_abi_v3_12_0::json& stepJson) override {
 
 	}
+	void EditorItem() override {
+
+	}
+	std::string GetName() override {
+		return "Step_LockOnPlayer";
+	}
 };
 //ロックオン解除
 class Step_LockOnRelease : public BaseStep {
@@ -265,6 +347,12 @@ public:
 
 	void ReadStep(const nlohmann::json_abi_v3_12_0::json& stepJson) override {
 
+	}
+	void EditorItem() override {
+
+	}
+	std::string GetName() override {
+		return "Step_LockOnRelease";
 	}
 };
 
@@ -287,6 +375,15 @@ public:
 
 	void ReadStep(const nlohmann::json_abi_v3_12_0::json& stepJson) override {
 		Initialize(stepJson["spread"], stepJson["speed"]);
+	}
+	void EditorItem() override {
+#ifdef USE_IMGUI
+		ImGui::DragFloat("拡散角度", &spread_);
+		ImGui::DragFloat("指定速度", &speed_);
+#endif
+	}
+	std::string GetName() override {
+		return "Step_ShotBulletToFront";
 	}
 };
 
@@ -453,7 +550,7 @@ public:
 	~Boss();
 
 	//初期化
-	void Initialize(std::string filepath, Stage* stage_, std::shared_ptr<GameCamera> gameCamera, Player* player, Vector3 startPosition);
+	void Initialize(std::string filepath, Stage* stage_, std::shared_ptr<GameCamera> gameCamera, Player* player, SRT startTransform);
 	//更新
 	void Update();
 	//描画
@@ -470,7 +567,11 @@ public:
 	Player* GetPlayer() { return player_; }
 	std::shared_ptr<GameCamera> GetGameCamera() { return gameCamera_; }
 
+	void SetTransfrom(SRT transfrom) { transform_ = transfrom; *targetTransform_ = transform_; object_->SetTransform(transform_); }
+
 	void SetCamera(shared_ptr<Camera> camera) { object_->SetCamera(camera); }
+
+	void SetModel(std::shared_ptr<Model> model) { object_->Initialize(model); }
 
 	void SetPatterns(std::string name, std::unique_ptr<BossPattern> pattern) { patterns_[name] = move(pattern); }
 

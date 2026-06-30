@@ -363,6 +363,9 @@ public:
 	[[nodiscard]]
 	static WindowsAPI* GetWindowsAPI() { return GetInstance()->GetWindowsAPI_(); }
 
+	//ImGuiマネージャ
+	static ImGuiManager* GetImGuiManager() { return GetInstance()->imguiManager_.get(); }
+
 	static DirectXCommon* GetDirectXCommon() { return GetInstance()->dxCommon_.get(); }
 
 	//1fあたりの経過時間

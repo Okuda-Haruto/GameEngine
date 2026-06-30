@@ -142,7 +142,7 @@ void GameScene::Initialize(shared_ptr<Input> input) {
 	editor_4->SetTransform(emitterTransform_4);*/
 
 	stage_ = std::make_unique<Stage>();
-	stage_->Initialize("Stage",input_);
+	stage_->Initialize(StageManager::GetInstance()->ReadStage("resources/Data/Stage/Stage.json"), input_);
 
 	fadeSprite_ = std::make_unique<Sprite>();
 	fadeSprite_->Initialize("resources/DebugResources/white2x2.png");
@@ -156,7 +156,6 @@ void GameScene::Initialize(shared_ptr<Input> input) {
 }
 
 void GameScene::Update() {
-	Keybord key = input_->GetKeyBord();
 
 	if (!AudioHolder::GetInstance()->GetAudio(AudioIndex::Battle_BGM).lock()->IsSoundPlayingWave()) {
 		AudioHolder::GetInstance()->GetAudio(AudioIndex::Battle_BGM).lock()->SoundPlayWave();
@@ -166,6 +165,10 @@ void GameScene::Update() {
 	}
 
 	stage_->Update();
+	if (stage_->IsEnd() && fade_ == Fade::None) {
+		fade_ = Fade::FadeOut;
+		fadeTime_ = 0.0f;
+	}
 
 	if (fadeTime_ < kMaxFadeTime) {
 		fadeTime_ += 1.0f / 60.0f;

@@ -14,14 +14,19 @@
 
 using namespace std;
 
+//ボタン入力	単体では使用しないこと
+struct Trigger {
+	bool hold = {};	//押している
+	bool idle = {};	//離している
+	bool trigger = {};	//押した瞬間
+	bool release = {};	//離した瞬間
+};
+
 #pragma region Keybord
 
 //キーボード入力
-struct Keybord {
-	BYTE hold[256] = {};	//押している
-	BYTE idle[256] = {};	//離している
-	BYTE trigger[256] = {};	//押した瞬間
-	BYTE release[256] = {};	//離した瞬間
+struct Keyboard {
+	Trigger keys[256] = {};	//キー	[DIK_]からなる値を使うこと
 };
 
 #pragma endregion
@@ -39,7 +44,7 @@ enum MOUSE_BUTTON {
 struct Mouse {
 	Vector2 Position;	//マウス座標
 	Vector3 Movement;	//マウス移動量
-	bool click[3];		//マウスクリック	列挙型[MOUSE_BOTTON]の列挙子を使用すること
+	Trigger click[3];		//マウスクリック	列挙型[MOUSE_BOTTON]の列挙子を使用すること
 };
 
 #pragma endregion
@@ -67,14 +72,6 @@ enum PAD_BUTTON {
 
 };
 
-//パッドボタン入力	単体では使用しないこと
-struct PadTrigger {
-	bool hold = {};	//押している
-	bool idle = {};	//離している
-	bool trigger = {};	//押した瞬間
-	bool release = {};	//離した瞬間
-};
-
 //パッドスティック入力	単体では使用しないこと
 struct PadStick {
 	float magnitude;	//傾け度合い
@@ -84,7 +81,7 @@ struct PadStick {
 //パッド入力
 struct Pad {
 	bool isConnected;	//接続されているか
-	PadTrigger Button[16];	//パッドボタン	列挙型[PAD_BUTTON]の列挙子を使用すること
+	Trigger Button[16];	//パッドボタン	列挙型[PAD_BUTTON]の列挙子を使用すること
 	PadStick LeftStick;		//Lスティック
 	PadStick RightStick;	//Rスティック
 };
@@ -122,7 +119,7 @@ private:
 	DWORD dwResult_[4];
 	XINPUT_STATE prePadState_[4];
 
-	Keybord keybord_{};
+	Keyboard keyboard_{};
 	Mouse mouse_{};
 	std::array<Pad, 4> pad_{};
 
@@ -136,7 +133,7 @@ public:
 	/// キーボード入力
 	/// </summary>
 	/// <returns>キーボード入力</returns>
-	Keybord GetKeyBord() { return keybord_; }
+	Keyboard GetKeyboard() { return keyboard_; }
 
 	/// <summary>
 	/// マウス入力
@@ -149,7 +146,7 @@ public:
 	/// </summary>
 	/// <param name="index">パッド番号(0~4まで)</param>
 	/// <returns>パッド入力</returns>
-	Pad GetPad(int index) { if (index >= 0 && index < pad_.size()) { return pad_[index]; } else { return pad_[0]; } }
+	Pad GetPad(int index = 0) { if (index >= 0 && index < pad_.size()) { return pad_[index]; } else { return pad_[0]; } }
 
 	/// <summary>
 	/// キーの押下をチェック

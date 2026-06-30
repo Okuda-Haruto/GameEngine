@@ -24,8 +24,9 @@ void BackGround::Initialize(std::string filePath, std::shared_ptr<GameCamera> ga
 }
 
 void BackGround::Update() {
-	tumbleweed_->Update();
 
+	tumbleweed_->Update();
+#ifdef USE_IMGUI
 	ImGui::Begin("背景オブジェクト");
 	static int cursor = 0;
 	ImGui::SliderInt("オブジェクト番号", &cursor, 0, int(objects_.size() - 1));
@@ -54,6 +55,7 @@ void BackGround::Update() {
 	objects_[cursor]->SetTransform(transform);
 
 	ImGui::End();
+#endif
 }
 
 void BackGround::Draw() {

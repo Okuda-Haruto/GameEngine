@@ -53,7 +53,7 @@ void CameraModePlayerCamera::Initialize(shared_ptr<Input> input) {
 }
 
 void CameraModePlayerCamera::Update(DebugCamera* debugCamera) {
-	Keybord key = input_->GetKeyBord();
+	Keyboard keyboard = input_->GetKeyboard();
 	Mouse mouse = input_->GetMouse();
 
 	Matrix4x4 rotateMatrix = debugCamera->GetRotateMatrix();
@@ -64,16 +64,16 @@ void CameraModePlayerCamera::Update(DebugCamera* debugCamera) {
 
 	const float speed = 0.3f;
 	//移動
-	if (key.hold[DIK_W] || key.hold[DIK_S] || key.hold[DIK_A] || key.hold[DIK_D]) {
+	if (keyboard.keys[DIK_W].hold || keyboard.keys[DIK_S].hold || keyboard.keys[DIK_A].hold || keyboard.keys[DIK_D].hold) {
 		Vector3 move{};
-		if (key.hold[DIK_W]) {
+		if (keyboard.keys[DIK_W].hold) {
 			move.z = 1.0f;
-		} else if (key.hold[DIK_S]) {
+		} else if (keyboard.keys[DIK_S].hold) {
 			move.z = -1.0f;
 		}
-		if (key.hold[DIK_D]) {
+		if (keyboard.keys[DIK_D].hold) {
 			move.x = 1.0f;
-		} else if (key.hold[DIK_A]) {
+		} else if (keyboard.keys[DIK_A].hold) {
 			move.x = -1.0f;
 		}
 
@@ -83,11 +83,11 @@ void CameraModePlayerCamera::Update(DebugCamera* debugCamera) {
 
 		centerPoint_ = { centerPoint_.x + move.x,centerPoint_.y + move.y,centerPoint_.z + move.z };
 	}
-	if (key.hold[DIK_SPACE] || key.hold[DIK_LSHIFT] || key.hold[DIK_RSHIFT]) {
+	if (keyboard.keys[DIK_SPACE].hold || keyboard.keys[DIK_LSHIFT].hold || keyboard.keys[DIK_RSHIFT].hold) {
 		Vector3 move{};
-		if (key.hold[DIK_SPACE]) {
+		if (keyboard.keys[DIK_SPACE].hold) {
 			move.y = 1.0f;
-		} else if (key.hold[DIK_LSHIFT] || key.hold[DIK_RSHIFT]) {
+		} else if (keyboard.keys[DIK_LSHIFT].hold || keyboard.keys[DIK_RSHIFT].hold) {
 			move.y = -1.0f;
 		}
 
@@ -134,14 +134,14 @@ void CameraModeSphericalCoordinates::Initialize(shared_ptr<Input> input) {
 }
 
 void CameraModeSphericalCoordinates::Update(DebugCamera* debugCamera) {
-	Keybord key = input_->GetKeyBord();
+	Keyboard keyboard = input_->GetKeyboard();
 	Mouse mouse = input_->GetMouse();
 
 	Matrix4x4 rotateMatrix = debugCamera->GetRotateMatrix();
 	Vector3 sphericalCoordinates = debugCamera->GetSphericalCoordinates();
 
 	//移動
-	if (mouse.click[MOUSE_BOTTON_WHEEL] && (key.hold[DIK_LSHIFT] || key.hold[DIK_RSHIFT])) {
+	if (mouse.click[MOUSE_BOTTON_WHEEL].hold && (keyboard.keys[DIK_LSHIFT].hold || keyboard.keys[DIK_RSHIFT].hold)) {
 		if (mouse.Movement.x != 0.0f || mouse.Movement.y != 0.0f) {
 			Vector3 move{};
 			move.x = -mouse.Movement.x / 100.0f;
@@ -161,7 +161,7 @@ void CameraModeSphericalCoordinates::Update(DebugCamera* debugCamera) {
 		sphericalCoordinates.x = std::min(sphericalCoordinates.x, 0.0f);
 	}
 	//回転
-	if (mouse.click[MOUSE_BOTTON_WHEEL] && !(key.hold[DIK_LSHIFT] || key.hold[DIK_RSHIFT])) {
+	if (mouse.click[MOUSE_BOTTON_WHEEL].hold && !(keyboard.keys[DIK_LSHIFT].hold || keyboard.keys[DIK_RSHIFT].hold)) {
 		if (mouse.Movement.x != 0.0f || mouse.Movement.y != 0.0f) {
 			const float speedX = mouse.Movement.y / (90.0f * std::numbers::pi_v<float>);
 			const float speedY = -mouse.Movement.x / (90.0f * std::numbers::pi_v<float>);

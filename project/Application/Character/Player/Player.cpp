@@ -13,7 +13,7 @@ Player::~Player() {
 
 }
 
-void Player::Initialize(Stage* stage, std::shared_ptr<GameCamera> gameCamera, shared_ptr<Input> input, Vector3 startPosition) {
+void Player::Initialize(Stage* stage, std::shared_ptr<GameCamera> gameCamera, shared_ptr<Input> input, SRT startTransform) {
 	stage_ = stage;
 	gameCamera_ = gameCamera;
 	input_ = input;
@@ -21,9 +21,7 @@ void Player::Initialize(Stage* stage, std::shared_ptr<GameCamera> gameCamera, sh
 	//モデルの生成
 	object_ = std::make_unique<Object>();
 	object_->Initialize(ModelHolder::GetInstance()->GetModel(ModelIndex::Player));
-	transform_.scale = { 1.5f,1.5f,1.5f };
-	transform_.rotate = { 0.0f,0.0f,0.0f };
-	transform_.translate = startPosition;
+	transform_ = startTransform;
 	object_->SetTransform(transform_);
 
 	targetTransform_ = std::make_unique<SRT>();
@@ -47,7 +45,7 @@ void Player::Initialize(Stage* stage, std::shared_ptr<GameCamera> gameCamera, sh
 
 void Player::Update() {
 	Pad pad = input_->GetPad(0);
-	Keybord keys = input_->GetKeyBord();
+	Keyboard keyboard = input_->GetKeyboard();
 
 	move_ = {};
 	isMove = false;
@@ -87,16 +85,16 @@ void Player::Update() {
 		}
 
 		if (!isMove) {
-			if (keys.hold[DIK_W] || keys.hold[DIK_UP]) {
+			if (keyboard.keys[DIK_W].hold || keyboard.keys[DIK_UP].hold) {
 				move_.z = 1.0f;
 			}
-			if (keys.hold[DIK_S] || keys.hold[DIK_DOWN]) {
+			if (keyboard.keys[DIK_S].hold || keyboard.keys[DIK_DOWN].hold) {
 				move_.z = -1.0f;
 			}
-			if (keys.hold[DIK_D] || keys.hold[DIK_RIGHT]) {
+			if (keyboard.keys[DIK_D].hold || keyboard.keys[DIK_RIGHT].hold) {
 				move_.x = 1.0f;
 			}
-			if (keys.hold[DIK_A] || keys.hold[DIK_LEFT]) {
+			if (keyboard.keys[DIK_A].hold || keyboard.keys[DIK_LEFT].hold) {
 				move_.x = -1.0f;
 			}
 			if (Length(move_) > deadZone) {
@@ -257,7 +255,7 @@ void Player::Update() {
 
 		//回避インターバル
 		if (dodgeCoolTime >= kMaxDodgeCoolTime) {
-			if ((keys.trigger[DIK_C] || keys.trigger[DIK_SPACE] || pad.Button[PAD_BUTTON_B].trigger) && isMove) {
+			if ((keyboard.keys[DIK_C].trigger || keyboard.keys[DIK_SPACE].trigger || pad.Button[PAD_BUTTON_B].trigger) && isMove) {
 				dodgeActiveTime = 0.0f;
 				dodgeCoolTime = 0.0f;
 				//注視中は他の方にも回避できる
@@ -298,7 +296,7 @@ void Player::Update() {
 		if (shotCooltime_ < kMaxShotCooltime) {
 			shotCooltime_ += 1.0f / 60.0f;
 		}
-		if (keys.hold[DIK_Z] || keys.hold[DIK_X] || pad.Button[PAD_BUTTON_RT].hold && dodgeActiveTime >= kMaxDodgeActiveTime) {
+		if (keyboard.keys[DIK_Z].hold || keyboard.keys[DIK_X].hold || pad.Button[PAD_BUTTON_RT].hold && dodgeActiveTime >= kMaxDodgeActiveTime) {
 			if (remainingRounds_ > 0.0f) {
 				if (shotCooltime_ >= kMaxShotCooltime) {
 					stage_->AddPlayerBullet(transform_.translate, transform_.rotate);
@@ -314,7 +312,7 @@ void Player::Update() {
 
 #pragma region 注目行動
 
-		if (keys.hold[DIK_LSHIFT] || keys.hold[DIK_RSHIFT] || pad.Button[PAD_BUTTON_LT].hold) {
+		if (keyboard.keys[DIK_LSHIFT].hold || keyboard.keys[DIK_RSHIFT].hold || pad.Button[PAD_BUTTON_LT].hold) {
 			isTargeted_ = false;
 		} else {
 			isTargeted_ = true;

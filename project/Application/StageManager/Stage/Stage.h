@@ -9,6 +9,7 @@
 #include <Bullet/BossBullet/BossBullet.h>
 #include <ColliderObject/ColliderObject.h>
 #include <HUD/HUD.h>
+#include "../StageManager.h"
 
 //ステージ
 class Stage {
@@ -45,6 +46,7 @@ protected:
 	PointLightElement pointLightElement_;
 
 	bool isClear_ = false;
+	bool isEnd_ = false;
 public:
 
 	~Stage();
@@ -52,9 +54,9 @@ public:
 	/// <summary>
 	/// 初期化
 	/// </summary>
-	/// <param name="stageName">選択したステージ</param>
+	/// <param name="stageData">選択したステージ</param>
 	/// <param name="input">入力</param>
-	void Initialize(std::string stageName, std::shared_ptr<Input> input);
+	void Initialize(StageData stageData, std::shared_ptr<Input> input);
 
 	/// <summary>
 	/// 更新処理
@@ -75,5 +77,10 @@ public:
 	void SetDebugCamera(std::shared_ptr<DebugCamera> debugCamera) { debugCamera_ = debugCamera; gameCamera_->SetDebugCamera(debugCamera_); }
 
 	std::shared_ptr<GameCamera> GetGameCamera() { return gameCamera_; }
+	std::shared_ptr<DirectionalLight> GetDirectionalLight() { return directionalLight_; }
+	std::shared_ptr<PointLight> GetPointLight() { return pointLight_; }
+	Player* GetPlayer() { return player_.get(); }
+	Boss* GetBoss() { return boss_.get(); }
 	bool IsClear() { return isClear_; }
+	bool IsEnd() { return isEnd_; }
 };

@@ -1,5 +1,4 @@
 #include "Stage.h"
-#include "../StageManager.h"
 #include <AudioHolder/AudioHolder.h>
 #include <Math/Collision.h>
 #include <GameEngine.h>
@@ -14,11 +13,8 @@ Stage::~Stage() {
 #endif
 }
 
-void Stage::Initialize(std::string stageName, std::shared_ptr<Input> input) {
+void Stage::Initialize(StageData stageData, std::shared_ptr<Input> input) {
 	input_ = input;
-
-	//ステージ名からステージデータを得る
-	StageData stageData = StageManager::GetInstance()->GetStageData(stageName);
 
 	//メインカメラ
 	gameCamera_ = std::make_unique<GameCamera>();
@@ -58,7 +54,7 @@ void Stage::Initialize(std::string stageName, std::shared_ptr<Input> input) {
 
 	//プレイヤー
 	player_ = std::make_unique<Player>();
-	player_->Initialize(this, gameCamera_, input_, stageData.playerSpawnPosition);
+	player_->Initialize(this, gameCamera_, input_, stageData.playerStartTransform);
 	gameCamera_->SetPlayer(player_->GetTransform());
 	player_->SetCameraTransform(gameCamera_->GetTransform());
 	player_->SetCamera(gameCamera_->GetCamera());
@@ -67,7 +63,7 @@ void Stage::Initialize(std::string stageName, std::shared_ptr<Input> input) {
 
 	//ボス
 	boss_ = std::make_unique<Boss>();
-	boss_->Initialize(stageData.bossData.filepath, this, gameCamera_, player_.get(), stageData.bossData.spawnPosition);
+	boss_->Initialize(stageData.bossData.filepath, this, gameCamera_, player_.get(), stageData.bossData.startTransform);
 	gameCamera_->SetTarget(boss_->GetTransform());
 	player_->SetBossTransform(boss_->GetTransform());
 	boss_->SetCamera(gameCamera_->GetCamera());
@@ -77,7 +73,7 @@ void Stage::Initialize(std::string stageName, std::shared_ptr<Input> input) {
 	//接触可能オブジェクト
 	for (auto& object : stageData.colliderObjects) {
 		std::unique_ptr<ColliderObject> colliderObject = std::make_unique<ColliderObject>();
-		colliderObject->Initialize(ModelManager::GetInstance()->GetModel(object.directoryPath, object.filename), object.transform);
+		colliderObject->Initialize(ModelManager::GetInstance()->GetModel(object.directoryPath, object.filename), object.startTransform);
 		colliderObjects_.push_back(move(colliderObject));
 	}
 
@@ -98,16 +94,19 @@ void Stage::Update() {
 		}
 	}
 
+	gameCamera_->Update();
+
 	if (!isClear_) {
 		gameCamera_->SetMoveVelocity(player_->GetMove().x);
 		gameCamera_->SetIsTargeted(player_->GetIsTargeted());
-		gameCamera_->Update();
 
 		if (boss_->IsDead()) {
 			isClear_ = true;
+			isEnd_ = true;
 		}
 		if (player_->IsDead()) {
 			isClear_ = false;
+			isEnd_ = true;
 		}
 		if (pointLightElement_.intensity > 0.0f) {
 			pointLightElement_.intensity -= 0.05f;

@@ -81,7 +81,7 @@ public:
 	~Player();
 
 	//初期化
-	void Initialize(Stage* stage, std::shared_ptr<GameCamera> gameCamera, shared_ptr<Input> input, Vector3 startPosition);
+	void Initialize(Stage* stage, std::shared_ptr<GameCamera> gameCamera, shared_ptr<Input> input, SRT startTransform);
 	//更新
 	void Update();
 	//描画
@@ -92,6 +92,8 @@ public:
 	void IsCollisionGround(OBB obb) override;
 
 	SRT* GetTransform() { return targetTransform_.get(); }
+
+	void SetTransfrom(SRT transfrom) { transform_ = transfrom; *targetTransform_ = transform_; object_->SetTransform(transform_); }
 	void SetBossTransform(SRT* bossTransform) { bossTransform_ = bossTransform; }
 
 	void SetCameraTransform(const SRT* transform) { cameraTransform_ = transform; }

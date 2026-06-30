@@ -654,6 +654,9 @@
     <ClInclude Include="Application\BackGround\BackGround.h">
       <Filter>Application\BackGround</Filter>
     </ClInclude>
+    <ClInclude Include="GameEngine\LoadFile\JsonUtils.h">
+      <Filter>GameEngine\LoadFile\Json</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -916,6 +919,9 @@
     </Filter>
     <Filter Include="Application\BackGround\Fence">
       <UniqueIdentifier>{6e980b69-b0ae-4218-a2d9-927e327b3fc5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\LoadFile\Json">
+      <UniqueIdentifier>{e588f98e-a94f-4526-bd5c-c3eeb1db66ef}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
