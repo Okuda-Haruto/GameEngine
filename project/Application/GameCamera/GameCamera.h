@@ -2,35 +2,64 @@
 #include <Camera/Camera.h>
 #include <DebugCamera.h>
 #include <memory>
+#include <optional>
 #include <Input/Input.h>
 
 using namespace std;
 
 class GameCamera;
 
+#pragma region BaseCamera
+
 class BaseCamera {
 protected:
 	SRT transform_;
 	GameCamera* gameCamera_;
+	std::shared_ptr<Input> input_;
 public:
-	virtual void Initialize(GameCamera* gameCamera) = 0;
+	virtual void Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input) = 0;
 	virtual void Update() = 0;
 	SRT GetTransform() { return transform_; }
 };
 
+//注目カメラ
 class LockOnCamera : public BaseCamera {
 private:
 	//プレイヤーから前後方向にどれだけ離れるか
-	const float kCameraOffsetZ = -12.0f;
-	//肩越しカメラの最大左右位置
-	const float kMaxCameraOffsetX = 3.0f;
+	const float kCameraOffsetZ = -10.0f;
+	//肩越しカメラの左右位置
+	const float kMaxCameraOffsetX = 2.0f;
+	float cameraOffsetX_ = 3.0f;
+	//地面からどれだけ浮かせた位置にあるか
+	const float kCameraOffsetY = 2.5f;
+	//offset方向
+	bool offsetDirection;
 	//プレイヤーからカメラへのローカル座標
 	Vector3 offset_;
 public:
-	void Initialize(GameCamera* gameCamera) override;
+	void Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input) override;
 	void Update() override;
 	SRT GetTransform() { return transform_; }
 };
+
+//広域カメラ
+class WideViewCamera : public BaseCamera {
+private:
+	//プレイヤーから前後方向にどれだけ離れるか
+	const float kCameraOffsetZ = -60.0f;
+	//基礎角回転速度
+	const float kCameraRotateSpeed = 15.0f;
+	//プレイヤーからカメラへのローカル座標
+	Vector3 offset_;
+public:
+	void Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input) override;
+	void Update() override;
+	SRT GetTransform() { return transform_; }
+};
+
+#pragma endregion
+
+
 
 class GameCamera
 {
@@ -39,35 +68,24 @@ private:
 	shared_ptr<Camera> camera_;
 	shared_ptr<DebugCamera> debugCamera_;
 
-	const float kMaxShiftTime = 0.25f;
-	float shiftTime_ = 0.0f;
-
-	const float kMaxEventShiftTime = 0.25f;
-	float eventShiftTime_ = 0.0f;
-	bool isEvent_ = false;
-
 	float shakeTime_ = 0.0f;
 
 	//セピア調の強さ
 	float sepiaTone_ = 0.0f;
 
 	shared_ptr<SRT> transform_;
-	SRT lockonTransform_;
-	SRT normalTransform_;
-	SRT eventTransform_;
 
-	const SRT* player_ = nullptr;
-	const SRT* target_ = nullptr;
+	//カメラ
+	std::unique_ptr<BaseCamera> nowCamera_;
+	std::unique_ptr<BaseCamera> nextCamera_;
+	//カメラ遷移時間
+	float maxLerpTime_;
+	float lerpTime_;
+	//カメラ遷移中のTransform
+	std::optional<SRT> betweenTransform_;
 
-	const float kMaxCameraPos = 3.0f;
-	//肩越しカメラ水平位置
-	float cameraHorizontalOffset_ = 3.0f;
-	float velocity_ = 0.0f;
-
-	//追従対象からカメラ位置までのオフセット
-	Vector3 offset_;
-
-	bool isTargeted_ = false;
+	SRT* player_ = nullptr;
+	SRT* target_ = nullptr;
 
 	shared_ptr<Input> input_;
 public:
@@ -78,31 +96,23 @@ public:
 	//更新
 	void Update();
 
+	void ChangeCamera(std::unique_ptr<BaseCamera> newCamera, float lerpTime);
+
 	//Transformのゲッター
 	SRT* GetTransform() { return transform_.get(); }
 
-	SRT GetPlayerTransform(){ return *player_; }
-	SRT GetTargetTransform() { return *target_; }
-	float GetCameraHorizontalOffset() { return cameraHorizontalOffset_; }
+	SRT* GetPlayerTransform(){ return player_; }
+	SRT* GetTargetTransform() { return target_; }
 
+	BaseCamera* GetNowCamera() { return nowCamera_.get(); }
 	shared_ptr<Camera> GetCamera() { return camera_; }
 	float GetSepiaTone() { return sepiaTone_; }
 
-	//オフセット
-	void SetOffset(Vector3 offset) { offset_ = offset; }
-	void SetRotate(Vector3 rotate) { normalTransform_.rotate = rotate; }
-
 	//追従対象を指定
-	void SetPlayer(const SRT* player) { player_ = player; }
-	void SetTarget(const SRT* target) { target_ = target; }
-
-	void SetEventTransform(const SRT& event) { eventTransform_ = event; }
-	void SetIsEvent(bool IsEvent) { isEvent_ = IsEvent; if (isEvent_)eventShiftTime_ = kMaxEventShiftTime; }
+	void SetPlayer(SRT* player) { player_ = player; }
+	void SetTarget(SRT* target) { target_ = target; }
 
 	void SetShakeTime(float shakeTime) { shakeTime_ = shakeTime; }
 
 	void SetDebugCamera(std::shared_ptr<DebugCamera> debugCamera) { debugCamera_ = debugCamera; }
-
-	void SetIsTargeted(bool isTargeted) { isTargeted_ = isTargeted; }
-	void SetMoveVelocity(float velocity) { if(fabsf(velocity) > 0.5f)velocity_ = velocity; }
 };

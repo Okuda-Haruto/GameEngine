@@ -2,6 +2,7 @@
 #include <Vector2.h>
 #include <Vector3.h>
 #include <Vector4.h>
+#include <SRT.h>
 #include <cmath>
 
 namespace Easing {
@@ -39,6 +40,14 @@ namespace Easing {
 		AnswerVector.z = a.z * (1 - t) + b.z * t;
 		AnswerVector.w = a.w * (1 - t) + b.w * t;
 		return AnswerVector;
+	}
+	template<>
+	inline SRT Lerp<SRT>(SRT a, SRT b, float t) {
+		SRT AnswerTransform;
+		AnswerTransform.scale = Lerp<Vector3>(a.scale, b.scale, t);
+		AnswerTransform.rotate = Lerp<Vector3>(a.rotate, b.rotate, t);
+		AnswerTransform.translate = Lerp<Vector3>(a.translate, b.translate, t);
+		return AnswerTransform;
 	}
 
 	// イーズイン(加速)
