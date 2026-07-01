@@ -49,9 +49,9 @@ void Input::Update() {
 
 	for (int i = 0; i < 256; i++) {
 		keyboard_.keys[i].hold = keys_[i];
-		keyboard_.keys[i].idle = ~keys_[i];
-		keyboard_.keys[i].trigger = keys_[i] & ~preKeys_[i];
-		keyboard_.keys[i].release = ~keys_[i] & preKeys_[i];
+		keyboard_.keys[i].idle = !keys_[i];
+		keyboard_.keys[i].trigger = keys_[i] && !preKeys_[i];
+		keyboard_.keys[i].release = !keys_[i] && preKeys_[i];
 	}
 
 	//前frame処理
@@ -71,9 +71,9 @@ void Input::Update() {
 	mouse_.Movement = { float(mouseState_.lX),float(mouseState_.lY),float(mouseState_.lZ) };
 	for (int i = 0; i < 3; i++) {
 		mouse_.click[i].hold = mouseState_.rgbButtons[i];
-		mouse_.click[i].idle = ~mouseState_.rgbButtons[i];
-		mouse_.click[i].trigger = mouseState_.rgbButtons[i] & ~preMouseState_.rgbButtons[i];
-		mouse_.click[i].release = ~mouseState_.rgbButtons[i] & preMouseState_.rgbButtons[i];
+		mouse_.click[i].idle = !mouseState_.rgbButtons[i];
+		mouse_.click[i].trigger = mouseState_.rgbButtons[i] && !preMouseState_.rgbButtons[i];
+		mouse_.click[i].release = !mouseState_.rgbButtons[i] && preMouseState_.rgbButtons[i];
 	}
 
 	//パッド入力
@@ -152,9 +152,9 @@ void Input::Update() {
 				int hold = 0x0001 << j;
 				if (j != PAD_BUTTON_LT && j != PAD_BUTTON_RT) {
 					pad_[i].Button[j].hold = padState_[i].Gamepad.wButtons & hold;
-					pad_[i].Button[j].idle = ~(padState_[i].Gamepad.wButtons & hold);
-					pad_[i].Button[j].trigger = (padState_[i].Gamepad.wButtons & hold) & ~(prePadState_[i].Gamepad.wButtons & hold);
-					pad_[i].Button[j].release = ~(padState_[i].Gamepad.wButtons & hold) & (prePadState_[i].Gamepad.wButtons & hold);
+					pad_[i].Button[j].idle = !(padState_[i].Gamepad.wButtons & hold);
+					pad_[i].Button[j].trigger = (padState_[i].Gamepad.wButtons & hold) && !(prePadState_[i].Gamepad.wButtons & hold);
+					pad_[i].Button[j].release = !(padState_[i].Gamepad.wButtons & hold) && (prePadState_[i].Gamepad.wButtons & hold);
 				} else {
 					if (j == PAD_BUTTON_LT) {
 						pad_[i].Button[j].hold = padState_[i].Gamepad.bLeftTrigger >= 0x80;

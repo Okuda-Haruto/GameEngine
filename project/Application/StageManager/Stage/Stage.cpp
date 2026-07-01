@@ -19,12 +19,7 @@ void Stage::Initialize(StageData stageData, std::shared_ptr<Input> input) {
 	//メインカメラ
 	gameCamera_ = std::make_unique<GameCamera>();
 	gameCamera_->Initialize(input_);
-	gameCamera_->SetOffset(Vector3{ 0.0f,6.0f,-60.0f });
-	gameCamera_->SetRotate(Vector3{ std::numbers::pi_v<float> / 180 * 10,0.0f,0.0f });
-	SRT event{};
-	event.translate = { 0.0f,5.0f,-35.0f };
-	gameCamera_->SetEventTransform(event);
-	gameCamera_->SetIsEvent(true);
+	gameCamera_->ChangeCamera(std::make_unique<LockOnCamera>(), 0.0f);
 	PlayerBullet::SetCamera(gameCamera_->GetCamera());
 	BossBullet::SetCamera(gameCamera_->GetCamera());
 
@@ -83,22 +78,30 @@ void Stage::Initialize(StageData stageData, std::shared_ptr<Input> input) {
 }
 
 void Stage::Update() {
+	Keyboard keyboard = input_->GetKeyboard();
+	Pad pad = input_->GetPad();
 
 	backGround_->Update();
 	hud_->Update();
 
 	if (!boss_->IsStartAnimation()) {
-		gameCamera_->SetIsEvent(false);
 		if (!debugCamera_) {
 			player_->Update();
+		}
+
+		if ((keyboard.keys[DIK_LSHIFT].hold || keyboard.keys[DIK_RSHIFT].hold) ||
+			(pad.isConnected && pad.Button[PAD_BUTTON_LT].hold)) {
+			gameCamera_->ChangeCamera(std::make_unique<WideViewCamera>(), 0.1f);
+		}
+		if ((keyboard.keys[DIK_LSHIFT].idle && keyboard.keys[DIK_RSHIFT].idle) &&
+			!(pad.isConnected && pad.Button[PAD_BUTTON_LT].hold)) {
+			gameCamera_->ChangeCamera(std::make_unique<LockOnCamera>(), 0.1f);
 		}
 	}
 
 	gameCamera_->Update();
 
 	if (!isClear_) {
-		gameCamera_->SetMoveVelocity(player_->GetMove().x);
-		gameCamera_->SetIsTargeted(player_->GetIsTargeted());
 
 		if (boss_->IsDead()) {
 			isClear_ = true;
