@@ -42,8 +42,8 @@ void Player::Initialize(Stage* stage, std::shared_ptr<GameCamera> gameCamera, sh
 	transform_ = startTransform;
 	object_->SetTransform(transform_);
 
-	targetTransform_ = std::make_unique<SRT>();
-	*targetTransform_ = transform_;
+	trackingTransform_ = std::make_unique<SRT>();
+	*trackingTransform_ = transform_;
 	dodgeCoolTime = 0.0f;
 	dodgeActiveTime = kMaxDodgeActiveTime;
 	shotCooltime_ = 0.0f;
@@ -123,9 +123,9 @@ void Player::Update() {
 #pragma region 移動処理
 
 		//注目中は角度をつける
-		if (isTargeted_ && bossTransform_) {
-			if (Length(bossTransform_->translate - transform_.translate) > 0.0f) {
-				Vector3 diff = Normalize(bossTransform_->translate - transform_.translate);
+		if (isTargeted_ && targetTransform_) {
+			if (Length(targetTransform_->translate - transform_.translate) > 0.0f) {
+				Vector3 diff = Normalize(targetTransform_->translate - transform_.translate);
 				angle = std::atan2(diff.x, diff.z);
 			}
 		}
@@ -171,7 +171,7 @@ void Player::Update() {
 			transform_.translate.x = std::clamp(transform_.translate.x, -58.5f, 58.5f);
 			transform_.translate.z = std::clamp(transform_.translate.z, -58.5f, 58.5f);
 
-			if (!(isTargeted_ && bossTransform_)) {
+			if (!(isTargeted_ && targetTransform_)) {
 				angle = std::atan2(velocity_.x, velocity_.z);
 			}
 
@@ -366,7 +366,7 @@ void Player::Update() {
 	ImGui::End();
 #endif
 
-	*targetTransform_ = transform_;
+	*trackingTransform_ = transform_;
 
 	object_->SetTransform(transform_);
 	BaseCharacter::Update();

@@ -124,7 +124,7 @@ public:
 };
 
 //指定時間で指定位置に移動する
-class Step_MoveFixedPsitionTime : public BaseStep {
+class Step_MoveFixedPositionTime : public BaseStep {
 private:
 	Vector3 position_;
 	float time_;
@@ -166,7 +166,7 @@ public:
 	}
 };
 //指定速度で指定位置に移動する
-class Step_MoveFixedPsitionSpeed : public BaseStep {
+class Step_MoveFixedPositionSpeed : public BaseStep {
 private:
 	float speed_;
 	Vector3 position_;
@@ -232,9 +232,9 @@ public:
 
 	void ReadStep(const nlohmann::json_abi_v3_12_0::json& stepJson) override {
 		Initialize(Vector3{
-				stepJson["position"]["x"],
-				stepJson["position"]["y"],
-				stepJson["position"]["z"],
+				stepJson["velocity"]["x"],
+				stepJson["velocity"]["y"],
+				stepJson["velocity"]["z"],
 			},
 			stepJson["time"]);
 	}
@@ -511,7 +511,7 @@ private:
 
 	float angle;
 
-	std::unique_ptr<SRT> targetTransform_;
+	std::unique_ptr<SRT> trackingTransform_;
 
 	//いらないかも
 	std::string bossName_;
@@ -560,14 +560,14 @@ public:
 
 	void IsCollisionGround(OBB obb) override;
 
-	SRT* GetTransform() { return targetTransform_.get(); }
+	SRT* GetTransform() { return trackingTransform_.get(); }
 	SRT* GetPlayerTransform() { return player_->GetTransform(); }
 	Vector3 GetVelocity() { return velocity_; }
 	Stage* GetStage() { return stage_; }
 	Player* GetPlayer() { return player_; }
 	std::shared_ptr<GameCamera> GetGameCamera() { return gameCamera_; }
 
-	void SetTransfrom(SRT transfrom) { transform_ = transfrom; *targetTransform_ = transform_; object_->SetTransform(transform_); }
+	void SetTransfrom(SRT transfrom) { transform_ = transfrom; *trackingTransform_ = transform_; object_->SetTransform(transform_); }
 
 	void SetCamera(shared_ptr<Camera> camera) { object_->SetCamera(camera); }
 

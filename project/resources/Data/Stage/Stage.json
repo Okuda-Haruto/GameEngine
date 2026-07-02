@@ -19,6 +19,50 @@
             }
         }
     },
+    "colliderObject": {
+        "0": {
+            "directoryPath": "resources/BackGround/Tumbleweed",
+            "filename": "Tumbleweed.obj",
+            "startTransform": {
+                "rotate": {
+                    "x": 0.0,
+                    "y": -0.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 2.0,
+                    "y": 2.0,
+                    "z": 2.0
+                },
+                "translate": {
+                    "x": 20.0,
+                    "y": 2.0,
+                    "z": 0.0
+                }
+            }
+        },
+        "1": {
+            "directoryPath": "resources/BackGround/Tumbleweed",
+            "filename": "Tumbleweed.obj",
+            "startTransform": {
+                "rotate": {
+                    "x": 0.0,
+                    "y": -0.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 2.0,
+                    "y": 2.0,
+                    "z": 2.0
+                },
+                "translate": {
+                    "x": -20.0,
+                    "y": 2.0,
+                    "z": 0.0
+                }
+            }
+        }
+    },
     "playerStartTransform": {
         "rotate": {
             "x": 0.0,

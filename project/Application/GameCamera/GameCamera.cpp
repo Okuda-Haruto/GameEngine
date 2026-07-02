@@ -34,10 +34,10 @@ void LockOnCamera::Update() {
 	}
 
 	//プレイヤーが存在している場合
-	if (gameCamera_->GetPlayerTransform()) {
+	if (gameCamera_->GetObserverTransform()) {
 		//注目対象が存在している場合
 		if (gameCamera_->GetTargetTransform()) {
-			Vector3 diff = gameCamera_->GetTargetTransform()->translate - gameCamera_->GetPlayerTransform()->translate;
+			Vector3 diff = gameCamera_->GetTargetTransform()->translate - gameCamera_->GetObserverTransform()->translate;
 			//必ずいずれかの向きを向くように
 			if (Length(diff) <= 0.0f) {
 				diff = { 0.0f,0.0f,1.0f };
@@ -50,12 +50,12 @@ void LockOnCamera::Update() {
 			transform_.rotate.x = 0;
 
 			Matrix4x4 rotateMatrix = MakeRotateYMatrix(transform_.rotate.y);
-			transform_.translate = gameCamera_->GetPlayerTransform()->translate + rotateMatrix * Vector3{ cameraOffsetX_,0.0f,0.0f } + Normalize(diff) * kCameraOffsetZ;
+			transform_.translate = gameCamera_->GetObserverTransform()->translate + rotateMatrix * Vector3{ cameraOffsetX_,0.0f,0.0f } + Normalize(diff) * kCameraOffsetZ;
 			transform_.translate.y = kCameraOffsetY;
 		} else {
 			//存在していないなら角度は変えない
 			Matrix4x4 rotateMatrix = MakeRotateYMatrix(transform_.rotate.y);
-			transform_.translate = gameCamera_->GetPlayerTransform()->translate + rotateMatrix * Vector3{ cameraOffsetX_,0.0f,kCameraOffsetZ };
+			transform_.translate = gameCamera_->GetObserverTransform()->translate + rotateMatrix * Vector3{ cameraOffsetX_,0.0f,kCameraOffsetZ };
 			transform_.translate.y = kCameraOffsetY;
 		}
 	}
@@ -94,8 +94,8 @@ void WideViewCamera::Update() {
 	Vector3 position = TransformNormal(offset_, rotateMatrix);
 
 	//プレイヤーが存在している場合
-	if (gameCamera_->GetPlayerTransform()) {
-		transform_.translate = gameCamera_->GetPlayerTransform()->translate + position;
+	if (gameCamera_->GetObserverTransform()) {
+		transform_.translate = gameCamera_->GetObserverTransform()->translate + position;
 	} else {
 		//存在しない場合原点中心
 		transform_.translate = position;
@@ -139,6 +139,11 @@ void GameCamera::Update() {
 			nowCamera_ = move(nextCamera_);
 			betweenTransform_.reset();
 		}
+	}
+
+	if (debugCamera_) {
+		camera_->Update();
+		return;
 	}
 
 	if (nowCamera_) {

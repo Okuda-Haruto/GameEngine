@@ -267,6 +267,24 @@ void StageEditor::ReadStageFile(std::string filePath) {
 	stage_ = std::make_unique<Stage>();
 	stage_->Initialize(stageData_, input_);
 	stage_->SetDebugCamera(debugCamera_);
+	stage_->ClearColliderObjects();
+
+	for (auto& data : stageData_.colliderObjects) {
+		EditorObject editorObject;
+		editorObject.object = std::make_shared<Object>();
+		editorObject.object->Initialize(ModelManager::GetInstance()->GetModel(data.directoryPath, data.filename));
+		editorObject.object->SetDirectionalLight(stage_->GetDirectionalLight());
+		editorObject.object->SetPointLight(stage_->GetPointLight());
+		editorObject.startTransform = std::make_shared<SRT>();
+		*editorObject.startTransform = data.startTransform;
+
+		editorObject.directoryPath = data.directoryPath;
+		editorObject.filename = data.filename;
+
+		colliderObjects_.push_back(editorObject);
+
+		currentColliderIndex_++;
+	}
 
 	state_ = EditorState::Edit;
 }
@@ -281,7 +299,7 @@ void StageEditor::WriteStageFile() {
 	stageData_.colliderObjects.clear();
 	for (auto& object : colliderObjects_) {
 		//無効化されているオブジェクトは使用しない
-		if (object.enableObject)continue;
+		if (!object.enableObject)continue;
 
 		//一旦衝突判定無し
 		ColliderObjectData data;

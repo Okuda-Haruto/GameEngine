@@ -19,8 +19,10 @@ private:
 	const float kMaxSpeed = 0.6f;
 	const float speed = 0.06f;
 
-	std::unique_ptr<SRT> targetTransform_;
-	SRT* bossTransform_ = nullptr;
+	//カメラ追従用Transform
+	std::unique_ptr<SRT> trackingTransform_;
+	//狙っている相手のTransform
+	SRT* targetTransform_;
 
 	const SRT* cameraTransform_{};
 
@@ -91,10 +93,10 @@ public:
 
 	void IsCollisionGround(OBB obb) override;
 
-	SRT* GetTransform() { return targetTransform_.get(); }
+	SRT* GetTransform() { return trackingTransform_.get(); }
 
-	void SetTransfrom(SRT transfrom) { transform_ = transfrom; *targetTransform_ = transform_; object_->SetTransform(transform_); }
-	void SetBossTransform(SRT* bossTransform) { bossTransform_ = bossTransform; }
+	void SetTransfrom(SRT transfrom) { transform_ = transfrom; *trackingTransform_ = transform_; object_->SetTransform(transform_); }
+	void SetTargetTransform(SRT* targetTransform) { targetTransform_ = targetTransform; }
 
 	void SetCameraTransform(const SRT* transform) { cameraTransform_ = transform; }
 

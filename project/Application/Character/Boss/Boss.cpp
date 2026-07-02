@@ -21,7 +21,7 @@ void Step_WaitAnimation::Activate(BossAction* action) {
 	action->SetWaitAnimation(true);
 }
 
-void Step_MoveFixedPsitionTime::Activate(BossAction* action) {
+void Step_MoveFixedPositionTime::Activate(BossAction* action) {
 	LerpPositionState state;
 	state.startVector = action->GetBoss()->GetTransform()->translate;
 	state.endVector = position_;
@@ -30,7 +30,7 @@ void Step_MoveFixedPsitionTime::Activate(BossAction* action) {
 	action->SetLerpPosition(state);
 }
 
-void Step_MoveFixedPsitionSpeed::Activate(BossAction* action) {
+void Step_MoveFixedPositionSpeed::Activate(BossAction* action) {
 	//距離
 	Vector3 diff = position_ - action->GetBoss()->GetTransform()->translate;
 	//その距離移動するににかかる時間
@@ -98,8 +98,8 @@ std::unique_ptr<BaseStep> ReadStepJson(const nlohmann::json_abi_v3_12_0::json& s
 		{ "Step_WaitTime",   [] { return std::make_unique<Step_WaitTime>(); }},
 		{ "Step_WaitStep", [] { return std::make_unique<Step_WaitStep>(); } },
 		{ "Step_WaitAnimation",   [] { return std::make_unique<Step_WaitAnimation>(); } },
-		{ "Step_MoveFixedPsitionTime",   [] { return std::make_unique<Step_MoveFixedPsitionTime>(); } },
-		{ "Step_MoveFixedPsitionSpeed",   [] { return std::make_unique<Step_MoveFixedPsitionSpeed>(); } },
+		{ "Step_MoveFixedPositionTime",   [] { return std::make_unique<Step_MoveFixedPositionTime>(); } },
+		{ "Step_MoveFixedPositionSpeed",   [] { return std::make_unique<Step_MoveFixedPositionSpeed>(); } },
 		{ "Step_MoveFixedVelocity",   [] { return std::make_unique<Step_MoveFixedVelocity>(); } },
 		{ "Step_MoveFront",   [] { return std::make_unique<Step_MoveFront>(); } },
 		{ "Step_MoveToLockOn",   [] { return std::make_unique<Step_MoveToLockOn>(); } },
@@ -175,8 +175,8 @@ void Boss::Initialize(std::string filepath, Stage* stage, std::shared_ptr<GameCa
 
 	isStartAnimation_ = true;
 
-	targetTransform_ = std::make_unique<SRT>();
-	*targetTransform_ = transform_;
+	trackingTransform_ = std::make_unique<SRT>();
+	*trackingTransform_ = transform_;
 
 	std::unique_ptr<Step_WaitTime> step_WaitTime;
 	std::unique_ptr<Step_ShotBulletToFront> step_ShotBulletToFront;
@@ -477,7 +477,7 @@ void Boss::Update() {
 			transform_.translate.x = std::clamp(transform_.translate.x, -59.0f, 59.0f);
 			transform_.translate.z = std::clamp(transform_.translate.z, -59.0f, 59.0f);
 
-			*targetTransform_ = transform_;
+			*trackingTransform_ = transform_;
 		}
 	}
 	SRT displayTransform = transform_;
