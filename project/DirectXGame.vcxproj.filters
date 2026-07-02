@@ -283,6 +283,9 @@
     <ClCompile Include="Application\BackGround\BackGround.cpp">
       <Filter>Application\BackGround</Filter>
     </ClCompile>
+    <ClCompile Include="GameEngine\Modules\PrimitiveManager\PrimitiveCylinder.cpp">
+      <Filter>GameEngine\Modules\PrimitiveManager</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\BackGround\Ground\Ground.h">
@@ -668,6 +671,9 @@
     </ClInclude>
     <ClInclude Include="GameEngine\Data\GPURandomSeed.h">
       <Filter>GameEngine\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Modules\PrimitiveManager\PrimitiveCylinder.h">
+      <Filter>GameEngine\Modules\PrimitiveManager</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

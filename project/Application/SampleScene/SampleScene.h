@@ -37,6 +37,10 @@ private:
 	SRT ringTransform_;
 	Material ringMaterial_;
 
+	std::unique_ptr<PrimitiveCylinder> cylinder_;
+	SRT cylinderTransform_;
+	Material cylinderMaterial_;
+
 	//2Dモデル
 	std::array<bool, 2> isSpriteDraw_ = { true,false };
 	std::array<std::unique_ptr<Sprite>,2> sprite_;

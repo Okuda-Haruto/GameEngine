@@ -204,6 +204,14 @@ void SampleScene::Initialize() {
 	ringTransform_.scale = { 1,1,1 };
 	ringMaterial_.color = { 1.0f,1.0f,1.0f,1.0f };
 	ringMaterial_.uvTransform = MakeTranslateMatrix({ 10,1.0f,1.0f });
+
+	cylinder_ = std::make_unique<PrimitiveCylinder>();
+	cylinder_->Initialize(TextureManager::GetInstance()->GetSrvIndex("resources/DebugResources/gradationLine.png"), defaultCamera_, GameEngine::GetDirectXCommon());
+	cylinderTransform_ = {};
+	cylinderTransform_.translate = { 20,0,0 };
+	cylinderTransform_.scale = { 1,1,1 };
+	cylinderMaterial_.color = { 1.0f,1.0f,1.0f,1.0f };
+	cylinderMaterial_.uvTransform = MakeTranslateMatrix({ 10,1.0f,1.0f });
 }
 
 void SampleScene::Update() {
@@ -608,6 +616,7 @@ void SampleScene::Update() {
 	}
 
 	ring_->DrawBillBoard(ringTransform_, ringMaterial_);
+	cylinder_->Draw(cylinderTransform_, cylinderMaterial_);
 
 	GameEngine::RenderPostDraw();
 
