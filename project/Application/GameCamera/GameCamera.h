@@ -84,8 +84,10 @@ private:
 	//カメラ遷移中のTransform
 	std::optional<SRT> betweenTransform_;
 
-	SRT* player_ = nullptr;
-	SRT* target_ = nullptr;
+	//始点Transform
+	SRT* observerTransform_ = nullptr;
+	//終点Transform
+	SRT* targetTransform_ = nullptr;
 
 	shared_ptr<Input> input_;
 public:
@@ -101,18 +103,19 @@ public:
 	//Transformのゲッター
 	SRT* GetTransform() { return transform_.get(); }
 
-	SRT* GetPlayerTransform(){ return player_; }
-	SRT* GetTargetTransform() { return target_; }
+	SRT* GetObserverTransform(){ return observerTransform_; }
+	SRT* GetTargetTransform() { return targetTransform_; }
 
 	BaseCamera* GetNowCamera() { return nowCamera_.get(); }
 	shared_ptr<Camera> GetCamera() { return camera_; }
 	float GetSepiaTone() { return sepiaTone_; }
 
 	//追従対象を指定
-	void SetPlayer(SRT* player) { player_ = player; }
-	void SetTarget(SRT* target) { target_ = target; }
+	void SetObserverTransform(SRT* observerTransform) { observerTransform_ = observerTransform; }
+	void SetTargetTransform(SRT* targetTransform) { targetTransform_ = targetTransform; }
 
 	void SetShakeTime(float shakeTime) { shakeTime_ = shakeTime; }
 
-	void SetDebugCamera(std::shared_ptr<DebugCamera> debugCamera) { debugCamera_ = debugCamera; }
+	void SetDebugCamera(std::shared_ptr<DebugCamera> debugCamera) { debugCamera_ = debugCamera; camera_->SetDebugCamera(debugCamera_);
+	}
 };

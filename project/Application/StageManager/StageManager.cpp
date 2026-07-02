@@ -37,15 +37,16 @@ StageData StageManager::ReadStage(std::string filePath) {
 	nlohmann::json& objectsJson = stagejson["colliderObject"];
 
 	//読み込んだオブジェクト
-	for (auto iterator = objectsJson.begin(); iterator != objectsJson.end(); ++iterator) {
-		const std::string& name = iterator.key();
+	for (auto iterator = objectsJson.begin(); iterator != objectsJson.end(); ++iterator)
+	{
+		const auto& obj = iterator.value();
 
 		ColliderObjectData data;
-		data.directoryPath = objectsJson[name]["directoryPath"];
-		data.filename = objectsJson[name]["filename"];
-		data.startTransform = stagejson[name]["transform"].get<SRT>();
-			
-		stageData.colliderObjects.push_back(data);
+		data.directoryPath = obj["directoryPath"];
+		data.filename = obj["filename"];
+		data.startTransform = obj["startTransform"].get<SRT>();
+
+		stageData.colliderObjects.push_back(std::move(data));
 	}
 
 	return stageData;

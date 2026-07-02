@@ -85,4 +85,6 @@ public:
 	Boss* GetBoss() { return boss_.get(); }
 	bool IsClear() { return isClear_; }
 	bool IsEnd() { return isEnd_; }
+
+	void ClearColliderObjects() { colliderObjects_.clear(); }
 };

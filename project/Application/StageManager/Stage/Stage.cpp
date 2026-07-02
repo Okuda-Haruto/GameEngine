@@ -50,7 +50,7 @@ void Stage::Initialize(StageData stageData, std::shared_ptr<Input> input) {
 	//プレイヤー
 	player_ = std::make_unique<Player>();
 	player_->Initialize(this, gameCamera_, input_, stageData.playerStartTransform);
-	gameCamera_->SetPlayer(player_->GetTransform());
+	gameCamera_->SetObserverTransform(player_->GetTransform());
 	player_->SetCameraTransform(gameCamera_->GetTransform());
 	player_->SetCamera(gameCamera_->GetCamera());
 	player_->SetDirectionalLight(directionalLight_);
@@ -59,8 +59,8 @@ void Stage::Initialize(StageData stageData, std::shared_ptr<Input> input) {
 	//ボス
 	boss_ = std::make_unique<Boss>();
 	boss_->Initialize(stageData.bossData.filepath, this, gameCamera_, player_.get(), stageData.bossData.startTransform);
-	gameCamera_->SetTarget(boss_->GetTransform());
-	player_->SetBossTransform(boss_->GetTransform());
+	gameCamera_->SetTargetTransform(boss_->GetTransform());
+	player_->SetTargetTransform(boss_->GetTransform());
 	boss_->SetCamera(gameCamera_->GetCamera());
 	boss_->SetDirectionalLight(directionalLight_);
 	boss_->SetPointLight(pointLight_);
