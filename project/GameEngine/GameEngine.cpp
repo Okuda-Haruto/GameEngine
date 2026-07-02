@@ -198,6 +198,7 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	sprite_PipelineState_ = Sprite_PipelineStateInitialvalue(device_, sprite_RootSignature_, Sprite2DVertexShaderBlob.Get(), Sprite2DPixelShaderBlob.Get());
 	line_PipelineState_ = Line_PipelineStateInitialvalue(device_, object_Instancing_RootSignature_, particleVSBlob.Get(), instancingLinePixelShaderBlob.Get());
 	line_NoDepth_PipelineState_ = Line_NoDepth_PipelineStateInitialvalue(device_, object_Instancing_RootSignature_, particleVSBlob.Get(), instancingLinePixelShaderBlob.Get());
+	effect_Cyinder_PipelineState_ = Effect_Cylinder_PipelineStateInitialvalue(device_, object_RootSignature_, Object3DVertexShaderBlob.Get(), Object3DPixelShaderBlob.Get());
 	screen_PipelineState_ = Screen_PipelineStateInitialvalue(device_, screen_RootSignature_, CopyImageVSBlob.Get(), CopyImagePSBlob.Get());
 	screen_ColorChange_PipelineState_ = Screen_PipelineStateInitialvalue(device_, screen_RootSignature_, CopyImageVSBlob.Get(), ColorChangePSBlob.Get());
 	screen_Vignette_PipelineState_ = Screen_PipelineStateInitialvalue(device_, screen_Vignette_RootSignature_, CopyImageVSBlob.Get(), VignettePSBlob.Get());
@@ -1877,6 +1878,142 @@ void GameEngine::DrawPrimitiveRing_Billboard_(PrimitiveRing* primitiveRing, SRT 
 
 	//描画(DrawCall)
 	commandList_->DrawIndexedInstanced(primitiveRing->GetIndexCount(), 1, 0, 0, 0);
+
+	objectIndex_++;
+}
+
+void GameEngine::DrawPrimitiveCylinder_(PrimitiveCylinder* primitiveCylinder, SRT transform, Material material) {
+
+	//上限に達していたら描画しない
+	if (objectIndex_ >= kMaxIndex)return;
+
+	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
+	commandList_->SetGraphicsRootSignature(object_RootSignature_.Get());
+	commandList_->SetPipelineState(effect_Cyinder_PipelineState_.Get());	//PSOを設定
+
+	commandList_->IASetVertexBuffers(0, 1, &primitiveCylinder->GetVBV());	//VBVを設定
+	commandList_->IASetIndexBuffer(&primitiveCylinder->GetIBV());	//IBVを設定
+
+	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
+	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	//カメラのワールド座標をCBufferに送る
+	commandList_->SetGraphicsRootConstantBufferView(4, primitiveCylinder->GetCamera()->CameraResource()->GetGPUVirtualAddress());
+
+	//WVPデータを更新
+	objectWvpResource_[objectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&objectWvpData_[objectIndex_]));
+
+	//オブジェクトのワールド座標
+	Matrix4x4 worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
+
+	objectWvpData_[objectIndex_]->World = worldMatrix;
+	objectWvpData_[objectIndex_]->WorldInverseTranspose = Transpose(Inverse(worldMatrix));
+	Matrix4x4 worldViewProjectionMatrix = worldMatrix * primitiveCylinder->GetCamera()->GetViewMatrix() * primitiveCylinder->GetCamera()->GetProjectionMatrix();
+	objectWvpData_[objectIndex_]->WVP = worldViewProjectionMatrix;
+
+	objectWvpResource_[objectIndex_]->Unmap(0, nullptr);
+
+	//マテリアルデータを更新
+	objectMaterialResource_[objectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&objectMaterialData_[objectIndex_]));
+
+	*objectMaterialData_[objectIndex_] = material;
+	objectMaterialData_[objectIndex_]->enableDirectionalLighting = false;
+	objectMaterialData_[objectIndex_]->enablePointLighting = false;
+	objectMaterialData_[objectIndex_]->enableSpotLighting = false;
+	objectMaterialData_[objectIndex_]->reflection = 0;
+	objectMaterialData_[objectIndex_]->shininess = 0;
+
+	objectMaterialResource_[objectIndex_]->Unmap(0, nullptr);
+
+	//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
+	commandList_->SetGraphicsRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(primitiveCylinder->GetTextureIndex()));
+
+	//マテリアルCBufferの場所を設定
+	commandList_->SetGraphicsRootConstantBufferView(0, objectMaterialResource_[objectIndex_]->GetGPUVirtualAddress());
+	//wvp用のCBufferの場所を設定
+	commandList_->SetGraphicsRootConstantBufferView(1, objectWvpResource_[objectIndex_]->GetGPUVirtualAddress());
+
+	//描画(DrawCall)
+	commandList_->DrawIndexedInstanced(primitiveCylinder->GetIndexCount(), 1, 0, 0, 0);
+
+	objectIndex_++;
+}
+
+void GameEngine::DrawPrimitiveCylinder_Billboard_(PrimitiveCylinder* primitiveCylinder, SRT transform, Material material) {
+
+	//上限に達していたら描画しない
+	if (objectIndex_ >= kMaxIndex)return;
+
+	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
+	commandList_->SetGraphicsRootSignature(object_RootSignature_.Get());
+	commandList_->SetPipelineState(effect_Cyinder_PipelineState_.Get());	//PSOを設定
+
+	commandList_->IASetVertexBuffers(0, 1, &primitiveCylinder->GetVBV());	//VBVを設定
+	commandList_->IASetIndexBuffer(&primitiveCylinder->GetIBV());	//IBVを設定
+
+	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
+	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	//カメラのワールド座標をCBufferに送る
+	commandList_->SetGraphicsRootConstantBufferView(4, primitiveCylinder->GetCamera()->CameraResource()->GetGPUVirtualAddress());
+
+	//WVPデータを更新
+	objectWvpResource_[objectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&objectWvpData_[objectIndex_]));
+
+	//オブジェクトのワールド座標
+	Matrix4x4 cameraMatrix = Inverse(primitiveCylinder->GetCamera()->GetViewMatrix());
+
+	Matrix4x4 worldMatrix = cameraMatrix;
+	worldMatrix.m[3][0] = transform.translate.x;
+	worldMatrix.m[3][1] = transform.translate.y;
+	worldMatrix.m[3][2] = transform.translate.z;
+
+	Quaternion rotate;
+	rotate = MakeRotateAxisAngleQuaternion({ 0,1,0 }, std::numbers::pi_v<float>);
+	rotate = rotate * MakeRotateAxisAngleQuaternion({ 1,0,0 }, transform.rotate.x);
+	rotate = rotate * MakeRotateAxisAngleQuaternion({ 0,0,1 }, transform.rotate.z);
+
+	worldMatrix = MakeRotateMatrix(rotate) * worldMatrix;
+
+	for (int i = 0; i < 3; i++) {
+		worldMatrix.m[0][i] *= transform.scale.x;
+	}
+	for (int i = 0; i < 3; i++) {
+		worldMatrix.m[1][i] *= transform.scale.y;
+	}
+	for (int i = 0; i < 3; i++) {
+		worldMatrix.m[2][i] *= transform.scale.z;
+	}
+
+	objectWvpData_[objectIndex_]->World = worldMatrix;
+	objectWvpData_[objectIndex_]->WorldInverseTranspose = Transpose(Inverse(worldMatrix));
+	Matrix4x4 worldViewProjectionMatrix = worldMatrix * primitiveCylinder->GetCamera()->GetViewMatrix() * primitiveCylinder->GetCamera()->GetProjectionMatrix();
+	objectWvpData_[objectIndex_]->WVP = worldViewProjectionMatrix;
+
+	objectWvpResource_[objectIndex_]->Unmap(0, nullptr);
+
+	//マテリアルデータを更新
+	objectMaterialResource_[objectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&objectMaterialData_[objectIndex_]));
+
+	*objectMaterialData_[objectIndex_] = material;
+	objectMaterialData_[objectIndex_]->enableDirectionalLighting = false;
+	objectMaterialData_[objectIndex_]->enablePointLighting = false;
+	objectMaterialData_[objectIndex_]->enableSpotLighting = false;
+	objectMaterialData_[objectIndex_]->reflection = 0;
+	objectMaterialData_[objectIndex_]->shininess = 0;
+
+	objectMaterialResource_[objectIndex_]->Unmap(0, nullptr);
+
+	//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
+	commandList_->SetGraphicsRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(primitiveCylinder->GetTextureIndex()));
+
+	//マテリアルCBufferの場所を設定
+	commandList_->SetGraphicsRootConstantBufferView(0, objectMaterialResource_[objectIndex_]->GetGPUVirtualAddress());
+	//wvp用のCBufferの場所を設定
+	commandList_->SetGraphicsRootConstantBufferView(1, objectWvpResource_[objectIndex_]->GetGPUVirtualAddress());
+
+	//描画(DrawCall)
+	commandList_->DrawIndexedInstanced(primitiveCylinder->GetIndexCount(), 1, 0, 0, 0);
 
 	objectIndex_++;
 }

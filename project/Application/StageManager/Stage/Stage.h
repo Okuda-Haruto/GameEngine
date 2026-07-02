@@ -11,6 +11,8 @@
 #include <HUD/HUD.h>
 #include "../StageManager.h"
 
+#include <PrimitiveManager/PrimitiveCylinder.h>
+
 //ステージ
 class Stage {
 protected:
@@ -44,6 +46,12 @@ protected:
 	DirectionalLightElement directionalLightElement_;
 	shared_ptr<PointLight> pointLight_;
 	PointLightElement pointLightElement_;
+
+	std::unique_ptr<PrimitiveCylinder> cylider_;
+	SRT cylinderTransform_;
+	Material cylinderMaterial_;
+	const float kMaxCyliderTime_ = 0.6f;
+	float cylinderTime_;
 
 	bool isClear_ = false;
 	bool isEnd_ = false;

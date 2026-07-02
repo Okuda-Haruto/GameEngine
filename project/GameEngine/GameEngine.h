@@ -42,6 +42,7 @@
 #include "PrimitiveManager/Primitive3DManager.h"
 #include <PrimitiveManager/PrimitiveBox.h>
 #include <PrimitiveManager/PrimitiveRing.h>
+#include <PrimitiveManager/PrimitiveCylinder.h>
 #include "AudioManager/AudioManager.h"
 
 #include <vector>
@@ -99,6 +100,7 @@ private:
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> sprite_PipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> line_PipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> line_NoDepth_PipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> effect_Cyinder_PipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> screen_PipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> screen_ColorChange_PipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> screen_Vignette_PipelineState_ = nullptr;
@@ -266,6 +268,8 @@ private:
 	void DrawPrimitiveBox_(PrimitiveBox* primitiveBox);
 	void DrawPrimitiveRing_(PrimitiveRing* primitiveRing, SRT transform, Material material);
 	void DrawPrimitiveRing_Billboard_(PrimitiveRing* primitiveRing, SRT transform, Material material);
+	void DrawPrimitiveCylinder_(PrimitiveCylinder* primitiveCylinder, SRT transform, Material material);
+	void DrawPrimitiveCylinder_Billboard_(PrimitiveCylinder* primitiveCylinder, SRT transform, Material material);
 
 	WindowsAPI* GetWindowsAPI_() { return winApp_.get(); }
 
@@ -367,6 +371,8 @@ public:
 	static void DrawPrimitiveBox(PrimitiveBox* primitiveBox) { return GetInstance()->DrawPrimitiveBox_(primitiveBox); }
 	static void DrawPrimitiveRing(PrimitiveRing* primitiveRing, SRT transform, Material material) { return GetInstance()->DrawPrimitiveRing_(primitiveRing, transform, material); };
 	static void DrawPrimitiveRing_Billboard(PrimitiveRing* primitiveRing, SRT transform, Material material) { return GetInstance()->DrawPrimitiveRing_Billboard_(primitiveRing, transform, material); };
+	static void DrawPrimitiveCylinder(PrimitiveCylinder* primitiveCylinder, SRT transform, Material material) { return GetInstance()->DrawPrimitiveCylinder_(primitiveCylinder, transform, material); };
+	static void DrawPrimitiveCylinder_Billboard(PrimitiveCylinder* primitiveCylinder, SRT transform, Material material) { return GetInstance()->DrawPrimitiveCylinder_Billboard_(primitiveCylinder, transform, material); };
 
 	[[nodiscard]]
 	static WindowsAPI* GetWindowsAPI() { return GetInstance()->GetWindowsAPI_(); }

@@ -3,6 +3,7 @@
 #include <Math/Collision.h>
 #include <GameEngine.h>
 #include <numbers>
+#include <Math/Easing.h>
 
 Stage::~Stage() {
 	playerBullet_.clear();
@@ -75,6 +76,15 @@ void Stage::Initialize(StageData stageData, std::shared_ptr<Input> input) {
 	//情報表示
 	hud_ = std::make_unique<HUD>();
 	hud_->Initialize(directionalLight_, player_.get());
+
+	cylider_ = std::make_unique<PrimitiveCylinder>();
+	cylider_->Initialize(TextureManager::GetInstance()->GetSrvIndex("resources/DebugResources/gradationLine.png"), gameCamera_->GetCamera(), GameEngine::GetDirectXCommon());
+	cylinderTransform_ = *boss_->GetTransform();
+	cylinderTransform_.translate.y = 0.0f;
+	cylinderTransform_.scale = { 1.5f,3.0f,1.5f };
+	cylinderMaterial_.color = { 1.0f,1.0f,1.0f,1.0f };
+	cylinderMaterial_.uvTransform = MakeIdentity4x4();
+	cylinderTime_ = 0.0f;
 }
 
 void Stage::Update() {
@@ -144,6 +154,16 @@ void Stage::Update() {
 			});
 	}
 
+	if (cylinderTime_ < kMaxCyliderTime_) {
+		cylinderTime_ += 1.0f / 60.0f;
+		if (cylinderTime_ > kMaxCyliderTime_) {
+			cylinderTime_ = kMaxCyliderTime_;
+		}
+	}
+
+	cylinderTransform_.scale = Easing::EaseOut(Vector3{ 1.5f,3.0f,1.5f }, Vector3{4.5f,0.0f,4.5f}, cylinderTime_ / kMaxCyliderTime_);
+	cylinderMaterial_.color.w = Easing::EaseOut(0.0f, 1.0f, cylinderTime_ / kMaxCyliderTime_);
+	cylinderMaterial_.uvTransform = MakeTranslateMatrix({ Easing::EaseOut(0.0f,1.0f,cylinderTime_ / kMaxCyliderTime_),0.0f,0.0f });
 }
 
 void Stage::Draw() {
@@ -164,6 +184,10 @@ void Stage::Draw() {
 
 	for (auto& object : colliderObjects_) {
 		object->Draw();
+	}
+
+	if(cylinderTime_ < kMaxCyliderTime_) {
+		cylider_->Draw(cylinderTransform_, cylinderMaterial_);
 	}
 
 	hud_->Draw();
