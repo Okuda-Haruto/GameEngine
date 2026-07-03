@@ -43,10 +43,14 @@ private:
 	Vector3 targetAngle_;
 	//角移動速度
 	const float kAngleSpeed = std::numbers::pi_v<float> / 180 * 2;
+	//回転速度
+	Vector3 rotateVelocity_;
+	//回転速度を0に近づける補完の強さ
+	const float kRotateVelocityLerpLate = 0.45f;
+	//カメラが向いている向き
+	Vector3 cameraAngle_;
 	//角度を0に近づける補完の強さ
 	const float kAngleLerpLate = 0.2f;
-	//ローカル角度
-	Vector3 localAngle_;
 	//ターゲットからから外れる時間
 	const float kMaxPushRStickTime = 0.25f;
 	//右スティックを完全に傾けている時間
@@ -67,6 +71,10 @@ private:
 	const float kCameraOffsetZ = -60.0f;
 	//角移動速度
 	const float kAngleSpeed = std::numbers::pi_v<float> / 180 * 2;
+	//回転速度
+	Vector3 rotateVelocity_;
+	//回転速度を0に近づける補完の強さ
+	const float kRotateVelocityLerpLate = 0.45f;
 	//プレイヤーからカメラへのローカル座標
 	Vector3 offset_;
 public:

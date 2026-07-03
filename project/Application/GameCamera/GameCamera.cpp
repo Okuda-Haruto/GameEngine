@@ -19,7 +19,7 @@ void LockOnCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> inp
 	} else {
 		targetAngle_ = {};
 	}
-	localAngle_ = {};
+	cameraAngle_ = {};
 }
 
 void LockOnCamera::Update() {
@@ -46,20 +46,26 @@ void LockOnCamera::Update() {
 	if (gameCamera_->GetObserverTransform()) {
 		//スティック傾けで角度変更
 		if (pad.RightStick.magnitude > 0.01f) {
-			localAngle_ += { 
+			rotateVelocity_ += {
 				kAngleSpeed * -pad.RightStick.vector.y * pad.RightStick.magnitude ,
 				kAngleSpeed * pad.RightStick.vector.x * pad.RightStick.magnitude, 
 				0.0f
 			};
 		}
+		if (Length(rotateVelocity_) > 0.01f) {
+			rotateVelocity_ = Easing::Lerp(rotateVelocity_, {0.0f,0.0f,0.0f}, kRotateVelocityLerpLate);
+		} else {
+			rotateVelocity_ = {};
+		}
+		cameraAngle_ += rotateVelocity_;
 
 		//注目対象が存在している場合
 		if (targetSpehre_.lock()) {
 			//傾けた分をある程度戻す
-			if (Length(localAngle_) > 0.01f) {
-				localAngle_ = Easing::Lerp(localAngle_, { 0.0f,0.0f,0.0f }, kAngleLerpLate);
+			if (Length(cameraAngle_ - targetAngle_) > 0.01f) {
+				cameraAngle_ = Easing::Lerp(cameraAngle_, targetAngle_, kAngleLerpLate);
 			} else {
-				localAngle_ = {};
+				cameraAngle_ = targetAngle_;
 			}
 
 			Vector3 diff = targetSpehre_.lock()->center - gameCamera_->GetObserverTransform()->translate;
@@ -73,7 +79,7 @@ void LockOnCamera::Update() {
 			float length = Length(Vector3{ diff.x, 0.0f, diff.z });
 			// X軸回り回転(θx)
 			targetAngle_.x = 0;
-			transform_.rotate = targetAngle_ + localAngle_;
+			transform_.rotate = cameraAngle_;
 
 			Matrix4x4 rotateMatrix = MakeRotateXMatrix(transform_.rotate.x) * MakeRotateYMatrix(transform_.rotate.y);
 			transform_.translate = gameCamera_->GetObserverTransform()->translate + rotateMatrix * Vector3{ cameraOffsetX_,kCameraOffsetY,kCameraOffsetZ };
@@ -90,7 +96,7 @@ void LockOnCamera::Update() {
 			}
 		} else {
 			//存在していないなら角度はそのまま
-			transform_.rotate = targetAngle_ + localAngle_;
+			transform_.rotate = cameraAngle_;
 			Matrix4x4 rotateMatrix = MakeRotateXMatrix(transform_.rotate.x) * MakeRotateYMatrix(transform_.rotate.y);
 			transform_.translate = gameCamera_->GetObserverTransform()->translate + rotateMatrix * Vector3{ cameraOffsetX_,kCameraOffsetY,kCameraOffsetZ };
 
@@ -149,10 +155,20 @@ void WideViewCamera::Update() {
 	Pad pad = input_->GetPad();
 
 	if (pad.isConnected) {
-		Vector3 rotate = Normalize(Vector3(pad.RightStick.vector.x, pad.RightStick.vector.y, 0.0f));
-
-		transform_.rotate.y += rotate.x * kAngleSpeed * pad.RightStick.magnitude;
-		transform_.rotate.x += -rotate.y * kAngleSpeed * pad.RightStick.magnitude;
+		//スティック傾けで角度変更
+		if (pad.RightStick.magnitude > 0.01f) {
+			rotateVelocity_ += {
+				kAngleSpeed * -pad.RightStick.vector.y * pad.RightStick.magnitude,
+					kAngleSpeed* pad.RightStick.vector.x* pad.RightStick.magnitude,
+					0.0f
+			};
+		}
+		if (Length(rotateVelocity_) > 0.01f) {
+			rotateVelocity_ = Easing::Lerp(rotateVelocity_, { 0.0f,0.0f,0.0f }, kRotateVelocityLerpLate);
+		} else {
+			rotateVelocity_ = {};
+		}
+		transform_.rotate += rotateVelocity_;
 	}
 
 	Matrix4x4 rotateMatrix = MakeRotateMatrix(transform_.rotate);
