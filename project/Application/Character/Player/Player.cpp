@@ -123,11 +123,8 @@ void Player::Update() {
 #pragma region 移動処理
 
 		//注目中は角度をつける
-		if (isTargeted_ && targetTransform_) {
-			if (Length(targetTransform_->translate - transform_.translate) > 0.0f) {
-				Vector3 diff = Normalize(targetTransform_->translate - transform_.translate);
-				angle = std::atan2(diff.x, diff.z);
-			}
+		if (isTargeted_) {
+			angle = gameCamera_->GetTransform()->rotate.y;
 		}
 
 		acceleration_ = {};
@@ -171,7 +168,7 @@ void Player::Update() {
 			transform_.translate.x = std::clamp(transform_.translate.x, -58.5f, 58.5f);
 			transform_.translate.z = std::clamp(transform_.translate.z, -58.5f, 58.5f);
 
-			if (!(isTargeted_ && targetTransform_)) {
+			if (!(isTargeted_)) {
 				angle = std::atan2(velocity_.x, velocity_.z);
 			}
 

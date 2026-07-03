@@ -23,7 +23,7 @@ void Step_WaitAnimation::Activate(BossAction* action) {
 
 void Step_MoveFixedPositionTime::Activate(BossAction* action) {
 	LerpPositionState state;
-	state.startVector = action->GetBoss()->GetTransform()->translate;
+	state.startVector = action->GetBoss()->GetTransform().translate;
 	state.endVector = position_;
 	state.time = time_;
 	state.type = 0;
@@ -32,12 +32,12 @@ void Step_MoveFixedPositionTime::Activate(BossAction* action) {
 
 void Step_MoveFixedPositionSpeed::Activate(BossAction* action) {
 	//距離
-	Vector3 diff = position_ - action->GetBoss()->GetTransform()->translate;
+	Vector3 diff = position_ - action->GetBoss()->GetTransform().translate;
 	//その距離移動するににかかる時間
 	float lerpTime = Length(diff) / speed_;
 
 	LerpPositionState state;
-	state.startVector = action->GetBoss()->GetTransform()->translate;
+	state.startVector = action->GetBoss()->GetTransform().translate;
 	state.endVector = position_;
 	state.time = lerpTime;
 	state.type = 0;
@@ -53,13 +53,13 @@ void Step_MoveFixedVelocity::Activate(BossAction* action) {
 
 void Step_MoveFront::Activate(BossAction* action) {
 	VelocityState state;
-	state.velocity = Vector3{ 0,0,speed_ } * MakeRotateXMatrix(action->GetBoss()->GetTransform()->rotate.x) * MakeRotateYMatrix(action->GetBoss()->GetTransform()->rotate.y);
+	state.velocity = Vector3{ 0,0,speed_ } * MakeRotateXMatrix(action->GetBoss()->GetTransform().rotate.x) * MakeRotateYMatrix(action->GetBoss()->GetTransform().rotate.y);
 	state.time = time_;
 	action->SetVelocityState(state);
 }
 
 void Step_MoveToLockOn::Activate(BossAction* action) {
-	Vector3 diff = Normalize(action->GetBoss()->GetPlayerTransform()->translate - action->GetBoss()->GetTransform()->translate);
+	Vector3 diff = Normalize(action->GetBoss()->GetPlayerTransform()->translate - action->GetBoss()->GetTransform().translate);
 
 	VelocityState state;
 	state.velocity = diff * speed_;
@@ -81,8 +81,8 @@ void Step_ShotBulletToFront::Activate(BossAction* action) {
 		bulletSpread = Vector3{ 0,GameEngine::randomFloat(0.0f,spread_),0 } * MakeRotateZMatrix(GameEngine::randomFloat(0.0f,std::numbers::pi_v<float> * 2));
 	}
 	action->GetBoss()->ShotBullet(
-		action->GetBoss()->GetTransform()->translate,
-		action->GetBoss()->GetTransform()->rotate + bulletSpread,
+		action->GetBoss()->GetTransform().translate,
+		action->GetBoss()->GetTransform().rotate + bulletSpread,
 		speed_
 	);
 };
@@ -175,8 +175,9 @@ void Boss::Initialize(std::string filepath, Stage* stage, std::shared_ptr<GameCa
 
 	isStartAnimation_ = true;
 
-	trackingTransform_ = std::make_unique<SRT>();
-	*trackingTransform_ = transform_;
+	trackingSphere_ = std::make_shared<Sphere>();
+	trackingSphere_->center = transform_.translate;
+	trackingSphere_->radius = Length(transform_.scale);
 
 	std::unique_ptr<Step_WaitTime> step_WaitTime;
 	std::unique_ptr<Step_ShotBulletToFront> step_ShotBulletToFront;
@@ -477,7 +478,12 @@ void Boss::Update() {
 			transform_.translate.x = std::clamp(transform_.translate.x, -59.0f, 59.0f);
 			transform_.translate.z = std::clamp(transform_.translate.z, -59.0f, 59.0f);
 
-			*trackingTransform_ = transform_;
+			trackingSphere_->center = transform_.translate;
+			trackingSphere_->radius = Length(transform_.scale);
+#ifdef USE_IMGUI
+			Primitive3DManager::GetInstance()->AddSphere(*trackingSphere_);
+#endif // USE_IMGUI
+
 		}
 	}
 	SRT displayTransform = transform_;
