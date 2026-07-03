@@ -1,7 +1,7 @@
 #include "ColliderObject.h"
 #include <Operation/Operation.h>
 
-void ColliderObject::Initialize(std::shared_ptr<Model> model, SRT transform) {
+void ColliderObject::Initialize(std::shared_ptr<Model> model, std::shared_ptr<DirectionalLight> directionalLight, GameCamera* gameCamera, SRT transform) {
 	transform_ = transform;
 
 	colliderParent_ = std::make_shared<Matrix4x4>();
@@ -10,6 +10,8 @@ void ColliderObject::Initialize(std::shared_ptr<Model> model, SRT transform) {
 	object_ = std::make_unique<Object>();
 	object_->Initialize(model);
 	object_->SetTransform(transform);
+	object_->SetDirectionalLight(directionalLight);
+	object_->SetCamera(gameCamera->GetCamera());
 
 	colliders_ = std::make_shared<Colliders>();
 	colliders_->Initialize(this);

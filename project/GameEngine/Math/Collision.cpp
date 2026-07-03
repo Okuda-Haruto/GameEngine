@@ -17,11 +17,29 @@ Vector3 Project(const Vector3& v1, const Vector3& v2) {
 }
 
 //最終接点
+Vector3 ClosestPoint(const Vector3& point, const Line& line) {
+	float t = Dot(point - line.origin, line.diff)
+		/ Dot(line.diff, line.diff);
+
+	return line.origin + line.diff * t;
+}
+Vector3 ClosestPoint(const Vector3& point, const Ray& ray) {
+	float t = Dot(point - ray.origin, ray.diff)
+		/ Dot(ray.diff, ray.diff);
+
+	// Rayなので0以上に制限
+	t = std::max(t, 0.0f);
+
+	return ray.origin + ray.diff * t;
+}
 Vector3 ClosestPoint(const Vector3& point, const Segment& segment) {
-	Vector3 cp;
-	Vector3 a = point - segment.origin;
-	cp = segment.origin - Project(a, segment.diff);
-	return cp;
+	float t = Dot(point - segment.origin, segment.diff)
+		/ Dot(segment.diff, segment.diff);
+
+	// 線分なので0～1に制限
+	t = std::clamp(t, 0.0f, 1.0f);
+
+	return segment.origin + segment.diff * t;
 }
 
 //球と球の衝突
@@ -75,6 +93,33 @@ bool IsCollision(const Segment& segment, const Plane& plane) {
 	} else {
 		return false;
 	}
+}
+
+//直線と球の当たり判定
+bool IsCollision(const Line& line, const Sphere& sphere){
+	Vector3 closest = ClosestPoint(sphere.center, line);
+
+	float distance = Length(closest - sphere.center);
+
+	return distance <= sphere.radius;
+}
+
+//半直線と球の当たり判定
+bool IsCollision(const Ray& ray, const Sphere& sphere){
+	Vector3 closest = ClosestPoint(sphere.center, ray);
+
+	float distance = Length(closest - sphere.center);
+
+	return distance <= sphere.radius;
+}
+
+//線分と球の当たり判定
+bool IsCollision(const Segment& segment, const Sphere& sphere){
+	Vector3 closest = ClosestPoint(sphere.center, segment);
+
+	float distance = Length(closest - sphere.center);
+
+	return distance <= sphere.radius;
 }
 
 //三角形と線分の衝突

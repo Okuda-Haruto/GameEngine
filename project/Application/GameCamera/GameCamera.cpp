@@ -3,7 +3,8 @@
 #include "GameEngine.h"
 #include <Matrix4x4.h>
 #include <numbers>
-#include <Math/Easing.h>
+#include <Easing.h>
+#include <Collision.h>
 
 #pragma region LockOnCamera
 
@@ -12,6 +13,13 @@ void LockOnCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> inp
 	input_ = input;
 
 	transform_ = {};
+	pushRStickTime_ = 0;
+	if (gameCamera_->GetObserverTransform()) {
+		targetAngle_ = gameCamera_->GetObserverTransform()->rotate;
+	} else {
+		targetAngle_ = {};
+	}
+	localAngle_ = {};
 }
 
 void LockOnCamera::Update() {
@@ -21,13 +29,14 @@ void LockOnCamera::Update() {
 	//進行方向に合わせる
 	if (pad.LeftStick.magnitude > 0.5f || keyboard.keys[DIK_A].hold || keyboard.keys[DIK_D].hold) {
 		if (pad.LeftStick.vector.x > 0.5f || keyboard.keys[DIK_D].hold) {
-			offsetDirection = true;
+			offsetDirection_ = true;
 		} else if (pad.LeftStick.vector.x < -0.5f || keyboard.keys[DIK_A].hold) {
-			offsetDirection = false;
+			offsetDirection_ = false;
 		}
 	}
 
-	if (offsetDirection) {
+	//カメラを左右どちらに寄せるか
+	if (offsetDirection_) {
 		cameraOffsetX_ = Easing::Lerp(cameraOffsetX_, kMaxCameraOffsetX, 0.2f);
 	}else{
 		cameraOffsetX_ = Easing::Lerp(cameraOffsetX_, -kMaxCameraOffsetX, 0.2f);
@@ -35,28 +44,87 @@ void LockOnCamera::Update() {
 
 	//プレイヤーが存在している場合
 	if (gameCamera_->GetObserverTransform()) {
+		//スティック傾けで角度変更
+		if (pad.RightStick.magnitude > 0.01f) {
+			localAngle_ += { 
+				kAngleSpeed * -pad.RightStick.vector.y * pad.RightStick.magnitude ,
+				kAngleSpeed * pad.RightStick.vector.x * pad.RightStick.magnitude, 
+				0.0f
+			};
+		}
+
 		//注目対象が存在している場合
-		if (gameCamera_->GetTargetTransform()) {
-			Vector3 diff = gameCamera_->GetTargetTransform()->translate - gameCamera_->GetObserverTransform()->translate;
+		if (targetSpehre_.lock()) {
+			//傾けた分をある程度戻す
+			if (Length(localAngle_) > 0.01f) {
+				localAngle_ = Easing::Lerp(localAngle_, { 0.0f,0.0f,0.0f }, kAngleLerpLate);
+			} else {
+				localAngle_ = {};
+			}
+
+			Vector3 diff = targetSpehre_.lock()->center - gameCamera_->GetObserverTransform()->translate;
 			//必ずいずれかの向きを向くように
 			if (Length(diff) <= 0.0f) {
 				diff = { 0.0f,0.0f,1.0f };
 			}
 
 			//  Y軸回り回転(θy)
-			transform_.rotate.y = std::atan2(diff.x, diff.z);
+			targetAngle_.y = std::atan2(diff.x, diff.z);
 			float length = Length(Vector3{ diff.x, 0.0f, diff.z });
 			// X軸回り回転(θx)
-			transform_.rotate.x = 0;
+			targetAngle_.x = 0;
+			transform_.rotate = targetAngle_ + localAngle_;
 
-			Matrix4x4 rotateMatrix = MakeRotateYMatrix(transform_.rotate.y);
-			transform_.translate = gameCamera_->GetObserverTransform()->translate + rotateMatrix * Vector3{ cameraOffsetX_,0.0f,0.0f } + Normalize(diff) * kCameraOffsetZ;
-			transform_.translate.y = kCameraOffsetY;
+			Matrix4x4 rotateMatrix = MakeRotateXMatrix(transform_.rotate.x) * MakeRotateYMatrix(transform_.rotate.y);
+			transform_.translate = gameCamera_->GetObserverTransform()->translate + rotateMatrix * Vector3{ cameraOffsetX_,kCameraOffsetY,kCameraOffsetZ };
+
+			//傾けている時間がある程度を過ぎたらターゲットを外す
+			if (pad.RightStick.magnitude >= 1.0f && targetSpehre_.lock()) {
+				pushRStickTime_ += 1.0f / 60.0f;
+				if (pushRStickTime_ > kMaxPushRStickTime) {
+					targetSpehre_.reset();
+					pushRStickTime_ = 0.0f;
+				}
+			} else {
+				pushRStickTime_ = 0.0f;
+			}
 		} else {
-			//存在していないなら角度は変えない
-			Matrix4x4 rotateMatrix = MakeRotateYMatrix(transform_.rotate.y);
-			transform_.translate = gameCamera_->GetObserverTransform()->translate + rotateMatrix * Vector3{ cameraOffsetX_,0.0f,kCameraOffsetZ };
-			transform_.translate.y = kCameraOffsetY;
+			//存在していないなら角度はそのまま
+			transform_.rotate = targetAngle_ + localAngle_;
+			Matrix4x4 rotateMatrix = MakeRotateXMatrix(transform_.rotate.x) * MakeRotateYMatrix(transform_.rotate.y);
+			transform_.translate = gameCamera_->GetObserverTransform()->translate + rotateMatrix * Vector3{ cameraOffsetX_,kCameraOffsetY,kCameraOffsetZ };
+
+			//視線にロックオン対象が接触しているか
+			std::vector<std::weak_ptr<Sphere>> targetSpheres = gameCamera_->GetTargetSpheres();
+			Ray playerRay = {
+				.origin = transform_.translate,
+				.diff = rotateMatrix * Vector3{0,0,1}
+			};
+#ifdef USE_IMGUI
+			Primitive3DManager::GetInstance()->AddRay(playerRay);
+#endif // USE_IMGUI
+
+			//ターゲット候補
+			std::weak_ptr<Sphere> keepTargetSphere;
+			float observerDistance = 0;
+			for (auto& target : targetSpheres) {
+				if (IsCollision(playerRay, *target.lock())) {
+					//既に他の球が接触済みなら近い方をターゲットに
+					if (keepTargetSphere.lock()) {
+						float length = Length(keepTargetSphere.lock()->center - transform_.translate);
+						if (observerDistance > length) {
+							keepTargetSphere = target;
+							observerDistance = length;
+						}
+					} else {
+						keepTargetSphere = target;
+						observerDistance = Length(keepTargetSphere.lock()->center - transform_.translate);
+					}
+				}
+			}
+			if (keepTargetSphere.lock()) {
+				targetSpehre_ = keepTargetSphere;
+			}
 		}
 	}
 }
@@ -83,8 +151,8 @@ void WideViewCamera::Update() {
 	if (pad.isConnected) {
 		Vector3 rotate = Normalize(Vector3(pad.RightStick.vector.x, pad.RightStick.vector.y, 0.0f));
 
-		transform_.rotate.y += (rotate.x * std::numbers::pi_v<float> / 180) * kCameraRotateSpeed * pad.RightStick.magnitude;
-		transform_.rotate.x += (-rotate.y * std::numbers::pi_v<float> / 180) * kCameraRotateSpeed * pad.RightStick.magnitude;
+		transform_.rotate.y += rotate.x * kAngleSpeed * pad.RightStick.magnitude;
+		transform_.rotate.x += -rotate.y * kAngleSpeed * pad.RightStick.magnitude;
 	}
 
 	Matrix4x4 rotateMatrix = MakeRotateMatrix(transform_.rotate);
@@ -170,6 +238,21 @@ void GameCamera::Update() {
 		transform_->translate.x += GameEngine::randomFloat(-shakeTime_, shakeTime_);
 		transform_->translate.y += GameEngine::randomFloat(-shakeTime_, shakeTime_);
 		transform_->translate.z += GameEngine::randomFloat(-shakeTime_, shakeTime_);
+	}
+
+	if (fabsf(transform_->rotate.x) > std::numbers::pi_v<float>) {
+		if (transform_->rotate.x > std::numbers::pi_v<float> *2) {
+			transform_->rotate.x -= std::numbers::pi_v<float> *2;
+		} else {
+			transform_->rotate.x += std::numbers::pi_v<float> *2;
+		}
+	}
+	if (fabsf(transform_->rotate.y) > std::numbers::pi_v<float>) {
+		if (transform_->rotate.y > std::numbers::pi_v<float> *2) {
+			transform_->rotate.y -= std::numbers::pi_v<float> *2;
+		} else {
+			transform_->rotate.y += std::numbers::pi_v<float> *2;
+		}
 	}
 
 	camera_->Update(*transform_);

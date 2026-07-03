@@ -91,11 +91,6 @@ void Model::BoneAnimation(Skeleton& skeleton, float time, std::string animationN
 			}
 		}
 
-		//ワールド座標
-		//for (Bone& bone : bones) {
-		//	*bone.finalMatrix = bone.offsetMatrix * SetWorldMatrix(modelData_.rootNode, bones, bone);
-		//}
-
 		return;
 	}
 

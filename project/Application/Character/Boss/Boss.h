@@ -511,7 +511,8 @@ private:
 
 	float angle;
 
-	std::unique_ptr<SRT> trackingTransform_;
+	//ターゲット用Sphere
+	std::shared_ptr<Sphere> trackingSphere_;
 
 	//いらないかも
 	std::string bossName_;
@@ -560,14 +561,15 @@ public:
 
 	void IsCollisionGround(OBB obb) override;
 
-	SRT* GetTransform() { return trackingTransform_.get(); }
+	SRT GetTransform() { return  transform_; }
 	SRT* GetPlayerTransform() { return player_->GetTransform(); }
 	Vector3 GetVelocity() { return velocity_; }
 	Stage* GetStage() { return stage_; }
 	Player* GetPlayer() { return player_; }
+	std::shared_ptr<Sphere> GetTrackingSphere() { return trackingSphere_; }
 	std::shared_ptr<GameCamera> GetGameCamera() { return gameCamera_; }
 
-	void SetTransfrom(SRT transfrom) { transform_ = transfrom; *trackingTransform_ = transform_; object_->SetTransform(transform_); }
+	void SetTransfrom(SRT transfrom) { transform_ = transfrom; trackingSphere_->center = transform_.translate; object_->SetTransform(transform_); }
 
 	void SetCamera(shared_ptr<Camera> camera) { object_->SetCamera(camera); }
 

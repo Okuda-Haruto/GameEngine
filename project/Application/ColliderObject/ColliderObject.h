@@ -1,7 +1,9 @@
 #pragma once
 #include <Collider/OBBCollider.h>
 #include <Object/Object.h>
+#include <GameCamera/GameCamera.h>
 #include <Collider/Colliders.h>
+#include <memory>
 
 /// <summary>
 /// 接触可能なオブジェクト
@@ -16,9 +18,12 @@ private:
 	std::shared_ptr<Matrix4x4> colliderParent_;
 
 	SRT transform_;
+
+	GameCamera* gameCamera_;
+
 public:
 	//初期化
-	void Initialize(std::shared_ptr<Model> model, SRT transform);
+	void Initialize(std::shared_ptr<Model> model, std::shared_ptr<DirectionalLight> directionalLight, GameCamera* gameCamera, SRT transform);
 	//更新処理
 	void Update();
 	//描画処理

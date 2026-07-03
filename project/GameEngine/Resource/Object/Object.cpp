@@ -66,6 +66,12 @@ void Object::Update() {
 			animationTime_ = std::fmod(animationTime_,animationData.duration);
 		}
 		model_->BoneAnimation(skeleton_, animationTime_, animationName_, interpolation_);
+
+		for (int i = 0; i < bones_.size(); i++) {
+			if (i > 128)break;
+			*bones_[i].finalMatrix = bones_[i].offsetMatrix * skeleton_.joints[skeleton_.jointMap[bones_[i].name]].skeltonSpaceMatrix;
+		}
+
 	}
 }
 

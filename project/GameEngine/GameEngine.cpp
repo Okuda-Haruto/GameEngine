@@ -442,8 +442,7 @@ void GameEngine::DrawObject_3D_(Object* object, shared_ptr<DirectionalLight> dir
 		std::vector<Bone> bones = object->GetBones();
 		for (int i = 0; i < bones.size(); i++) {
 			if (i > 128)break;
-			objectBoneData_[objectIndex_]->matrix[i] = bones[i].offsetMatrix * skeleton.joints[skeleton.jointMap[bones[i].name]].skeltonSpaceMatrix;
-			//Primitive3DManager::GetInstance()->AddPoint(Vector3{ 0,0,0 } * skeleton.joints[skeleton.jointMap[bones[i].name]].skeltonSpaceMatrix * worldMatrix);
+			objectBoneData_[objectIndex_]->matrix[i] = *bones[i].finalMatrix;
 		}
 
 		objectBoneResource_[objectIndex_]->Unmap(0,nullptr);

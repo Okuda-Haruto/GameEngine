@@ -21,8 +21,6 @@ private:
 
 	//カメラ追従用Transform
 	std::unique_ptr<SRT> trackingTransform_;
-	//狙っている相手のTransform
-	SRT* targetTransform_;
 
 	const SRT* cameraTransform_{};
 
@@ -96,7 +94,6 @@ public:
 	SRT* GetTransform() { return trackingTransform_.get(); }
 
 	void SetTransfrom(SRT transfrom) { transform_ = transfrom; *trackingTransform_ = transform_; object_->SetTransform(transform_); }
-	void SetTargetTransform(SRT* targetTransform) { targetTransform_ = targetTransform; }
 
 	void SetCameraTransform(const SRT* transform) { cameraTransform_ = transform; }
 

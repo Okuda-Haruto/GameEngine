@@ -60,8 +60,7 @@ void Stage::Initialize(StageData stageData, std::shared_ptr<Input> input) {
 	//ボス
 	boss_ = std::make_unique<Boss>();
 	boss_->Initialize(stageData.bossData.filepath, this, gameCamera_, player_.get(), stageData.bossData.startTransform);
-	gameCamera_->SetTargetTransform(boss_->GetTransform());
-	player_->SetTargetTransform(boss_->GetTransform());
+	gameCamera_->SetTargetSphere(boss_->GetTrackingSphere());
 	boss_->SetCamera(gameCamera_->GetCamera());
 	boss_->SetDirectionalLight(directionalLight_);
 	boss_->SetPointLight(pointLight_);
@@ -69,7 +68,7 @@ void Stage::Initialize(StageData stageData, std::shared_ptr<Input> input) {
 	//接触可能オブジェクト
 	for (auto& object : stageData.colliderObjects) {
 		std::unique_ptr<ColliderObject> colliderObject = std::make_unique<ColliderObject>();
-		colliderObject->Initialize(ModelManager::GetInstance()->GetModel(object.directoryPath, object.filename), object.startTransform);
+		colliderObject->Initialize(ModelManager::GetInstance()->GetModel(object.directoryPath, object.filename), directionalLight_, gameCamera_.get(), object.startTransform);
 		colliderObjects_.push_back(move(colliderObject));
 	}
 
@@ -79,7 +78,7 @@ void Stage::Initialize(StageData stageData, std::shared_ptr<Input> input) {
 
 	cylider_ = std::make_unique<PrimitiveCylinder>();
 	cylider_->Initialize(TextureManager::GetInstance()->GetSrvIndex("resources/DebugResources/gradationLine.png"), gameCamera_->GetCamera(), GameEngine::GetDirectXCommon());
-	cylinderTransform_ = *boss_->GetTransform();
+	cylinderTransform_ = boss_->GetTransform();
 	cylinderTransform_.translate.y = 0.0f;
 	cylinderTransform_.scale = { 1.5f,3.0f,1.5f };
 	cylinderMaterial_.color = { 1.0f,1.0f,1.0f,1.0f };

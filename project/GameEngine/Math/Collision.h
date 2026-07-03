@@ -10,6 +10,10 @@
 //正射影ベクトル
 Vector3 Project(const Vector3& v1, const Vector3& v2);
 //最終接点
+Vector3 ClosestPoint(const Vector3& point, const Line& line);
+//最終接点
+Vector3 ClosestPoint(const Vector3& point, const Ray& ray);
+//最終接点
 Vector3 ClosestPoint(const Vector3& point, const Segment& segment);
 
 //球と球の衝突
@@ -22,6 +26,12 @@ bool IsCollision(const Line& line, const Plane& plane);
 bool IsCollision(const Ray& ray, const Plane& plane);
 //線分と平面の衝突
 bool IsCollision(const Segment& segment, const Plane& plane);
+//直線と球の当たり判定
+bool IsCollision(const Line& line, const Sphere& sphere);
+//半直線と球の当たり判定
+bool IsCollision(const Ray& ray, const Sphere& sphere);
+//線分と球の当たり判定
+bool IsCollision(const Segment& segment, const Sphere& sphere);
 //三角形と線分の衝突
 bool IsCollision(const Triangle& triangle, const Segment& segment);
 //AABBと点の衝突
