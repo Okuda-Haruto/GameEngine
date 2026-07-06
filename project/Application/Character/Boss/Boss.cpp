@@ -166,7 +166,7 @@ void Boss::Initialize(std::string filepath, Stage* stage, std::shared_ptr<GameCa
 
 	//モデルの生成		とりあえずプレイヤーと同じ
 	object_ = std::make_unique<Object>();
-	object_->Initialize(ModelHolder::GetInstance()->GetModel(ModelIndex::Player));
+	object_->Initialize(ModelManager::GetInstance()->GetModel("resources/Character/Boss","Boss.obj"));
 	//object_->SetIsUseAnimation(true);
 	//object_->SetAnimationName("Start");
 	object_->SetAnimationInterpolation(AnimationInterpolation::Cubic_Spline);
@@ -178,6 +178,9 @@ void Boss::Initialize(std::string filepath, Stage* stage, std::shared_ptr<GameCa
 	trackingSphere_ = std::make_shared<Sphere>();
 	trackingSphere_->center = transform_.translate;
 	trackingSphere_->radius = Length(transform_.scale);
+	gameCamera_->SetTargetSphere(trackingSphere_);
+
+	moveParticle_ = std::make_unique<ParticleEmitter>("Particle_Move");
 
 	std::unique_ptr<Step_WaitTime> step_WaitTime;
 	std::unique_ptr<Step_ShotBulletToFront> step_ShotBulletToFront;
@@ -381,7 +384,7 @@ void Boss::Initialize(std::string filepath, Stage* stage, std::shared_ptr<GameCa
 	lerpPositionTime_ = 0;
 	velocityStateTime_ = 0;
 
-	BaseCharacter::Initialize(1.5f, CollisionID_Enemy_Body);
+	BaseCharacter::Initialize(trackingSphere_->radius, CollisionID_Enemy_Body);
 }
 
 void Boss::Update() {
@@ -398,7 +401,7 @@ void Boss::Update() {
 		if (HP_ > 0.0f) {
 
 			Vector4 color;
-			color = { (HP_ / maxHP_) / 2, (HP_ / maxHP_) / 2, (HP_ / maxHP_), 1.0f };
+			color = { (HP_ / maxHP_), (HP_ / maxHP_), (HP_ / maxHP_), 1.0f };
 			object_->SetColor(color);
 
 			if (!patternName_.empty()) {
@@ -429,6 +432,13 @@ void Boss::Update() {
 							velocityStateTime_ = 0.0f;
 						}
 						isAction_ = true;
+					}
+
+					if (lerpPosition_ || velocityState_) {
+						SRT transform;
+						transform.translate = transform_.translate;
+						transform.translate.y = 0.0f;
+						moveParticle_->SetTransform(transform);
 					}
 
 					//ロックオン中か
@@ -501,7 +511,7 @@ void Boss::IsCollision(uint8_t targetId) {
 	if (targetId == CollisionID_Player_Attack) {	//プレイヤー攻撃
 		HP_--;
 
-		//particle_->Emit();
+		stage_->SetRingColorA(1.0f);
 
 		gameCamera_->SetShakeTime(0.3f);
 	}

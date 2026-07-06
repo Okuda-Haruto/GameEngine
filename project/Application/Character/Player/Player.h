@@ -24,6 +24,9 @@ private:
 
 	const SRT* cameraTransform_{};
 
+	std::unique_ptr<ParticleEmitter> moveParticle_ = nullptr;
+	std::unique_ptr<ParticleEmitter> damageParticle_ = nullptr;
+
 	enum class DODGE_ANGLE {
 		FRONT,
 		BACK,
