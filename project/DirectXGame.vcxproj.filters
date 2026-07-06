@@ -286,6 +286,9 @@
     <ClCompile Include="GameEngine\Modules\PrimitiveManager\PrimitiveCylinder.cpp">
       <Filter>GameEngine\Modules\PrimitiveManager</Filter>
     </ClCompile>
+    <ClCompile Include="Application\Character\BreakObject\BreakObject.cpp">
+      <Filter>Application\Character\BreakObject</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\BackGround\Ground\Ground.h">
@@ -675,6 +678,9 @@
     <ClInclude Include="GameEngine\Modules\PrimitiveManager\PrimitiveCylinder.h">
       <Filter>GameEngine\Modules\PrimitiveManager</Filter>
     </ClInclude>
+    <ClInclude Include="Application\Character\BreakObject\BreakObject.h">
+      <Filter>Application\Character\BreakObject</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -943,6 +949,9 @@
     </Filter>
     <Filter Include="GameEngine\LoadFile\Json">
       <UniqueIdentifier>{e588f98e-a94f-4526-bd5c-c3eeb1db66ef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Character\BreakObject">
+      <UniqueIdentifier>{3dcb621a-1c29-428e-816a-34a28f1ac1aa}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

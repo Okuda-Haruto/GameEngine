@@ -522,7 +522,8 @@ private:
 	float HP_;
 
 	std::shared_ptr<GameCamera> gameCamera_ = nullptr;
-	ParticleEmitter* particle_ = nullptr;
+
+	std::unique_ptr<ParticleEmitter> moveParticle_ = nullptr;
 
 	Stage* stage_ = nullptr;
 	Player* player_ = nullptr;
@@ -569,7 +570,7 @@ public:
 	std::shared_ptr<Sphere> GetTrackingSphere() { return trackingSphere_; }
 	std::shared_ptr<GameCamera> GetGameCamera() { return gameCamera_; }
 
-	void SetTransfrom(SRT transfrom) { transform_ = transfrom; trackingSphere_->center = transform_.translate; object_->SetTransform(transform_); }
+	void SetTransfrom(SRT transfrom) { transform_ = transfrom; object_->SetTransform(transform_); }
 
 	void SetCamera(shared_ptr<Camera> camera) { object_->SetCamera(camera); }
 
@@ -587,6 +588,8 @@ public:
 	bool IsAction() { return isAction_; }
 
 	void ShotBullet(Vector3 startPoint, Vector3 rotate, float speed);
+
+	void EmitMoveParticle(SRT transform) { moveParticle_->Emit(transform); }
 
 private:
 

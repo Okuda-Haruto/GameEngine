@@ -17,6 +17,8 @@ public:
 	void SetTransform(SRT transform) { transform_ = transform; }
 
 	std::string GetName() { return name_; }
+	SRT GetTransform() { return transform_; }
+	Emitter GetEmitter() { return ParticleManager::GetInstance()->GetParticleGroups()[name_].emitter; }
 
 private:
 	//名前

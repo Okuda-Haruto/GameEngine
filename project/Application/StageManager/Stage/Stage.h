@@ -7,11 +7,14 @@
 #include <Character/Boss/Boss.h>
 #include <Bullet/PlayerBullet/PlayerBullet.h>
 #include <Bullet/BossBullet/BossBullet.h>
+#include <Character/BreakObject/BreakObject.h>
 #include <ColliderObject/ColliderObject.h>
 #include <HUD/HUD.h>
 #include "../StageManager.h"
 
 #include <PrimitiveManager/PrimitiveCylinder.h>
+#include <ParticleEmitter/ParticleEmitter.h>
+#include <PrimitiveManager/PrimitiveRing.h>
 
 //ステージ
 class Stage {
@@ -28,9 +31,11 @@ protected:
 	std::unique_ptr<Player> player_;
 	std::unique_ptr<Boss> boss_;
 	//弾
-	std::list<std::unique_ptr<PlayerBullet>> playerBullet_;
-	std::list<std::unique_ptr<BossBullet>> bossBullet_;
+	std::list<std::unique_ptr<PlayerBullet>> playerBullets_;
+	std::list<std::unique_ptr<BossBullet>> bossBullets_;
 
+	//破壊可能オブジェクト
+	std::list<std::unique_ptr<BreakObject>> breakObjects_;
 	//接触判定オブジェクト
 	std::vector<std::unique_ptr<ColliderObject>> colliderObjects_;
 
@@ -46,6 +51,15 @@ protected:
 	DirectionalLightElement directionalLightElement_;
 	shared_ptr<PointLight> pointLight_;
 	PointLightElement pointLightElement_;
+
+	std::unique_ptr<ParticleEmitter> particle_;
+	std::unique_ptr<ParticleEmitter> particle_2;
+	std::unique_ptr<ParticleEmitter> particle_3;
+	std::unique_ptr<ParticleEmitter> particle_4;
+
+	std::unique_ptr<PrimitiveRing> ring_;
+	SRT ringTransform_;
+	Material ringMaterial_;
 
 	std::unique_ptr<PrimitiveCylinder> cylider_;
 	SRT cylinderTransform_;
@@ -95,4 +109,6 @@ public:
 	bool IsEnd() { return isEnd_; }
 
 	void ClearColliderObjects() { colliderObjects_.clear(); }
+
+	void SetRingColorA(float a) { ringMaterial_.color.w = a; }
 };

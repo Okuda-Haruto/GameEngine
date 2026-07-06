@@ -2,7 +2,7 @@
 #include "Operation/Operation.h"
 #include <numbers>
 
-weak_ptr<Camera>  PlayerBullet::camera_;
+weak_ptr<Camera> PlayerBullet::camera_;
 weak_ptr<DirectionalLight> PlayerBullet::directionalLight_;
 weak_ptr<PointLight> PlayerBullet::pointLight_;
 

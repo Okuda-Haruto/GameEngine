@@ -6,8 +6,8 @@
 #include <Math/Easing.h>
 
 Stage::~Stage() {
-	playerBullet_.clear();
-	bossBullet_.clear();
+	playerBullets_.clear();
+	bossBullets_.clear();
 
 #ifdef USE_IMGUI
 	backGround_->SaveBackGround("resources/CSV/BackGround.csv");
@@ -17,12 +17,15 @@ Stage::~Stage() {
 void Stage::Initialize(StageData stageData, std::shared_ptr<Input> input) {
 	input_ = input;
 
+	BreakObject::SetStage(this);
+
 	//メインカメラ
 	gameCamera_ = std::make_unique<GameCamera>();
 	gameCamera_->Initialize(input_);
 	gameCamera_->ChangeCamera(std::make_unique<LockOnCamera>(), 0.0f);
 	PlayerBullet::SetCamera(gameCamera_->GetCamera());
 	BossBullet::SetCamera(gameCamera_->GetCamera());
+	BreakObject::SetGameCamera(gameCamera_);
 
 	directionalLight_ = std::make_unique<DirectionalLight>();
 	directionalLight_->Initialize(GameEngine::GetDirectXCommon());
@@ -32,6 +35,7 @@ void Stage::Initialize(StageData stageData, std::shared_ptr<Input> input) {
 	directionalLight_->SetDirectionalLightElement(directionalLightElement_);
 	PlayerBullet::SetDirectionalLight(directionalLight_);
 	BossBullet::SetDirectionalLight(directionalLight_);
+	BreakObject::SetDirectionalLight(directionalLight_);
 
 	pointLight_ = std::make_unique<PointLight>();
 	pointLight_->Initialize(GameEngine::GetDirectXCommon());
@@ -43,6 +47,101 @@ void Stage::Initialize(StageData stageData, std::shared_ptr<Input> input) {
 	pointLight_->SetPointLightElement(pointLightElement_);
 	PlayerBullet::SetPointLight(pointLight_);
 	BossBullet::SetPointLight(pointLight_);
+	BreakObject::SetPointLight(pointLight_);
+
+	ParticleManager::GetInstance()->CreateParticleGroup("Particle_Sandstorm", "resources/Particle/sand.png");
+	particle_ = std::make_unique<ParticleEmitter>("Particle_Sandstorm");
+
+	Emitter emitter;
+	emitter.count = 2;
+	emitter.lifeTime = 3.0f;
+	emitter.frequency = 0.1f;
+	emitter.frequencyTime = 0.0f;
+	emitter.spawnRange.min = { -5.0f,-0.5f,-50.0f };
+	emitter.spawnRange.max = { 5.0f,0.5f,50.0f };
+	emitter.angleBase = { -1.0f,0.0f,0.0f };
+	emitter.angleRange = { 0.0f,0.0f,0.1f };	//方向範囲
+	emitter.speedBase = 0.7f;	//基礎速度
+	emitter.speedRange = 0.4f;	//速度範囲
+	emitter.beforeColor = { 1.0f,1.0f,1.0f,1.0f };
+	emitter.afterColor = { 1.0f,1.0f,1.0f,0.0f };
+	emitter.rotateVelocity = 0.0f;
+	emitter.rotateRate = std::numbers::pi_v<float>;
+	particle_->SetEmitter(emitter);
+	SRT emitterTransform;
+	emitterTransform.scale = { 10.0f, 10.0f, 10.0f };
+	emitterTransform.rotate = { 0, 0, 0 };
+	emitterTransform.translate = { 50.0f, 0.0f, 0.0f };
+	particle_->SetTransform(emitterTransform);
+
+	ParticleManager::GetInstance()->CreateParticleGroup("Particle_Shot", "resources/Particle/particle.png");
+	particle_2 = std::make_unique<ParticleEmitter>("Particle_Shot");
+
+	Emitter emitter_2;
+	emitter_2.count = 16;
+	emitter_2.lifeTime = 0.5f;
+	emitter_2.frequency = 0.0f;
+	emitter_2.frequencyTime = 0.0f;
+	emitter_2.spawnRange.min = { 0.0f,0.0f,0.0f };
+	emitter_2.spawnRange.max = { 0.0f,0.0f,0.0f };
+	emitter_2.angleBase = { 0.0f,0.0f,1.0f };
+	emitter_2.angleRange = { 0.1f,0.1f,0.1f };	//方向範囲
+	emitter_2.speedBase = 0.1f;	//基礎速度
+	emitter_2.speedRange = 0.05f;	//速度範囲
+	emitter_2.beforeColor = { 240.0f / 256.0f,240.0f / 256.0f,240.0f / 256.0f,1.0f };
+	emitter_2.afterColor = { 40.0f / 256.0f, 40.0f / 256.0f, 40.0f / 256.0f,0.0f };
+	particle_2->SetEmitter(emitter_2);
+	SRT emitterTransform_2;
+	emitterTransform_2.scale = { 1.0f,1.0f,1.0f };
+	emitterTransform_2.rotate = { 0.0f,0.0f,0.0f };
+	emitterTransform_2.translate = { 0.0f,0.0f,0.0f };
+	particle_2->SetTransform(emitterTransform_2);
+
+	//パーティクル
+	ParticleManager::GetInstance()->CreateParticleGroup("Particle_PlayerDamage", "resources/Particle/particle.png");
+	particle_3 = std::make_unique<ParticleEmitter>("Particle_PlayerDamage");
+
+	Emitter emitter_3;
+	emitter_3.count = 16;
+	emitter_3.lifeTime = 0.5f;
+	emitter_3.frequency = 0.0f;
+	emitter_3.frequencyTime = 0.0f;
+	emitter_3.spawnRange.min = { 0.0f,0.0f,0.0f };
+	emitter_3.spawnRange.max = { 0.0f,0.0f,0.0f };
+	emitter_3.beforeColor = { 1.0f,1.0f,0.6f,1.0f };
+	emitter_3.afterColor = { 0.6f,0.2f,0.2f,0.0f };
+	emitter_3.rotateVelocity = 0.0f;
+	emitter_3.rotateRate = std::numbers::pi_v<float>;
+	particle_3->SetEmitter(emitter_3);
+	SRT emitterTransform_3;
+	emitterTransform_3.scale = { 2.0f,0.1f,0.1f };
+	emitterTransform_3.rotate = { 0.0f,0.0f,0.0f };
+	emitterTransform_3.translate = { 0.0f,0.0f,0.0f };
+	particle_3->SetTransform(emitterTransform_3);
+
+	//パーティクル
+	ParticleManager::GetInstance()->CreateParticleGroup("Particle_Move", "resources/Particle/sand.png");
+	particle_4 = std::make_unique<ParticleEmitter>("Particle_Move");
+
+	Emitter emitter_4;
+	emitter_4.count = 1;
+	emitter_4.lifeTime = 0.2f;
+	emitter_4.frequency = 0.0f;
+	emitter_4.frequencyTime = 0.0f;
+	emitter_4.spawnRange.min = { 0.0f,0.0f,0.0f };
+	emitter_4.spawnRange.max = { 0.0f,0.0f,0.0f };
+	emitter_4.angleBase = { 0.0f,0.0f,1.0f };
+	emitter_4.angleRange = { 0.2f,0.2f,0.2f };	//方向範囲
+	emitter_4.speedBase = 0.2f;	//基礎速度
+	emitter_4.speedRange = 0.1f;	//速度範囲
+	emitter_4.beforeColor = { 1.0f,1.0f,1.0f,1.0f };
+	emitter_4.afterColor = { 1.0f,1.0f,1.0f,0.0f };
+	particle_4->SetEmitter(emitter_4);
+	SRT emitterTransform_4;
+	emitterTransform_4.scale = { 3.0f,3.0f,3.0f };
+	emitterTransform_4.rotate = { 0.0f,0.0f,0.0f };
+	emitterTransform_4.translate = { 0.0f,0.0f,0.0f };
+	particle_4->SetTransform(emitterTransform_4);
 
 	//背景
 	backGround_ = std::make_unique<BackGround>();
@@ -60,10 +159,16 @@ void Stage::Initialize(StageData stageData, std::shared_ptr<Input> input) {
 	//ボス
 	boss_ = std::make_unique<Boss>();
 	boss_->Initialize(stageData.bossData.filepath, this, gameCamera_, player_.get(), stageData.bossData.startTransform);
-	gameCamera_->SetTargetSphere(boss_->GetTrackingSphere());
 	boss_->SetCamera(gameCamera_->GetCamera());
 	boss_->SetDirectionalLight(directionalLight_);
 	boss_->SetPointLight(pointLight_);
+
+	/*std::unique_ptr<BreakObject> breakObject = std::make_unique<BreakObject>();
+	breakObject->Initialize("resources/Object", "Box.obj", SRT{ {1,1,1} ,{0,0,0},{10,1.5f,-10} }, 1);
+	breakObjects_.push_back(move(breakObject));
+	breakObject = std::make_unique<BreakObject>();
+	breakObject->Initialize("resources/Object", "Box.obj", SRT{ {1,1,1} ,{0,0,0},{-10,1.5f,-10} }, 1);
+	breakObjects_.push_back(move(breakObject));*/
 
 	//接触可能オブジェクト
 	for (auto& object : stageData.colliderObjects) {
@@ -75,6 +180,13 @@ void Stage::Initialize(StageData stageData, std::shared_ptr<Input> input) {
 	//情報表示
 	hud_ = std::make_unique<HUD>();
 	hud_->Initialize(directionalLight_, player_.get());
+
+	ring_ = std::make_unique<PrimitiveRing>();
+	ring_->Initialize(TextureManager::GetInstance()->GetSrvIndex("resources/Particle/gradationLine.png"), gameCamera_->GetCamera(), GameEngine::GetDirectXCommon());
+	ringTransform_ = {};
+	ringTransform_.scale = { 4,4,4 };
+	ringMaterial_.color = { 1.0f,1.0f,1.0f,0.0f };
+	ringMaterial_.uvTransform = MakeTranslateMatrix({ 1.0f,1.0f,1.0f });
 
 	cylider_ = std::make_unique<PrimitiveCylinder>();
 	cylider_->Initialize(TextureManager::GetInstance()->GetSrvIndex("resources/DebugResources/gradationLine.png"), gameCamera_->GetCamera(), GameEngine::GetDirectXCommon());
@@ -128,11 +240,14 @@ void Stage::Update() {
 			pointLight_->SetPointLightElement(pointLightElement_);
 		}
 
-		for (auto& bullet : playerBullet_) {
+		for (auto& bullet : playerBullets_) {
 			bullet->Update();
 		}
-		for (auto& bullet : bossBullet_) {
+		for (auto& bullet : bossBullets_) {
 			bullet->Update();
+		}
+		for (auto& object : breakObjects_) {
+			object->Update();
 		}
 		for (auto& object : colliderObjects_) {
 			object->Update();
@@ -144,13 +259,38 @@ void Stage::Update() {
 
 		Collision();
 
-		std::erase_if(playerBullet_, [](const auto& bullet) {
+		std::erase_if(playerBullets_, [](const auto& bullet) {
 			return bullet->IsDead();
 			});
 
-		std::erase_if(bossBullet_, [](const auto& bullet) {
+		std::erase_if(bossBullets_, [](const auto& bullet) {
 			return bullet->IsDead();
 			});
+		std::erase_if(breakObjects_, [](const auto& object) {
+			return object->IsDead();
+			});
+	}
+
+
+
+
+	particle_->Update();
+	particle_2->Update();
+	particle_3->Update();
+	particle_4->Update();
+
+	SRT transform;
+	transform = particle_3->GetTransform();
+	transform.translate = player_->GetTransform()->translate;
+	transform.scale = { 1.0f,5.0f,5.0f };
+	particle_3->SetTransform(transform);
+
+	ringTransform_.translate = boss_->GetTransform().translate + Vector3{ 0,0,1 } * MakeRotateYMatrix(boss_->GetTransform().rotate.y);
+	if (ringMaterial_.color.w > 0.0f) {
+		ringMaterial_.color.w -= 2.0f / 60.0f;
+		if (ringMaterial_.color.w < 0.0f) {
+			ringMaterial_.color.w = 0.0f;
+		}
 	}
 
 	if (cylinderTime_ < kMaxCyliderTime_) {
@@ -167,27 +307,38 @@ void Stage::Update() {
 
 void Stage::Draw() {
 
-	backGround_->Draw();
-
 	player_->Draw();
 
 	boss_->Draw();
 
-	for (auto& bullet : playerBullet_) {
+	for (auto& bullet : playerBullets_) {
 		bullet->Draw();
 	}
 
-	for (auto& bullet : bossBullet_) {
+	for (auto& bullet : bossBullets_) {
 		bullet->Draw();
+	}
+
+	backGround_->Draw();
+
+	for (auto& object : breakObjects_) {
+		object->Draw();
 	}
 
 	for (auto& object : colliderObjects_) {
 		object->Draw();
 	}
 
+	ring_->Draw(ringTransform_, ringMaterial_);
+
 	if(cylinderTime_ < kMaxCyliderTime_) {
 		cylider_->Draw(cylinderTransform_, cylinderMaterial_);
 	}
+
+	particle_->Draw();
+	particle_2->Draw();
+	particle_3->Draw();
+	particle_4->Draw();
 
 	hud_->Draw();
 }
@@ -204,10 +355,10 @@ void Stage::Collision() {
 	std::list<Colliders*> colliders;
 	colliders.push_back(player_.get()->GetColliders());
 	colliders.push_back(boss_.get()->GetColliders());
-	for (auto& bullet : playerBullet_) {
+	for (auto& bullet : playerBullets_) {
 		colliders.push_back(bullet.get()->GetColliders());
 	}
-	for (auto& bullet : bossBullet_) {
+	for (auto& bullet : bossBullets_) {
 		colliders.push_back(bullet.get()->GetColliders());
 	}
 
@@ -271,11 +422,22 @@ void Stage::Collision() {
 void Stage::AddPlayerBullet(Vector3 translate, Vector3 rotate) {
 	unique_ptr<PlayerBullet> newBullet = make_unique<PlayerBullet>();
 	newBullet->Initialize(translate, rotate);
-	playerBullet_.push_back(move(newBullet));
+	playerBullets_.push_back(move(newBullet));
 
-	//pointLightElement_.intensity = 1.0f;
+	Matrix4x4 rotateMatrix = MakeRotateYMatrix(player_->GetTransform()->rotate.y);
+	pointLightElement_.position = player_->GetTransform()->translate + rotateMatrix * Vector3(0.0f, 0.0f, 1.0f);
+	pointLight_->SetPointLightElement(pointLightElement_);
 
-	//particle_2->Emit();
+	pointLightElement_.intensity = 1.0f;
+
+	SRT transform = particle_2->GetTransform();
+	Emitter emitter = particle_2->GetEmitter();
+	transform.translate = pointLightElement_.position;
+	emitter.angleBase = Normalize(rotateMatrix * Vector3(0.0f, 0.0f, 0.8f) + Vector3(0.0f, 1.0f, 0.0f));
+	particle_2->SetTransform(transform);
+	particle_2->SetEmitter(emitter);
+
+	particle_2->Emit();
 
 	AudioHolder::GetInstance()->GetAudio(AudioIndex::Shot_SE).lock()->SoundPlayWave();
 }
@@ -283,7 +445,22 @@ void Stage::AddPlayerBullet(Vector3 translate, Vector3 rotate) {
 void Stage::AddBossBullet(Vector3 translate, Vector3 rotate) {
 	unique_ptr<BossBullet> newBullet = make_unique<BossBullet>();
 	newBullet->Initialize(translate, rotate);
-	bossBullet_.push_back(move(newBullet));
+	bossBullets_.push_back(move(newBullet));
+
+	Matrix4x4 rotateMatrix = MakeRotateYMatrix(boss_->GetTransform().rotate.y);
+	pointLightElement_.position = boss_->GetTransform().translate + rotateMatrix * Vector3(0.0f, 0.0f, 1.0f);
+	pointLight_->SetPointLightElement(pointLightElement_);
+
+	pointLightElement_.intensity = 1.0f;
+
+	SRT transform = particle_2->GetTransform();
+	Emitter emitter = particle_2->GetEmitter();
+	transform.translate = pointLightElement_.position;
+	emitter.angleBase = Normalize(rotateMatrix * Vector3(0.0f, 0.0f, 0.8f) + Vector3(0.0f, 1.0f, 0.0f));
+	particle_2->SetTransform(transform);
+	particle_2->SetEmitter(emitter);
+
+	particle_2->Emit();
 
 	AudioHolder::GetInstance()->GetAudio(AudioIndex::Shot_SE).lock()->SoundPlayWave();
 }
