@@ -31,16 +31,16 @@ void GameOverScene::Initialize(shared_ptr<Input> input) {
 	fence_ = std::make_unique<Fence>();
 	fence_->Initialize(camera_, directionalLight_, nullptr);
 	player_ = std::make_unique<Object>();
-	player_->Initialize(ModelHolder::GetInstance()->GetModel(ModelIndex::Boss));
+	player_->Initialize(ModelManager::GetInstance()->GetModel("resources/Character/Boss", "Boss.obj"));
 	player_->SetDirectionalLight(directionalLight_);
 	player_->SetCamera(camera_);
-	player_->SetAnimationName("Idle");
-	player_->SetIsLoopAnimation(true);
-	player_->SetIsUseAnimation(true);
+	//player_->SetAnimationName("Idle");
+	//player_->SetIsLoopAnimation(true);
+	//player_->SetIsUseAnimation(true);
 	SRT PlayerTransform{};
-	PlayerTransform.scale = { 0.562558f,0.562558f,0.562558f };
+	PlayerTransform.scale = { 1,1,1 };
 	PlayerTransform.rotate = { 0,std::numbers::pi_v<float>,0 };
-	PlayerTransform.translate = { 0,0,1.5f };
+	PlayerTransform.translate = { 0,1,0 };
 	player_->SetTransform(PlayerTransform);
 
 
