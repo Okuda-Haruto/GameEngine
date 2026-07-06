@@ -329,7 +329,7 @@ void Stage::Draw() {
 		object->Draw();
 	}
 
-	ring_->Draw(ringTransform_, ringMaterial_);
+	ring_->DrawBillBoard(ringTransform_, ringMaterial_);
 
 	if(cylinderTime_ < kMaxCyliderTime_) {
 		cylider_->Draw(cylinderTransform_, cylinderMaterial_);

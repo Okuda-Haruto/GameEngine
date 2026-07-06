@@ -1752,7 +1752,7 @@ void GameEngine::DrawPrimitiveRing_(PrimitiveRing* primitiveRing, SRT transform,
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList_->SetGraphicsRootSignature(object_RootSignature_.Get());
-	commandList_->SetPipelineState(object3D_PipelineState_.Get());	//PSOを設定
+	commandList_->SetPipelineState(effect_Cyinder_PipelineState_.Get());	//PSOを設定
 
 	commandList_->IASetVertexBuffers(0, 1, &primitiveRing->GetVBV());	//VBVを設定
 	commandList_->IASetIndexBuffer(&primitiveRing->GetIBV());	//IBVを設定
@@ -1809,7 +1809,7 @@ void GameEngine::DrawPrimitiveRing_Billboard_(PrimitiveRing* primitiveRing, SRT 
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList_->SetGraphicsRootSignature(object_RootSignature_.Get());
-	commandList_->SetPipelineState(object3D_PipelineState_.Get());	//PSOを設定
+	commandList_->SetPipelineState(effect_Cyinder_PipelineState_.Get());	//PSOを設定
 
 	commandList_->IASetVertexBuffers(0, 1, &primitiveRing->GetVBV());	//VBVを設定
 	commandList_->IASetIndexBuffer(&primitiveRing->GetIBV());	//IBVを設定
