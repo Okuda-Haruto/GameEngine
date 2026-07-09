@@ -20,8 +20,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	TextureManager::GetInstance()->LoadTexture("resources/DebugResources/noise0.png");
 
-	//unique_ptr<SampleScene> gameManager = make_unique<SampleScene>();
-	unique_ptr<GameManager> gameManager = make_unique<GameManager>();
+	unique_ptr<SampleScene> gameManager = make_unique<SampleScene>();
+	//unique_ptr<GameManager> gameManager = make_unique<GameManager>();
 
 	gameManager->Initialize();
 

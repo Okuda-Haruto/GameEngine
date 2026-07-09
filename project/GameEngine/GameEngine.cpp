@@ -141,6 +141,7 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	screen_RadialBlur_RootSignature_ = dxCommon_->Screen_RadialBlur_RootSignatureInitialvalue();
 	screen_Dissolve_RootSignature_ = dxCommon_->Screen_Dissolve_RootSignatureInitialvalue();
 	cubemap_RootSignature_ = dxCommon_->Cubemap_RootSignatureInitialvalue();
+	compute_RootSignature_ = dxCommon_->Compute_RootSignatureInitialvalue();
 
 	//Shaderをコンパイルする
 	Microsoft::WRL::ComPtr<IDxcBlob> Object3DVertexShaderBlob = dxCommon_->CompileShader(L"./resources/Shader/Object3D.VS.hlsl", L"vs_6_0");
@@ -187,6 +188,8 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	assert(CubemapVSBlob != nullptr);
 	Microsoft::WRL::ComPtr<IDxcBlob> CubemapPSBlob = dxCommon_->CompileShader(L"./resources/Shader/Cubemap.PS.hlsl", L"ps_6_0");
 	assert(CubemapPSBlob != nullptr);
+	Microsoft::WRL::ComPtr<IDxcBlob> SkinningCSBlob = dxCommon_->CompileShader(L"./resources/Shader/Skinning.CS.hlsl", L"cs_6_0");
+	assert(SkinningCSBlob != nullptr);
 
 	//PSOを生成
 	object3D_PipelineState_ = Triangle_PipelineStateInitialvalue(device_, object_RootSignature_, Object3DVertexShaderBlob.Get(), Object3DPixelShaderBlob.Get());
@@ -208,6 +211,7 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	screen_RadialBlur_PipelineState_ = Screen_PipelineStateInitialvalue(device_, screen_RadialBlur_RootSignature_, CopyImageVSBlob.Get(), RadialBlurPSBlob.Get());
 	screen_Dissolve_PipelineState_ = Screen_PipelineStateInitialvalue(device_, screen_Dissolve_RootSignature_, CopyImageVSBlob.Get(), DissolvePSBlob.Get());
 	cubemap_PipelineState_ = Cubemap_PipelineStateInitialvalue(device_, cubemap_RootSignature_, CubemapVSBlob.Get(), CubemapPSBlob.Get());
+	skinning_PipelineState_ = Compute_PipelineStateInitialvalue(device_, compute_RootSignature_, SkinningCSBlob.Get());
 	//XAudioエンジンのインスタンスを生成
 	hr = XAudio2Create(&xAudio2_, 0, XAUDIO2_DEFAULT_PROCESSOR);
 	assert(SUCCEEDED(hr));
@@ -226,7 +230,6 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	for (int i = 0; i < kMaxIndex; i++) {
 		objectMaterialResource_[i] = dxCommon_->CreateBufferResources(sizeof(Material));
 		objectWvpResource_[i] = dxCommon_->CreateBufferResources(sizeof(TransformationMatrix));
-		objectBoneResource_[i] = dxCommon_->CreateBufferResources(sizeof(BoneMatrix));
 		spriteMaterialResource_[i] = dxCommon_->CreateBufferResources(sizeof(Material));
 		spriteWvpResource_[i] = dxCommon_->CreateBufferResources(sizeof(TransformationMatrix));
 	}
@@ -234,7 +237,6 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	for (int i = 0; i < kMaxInstanceIndex; i++) {
 		instancingObjectMaterialResource_[i] = dxCommon_->CreateBufferResources(sizeof(Material));
 		instancingObjectResource_[i] = dxCommon_->CreateBufferResources(sizeof(InstancingTransformationMatrix) * kMaxNumInstance);
-		instancingObjectBoneResource_[i] = dxCommon_->CreateBufferResources(sizeof(BoneMatrix));
 		uint32_t index = srvManager_->Allocate();
 		//SRVを作成
 		srvManager_->CreateSRVforStructuredBuffer(index, instancingObjectResource_[i].Get(), kMaxNumInstance, sizeof(InstancingTransformationMatrix));
@@ -265,6 +267,41 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	outlineMaterialFilterResource_ = dxCommon_->CreateBufferResources(sizeof(Material));
 	radialBlurResource_ = dxCommon_->CreateBufferResources(sizeof(RadialBlurData));
 	dissolveResource_ = dxCommon_->CreateBufferResources(sizeof(DissolveData));
+
+	for (int i = 0; i < kMaxIndex; i++) {
+		uint32_t index = srvManager_->Allocate();
+		objectBoneResource_[i] = dxCommon_->CreateBufferResources(sizeof(Matrix4x4) * kMaxNumBones);
+		srvManager_->CreateSRVforStructuredBuffer(index, objectBoneResource_[i].Get(), kMaxNumBones, sizeof(Matrix4x4));
+		if (i == 0)startBoneIndex_ = index;
+	}
+	for (int i = 0; i < kMaxIndex; i++) {
+		uint32_t index = srvManager_->Allocate();
+		objectInputVertexResource_[i] = dxCommon_->CreateBufferResources(sizeof(VertexData) * kMaxNumVertexes);
+		srvManager_->CreateSRVforStructuredBuffer(index, objectInputVertexResource_[i].Get(), kMaxNumVertexes, sizeof(VertexData));
+		if (i == 0)startInputVertexIndex_ = index;
+	}
+	for (int i = 0; i < kMaxIndex; i++) {
+		uint32_t index = srvManager_->Allocate();
+		objectInfluenceResource_[i] = dxCommon_->CreateBufferResources(sizeof(VertexInfluence) * kMaxNumVertexes);
+		srvManager_->CreateSRVforStructuredBuffer(index, objectInfluenceResource_[i].Get(), kMaxNumVertexes, sizeof(VertexInfluence));
+		if (i == 0)startInfluenceIndex_ = index;
+	}
+	for (int i = 0; i < kMaxIndex; i++) {
+		uint32_t index = srvManager_->Allocate();
+		objectOutputVertexResource_[i] = dxCommon_->CreateOutputResources(sizeof(VertexData) * kMaxNumVertexes);
+		srvManager_->CreateUAVforStructuredBuffer(index, objectOutputVertexResource_[i].Get(), kMaxNumVertexes, sizeof(VertexData));
+
+		//リソースの先頭のアドレスから使う
+		objectOutputVertexBufferView_[i].BufferLocation = objectOutputVertexResource_[i]->GetGPUVirtualAddress();
+		//1頂点あたりのサイズ
+		objectOutputVertexBufferView_[i].StrideInBytes = sizeof(VertexData);
+
+		if (i == 0)startOutputVertexIndex_ = index;
+	}
+
+	for (int i = 0; i < kMaxIndex; i++) {
+		objectSkinningInformationResource_[i] = dxCommon_->CreateBufferResources(sizeof(SkinningInformation));
+	}
 }
 
 
@@ -369,6 +406,7 @@ void GameEngine::PostDraw_() {
 	particleIndex_ = 0;
 	spriteIndex_ = 0;
 	instancingSpriteIndex_ = 0;
+	boneIndex_ = 0;
 }
 
 void GameEngine::RenderPreDraw_(std::string renderTextureName) {
@@ -393,11 +431,14 @@ void GameEngine::DrawObject_3D_(Object* object, shared_ptr<DirectionalLight> dir
 	std::vector<Parts> parts = object->GetParts();
 	std::vector<Offset> offsets = object->GetOffsets();
 
+	//ボーンデータ
+	ComputeSkinning_(object);
+
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList_->SetGraphicsRootSignature(object_RootSignature_.Get());
 	commandList_->SetPipelineState(object3D_PipelineState_.Get());	//PSOを設定
 
-	commandList_->IASetVertexBuffers(0, 1, &object->GetVBV());	//VBVを設定
+	commandList_->IASetVertexBuffers(0, 1, &objectOutputVertexBufferView_[boneIndex_ - 1]);	//VBVを設定
 	commandList_->IASetIndexBuffer(&object->GetIBV());	//IBVを設定
 
 	//カメラのワールド座標をCBufferに送る
@@ -434,18 +475,6 @@ void GameEngine::DrawObject_3D_(Object* object, shared_ptr<DirectionalLight> dir
 		objectWvpData_[objectIndex_]->WVP = worldViewProjectionMatrix;
 
 		objectWvpResource_[objectIndex_]->Unmap(0, nullptr);
-
-		//ボーンデータ
-		objectBoneResource_[objectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&objectBoneData_[objectIndex_]));
-
-		Skeleton skeleton = object->GetSleleton();
-		std::vector<Bone> bones = object->GetBones();
-		for (int i = 0; i < bones.size(); i++) {
-			if (i > 128)break;
-			objectBoneData_[objectIndex_]->matrix[i] = *bones[i].finalMatrix;
-		}
-
-		objectBoneResource_[objectIndex_]->Unmap(0,nullptr);
 
 		parts[i].material->uvTransform = MakeAffineMatrix(parts[i].UVtransform.scale, parts[i].UVtransform.rotate, parts[i].UVtransform.translate);
 		parts[i].material->enableDirectionalLighting = directionalLight != nullptr;
@@ -501,11 +530,14 @@ void GameEngine::DrawParts_3D_(Object* object, uint32_t partsIndex, shared_ptr<D
 	//パーツのサイズを超えた位置を指定したらエラーを出す
 	assert(partsIndex < parts.size());
 
+	//ボーンデータ
+	ComputeSkinning_(object);
+
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList_->SetGraphicsRootSignature(object_RootSignature_.Get());
 	commandList_->SetPipelineState(object3D_PipelineState_.Get());	//PSOを設定
 
-	commandList_->IASetVertexBuffers(0, 1, &object->GetVBV());	//VBVを設定
+	commandList_->IASetVertexBuffers(0, 1, &objectOutputVertexBufferView_[boneIndex_ - 1]);	//VBVを設定
 	commandList_->IASetIndexBuffer(&object->GetIBV());	//IBVを設定
 
 	//カメラのワールド座標をCBufferに送る
@@ -536,17 +568,6 @@ void GameEngine::DrawParts_3D_(Object* object, uint32_t partsIndex, shared_ptr<D
 	objectWvpData_[objectIndex_]->WVP = worldViewProjectionMatrix;
 
 	objectWvpResource_[objectIndex_]->Unmap(0, nullptr);
-
-	//ボーンデータ
-	objectBoneResource_[objectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&objectBoneData_[objectIndex_]));
-
-	Skeleton skeleton = object->GetSleleton();
-	for (int i = 0; i < skeleton.joints.size(); i++) {
-		if (i > 128)break;
-		objectBoneData_[objectIndex_]->matrix[i] = skeleton.joints[i].skeltonSpaceMatrix;
-	}
-
-	objectBoneResource_[objectIndex_]->Unmap(0, nullptr);
 
 	parts[partsIndex].material->uvTransform = MakeAffineMatrix(parts[partsIndex].UVtransform.scale, parts[partsIndex].UVtransform.rotate, parts[partsIndex].UVtransform.translate);
 	parts[partsIndex].material->enableDirectionalLighting = directionalLight != nullptr;
@@ -598,11 +619,14 @@ void GameEngine::DrawObject_2D_(Object* object, shared_ptr<DirectionalLight> dir
 	Matrix4x4 viewMatrix = MakeIdentity4x4();
 	Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(kWindowWidth_) / float(kWindowHeight_), 0.01f, 1.0f);
 
+	//ボーンデータ
+	ComputeSkinning_(object);
+
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList_->SetGraphicsRootSignature(object_RootSignature_.Get());
-	commandList_->SetPipelineState(object2D_PipelineState_.Get());	//PSOを設定
+	commandList_->SetPipelineState(object3D_PipelineState_.Get());	//PSOを設定
 
-	commandList_->IASetVertexBuffers(0, 1, &object->GetVBV());	//VBVを設定
+	commandList_->IASetVertexBuffers(0, 1, &objectOutputVertexBufferView_[boneIndex_ - 1]);	//VBVを設定
 	commandList_->IASetIndexBuffer(&object->GetIBV());	//IBVを設定
 
 	//カメラのワールド座標をCBufferに送る
@@ -636,17 +660,6 @@ void GameEngine::DrawObject_2D_(Object* object, shared_ptr<DirectionalLight> dir
 		objectWvpData_[objectIndex_]->WVP = worldViewProjectionMatrix;
 
 		objectWvpResource_[objectIndex_]->Unmap(0, nullptr);
-
-		//ボーンデータ
-		objectBoneResource_[objectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&objectBoneData_[objectIndex_]));
-
-		Skeleton skeleton = object->GetSleleton();
-		for (int i = 0; i < skeleton.joints.size(); i++) {
-			if (i > 128)break;
-			objectBoneData_[objectIndex_]->matrix[i] = skeleton.joints[i].skeltonSpaceMatrix;
-		}
-
-		objectBoneResource_[objectIndex_]->Unmap(0, nullptr);
 
 		parts[i].material->uvTransform = MakeAffineMatrix(parts[i].UVtransform.scale, parts[i].UVtransform.rotate, parts[i].UVtransform.translate);
 		parts[i].material->enableDirectionalLighting = directionalLight != nullptr;
@@ -696,11 +709,14 @@ void GameEngine::DrawParts_2D_(Object* object, uint32_t partsIndex, shared_ptr<D
 	Matrix4x4 viewMatrix = MakeIdentity4x4();
 	Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(kWindowWidth_) / float(kWindowHeight_), 0.01f, 1.0f);
 
+	//ボーンデータ
+	ComputeSkinning_(object);
+
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList_->SetGraphicsRootSignature(object_RootSignature_.Get());
-	commandList_->SetPipelineState(object2D_PipelineState_.Get());	//PSOを設定
+	commandList_->SetPipelineState(object3D_PipelineState_.Get());	//PSOを設定
 
-	commandList_->IASetVertexBuffers(0, 1, &object->GetVBV());	//VBVを設定
+	commandList_->IASetVertexBuffers(0, 1, &objectOutputVertexBufferView_[boneIndex_ - 1]);	//VBVを設定
 	commandList_->IASetIndexBuffer(&object->GetIBV());	//IBVを設定
 
 	//カメラのワールド座標をCBufferに送る
@@ -731,17 +747,6 @@ void GameEngine::DrawParts_2D_(Object* object, uint32_t partsIndex, shared_ptr<D
 	objectWvpData_[objectIndex_]->WVP = worldViewProjectionMatrix;
 
 	objectWvpResource_[objectIndex_]->Unmap(0, nullptr);
-
-	//ボーンデータ
-	objectBoneResource_[objectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&objectBoneData_[objectIndex_]));
-
-	Skeleton skeleton = object->GetSleleton();
-	for (int i = 0; i < skeleton.joints.size(); i++) {
-		if (i > 128)break;
-		objectBoneData_[objectIndex_]->matrix[i] = skeleton.joints[i].skeltonSpaceMatrix;
-	}
-
-	objectBoneResource_[objectIndex_]->Unmap(0, nullptr);
 
 	parts[partsIndex].material->uvTransform = MakeAffineMatrix(parts[partsIndex].UVtransform.scale, parts[partsIndex].UVtransform.rotate, parts[partsIndex].UVtransform.translate);
 	parts[partsIndex].material->enableDirectionalLighting = directionalLight != nullptr;
@@ -821,16 +826,6 @@ void GameEngine::DrawInstancingObject_3D_(std::list<Object*> objects, shared_ptr
 		++numInstance;
 		++objectIterator;
 	}
-
-	//インスタシング描画とボーンアニメーションの両立は構造体の大きさ故に難しい
-	instancingObjectBoneResource_[instancingObjectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&instancingObjectBoneData_));
-	Skeleton skeleton = (*objectIterator)->GetSleleton();
-	for (int i = 0; i < skeleton.joints.size(); i++) {
-		if (i > 128)break;
-		objectBoneData_[objectIndex_]->matrix[i] = skeleton.joints[i].skeltonSpaceMatrix;
-	}
-	instancingObjectBoneResource_[instancingObjectIndex_]->Unmap(0, nullptr);
-	commandList_->SetGraphicsRootConstantBufferView(7, instancingObjectBoneResource_[instancingObjectIndex_]->GetGPUVirtualAddress());
 	
 	//パーツごとにインスタシング描画
 	for (uint32_t i = 0; i < numParts; i++) {
@@ -2015,4 +2010,121 @@ void GameEngine::DrawPrimitiveCylinder_Billboard_(PrimitiveCylinder* primitiveCy
 	commandList_->DrawIndexedInstanced(primitiveCylinder->GetIndexCount(), 1, 0, 0, 0);
 
 	objectIndex_++;
+}
+
+void GameEngine::ComputeSkinning_(Object* object) {
+
+	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
+	commandList_->SetComputeRootSignature(compute_RootSignature_.Get());
+	commandList_->SetPipelineState(skinning_PipelineState_.Get());	//PSOを設定
+
+	//WVPデータを更新
+	Matrix4x4* Matrix4x4MappedBase = nullptr;
+	objectBoneResource_[boneIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&Matrix4x4MappedBase));
+	// mappedBase が nullptr でないかチェック
+	if (Matrix4x4MappedBase == nullptr) {
+		assert(0);
+	}
+	// 各要素ポインタを mappedBase に初期化
+	for (uint32_t j = 0; j < kMaxNumBones; ++j) {
+		objectBoneData_[boneIndex_][j] = Matrix4x4MappedBase + j;
+	}
+
+	Skeleton skeleton = object->GetSleleton();
+	std::vector<Bone> bones = object->GetBones();
+	for (int i = 0; i < bones.size(); i++) {
+		if (i > kMaxNumBones)break;
+		*objectBoneData_[boneIndex_][i] = *bones[i].finalMatrix;
+	}
+
+	objectBoneResource_[boneIndex_]->Unmap(0, nullptr);
+
+	commandList_->SetComputeRootDescriptorTable(0, srvManager_->GetGPUDescriptorHandle(startBoneIndex_ + boneIndex_));
+
+	//WVPデータを更新
+	VertexData* VertexMappedBase = nullptr;
+	objectInputVertexResource_[boneIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&VertexMappedBase));
+	// mappedBase が nullptr でないかチェック
+	if (VertexMappedBase == nullptr) {
+		assert(0);
+	}
+	// 各要素ポインタを mappedBase に初期化
+	for (uint32_t j = 0; j < kMaxNumVertexes; ++j) {
+		objectInputVertexData_[boneIndex_][j] = VertexMappedBase + j;
+	}
+
+	VertexData* vertexDatas = object->GetModelVertexDatas();
+	for (UINT i = 0; i < object->GetVertexIndex(); i++) {
+		if (i > kMaxNumVertexes)break;
+		*objectInputVertexData_[boneIndex_][i] = vertexDatas[i];
+	}
+
+	objectInputVertexResource_[boneIndex_]->Unmap(0, nullptr);
+
+	commandList_->SetComputeRootDescriptorTable(1, srvManager_->GetGPUDescriptorHandle(startInputVertexIndex_ + boneIndex_));
+
+	//WVPデータを更新
+	VertexInfluence* InfluenceMappedBase = nullptr;
+	objectInfluenceResource_[boneIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&InfluenceMappedBase));
+	// mappedBase が nullptr でないかチェック
+	if (InfluenceMappedBase == nullptr) {
+		assert(0);
+	}
+	// 各要素ポインタを mappedBase に初期化
+	for (uint32_t j = 0; j < kMaxNumVertexes; ++j) {
+		objectInfluenceData_[boneIndex_][j] = InfluenceMappedBase + j;
+	}
+
+	std::vector<VertexInfluence> vertexInfluence = object->GetVertexInfluences();
+	for (int i = 0; i < vertexInfluence.size(); i++) {
+		if (i > kMaxNumVertexes)break;
+		*objectInfluenceData_[boneIndex_][i] = vertexInfluence[i];
+	}
+
+	objectInfluenceResource_[boneIndex_]->Unmap(0, nullptr);
+
+	commandList_->SetComputeRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(startInfluenceIndex_ + boneIndex_));
+
+	// UAV -> VertexBuffer
+	D3D12_RESOURCE_BARRIER barrier{};
+	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	barrier.Transition.pResource = objectOutputVertexResource_[boneIndex_].Get();
+	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
+	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+
+	commandList_->ResourceBarrier(1, &barrier);
+
+	commandList_->SetComputeRootDescriptorTable(3, srvManager_->GetGPUDescriptorHandle(startOutputVertexIndex_ + boneIndex_));
+
+	objectSkinningInformationResource_[boneIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&objectSkinningInformationData_[boneIndex_]));
+
+	objectSkinningInformationData_[boneIndex_]->numVertuces = object->GetVertexIndex();
+
+	objectSkinningInformationResource_[boneIndex_]->Unmap(0, nullptr);
+
+	commandList_->SetComputeRootConstantBufferView(4, objectSkinningInformationResource_[boneIndex_].Get()->GetGPUVirtualAddress());
+
+	//描画(DrawCall)(頂点は勝手に入るのでIndexedじゃない)
+	commandList_->Dispatch(UINT(object->GetVertexIndex() + 1023) / 1024, 1, 1);
+
+
+
+	//使用するリソースのサイズは頂点のサイズ
+	objectOutputVertexBufferView_[boneIndex_].SizeInBytes = UINT(sizeof(VertexData) * object->GetVertexIndex());
+
+	// UAV -> VertexBuffer
+	barrier = {};
+	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	barrier.Transition.pResource = objectOutputVertexResource_[boneIndex_].Get();
+	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
+	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+
+	commandList_->ResourceBarrier(1, &barrier);
+
+	boneIndex_++;
+
 }

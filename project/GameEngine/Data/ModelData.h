@@ -3,7 +3,8 @@
 #include <string>
 #include <unordered_map>
 
-#include "ObjectVertexData.h"
+#include "VertexData.h"
+#include <VertexInfluence.h>
 #include "Offset.h"
 #include "Bone.h"
 #include "AnimationData.h"
@@ -11,7 +12,8 @@
 #include <Node.h>
 
 struct ModelData {
-	std::vector<ObjectVertexData> vertices;
+	std::vector<VertexData> vertices;
+	std::vector<VertexInfluence> Influences;
 	std::vector<uint32_t> indexes;
 	std::vector<Offset> offset;
 	std::vector<UINT> textureIndex;

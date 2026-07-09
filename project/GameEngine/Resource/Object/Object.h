@@ -106,6 +106,9 @@ public:
 	D3D12_VERTEX_BUFFER_VIEW& GetVBV() { return model_->GetVBV(); }
 	//インデックスバッファビュー
 	D3D12_INDEX_BUFFER_VIEW& GetIBV() { return model_->GetIBV(); }
+
+	VertexData* GetModelVertexDatas() { return model_->GetVertexDatas(); }
+	std::vector<VertexInfluence> GetVertexInfluences() { return model_->GetVertexInfluences(); }
 	//頂点の数
 	UINT GetVertexIndex() { return model_->GetVertexIndex(); }
 	//オフセット

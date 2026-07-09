@@ -22,15 +22,15 @@ void PrimitiveCylinder::Initialize(uint32_t textureIndex, std::shared_ptr<Camera
 	const float radianPerDivide = 2.0f * std::numbers::pi_v<float> / kCylinderDivide;
 
 	//頂点リソースを作る
-	vertexResource_ = dxCommon->CreateBufferResources(sizeof(ObjectVertexData) * kCylinderDivide * 4);
+	vertexResource_ = dxCommon->CreateBufferResources(sizeof(VertexData) * kCylinderDivide * 4);
 
 	//頂点バッファビューを作成する
 	//リソースの先頭のアドレスから使う
 	vertexBufferView_.BufferLocation = vertexResource_->GetGPUVirtualAddress();
 	//使用するリソースのサイズは頂点は4つサイズ
-	vertexBufferView_.SizeInBytes = sizeof(ObjectVertexData) * kCylinderDivide * 4;
+	vertexBufferView_.SizeInBytes = sizeof(VertexData) * kCylinderDivide * 4;
 	//1頂点あたりのサイズ
-	vertexBufferView_.StrideInBytes = sizeof(ObjectVertexData);
+	vertexBufferView_.StrideInBytes = sizeof(VertexData);
 
 	//Primitive用のインデックスリソースを作る
 	indexCount_ = kCylinderDivide * 6;

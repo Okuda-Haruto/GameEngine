@@ -913,6 +913,73 @@ Microsoft::WRL::ComPtr <ID3D12RootSignature> DirectXCommon::Cubemap_RootSignatur
 	return rootSignature;
 }
 
+//RootSignature作成
+ComPtr <ID3D12RootSignature> DirectXCommon::Compute_RootSignatureInitialvalue() {
+	D3D12_DESCRIPTOR_RANGE boneDescriptorRange[1] = {};
+	boneDescriptorRange[0].BaseShaderRegister = 0;	//0から始める
+	boneDescriptorRange[0].NumDescriptors = 1;	//数は1つ
+	boneDescriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;	//SRVを使う
+	boneDescriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;	//Offsetを自動計算
+	D3D12_DESCRIPTOR_RANGE vertexDescriptorRange[1] = {};
+	vertexDescriptorRange[0].BaseShaderRegister = 1;	//1から始める
+	vertexDescriptorRange[0].NumDescriptors = 1;	//数は1つ
+	vertexDescriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;	//SRVを使う
+	vertexDescriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;	//Offsetを自動計算
+	D3D12_DESCRIPTOR_RANGE influenceDescriptorRange[1] = {};
+	influenceDescriptorRange[0].BaseShaderRegister = 2;	//2から始める
+	influenceDescriptorRange[0].NumDescriptors = 1;	//数は1つ
+	influenceDescriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;	//SRVを使う
+	influenceDescriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;	//Offsetを自動計算
+	D3D12_DESCRIPTOR_RANGE outputDescriptorRange[1] = {};
+	outputDescriptorRange[0].BaseShaderRegister = 0;	//0から始める
+	outputDescriptorRange[0].NumDescriptors = 1;	//数は1つ
+	outputDescriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_UAV;	//UAVを使う
+	outputDescriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;	//Offsetを自動計算
+
+	//RootSignature作成
+	D3D12_ROOT_SIGNATURE_DESC descriptionRootSignature{};
+	descriptionRootSignature.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+	//RootParameter作成。PixelShaderのMaterialとVertexShaderのTransform
+	D3D12_ROOT_PARAMETER rootParameters[9] = {};
+	rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;	//DescriptorTableを使う
+	rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;	//ALLじゃないといけない
+	rootParameters[0].DescriptorTable.pDescriptorRanges = boneDescriptorRange;	//Tableの中身の配列を指定
+	rootParameters[0].DescriptorTable.NumDescriptorRanges = _countof(boneDescriptorRange);	//Tableで利用する数
+	rootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;	//DescriptorTableを使う
+	rootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;	//ALLじゃないといけない
+	rootParameters[1].DescriptorTable.pDescriptorRanges = vertexDescriptorRange;	//Tableの中身の配列を指定
+	rootParameters[1].DescriptorTable.NumDescriptorRanges = _countof(vertexDescriptorRange);	//Tableで利用する数
+	rootParameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;	//DescriptorTableを使う
+	rootParameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;	//ALLじゃないといけない
+	rootParameters[2].DescriptorTable.pDescriptorRanges = influenceDescriptorRange;	//Tableの中身の配列を指定
+	rootParameters[2].DescriptorTable.NumDescriptorRanges = _countof(influenceDescriptorRange);	//Tableで利用する数
+	rootParameters[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;	//DescriptorTableを使う
+	rootParameters[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;	//ALLじゃないといけない
+	rootParameters[3].DescriptorTable.pDescriptorRanges = outputDescriptorRange;	//Tableの中身の配列を指定
+	rootParameters[3].DescriptorTable.NumDescriptorRanges = _countof(outputDescriptorRange);	//Tableで利用する数
+	rootParameters[4].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;	//CBVを使う
+	rootParameters[4].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;	//ALLじゃないといけない
+	rootParameters[4].Descriptor.ShaderRegister = 0;	//レジスタ番号0を使う
+	descriptionRootSignature.pParameters = rootParameters;	//ルートパラメータ配列へのポインタ
+	descriptionRootSignature.NumParameters = _countof(rootParameters);	//配列の長さ
+
+	//シリアライズしてバイナリにする
+	ID3DBlob* signatureBlob = nullptr;
+	ID3DBlob* errorBlob = nullptr;
+	HRESULT hr = D3D12SerializeRootSignature(&descriptionRootSignature, D3D_ROOT_SIGNATURE_VERSION_1, &signatureBlob, &errorBlob);
+	//作成できない場合エラーとする
+	if (FAILED(hr)) {
+		Log(logStream_, reinterpret_cast<char*>(errorBlob->GetBufferPointer()));
+		assert(false);
+	}
+	//バイナリをもとに生成
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> rootSignature = nullptr;
+	hr = device_->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(&rootSignature));
+	assert(SUCCEEDED(hr));
+
+	return rootSignature;
+}
+
 //シェーダーのコンパイル
 ComPtr<IDxcBlob> DirectXCommon::CompileShader(const std::wstring& filePath, const wchar_t* profile) {
 	//これからシェーダーにコンパイルする旨をログに出す
@@ -1076,6 +1143,43 @@ DirectXCommon::RTVResource DirectXCommon::CreateRenderTextureResource(uint32_t w
 	device_->CreateRenderTargetView(rtvResource.resource.Get(), &rtvDesc_, rtvHandles_[rtvResource.rtvIndex]);
 
 	return rtvResource;
+}
+
+//Compute出力リソースの生成
+ComPtr<ID3D12Resource> DirectXCommon::CreateOutputResources(size_t sizeInBytes) {
+	//頂点リソースの設定
+	D3D12_RESOURCE_DESC resourceDesc{};
+	//バッファリソース。テクスチャの場合はまた別の設定をする
+	resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+	resourceDesc.Width = sizeInBytes;					//リソースのサイズ
+	//バッファの場合はこれらは1にする決まり
+	resourceDesc.Height = 1;
+	resourceDesc.DepthOrArraySize = 1;
+	resourceDesc.MipLevels = 1;
+	resourceDesc.SampleDesc.Count = 1;
+	//バッファの場合はこれにする決まり
+	resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+
+	//UAVリソースは必ずこれ
+	resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+
+	//頂点リソース用のヒープの設定
+	D3D12_HEAP_PROPERTIES heapProperties{};
+	heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;
+
+	//Resourceの生成
+	ComPtr<ID3D12Resource> resource = nullptr;
+	HRESULT hr = device_->CreateCommittedResource(
+		&heapProperties,	//Heapの設定
+		D3D12_HEAP_FLAG_NONE,	//Heapの特殊な設定
+		&resourceDesc,	//Resourceの設定
+		D3D12_RESOURCE_STATE_COMMON,	//初回のResourceState。GPUに近くするため
+		nullptr,	//Clear最適値。使わないのでnullptr
+		IID_PPV_ARGS(&resource)	//作成するResourceポインタへのポインタ
+	);
+	assert(SUCCEEDED(hr));
+
+	return resource;
 }
 
 //テクスチャデータの転送
@@ -1284,7 +1388,7 @@ void DirectXCommon::CreateDepthStencilTextureResource() {
 	resourceDesc.MipLevels = 1;	//mipmapの数
 	resourceDesc.DepthOrArraySize = 1;	//奥行き or 配列Textureの配列数
 	//resourceDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;	//DepthStencilとして利用可能なフォーマット
-	resourceDesc.Format = DXGI_FORMAT_R24G8_TYPELESS;	//SRVでも使えるようにTYPELESSにする
+	resourceDesc.Format = DXGI_FORMAT_R24G8_TYPELESS;	//SRVでも使えるようにTYPELESSにするhea
 	resourceDesc.SampleDesc.Count = 1;	//サンプリングカウント。1固定
 	resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;	//2次元
 	resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;	//DepthStencilとして使う通知

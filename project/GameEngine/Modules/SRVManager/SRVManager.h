@@ -43,6 +43,8 @@ public:
 	void CreateSRVforDepthBuffer(uint32_t srvIndex, ID3D12Resource* pResource);
 	//SRV生成(レンダーテクスチャ用)
 	void CreateSRVforRenderTexture(uint32_t srvIndex, ID3D12Resource* pResource);
+	//UAV生成(Structured Buffer用)
+	void CreateUAVforStructuredBuffer(uint32_t srvIndex, ID3D12Resource* pResource, UINT vertexCount, UINT structureByteStride);
 
 	//ヒープをセット
 	void PreDraw();

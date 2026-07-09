@@ -22,20 +22,20 @@ void Model::Initialize(const std::string& directoryPath, const std::string& file
 	}
 
 	//頂点リソースを作る
-	vertexResource_ = dxCommon_->CreateBufferResources(sizeof(ObjectVertexData) * modelData_.vertices.size());
+	vertexResource_ = dxCommon_->CreateBufferResources(sizeof(VertexData) * modelData_.vertices.size());
 
 	//頂点バッファビューを作成する
 	//リソースの先頭のアドレスから使う
 	vertexBufferView_.BufferLocation = vertexResource_->GetGPUVirtualAddress();
 	//使用するリソースのサイズは頂点のサイズ
-	vertexBufferView_.SizeInBytes = UINT(sizeof(ObjectVertexData) * modelData_.vertices.size());
+	vertexBufferView_.SizeInBytes = UINT(sizeof(VertexData) * modelData_.vertices.size());
 	//1頂点あたりのサイズ
-	vertexBufferView_.StrideInBytes = sizeof(ObjectVertexData);
+	vertexBufferView_.StrideInBytes = sizeof(VertexData);
 
 	//頂点リソースにデータを書き込む
 	vertexResource_->Map(0, nullptr, reinterpret_cast<void**>(&vertexData_));	//書き込むためのアドレスを取得
 
-	std::memcpy(vertexData_, modelData_.vertices.data(), sizeof(ObjectVertexData) * modelData_.vertices.size());	//頂点データにリソースにコピー
+	std::memcpy(vertexData_, modelData_.vertices.data(), sizeof(VertexData) * modelData_.vertices.size());	//頂点データにリソースにコピー
 
 	vertexResource_->Unmap(0, nullptr);
 
@@ -58,6 +58,8 @@ void Model::Initialize(const std::string& directoryPath, const std::string& file
 	indexResource_->Unmap(0, nullptr);
 
 	vertexIndex_ = UINT(modelData_.vertices.size());
+
+	vertexInfluences_ = modelData_.Influences;
 
 	//ワールド座標
 	for (Bone& bone : modelData_.bones) {

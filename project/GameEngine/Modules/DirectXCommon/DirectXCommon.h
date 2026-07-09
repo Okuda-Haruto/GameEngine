@@ -141,6 +141,7 @@ public:
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> Screen_RadialBlur_RootSignatureInitialvalue();
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> Screen_Dissolve_RootSignatureInitialvalue();
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> Cubemap_RootSignatureInitialvalue();
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> Compute_RootSignatureInitialvalue();
 
 	//シェーダーのコンパイル
 	Microsoft::WRL::ComPtr<IDxcBlob> CompileShader(const std::wstring& filePath,const wchar_t* profile);
@@ -150,6 +151,8 @@ public:
 	Microsoft::WRL::ComPtr<ID3D12Resource> CreateTextureResource(const DirectX::TexMetadata& metadata);
 	//レンダーテクスチャリソースの生成
 	RTVResource CreateRenderTextureResource(uint32_t width,uint32_t height,DXGI_FORMAT format, const Vector4 clearColor);
+	//Compute出力リソースの生成
+	Microsoft::WRL::ComPtr<ID3D12Resource> CreateOutputResources(size_t sizeInBytes);
 	//テクスチャデータの転送
 	void UploadTextureData(ID3D12Resource* texture, const DirectX::ScratchImage& mipImages);
 

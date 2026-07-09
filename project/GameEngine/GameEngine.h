@@ -26,6 +26,8 @@
 #include <RadialBlurData.h>
 #include <DissolveData.h>
 #include <GPURandomSeed.h>
+#include <VertexInfluence.h>
+#include <SkinningInformation.h>
 
 #include <Audio/Audio.h>
 #include "Input/Input.h"
@@ -86,6 +88,7 @@ private:
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> screen_RadialBlur_RootSignature_;
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> screen_Dissolve_RootSignature_;
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> cubemap_RootSignature_;
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> compute_RootSignature_;
 
 	//Windowのメッセージ
 	MSG msg_{};
@@ -110,6 +113,7 @@ private:
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> screen_RadialBlur_PipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> screen_Dissolve_PipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> cubemap_PipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> skinning_PipelineState_ = nullptr;
 
 public:
 	//描画可能なモデルの数(通常)
@@ -118,17 +122,17 @@ public:
 	static const int16_t kMaxInstanceIndex = 64;
 	//インスタンス数
 	static const uint32_t kMaxNumInstance = 256;
+	//最大ボーン数
+	static const uint32_t kMaxNumBones = 128;
+	//最大頂点数
+	static const uint32_t kMaxNumVertexes = 65536;
 private:
 #pragma region object
-	int16_t objectIndex_;
+	uint32_t objectIndex_;
 	//マテリアルリソース
 	std::array <Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxIndex > objectMaterialResource_;
 	//マテリアルデータ
 	std::array <Material*, kMaxIndex> objectMaterialData_;
-	//ボーンリソース
-	std::array <Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxIndex > objectBoneResource_;
-	//ボーンデータ
-	std::array <BoneMatrix*, kMaxIndex> objectBoneData_;
 	//WVP用リソース
 	std::array <Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxIndex > objectWvpResource_;
 	//WVPデータ
@@ -136,24 +140,20 @@ private:
 #pragma endregion
 
 #pragma region instancingObject
-	int16_t instancingObjectIndex_;
+	uint32_t instancingObjectIndex_;
 	uint32_t startInstancingObjectIndex_;
 	//マテリアルリソース
 	std::array <Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxInstanceIndex > instancingObjectMaterialResource_;
 	//マテリアルデータ
 	std::array <Material*, kMaxInstanceIndex> instancingObjectMaterialData_;
-	//ボーンリソース
-	std::array <Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxInstanceIndex > instancingObjectBoneResource_;
-	//ボーンデータ
-	std::array <BoneMatrix*, kMaxInstanceIndex> instancingObjectBoneData_;
 	//インスタンス用リソース
 	std::array <Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxInstanceIndex > instancingObjectResource_;
 	//インスタンスデータ
-	std::array < std::array <InstancingTransformationMatrix*, kMaxNumInstance>, kMaxInstanceIndex> instancingObjectData_;
+	std::array <std::array <InstancingTransformationMatrix*, kMaxNumInstance>, kMaxInstanceIndex> instancingObjectData_;
 #pragma endregion
 
-#pragma region Particle
-	int16_t particleIndex_;
+#pragma region particle
+	uint32_t particleIndex_;
 	//マテリアルリソース
 	std::array <Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxInstanceIndex > particleMaterialResource_;
 	//マテリアルデータ
@@ -165,7 +165,7 @@ private:
 #pragma endregion
 
 #pragma region sprite
-	int16_t spriteIndex_;
+	uint32_t spriteIndex_;
 	//マテリアルリソース
 	std::array <Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxIndex > spriteMaterialResource_;
 	//マテリアルデータ
@@ -177,7 +177,7 @@ private:
 #pragma endregion
 
 #pragma region instancingSprite
-	int16_t instancingSpriteIndex_;
+	uint32_t instancingSpriteIndex_;
 	uint32_t startInstancingSpriteIndex_;
 	//マテリアルリソース
 	std::array <Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxInstanceIndex > instancingSpriteMaterialResource_;
@@ -198,6 +198,38 @@ private:
 	std::array<Microsoft::WRL::ComPtr<ID3D12Resource>, Primitive3DManager::SHAPE_count> primitiveResource_;
 	//インスタンスデータ
 	std::array<std::array<InstancingTransformationMatrix*, Primitive3DManager::kMaxNumPrimitive>, Primitive3DManager::SHAPE_count> primitiveData_;
+#pragma endregion
+
+#pragma region bone
+	uint32_t boneIndex_;
+	uint32_t startBoneIndex_;
+	uint32_t startInputVertexIndex_;
+	uint32_t startInfluenceIndex_;
+	uint32_t startOutputVertexIndex_;
+
+	//ボーンリソース
+	std::array <Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxIndex > objectBoneResource_;
+	//ボーンデータ
+	std::array <std::array <Matrix4x4*, kMaxNumBones>, kMaxIndex> objectBoneData_;
+	//頂点入力リソース
+	std::array <Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxIndex > objectInputVertexResource_;
+	//頂点入力データ
+	std::array <std::array <VertexData*, kMaxNumVertexes>, kMaxIndex> objectInputVertexData_;
+	//入力情報リソース
+	std::array <Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxIndex > objectInfluenceResource_;
+	//入力情報データ
+	std::array <std::array <VertexInfluence*, kMaxNumVertexes>, kMaxIndex> objectInfluenceData_;
+	//頂点バッファビュー
+	std::array<D3D12_VERTEX_BUFFER_VIEW, kMaxIndex> objectOutputVertexBufferView_;
+	//頂点出力リソース
+	std::array <Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxIndex > objectOutputVertexResource_;
+	//頂点出力データ
+	std::array <std::array <VertexData*, kMaxNumVertexes>, kMaxIndex> objectOutputVertexData_;
+	//スキニング情報リソース
+	std::array <Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxIndex > objectSkinningInformationResource_;
+	//スキニング情報データ
+	std::array <SkinningInformation*, kMaxIndex> objectSkinningInformationData_;
+
 #pragma endregion
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> fogResource_;
@@ -270,6 +302,8 @@ private:
 	void DrawPrimitiveRing_Billboard_(PrimitiveRing* primitiveRing, SRT transform, Material material);
 	void DrawPrimitiveCylinder_(PrimitiveCylinder* primitiveCylinder, SRT transform, Material material);
 	void DrawPrimitiveCylinder_Billboard_(PrimitiveCylinder* primitiveCylinder, SRT transform, Material material);
+
+	void ComputeSkinning_(Object* object);
 
 	WindowsAPI* GetWindowsAPI_() { return winApp_.get(); }
 

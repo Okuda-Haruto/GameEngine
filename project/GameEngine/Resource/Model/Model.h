@@ -4,7 +4,8 @@
 #include <ModelData.h>
 #include <d3d12.h>
 #include <string>
-#include <ObjectVertexData.h>
+#include <VertexData.h>
+#include <VertexInfluence.h>
 #include <AnimationInterpolation.h>
 #include <Offset.h>
 #include <DirectXCommon/DirectXCommon.h>
@@ -22,7 +23,9 @@ private:
 	//頂点バッファビュー
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView_{};
 	//頂点リソースデータ
-	ObjectVertexData* vertexData_ = nullptr;
+	VertexData* vertexData_ = nullptr;
+	//頂点情報
+	std::vector<VertexInfluence> vertexInfluences_;
 
 	//インデックスリソース
 	Microsoft::WRL::ComPtr<ID3D12Resource> indexResource_;
@@ -46,6 +49,10 @@ public:
 	D3D12_VERTEX_BUFFER_VIEW& GetVBV() { return vertexBufferView_; }
 	//インデックスバッファビュー
 	D3D12_INDEX_BUFFER_VIEW& GetIBV() { return indexBufferView_; }
+	//頂点データ
+	VertexData* GetVertexDatas() { return vertexData_; }
+	//頂点データ
+	std::vector<VertexInfluence> GetVertexInfluences() { return vertexInfluences_; }
 	//頂点の数
 	UINT GetVertexIndex() { return vertexIndex_; }
 	//オフセット
@@ -66,6 +73,8 @@ public:
 	std::unordered_map<string, AnimationData> GetAnimationDatas() { return modelData_.animations; }
 
 	DirectXCommon* GetDirectXCommon() { return dxCommon_; }
+
+	std::vector<VertexData> GetVertices() { return modelData_.vertices; }
 private:
 
 	//階層構造の行列変換

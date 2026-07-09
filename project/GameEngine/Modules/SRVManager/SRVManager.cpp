@@ -1,10 +1,11 @@
 #include "SRVManager.h"
+#include <VertexData.h>
 #include <algorithm>
 #include "ConvertString.h"
 #include <assert.h>
 
 //最大SRV数(最大テクスチャ枚数)
-const uint32_t SRVManager::kMaxSRVCount = 512;
+const uint32_t SRVManager::kMaxSRVCount = 8192;
 
 SRVManager::~SRVManager() {
 
@@ -79,9 +80,6 @@ void SRVManager::CreateSRVforStructuredBuffer(uint32_t srvIndex, ID3D12Resource*
 	instancingSrvDesc.Buffer.NumElements = numElement;
 	instancingSrvDesc.Buffer.StructureByteStride = structureByteStride;
 
-	D3D12_CPU_DESCRIPTOR_HANDLE textureSrvHandleCPU = GetCPUDescriptorHandle(srvIndex);
-	D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU = GetGPUDescriptorHandle(srvIndex);
-
 	dxCommon_->GetDevice()->CreateShaderResourceView(pResource, &instancingSrvDesc, GetCPUDescriptorHandle(srvIndex));
 }
 
@@ -108,6 +106,27 @@ void SRVManager::CreateSRVforRenderTexture(uint32_t srvIndex, ID3D12Resource* pR
 
 	dxCommon_->GetDevice()->CreateShaderResourceView(pResource, &srvDesc, GetCPUDescriptorHandle(srvIndex));
 }
+
+//UAV生成(Structured Buffer用)
+void SRVManager::CreateUAVforStructuredBuffer(uint32_t srvIndex, ID3D12Resource* pResource, UINT vertexCount, UINT structureByteStride) {
+	//生成するResourceの設定
+	D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc{};
+	uavDesc.Format = DXGI_FORMAT_UNKNOWN;
+	uavDesc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
+	uavDesc.Buffer.FirstElement = 0;
+	uavDesc.Buffer.NumElements = vertexCount;
+	uavDesc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_NONE;
+	uavDesc.Buffer.StructureByteStride = structureByteStride;
+
+	//Resourceの生成
+	dxCommon_->GetDevice()->CreateUnorderedAccessView(
+		pResource,	//Heapの設定
+		nullptr,
+		&uavDesc,
+		GetCPUDescriptorHandle(srvIndex)
+	);
+}
+
 
 void SRVManager::PreDraw() {
 	//描画用のDescriptorHeapの設定

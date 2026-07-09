@@ -42,7 +42,7 @@ ModelData LoadGLTFFile(const std::string& directoryPath, const std::string& file
 			aiVector3D& normal = mesh->mNormals[vertexIndex];
 			aiVector3D& texcoord = mesh->mTextureCoords[0][vertexIndex];
 
-			ObjectVertexData vertexData{};
+			VertexData vertexData{};
 			vertexData.position = { position.x,position.y,position.z,1.0f };
 			vertexData.normal = { normal.x,normal.y,normal.z };
 			vertexData.texcoord = { texcoord.x,texcoord.y };
@@ -50,6 +50,7 @@ ModelData LoadGLTFFile(const std::string& directoryPath, const std::string& file
 			vertexData.position.x *= -1.0f;
 			vertexData.normal.x *= -1.0f;
 			modelData.vertices.push_back(vertexData);
+			modelData.Influences.push_back({});
 		}
 
 		//Faceの中身の解析
@@ -74,8 +75,8 @@ ModelData LoadGLTFFile(const std::string& directoryPath, const std::string& file
 			for (uint32_t weightIndex = 0; weightIndex < boneData->mNumWeights; ++weightIndex) {
 				aiVertexWeight weight = boneData->mWeights[weightIndex];
 				SetVertexWeight(
-					modelData.vertices[weight.mVertexId].boneID,
-					modelData.vertices[weight.mVertexId].boneWeight,
+					modelData.Influences[weight.mVertexId].boneIDs,
+					modelData.Influences[weight.mVertexId].weights,
 					boneIndex,
 					weight.mWeight);
 			}
@@ -83,7 +84,7 @@ ModelData LoadGLTFFile(const std::string& directoryPath, const std::string& file
 		}
 
 		for (int index = 0; index < modelData.vertices.size(); index++) {
-			modelData.vertices[index].boneWeight = NormalizeWeights(modelData.vertices[index].boneWeight);
+			modelData.Influences[index].weights = NormalizeWeights(modelData.Influences[index].weights);
 		}
 
 		//オフセット記録

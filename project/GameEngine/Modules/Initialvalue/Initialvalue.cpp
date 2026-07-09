@@ -1018,3 +1018,24 @@ Microsoft::WRL::ComPtr <ID3D12PipelineState> Cubemap_PipelineStateInitialvalue(I
 
 	return graphicsPipelineState;
 }
+
+//PSOを生成する
+Microsoft::WRL::ComPtr <ID3D12PipelineState> Compute_PipelineStateInitialvalue(ID3D12Device* device,
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> rootSignature,
+	IDxcBlob* computeShaderBlob)
+{
+	D3D12_COMPUTE_PIPELINE_STATE_DESC computePipelineStateDesc{};
+	computePipelineStateDesc.CS = {
+		.pShaderBytecode = computeShaderBlob->GetBufferPointer(),
+		.BytecodeLength = computeShaderBlob->GetBufferSize()
+	};
+
+	computePipelineStateDesc.pRootSignature = rootSignature.Get();
+
+	//実際に生成
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> computePipelineState = nullptr;
+	HRESULT hr = device->CreateComputePipelineState(&computePipelineStateDesc, IID_PPV_ARGS(&computePipelineState));
+	assert(SUCCEEDED(hr));
+
+	return computePipelineState;
+}

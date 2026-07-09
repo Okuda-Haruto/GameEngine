@@ -73,3 +73,8 @@ Microsoft::WRL::ComPtr <ID3D12PipelineState> Cubemap_PipelineStateInitialvalue(I
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> rootSignature,
 	IDxcBlob* vertexShaderBlob,
 	IDxcBlob* pixelShaderBlob);
+
+//PSOを生成する
+Microsoft::WRL::ComPtr <ID3D12PipelineState> Compute_PipelineStateInitialvalue(ID3D12Device* device,
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> rootSignature,
+	IDxcBlob* computeShaderBlob);

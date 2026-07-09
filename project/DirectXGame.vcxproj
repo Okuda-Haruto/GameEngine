@@ -187,9 +187,11 @@
     <ClInclude Include="GameEngine\Data\Parts.h" />
     <ClInclude Include="GameEngine\Data\PointLightElement.h" />
     <ClInclude Include="GameEngine\Data\RadialBlurData.h" />
+    <ClInclude Include="GameEngine\Data\SkinningInformation.h" />
     <ClInclude Include="GameEngine\Data\SpotLightElement.h" />
     <ClInclude Include="GameEngine\Data\TransformationMatrix.h" />
     <ClInclude Include="GameEngine\Data\VertexData.h" />
+    <ClInclude Include="GameEngine\Data\VertexInfluence.h" />
     <ClInclude Include="GameEngine\Data\VignetteData.h" />
     <ClInclude Include="GameEngine\DebugTool\ImGuiManager\ImGuiManager.h" />
     <ClInclude Include="GameEngine\Editor\ParticleEditor\ParticleEditor.h" />
@@ -216,7 +218,6 @@
     <ClInclude Include="GameEngine\Data\SRT.h" />
     <ClInclude Include="GameEngine\Data\TextureData.h" />
     <ClInclude Include="GameEngine\Math\Shape\Triangle.h" />
-    <ClInclude Include="GameEngine\Data\ObjectVertexData.h" />
     <ClInclude Include="GameEngine\DebugTool\D3DResourceLeakChecker.h" />
     <ClInclude Include="GameEngine\DebugTool\DebugCamera.h" />
     <ClInclude Include="GameEngine\DebugTool\ExportDump.h" />
@@ -425,6 +426,17 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Development|x64'">Pixel</ShaderType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="resources\Shader\Skinning.CS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Development|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Development|x64'">4.0</ShaderModel>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>

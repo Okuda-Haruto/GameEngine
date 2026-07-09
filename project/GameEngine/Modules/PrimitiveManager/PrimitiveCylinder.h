@@ -24,7 +24,7 @@ private:
 	//頂点バッファビュー
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView_{};
 	//頂点リソースデータ
-	ObjectVertexData* vertexData_ = nullptr;
+	VertexData* vertexData_ = nullptr;
 
 	//インデックス数
 	uint32_t indexCount_;
