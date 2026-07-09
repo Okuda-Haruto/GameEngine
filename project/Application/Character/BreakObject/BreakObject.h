@@ -6,6 +6,32 @@
 #include "ParticleEmitter/ParticleEmitter.h"
 
 class Stage;
+class BreakObject;
+
+#pragma region BreakBehavior
+
+class BaseBreakBehavior {
+protected:
+	Stage* stage_;
+	BreakObject* breakObject_;
+public:
+	void Initialize(Stage* stage, BreakObject* breakObject) { stage_ = stage; breakObject_ = breakObject; }
+	virtual void Behavior() = 0;
+};
+
+class BreakBehavior_Explosion_Small : public BaseBreakBehavior {
+public:
+	void Behavior() override;
+};
+
+class BreakBehavior_DropItem : public BaseBreakBehavior {
+public:
+	void Behavior() override;
+};
+
+#pragma endregion
+
+
 
 class BreakObject : public BaseCharacter
 {

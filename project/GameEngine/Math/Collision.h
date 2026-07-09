@@ -5,15 +5,17 @@
 #include "Triangle.h"
 #include "AABB.h"
 #include "OBB.h"
+#include "Capsule.h"
 #include "ModelData.h"
+#include <optional>
 
 //正射影ベクトル
 Vector3 Project(const Vector3& v1, const Vector3& v2);
-//最終接点
+//最近接点
 Vector3 ClosestPoint(const Vector3& point, const Line& line);
-//最終接点
+//最近接点
 Vector3 ClosestPoint(const Vector3& point, const Ray& ray);
-//最終接点
+//最近接点
 Vector3 ClosestPoint(const Vector3& point, const Segment& segment);
 
 //球と球の衝突
@@ -56,6 +58,13 @@ bool IsCollision(const OBB& obb, const Ray& ray);
 bool IsCollision(const OBB& obb, const Segment& segment);
 //OBBとOBBの衝突
 bool IsCollision(const OBB& obb1, const OBB& obb2);
+//カプセルと球の衝突
+bool IsCollision(const Capsule& capsule, const Sphere& sphere);
+//カプセルとAABBの衝突
+bool IsCollision(const Capsule& capsule, const AABB& aabb);
 
 //objモデルと線分の衝突
 bool IsCollision(const ModelData& model, const Segment& segment);
+
+//移動カプセルと球の衝突
+//std::optional<float> MoveCollision(const Capsule& capsule, const Vector3 & velocity, const Sphere& sphere);

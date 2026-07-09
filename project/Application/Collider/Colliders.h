@@ -1,6 +1,7 @@
 #pragma once
 #include "SphereCollider.h"
 #include "OBBCollider.h"
+#include "CapsuleCollider.h"
 #include "Collider.h"
 #include <vector>
 #include <memory>
@@ -13,7 +14,7 @@ private:
 	std::vector<OBBCollider> obbColliders_;
 
 	//対地面接触判定
-	OBBCollider grundCollider_;
+	CapsuleCollider grundCollider_;
 
 	//接触した判定を伝えるclass
 	Collider* collider_;
@@ -34,7 +35,7 @@ public:
 	void AddOBBCollider(OBB localOBB, int8_t sourceId_, int8_t targetId_, std::shared_ptr<Matrix4x4> parentMatrix);
 
 	//対地面接触判定
-	void SetGrundCollider(OBB localOBB, int8_t sourceId_, int8_t targetId_);
+	void SetGrundCollider(Capsule localCapsule, int8_t sourceId_, int8_t targetId_);
 
 	//球接触判定の変更
 	std::vector<SphereCollider> GetSphereColliders() { return sphereColliders_; }

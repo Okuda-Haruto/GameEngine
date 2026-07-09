@@ -96,6 +96,10 @@ private:
 
 #pragma endregion
 
+	//実行コマンド
+	std::vector<std::unique_ptr<BaseCommand>> commands_;
+	int32_t commandIndex_;
+
 	//エディター状態
 	enum class EditorState {
 		None,	//ステージを選択していない状態
@@ -111,10 +115,6 @@ private:
 		ReadLastOpenFile//最後に読み込んだファイルを開く
 	};
 	OpenFile openFile_;
-
-	//実行コマンド
-	std::vector<std::unique_ptr<BaseCommand>> commands_;
-	int32_t commandIndex_;
 
 	//接地、壁判定を取るオブジェクト
 	std::vector<EditorObject> colliderObjects_;

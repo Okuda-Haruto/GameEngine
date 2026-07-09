@@ -90,13 +90,19 @@ public:
 	/// </summary>
 	void Draw();
 
+	//Spriteのみ
 	void DrawSprite();
 
+	//衝突
 	void Collision();
+
+	//コライダーを考慮した移動
+	//void MoveWithCollision(CapsuleCollider collider, SRT& transform, Vector3 velocity);
 
 	//後でクォータニオンにしたい
 	void AddPlayerBullet(Vector3 translate, Vector3 rotate);
 	void AddBossBullet(Vector3 translate, Vector3 rotate);
+	void AddBreakObject(std::string directoryPath, std::string fileName, SRT startTransform, float maxHP);
 
 	void SetDebugCamera(std::shared_ptr<DebugCamera> debugCamera) { debugCamera_ = debugCamera; gameCamera_->SetDebugCamera(debugCamera_); }
 

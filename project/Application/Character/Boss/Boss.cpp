@@ -237,6 +237,7 @@ void Boss::Initialize(std::string filepath, Stage* stage, std::shared_ptr<GameCa
 	PatternCondition condition{};
 	condition.farDistance = 15.0f;
 	condition.priority = 5;
+	condition.isObjectBetweenPlayer = false;
 
 	std::unique_ptr<BossPattern> pattern = std::make_unique<BossPattern>();
 	pattern->SetAction(move(action));
@@ -263,6 +264,7 @@ void Boss::Initialize(std::string filepath, Stage* stage, std::shared_ptr<GameCa
 	condition = {};
 	condition.nearDistance = 30.0f;
 	condition.priority = 5;
+	condition.isObjectBetweenPlayer = false;
 
 	pattern.reset();
 	pattern = std::make_unique<BossPattern>();
@@ -290,6 +292,7 @@ void Boss::Initialize(std::string filepath, Stage* stage, std::shared_ptr<GameCa
 	condition = {};
 	condition.farDistance = 50.0f;
 	condition.priority = 8;
+	condition.isObjectBetweenPlayer = false;
 
 	pattern.reset();
 	pattern = std::make_unique<BossPattern>();
@@ -338,6 +341,7 @@ void Boss::Initialize(std::string filepath, Stage* stage, std::shared_ptr<GameCa
 	condition = {};
 	condition.maxHpRate = 0.5f;
 	condition.priority = 6;
+	condition.isObjectBetweenPlayer = false;
 
 	pattern.reset();
 	pattern = std::make_unique<BossPattern>();
@@ -372,6 +376,7 @@ void Boss::Initialize(std::string filepath, Stage* stage, std::shared_ptr<GameCa
 	condition.farDistance = 40.0f;
 	condition.maxHpRate = 0.5f;
 	condition.priority = 9;
+	condition.isObjectBetweenPlayer = false;
 
 	pattern.reset();
 	pattern = std::make_unique<BossPattern>();

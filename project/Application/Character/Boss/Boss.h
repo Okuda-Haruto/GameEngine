@@ -473,6 +473,11 @@ struct PatternCondition {
 	std::optional<float> nearDistance;
 	//プレイヤーとの距離(遠い場合判定)
 	std::optional<float> farDistance;
+	//プレイヤーとの間にオブジェクトが存在する場合
+	bool isObjectBetweenPlayer;
+	//特定の部位が存在している場合
+	//std::string partsName;
+
 	//優先度(9~1)
 	int8_t priority;
 };
@@ -580,6 +585,8 @@ public:
 
 	void SetDirectionalLight(shared_ptr<DirectionalLight> directionalLight) { object_->SetDirectionalLight(directionalLight); }
 	void SetPointLight(shared_ptr<PointLight> pointLight) { object_->SetPointLight(pointLight); }
+
+	void Damage(float damage) { HP_ -= damage; }
 
 	bool IsDead() { return HP_ <= 0; }
 

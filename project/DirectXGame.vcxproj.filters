@@ -681,6 +681,12 @@
     <ClInclude Include="Application\Character\BreakObject\BreakObject.h">
       <Filter>Application\Character\BreakObject</Filter>
     </ClInclude>
+    <ClInclude Include="GameEngine\Math\Shape\Capsule.h">
+      <Filter>GameEngine\Math\Shape</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Collider\CapsuleCollider.h">
+      <Filter>Application\Collider</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />

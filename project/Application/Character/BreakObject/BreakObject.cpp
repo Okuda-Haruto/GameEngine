@@ -28,7 +28,7 @@ void BreakObject::Initialize(std::string directoryPath, std::string fileName, SR
 	trackingSphere_->radius = Length(transform_.scale);
 	gameCamera_.lock()->SetTargetSphere(trackingSphere_);
 
-	BaseCharacter::Initialize(trackingSphere_->radius, CollisionID_Anything_Body);
+	BaseCharacter::Initialize(trackingSphere_->radius, CollisionID_Item_Body);
 }
 
 void BreakObject::Update() {
@@ -50,10 +50,13 @@ void BreakObject::IsCollision(uint8_t targetId) {
 
 		//particle_->Emit();
 
-		gameCamera_.lock()->SetShakeTime(0.2f);
+		gameCamera_.lock()->SetShakeTime(0.05f);
 
 		if (IsDead()) {
-
+			if (Length(stage_->GetBoss()->GetTransform().translate - transform_.translate) < 13) {
+				stage_->GetBoss()->Damage(15);
+				gameCamera_.lock()->SetShakeTime(0.3f);
+			}
 		}
 	}
 }

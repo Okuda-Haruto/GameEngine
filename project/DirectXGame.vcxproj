@@ -146,6 +146,7 @@
     <ClInclude Include="Application\Character\BreakObject\BreakObject.h" />
     <ClInclude Include="Application\Character\Item\Item.h" />
     <ClInclude Include="Application\Character\Player\Player.h" />
+    <ClInclude Include="Application\Collider\CapsuleCollider.h" />
     <ClInclude Include="Application\Collider\Collider.h" />
     <ClInclude Include="Application\Collider\Colliders.h" />
     <ClInclude Include="Application\Collider\GroundCollision.h" />
@@ -204,6 +205,7 @@
     <ClInclude Include="GameEngine\Data\ChunkHeader.h" />
     <ClInclude Include="GameEngine\Data\DirectionalLightElement.h" />
     <ClInclude Include="GameEngine\Data\FormatChunk.h" />
+    <ClInclude Include="GameEngine\Math\Shape\Capsule.h" />
     <ClInclude Include="GameEngine\Math\Shape\Circle.h" />
     <ClInclude Include="GameEngine\Math\Shape\Line.h" />
     <ClInclude Include="GameEngine\Data\Material.h" />

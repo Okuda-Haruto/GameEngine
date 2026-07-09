@@ -4,6 +4,9 @@
 #include <ModelManager/ModelManager.h>
 #include <ImGuiManager/ImGuiManager.h>
 
+#include <format>
+#include <Windows.h>
+
 BossEditor::SetModelCommand::SetModelCommand(BossEditor* editor, std::string beforeDirectoryPath, std::string beforeFileName, std::string afterDirectoryPath, std::string afterFileName) {
 	editor_ = editor;
 	beforeDirectoryPath_ = beforeDirectoryPath;
@@ -23,56 +26,85 @@ void BossEditor::SetModelCommand::RedoCommand() {
 	editor_->SetBossData(afterDirectoryPath_, afterFileName_);
 }
 
-void BossEditor::Initialize() {
+void BossEditor::Initialize(std::shared_ptr<Input> input) {
+	input_ = input;
+
+	debugCamera_ = std::make_shared<DebugCamera>();
+	debugCamera_->Initialize(input_);
+
 	state_ = EditorState::None;
-
-
+	openFile_ = OpenFile::None;
 }
 
 void BossEditor::Update() {
+
+	if (stage_) {
+		stage_->Update();
+	}
+
 #ifdef USE_IMGUI
-	for (auto& pattern : patterns_) {
-		BossAction* action = pattern.second->GetAction();
-
-		ImGui::Begin(pattern.first.c_str());
-		std::vector<BaseStep*> steps = action->GetSteps();
-
-		for (int i = 0; i < steps.size(); i++)
-		{
-			auto& step = steps[i];
-
-			ImGui::Selectable(step->GetName().c_str());
-
-			// ドラッグ開始
-			if (ImGui::BeginDragDropSource())
-			{
-				ImGui::SetDragDropPayload("STEP_INDEX", &i, sizeof(i));
-				ImGui::Text("%s", step->GetName().c_str());
-				ImGui::EndDragDropSource();
-			}
-
-			// ドロップ先
-			if (ImGui::BeginDragDropTarget())
-			{
-				if (const ImGuiPayload* payload =
-					ImGui::AcceptDragDropPayload("STEP_INDEX"))
-				{
-					int from = *(int*)payload->Data;
-					int to = i;
-
-					auto step = std::move(steps[from]);
-					steps.erase(steps.begin() + from);
-					steps.insert(steps.begin() + to, std::move(step));
-				}
-
-				ImGui::EndDragDropTarget();
-			}
+	if (state_ == EditorState::None) {
+		ImGui::Begin("ファイル選択");
+		if (ImGui::Button("新規作成")) {
+			openFile_ = OpenFile::CreateNewFile;
 		}
+		if (ImGui::Button("ファイルを読み込む")) {
+			openFile_ = OpenFile::ReadFile;
+		}
+		if (ImGui::Button("前回開いたファイルを開く")) {
+			openFile_ = OpenFile::ReadLastOpenFile;
+		}
+		ImGui::End();
+
+		OpenFileWindow();
+	} else if (state_ == EditorState::Edit) {
+		ImGui::Begin("ボス基本ステータス");
+		ImGui::Text("Model");
+		ImGui::InputText("ディレクトリパス", directoryPathText_, sizeof(directoryPathText_));
+		ImGui::InputText("ファイル名", modelnameText_, sizeof(modelnameText_));
 
 		ImGui::End();
 	}
 #endif
-	stage_->Update();
+
+
+#ifdef USE_IMGUI
+		ImGui::Begin("test");
+
+		if (ImGui::Button("Apple"))
+		{
+			// 普通のボタン
+		}
+
+		if (ImGui::BeginDragDropSource())
+		{
+			int id = 123;
+
+			ImGui::SetDragDropPayload("ITEM", &id, sizeof(id));
+
+			ImGui::Text("Apple");
+
+			ImGui::EndDragDropSource();
+		}
+
+		ImGui::Button("Box");
+
+		if (ImGui::BeginDragDropTarget())
+		{
+			if (const ImGuiPayload* payload =
+				ImGui::AcceptDragDropPayload("ITEM"))
+			{
+				int id = *(int*)payload->Data;
+
+				std::wstring msg = std::format(L"ID = {}\n", id);
+				OutputDebugStringW(msg.c_str());
+			}
+
+			ImGui::EndDragDropTarget();
+		}
+
+		ImGui::End();
+#endif
 }
 
 void BossEditor::Draw() {
@@ -91,13 +123,13 @@ void BossEditor::ReadBossFile(std::string filePath) {
 
 	//基本ステータス
 	bossName_ = bossJson["name"];
-	directoryPath_ = bossJson["name"]["directoryPath"];
-	modelname_ = bossJson["name"]["modelname"];
-	maxHP_ = bossJson["name"]["maxHP"];
+	directoryPath_ = bossJson["directoryPath"];
+	modelname_ = bossJson["modelname"];
+	maxHP_ = bossJson["maxHP"];
 
 
 
-	nlohmann::json& patternJson = bossJson["name"]["pattern"];
+	nlohmann::json& patternJson = bossJson["pattern"];
 
 	//読み込んだパターン
 	for (auto iterator = patternJson.begin(); iterator != patternJson.end(); ++iterator) {
@@ -113,7 +145,7 @@ void BossEditor::ReadBossFile(std::string filePath) {
 		std::vector<std::unique_ptr<BaseStep>> steps;
 		for (const auto& stepJson : stepArray)
 		{
-			steps.push_back(ReadStepJson(stepJson["name"]["pattern"][name]));
+			steps.push_back(ReadStepJson(stepJson["pattern"][name]));
 		}
 		action->SetSteps(move(steps));
 
@@ -121,8 +153,9 @@ void BossEditor::ReadBossFile(std::string filePath) {
 
 		patterns_.emplace(name, std::move(pattern));
 	}
-	//StageEditor優先
-	stage_->Initialize({}, input_);
+	//BossEditor優先
+	//stage_->Initialize({}, input_);
+	state_ = EditorState::Edit;
 }
 
 void BossEditor::WriteBossFile() {
@@ -131,9 +164,9 @@ void BossEditor::WriteBossFile() {
 
 	//基本ステータス
 	bossJson["name"] = bossName_.c_str();
-	bossJson["name"]["directoryPath"] = directoryPath_.c_str();
-	bossJson["name"]["modelname"] = modelname_.c_str();
-	bossJson["name"]["maxHP"] = int(maxHP_);
+	bossJson["directoryPath"] = directoryPath_.c_str();
+	bossJson["modelname"] = modelname_.c_str();
+	bossJson["maxHP"] = int(maxHP_);
 
 	//パターン出力
 	for (auto& pattern : patterns_)
@@ -144,9 +177,15 @@ void BossEditor::WriteBossFile() {
 
 		for (auto& step : action->GetSteps())
 		{
-			bossJson["name"]["pattern"][pattern.first].push_back(step->WriteStep());
+			bossJson["pattern"][pattern.first].push_back(step->WriteStep());
 		}
 	}
+
+	std::filesystem::path path(filePath_);
+
+	// 親フォルダを作成（既に存在していてもOK）
+	std::filesystem::create_directories(path.parent_path());
+
 
 	//ファイル書き出し部分
 	std::ofstream file(filePath_);
@@ -162,14 +201,121 @@ void BossEditor::SetBossData(std::string directoryPath, std::string modelname) {
 	stage_->GetBoss()->SetModel(ModelManager::GetInstance()->GetModel(directoryPath_, modelname_));
 }
 
-void BossEditor::ImGuiFileTree_obj(std::string path, std::string name) {
+void BossEditor::OpenFileWindow() {
 #ifdef USE_IMGUI
+	std::string path;
+
+	switch (openFile_)
+	{
+	case BossEditor::OpenFile::CreateNewFile:
+		ImGui::Begin("ファイルを新規作成");
+
+		ImGui::InputText("ファイルパス", filePathText_, sizeof(filePathText_));
+		ImGui::Text("フォルダ位置参照");
+		if (ImGuiFolderTree(path)) {
+			strncpy_s(filePathText_, path.c_str(), sizeof(filePathText_) - 1);
+			filePathText_[sizeof(filePathText_) - 1] = '\0';
+		}
+
+		if (ImGui::Button("作成")) {
+			stageData_ = {};
+			//ImGuiに直接stringを入れられないのでコピー
+			filePath_ = filePathText_;
+
+			WriteBossFile();
+
+			ReadBossFile(filePath_);
+			SaveLastOpenFilePath(filePath_);
+		}
+
+		ImGui::SameLine();
+		if (ImGui::Button("戻る")) {
+			openFile_ = OpenFile::None;
+		}
+		ImGui::End();
+		break;
+	case BossEditor::OpenFile::ReadFile:
+		ImGui::Begin("既存のファイルを読み込む");
+
+		ImGui::InputText("ファイルパス", filePathText_, sizeof(filePathText_));
+		ImGui::Text("jsonファイル参照");
+
+		if (ImGuiFileTree_json(path)) {
+			strncpy_s(filePathText_, path.c_str(), sizeof(filePathText_) - 1);
+			filePathText_[sizeof(filePathText_) - 1] = '\0';
+		}
+
+		if (ImGui::Button("読み込み")) {
+			stageData_ = {};
+			//ImGuiに直接stringを入れられないのでコピー
+			filePath_ = filePathText_;
+
+			ReadBossFile(filePath_);
+			SaveLastOpenFilePath(filePath_);
+		}
+
+		ImGui::SameLine();
+		if (ImGui::Button("戻る")) {
+			openFile_ = OpenFile::None;
+		}
+		ImGui::End();
+		break;
+	case BossEditor::OpenFile::ReadLastOpenFile:
+
+		stageData_ = {};
+		//ImGuiに直接stringを入れられないのでコピー
+		filePath_ = LoadLastOpenFilePath();
+
+		ReadBossFile(filePath_);
+
+		break;
+	default:
+		break;
+	}
+#endif
+}
+
+void BossEditor::SaveLastOpenFilePath(std::string lastOpenFilePath) {
+	//書き出すJsonファイル
+	nlohmann::json filePathJson;
+
+	filePathJson["LastOpenFilePath"] = lastOpenFilePath;
+
+	//ファイル書き出し部分
+	std::ofstream file("resources/Data/Boss/LastOpenFile.json");
+	file << filePathJson.dump(4);
+	file.close();
+}
+
+std::string BossEditor::LoadLastOpenFilePath() {
+	//読み込むJsonファイル
+	std::ifstream file("resources/Data/Boss/LastOpenFile.json");
+	if (!file.is_open()) {
+		//エラー処理
+		return {};
+	}
+
+	nlohmann::json filePathJson;
+	file >> filePathJson;
+	file.close();
+
+	//基本ステータス
+	std::string lastOpenFilePath = filePathJson["LastOpenFilePath"];
+
+	return lastOpenFilePath;
+}
+
+bool BossEditor::ImGuiFileTree_obj(std::string& path, std::string name) {
+#ifdef USE_IMGUI
+	bool isClicked = false;
+
 	if (ImGui::TreeNode(name.c_str())) {
 		for (const auto& entry : std::filesystem::directory_iterator(path))
 		{
 			if (entry.is_directory())
 			{
-				ImGuiFileTree_obj(path + "/" + entry.path().filename().string(), entry.path().filename().string());
+				path = path + +"/" + entry.path().filename().string();
+				isClicked = ImGuiFileTree_obj(path, entry.path().filename().string());
 			} else if (entry.is_regular_file()) {
 				//objファイル
 				if (entry.path().extension() == ".obj")
@@ -178,57 +324,64 @@ void BossEditor::ImGuiFileTree_obj(std::string path, std::string name) {
 						commands_.resize(commandIndex_);
 						commands_.push_back(std::make_unique<SetModelCommand>(this, directoryPath_, modelname_, path, entry.path().filename().string()));	//パスとファイル名が必要なのでこうするしかない
 						commandIndex_++;
+
+						return true;
 					}
 				}
 			}
 		}
 		ImGui::TreePop();
 	}
+
+	return isClicked;
 #endif
 }
-void BossEditor::ImGuiFileTree_json(std::string path, std::string name) {
+bool BossEditor::ImGuiFileTree_json(std::string& filePath, std::string path, std::string name) {
 #ifdef USE_IMGUI
+	bool isClicked = false;
+
 	if (ImGui::TreeNode(name.c_str())) {
 		for (const auto& entry : std::filesystem::directory_iterator(path))
 		{
 			if (entry.is_directory())
 			{
-				ImGuiFileTree_json(path + "/" + entry.path().filename().string(), entry.path().filename().string());
+				isClicked = ImGuiFileTree_json(filePath, path + "/" + entry.path().filename().string(), entry.path().filename().string());
 			} else if (entry.is_regular_file()) {
 				//objファイル
 				if (entry.path().extension() == ".json")
 				{
 					if (ImGui::Button(entry.path().filename().string().c_str())) {
 
-						std::string jsonPath;
-						jsonPath = path + "/" + entry.path().filename().string();
-
-						strncpy_s(filePathText_, jsonPath.c_str(), sizeof(filePathText_) - 1);
-						filePathText_[sizeof(filePathText_) - 1] = '\0';
+						filePath = path + "/" + entry.path().filename().string();
+						return true;
 					}
 				}
 			}
 		}
 		ImGui::TreePop();
 	}
+
+	return isClicked;
 #endif
 }
 
-void BossEditor::ImGuiFolderTree(std::string path, std::string name) {
+bool BossEditor::ImGuiFolderTree(std::string& filePath, std::string path, std::string name) {
 #ifdef USE_IMGUI
+	bool isClicked = false;
 	if (ImGui::TreeNode(name.c_str())) {
 
 		if (ImGui::IsItemClicked())
 		{
-			strncpy_s(filePathText_, path.c_str(), sizeof(filePathText_) - 1);
-			filePathText_[sizeof(filePathText_) - 1] = '\0';
+			filePath = path;
+			return true;
 		}
 
 		for (const auto& entry : std::filesystem::directory_iterator(path))
 		{
 			if (entry.is_directory())
 			{
-				ImGuiFolderTree(
+				isClicked = ImGuiFolderTree(
+					filePath,
 					path + "/" + entry.path().filename().string(),
 					entry.path().filename().string());
 			}
@@ -236,5 +389,7 @@ void BossEditor::ImGuiFolderTree(std::string path, std::string name) {
 
 		ImGui::TreePop();
 	}
+
+	return isClicked;
 #endif
 }
