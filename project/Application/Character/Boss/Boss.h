@@ -473,8 +473,6 @@ struct PatternCondition {
 	std::optional<float> nearDistance;
 	//プレイヤーとの距離(遠い場合判定)
 	std::optional<float> farDistance;
-	//プレイヤーとの間にオブジェクトが存在する場合
-	bool isObjectBetweenPlayer;
 	//特定の部位が存在している場合
 	//std::string partsName;
 
@@ -537,6 +535,14 @@ private:
 	std::unordered_map<std::string, std::unique_ptr<BossPattern>> patterns_;
 	//map用パターン名
 	std::string patternName_;
+
+	//ボス状態
+	enum class BossState {
+		None,				//無し。初期状態
+		Event,				//イベント。ボスが止まり続ける
+		Move,				//移動。パターンが使えなかったりするなら行う
+		PatternExecution	//行動
+	};
 
 	//線形補完位置
 	std::optional<LerpPositionState> lerpPosition_{};
