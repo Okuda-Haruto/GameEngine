@@ -83,42 +83,20 @@ void ParticleManager::Update(std::string name) {
 		if (particleGroups[name].particles.empty()) {
 			return;
 		};
-
-		for (std::list<Particle>::iterator particleIterator = particleGroups[name].particles.begin();
-			particleIterator != particleGroups[name].particles.end();) {
-
-			if ((*particleIterator).lifeTime >= particleGroups[name].emitter.lifeTime) {
-				particleIterator = particleGroups[name].particles.erase(particleIterator);
-				continue;
-			}
-
-			for (AccelerationField& field : particleGroups[name].accelerationFields) {
-				if (IsCollision(field.area, (*particleIterator).transform.translate)) {
-					(*particleIterator).velocity.scale += field.acceleration.scale;
-					(*particleIterator).velocity.rotate += field.acceleration.rotate;
-					(*particleIterator).velocity.translate += field.acceleration.translate;
-				}
-			}
-
-			(*particleIterator).transform.scale += (*particleIterator).velocity.scale;
-			(*particleIterator).transform.rotate += (*particleIterator).velocity.rotate;
-			(*particleIterator).transform.translate += (*particleIterator).velocity.translate;
-			(*particleIterator).color.x = (*particleIterator).beforeColor.x * (1.0f - (*particleIterator).lifeTime / particleGroups[name].emitter.lifeTime) + (*particleIterator).afterColor.x * ((*particleIterator).lifeTime / particleGroups[name].emitter.lifeTime);
-			(*particleIterator).color.y = (*particleIterator).beforeColor.y * (1.0f - (*particleIterator).lifeTime / particleGroups[name].emitter.lifeTime) + (*particleIterator).afterColor.y * ((*particleIterator).lifeTime / particleGroups[name].emitter.lifeTime);
-			(*particleIterator).color.z = (*particleIterator).beforeColor.z * (1.0f - (*particleIterator).lifeTime / particleGroups[name].emitter.lifeTime) + (*particleIterator).afterColor.z * ((*particleIterator).lifeTime / particleGroups[name].emitter.lifeTime);
-			(*particleIterator).color.w = (*particleIterator).beforeColor.w * (1.0f - (*particleIterator).lifeTime / particleGroups[name].emitter.lifeTime) + (*particleIterator).afterColor.w * ((*particleIterator).lifeTime / particleGroups[name].emitter.lifeTime);
-			
-			(*particleIterator).lifeTime += 1.0f / 60.0f;
-
-			++particleIterator;
-		}
 	}
 }
 
 void ParticleManager::Draw(std::string name) {
 
-	if (!particleGroups[name].particles.empty()) {
+	if (particleGroups.contains(name)) {
 		GameEngine::DrawParticle(particleGroups[name]);
+	}
+}
+
+void ParticleManager::Draw_AddBlend(std::string name) {
+
+	if (particleGroups.contains(name)) {
+		GameEngine::DrawParticle_AddBlend(particleGroups[name]);
 	}
 }
 
@@ -136,17 +114,16 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 	particleGroup.textureIndex = TextureManager::GetInstance()->GetSrvIndex(textureFilePath);
 	particleGroup.camera = Object::GetDefaultCamera();
 
-	// 最大インスタンス数（SRV 作成時と合わせる）
-	const UINT maxInstances = GameEngine::kMaxNumInstance;
-
-	// instancing 用リソースを maxInstances 分確保する（sizeof(InstancingTransformationMatrix) * maxInstances）
-	particleGroup.instancingResource = dxCommon_->CreateBufferResources(sizeof(InstancingTransformationMatrix) * maxInstances);
+	// instancing 用リソースを maxInstances 分確保する（sizeof(Particles) * kMaxParticle）
+	particleGroup.instancingResource = dxCommon_->CreateOutputResources(sizeof(ParticleCS) * kMaxParticle);
 
 	particleGroup.instancingIndex = srvManager_->Allocate();
+	particleGroup.instancingUAVIndex = srvManager_->Allocate();
 	particleGroup.numInstance = 0;
 
 	// SRV を作成（NumElements と stride は一致させる）
-	srvManager_->CreateSRVforStructuredBuffer(particleGroup.instancingIndex, particleGroup.instancingResource.Get(), maxInstances, sizeof(InstancingTransformationMatrix));
+	srvManager_->CreateSRVforStructuredBuffer(particleGroup.instancingIndex, particleGroup.instancingResource.Get(), kMaxParticle, sizeof(ParticleCS));
+	srvManager_->CreateUAVforStructuredBuffer(particleGroup.instancingUAVIndex, particleGroup.instancingResource.Get(), kMaxParticle, sizeof(ParticleCS));
 }
 
 void ParticleManager::Emit(const std::string name, SRT transform, uint32_t count) {
@@ -157,24 +134,7 @@ void ParticleManager::Emit(const std::string name, SRT transform, uint32_t count
 			if (i > GameEngine::kMaxNumInstance) {
 				break;
 			}
-			Particle particle;
-			particle.lifeTime = 0.0f;
-			particle.transform = transform;
-			particle.transform.translate.x = transform.translate.x + GameEngine::randomFloat(particleGroups[name].emitter.spawnRange.min.x, particleGroups[name].emitter.spawnRange.max.x);
-			particle.transform.translate.y = transform.translate.y + GameEngine::randomFloat(particleGroups[name].emitter.spawnRange.min.y, particleGroups[name].emitter.spawnRange.max.y);
-			particle.transform.translate.z = transform.translate.z + GameEngine::randomFloat(particleGroups[name].emitter.spawnRange.min.z, particleGroups[name].emitter.spawnRange.max.z);
-			particle.transform.rotate.z = transform.rotate.z + GameEngine::randomFloat(0.0f, particleGroups[name].emitter.rotateRate);
-			particle.velocity = {};
-			particle.velocity.translate = Normalize(Vector3{
-				particleGroups[name].emitter.angleBase.x + GameEngine::randomFloat(-particleGroups[name].emitter.angleRange.x, particleGroups[name].emitter.angleRange.x),
-				particleGroups[name].emitter.angleBase.y + GameEngine::randomFloat(-particleGroups[name].emitter.angleRange.y, particleGroups[name].emitter.angleRange.y),
-				particleGroups[name].emitter.angleBase.z + GameEngine::randomFloat(-particleGroups[name].emitter.angleRange.z, particleGroups[name].emitter.angleRange.z)
-				}) * (particleGroups[name].emitter.speedBase + GameEngine::randomFloat(-particleGroups[name].emitter.speedRange, particleGroups[name].emitter.speedRange));
-			particle.velocity.rotate.z = particleGroups[name].emitter.rotateVelocity;
-			particle.beforeColor = particleGroups[name].emitter.beforeColor;
-			particle.afterColor = particleGroups[name].emitter.afterColor;
-			particle.color = particle.beforeColor;
-			particleGroups[name].particles.push_back(particle);
+			
 		}
 	}
 }

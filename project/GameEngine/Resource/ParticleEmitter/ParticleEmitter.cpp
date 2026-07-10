@@ -48,6 +48,10 @@ void ParticleEmitter::Draw() {
 	ParticleManager::GetInstance()->Draw(name_);
 }
 
+void ParticleEmitter::Draw_AddBlend() {
+	ParticleManager::GetInstance()->Draw_AddBlend(name_);
+}
+
 void ParticleEmitter::SetEmitter(Emitter emitter) {
 
 	std::unordered_map<std::string, ParticleGroup> particleGroups = ParticleManager::GetInstance()->GetParticleGroups();

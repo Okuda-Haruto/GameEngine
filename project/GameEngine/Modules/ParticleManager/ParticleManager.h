@@ -6,7 +6,7 @@
 #include <SRVManager/SRVManager.h>
 #include <VertexData.h>
 #include <Material.h>
-#include <Particle.h>
+#include <ParticleCS.h>
 #include <Emitter.h>
 #include <Field.h>
 #include <InstancingTransformationMatrix.h>
@@ -19,15 +19,19 @@ struct ParticleGroup {
 	uint32_t textureIndex = 0;// テクスチャ番号
 	Emitter emitter;
 	std::vector<AccelerationField> accelerationFields;
-	std::list<Particle> particles;
+	std::list<ParticleCS> particles;
 	std::shared_ptr<Camera> camera;
 	uint32_t instancingIndex = 0;
 	Microsoft::WRL::ComPtr<ID3D12Resource> instancingResource;
+	uint32_t instancingUAVIndex = 0;
 	uint32_t numInstance = 0;
 	std::vector <InstancingTransformationMatrix> instancingData;
 };
 
 class ParticleManager {
+public:
+	static const uint32_t kMaxParticle = 1024;
+
 private:
 
 	static unique_ptr<ParticleManager> instance;
@@ -72,6 +76,7 @@ public:
 	void Update(std::string name);
 
 	void Draw(std::string name);
+	void Draw_AddBlend(std::string name);
 
 	void CreateParticleGroup(const std::string name, const std::string textureFilePath);
 

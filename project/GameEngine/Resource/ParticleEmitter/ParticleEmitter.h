@@ -11,6 +11,7 @@ public:
 	void Emit(SRT transform);
 
 	void Draw();
+	void Draw_AddBlend();
 
 	void SetEmitter(Emitter emitter);
 	void SetField(AccelerationField accelerationField);

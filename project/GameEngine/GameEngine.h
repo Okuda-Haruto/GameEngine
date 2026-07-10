@@ -28,6 +28,7 @@
 #include <GPURandomSeed.h>
 #include <VertexInfluence.h>
 #include <SkinningInformation.h>
+#include <PerView.h>
 
 #include <Audio/Audio.h>
 #include "Input/Input.h"
@@ -88,7 +89,8 @@ private:
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> screen_RadialBlur_RootSignature_;
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> screen_Dissolve_RootSignature_;
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> cubemap_RootSignature_;
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> compute_RootSignature_;
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> compute_Skinning_RootSignature_;
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> compute_Initialize_Particle_RootSignature_;
 
 	//Windowのメッセージ
 	MSG msg_{};
@@ -98,7 +100,7 @@ private:
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> object2D_PipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> object3D_NoDepth_PipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> object3D_Instancing_PipelineState_ = nullptr;
-	Microsoft::WRL::ComPtr <ID3D12PipelineState> particle_PipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> particle_NormalBlend_PipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> particle_AddBlend_PipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> sprite_PipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> line_PipelineState_ = nullptr;
@@ -113,7 +115,8 @@ private:
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> screen_RadialBlur_PipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> screen_Dissolve_PipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> cubemap_PipelineState_ = nullptr;
-	Microsoft::WRL::ComPtr <ID3D12PipelineState> skinning_PipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> compute_Skinning_PipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> compute_Initialize_Particle_PipelineState_ = nullptr;
 
 public:
 	//描画可能なモデルの数(通常)
@@ -158,6 +161,10 @@ private:
 	std::array <Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxInstanceIndex > particleMaterialResource_;
 	//マテリアルデータ
 	std::array <Material*, kMaxInstanceIndex> particleMaterialData_;
+	//インスタンス用リソース
+	std::array <Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxInstanceIndex > perViewResource_;
+	//インスタンスデータ
+	std::array <PerView*, kMaxInstanceIndex> perViewData_;
 	//インスタンス用リソース
 	std::array <Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxInstanceIndex > particleResource_;
 	//インスタンスデータ
@@ -279,6 +286,7 @@ private:
 	void DrawParts_2D_(Object* object, uint32_t partsIndex, shared_ptr<DirectionalLight> directionalLight);
 	void DrawInstancingObject_3D_(std::list<Object*> objects, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight);
 	void DrawParticle_(ParticleGroup particleGroup);
+	void DrawParticle_AddBlend_(ParticleGroup particleGroup);
 
 	void DrawSprite_2D_(Sprite* sprite);
 	void DrawInstancingSprite_2D_(std::list<Sprite*> sprits);
@@ -304,6 +312,7 @@ private:
 	void DrawPrimitiveCylinder_Billboard_(PrimitiveCylinder* primitiveCylinder, SRT transform, Material material);
 
 	void ComputeSkinning_(Object* object);
+	void ComputeParticle_(ParticleGroup particleGroup);
 
 	WindowsAPI* GetWindowsAPI_() { return winApp_.get(); }
 
@@ -384,6 +393,7 @@ public:
 	static void DrawParts_2D(Object* object, uint32_t partsIndex, shared_ptr<DirectionalLight> directionalLight) { return GetInstance()->DrawParts_2D_(object, partsIndex, directionalLight); }
 	static void DrawInstancingObject_3D(std::list<Object*> objects, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight) { return GetInstance()->DrawInstancingObject_3D_(objects, directionalLight, pointLight, spotLight); }
 	static void DrawParticle(ParticleGroup particleGroup) { return GetInstance()->DrawParticle_(particleGroup); }
+	static void DrawParticle_AddBlend(ParticleGroup particleGroup) { return GetInstance()->DrawParticle_AddBlend_(particleGroup); }
 	
 	static void DrawSprite_2D(Sprite* sprite) { return GetInstance()->DrawSprite_2D_(sprite); }
 	static void DrawInstancingSprite_2D(std::list<Sprite*> sprits) { return GetInstance()->DrawInstancingSprite_2D_(sprits); }
@@ -407,6 +417,8 @@ public:
 	static void DrawPrimitiveRing_Billboard(PrimitiveRing* primitiveRing, SRT transform, Material material) { return GetInstance()->DrawPrimitiveRing_Billboard_(primitiveRing, transform, material); };
 	static void DrawPrimitiveCylinder(PrimitiveCylinder* primitiveCylinder, SRT transform, Material material) { return GetInstance()->DrawPrimitiveCylinder_(primitiveCylinder, transform, material); };
 	static void DrawPrimitiveCylinder_Billboard(PrimitiveCylinder* primitiveCylinder, SRT transform, Material material) { return GetInstance()->DrawPrimitiveCylinder_Billboard_(primitiveCylinder, transform, material); };
+
+	static void ComputeParticle(ParticleGroup particleGroup) { return GetInstance()->ComputeParticle_(particleGroup); }
 
 	[[nodiscard]]
 	static WindowsAPI* GetWindowsAPI() { return GetInstance()->GetWindowsAPI_(); }

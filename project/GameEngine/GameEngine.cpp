@@ -49,7 +49,7 @@ void GameEngine::Finalize_() {
 	object2D_PipelineState_.Reset();
 	object3D_NoDepth_PipelineState_.Reset();
 	object3D_Instancing_PipelineState_.Reset();
-	particle_PipelineState_.Reset();
+	particle_NormalBlend_PipelineState_.Reset();
 	sprite_PipelineState_.Reset();
 	line_PipelineState_.Reset();
 	line_NoDepth_PipelineState_.Reset();
@@ -141,7 +141,8 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	screen_RadialBlur_RootSignature_ = dxCommon_->Screen_RadialBlur_RootSignatureInitialvalue();
 	screen_Dissolve_RootSignature_ = dxCommon_->Screen_Dissolve_RootSignatureInitialvalue();
 	cubemap_RootSignature_ = dxCommon_->Cubemap_RootSignatureInitialvalue();
-	compute_RootSignature_ = dxCommon_->Compute_RootSignatureInitialvalue();
+	compute_Skinning_RootSignature_ = dxCommon_->Compute_Skinning_RootSignatureInitialvalue();
+	compute_Initialize_Particle_RootSignature_ = dxCommon_->Compute_Initialize_Particle_RootSignatureInitialvalue();
 
 	//Shaderをコンパイルする
 	Microsoft::WRL::ComPtr<IDxcBlob> Object3DVertexShaderBlob = dxCommon_->CompileShader(L"./resources/Shader/Object3D.VS.hlsl", L"vs_6_0");
@@ -190,17 +191,19 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	assert(CubemapPSBlob != nullptr);
 	Microsoft::WRL::ComPtr<IDxcBlob> SkinningCSBlob = dxCommon_->CompileShader(L"./resources/Shader/Skinning.CS.hlsl", L"cs_6_0");
 	assert(SkinningCSBlob != nullptr);
+	Microsoft::WRL::ComPtr<IDxcBlob> InitializePartilceCSBlob = dxCommon_->CompileShader(L"./resources/Shader/InitializeParticle.CS.hlsl", L"cs_6_0");
+	assert(SkinningCSBlob != nullptr);
 
 	//PSOを生成
 	object3D_PipelineState_ = Triangle_PipelineStateInitialvalue(device_, object_RootSignature_, Object3DVertexShaderBlob.Get(), Object3DPixelShaderBlob.Get());
 	object2D_PipelineState_ = Triangle_PipelineStateInitialvalue(device_, object_RootSignature_, Object2DVertexShaderBlob.Get(), Object2DPixelShaderBlob.Get());
 	object3D_NoDepth_PipelineState_ = Triangle_NoDepth_PipelineStateInitialvalue(device_, object_RootSignature_, Object3DVertexShaderBlob.Get(), Object3DPixelShaderBlob.Get());
 	object3D_Instancing_PipelineState_ = Triangle_Instancing_PipelineStateInitialvalue(device_, object_Instancing_RootSignature_, instancingObjectVertexShaderBlob.Get(), instancingObjectPixelShaderBlob.Get());
-	particle_PipelineState_ = Particle_PipelineStateInitialvalue(device_, particle_RootSignature_, particleVSBlob.Get(), particlePSBlob.Get());
+	particle_NormalBlend_PipelineState_ = Particle_PipelineStateInitialvalue(device_, particle_RootSignature_, particleVSBlob.Get(), particlePSBlob.Get());
 	particle_AddBlend_PipelineState_ = Particle_AddBlend_PipelineStateInitialvalue(device_, particle_RootSignature_, particleVSBlob.Get(), particlePSBlob.Get());
 	sprite_PipelineState_ = Sprite_PipelineStateInitialvalue(device_, sprite_RootSignature_, Sprite2DVertexShaderBlob.Get(), Sprite2DPixelShaderBlob.Get());
-	line_PipelineState_ = Line_PipelineStateInitialvalue(device_, object_Instancing_RootSignature_, particleVSBlob.Get(), instancingLinePixelShaderBlob.Get());
-	line_NoDepth_PipelineState_ = Line_NoDepth_PipelineStateInitialvalue(device_, object_Instancing_RootSignature_, particleVSBlob.Get(), instancingLinePixelShaderBlob.Get());
+	line_PipelineState_ = Line_PipelineStateInitialvalue(device_, object_Instancing_RootSignature_, instancingObjectVertexShaderBlob.Get(), instancingLinePixelShaderBlob.Get());
+	line_NoDepth_PipelineState_ = Line_NoDepth_PipelineStateInitialvalue(device_, object_Instancing_RootSignature_, instancingObjectVertexShaderBlob.Get(), instancingLinePixelShaderBlob.Get());
 	effect_Cyinder_PipelineState_ = Effect_Cylinder_PipelineStateInitialvalue(device_, object_RootSignature_, Object3DVertexShaderBlob.Get(), Object3DPixelShaderBlob.Get());
 	screen_PipelineState_ = Screen_PipelineStateInitialvalue(device_, screen_RootSignature_, CopyImageVSBlob.Get(), CopyImagePSBlob.Get());
 	screen_ColorChange_PipelineState_ = Screen_PipelineStateInitialvalue(device_, screen_RootSignature_, CopyImageVSBlob.Get(), ColorChangePSBlob.Get());
@@ -211,7 +214,8 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	screen_RadialBlur_PipelineState_ = Screen_PipelineStateInitialvalue(device_, screen_RadialBlur_RootSignature_, CopyImageVSBlob.Get(), RadialBlurPSBlob.Get());
 	screen_Dissolve_PipelineState_ = Screen_PipelineStateInitialvalue(device_, screen_Dissolve_RootSignature_, CopyImageVSBlob.Get(), DissolvePSBlob.Get());
 	cubemap_PipelineState_ = Cubemap_PipelineStateInitialvalue(device_, cubemap_RootSignature_, CubemapVSBlob.Get(), CubemapPSBlob.Get());
-	skinning_PipelineState_ = Compute_PipelineStateInitialvalue(device_, compute_RootSignature_, SkinningCSBlob.Get());
+	compute_Skinning_PipelineState_ = Compute_PipelineStateInitialvalue(device_, compute_Skinning_RootSignature_, SkinningCSBlob.Get());
+	compute_Initialize_Particle_PipelineState_ = Compute_PipelineStateInitialvalue(device_, compute_Initialize_Particle_RootSignature_, InitializePartilceCSBlob.Get());
 	//XAudioエンジンのインスタンスを生成
 	hr = XAudio2Create(&xAudio2_, 0, XAUDIO2_DEFAULT_PROCESSOR);
 	assert(SUCCEEDED(hr));
@@ -301,6 +305,10 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 
 	for (int i = 0; i < kMaxIndex; i++) {
 		objectSkinningInformationResource_[i] = dxCommon_->CreateBufferResources(sizeof(SkinningInformation));
+	}
+
+	for (int i = 0; i < kMaxInstanceIndex; i++) {
+		perViewResource_[i] = dxCommon_->CreateBufferResources(sizeof(PerView));
 	}
 }
 
@@ -916,9 +924,11 @@ void GameEngine::DrawParticle_(ParticleGroup particleGroup) {
 	//上限に達していたら描画しない
 	if (particleIndex_ > kMaxInstanceIndex)return;
 
+	ComputeParticle(particleGroup);
+
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList_->SetGraphicsRootSignature(particle_RootSignature_.Get());
-	commandList_->SetPipelineState(particle_PipelineState_.Get());	//PSOを設定
+	commandList_->SetPipelineState(particle_NormalBlend_PipelineState_.Get());	//PSOを設定
 
 	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
 	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -928,58 +938,14 @@ void GameEngine::DrawParticle_(ParticleGroup particleGroup) {
 
 	std::shared_ptr<Camera> camera = particleGroup.camera;
 
-	//WVPデータを更新
-	InstancingTransformationMatrix* mappedBase = nullptr;
-	particleGroup.instancingResource->Map(0, nullptr, reinterpret_cast<void**>(&mappedBase));
-	// mappedBase が nullptr でないかチェック
-	if (mappedBase == nullptr) {
-		assert(0);
-	}
-	// 各要素ポインタを mappedBase に初期化
-	for (uint32_t j = 0; j < kMaxNumInstance; ++j) {
-		particleData_[particleIndex_][j] = mappedBase + j;
-	}
+	perViewResource_[particleIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&perViewData_[particleIndex_]));
 
-	uint32_t numInstance = 0;
-	for (std::list<Particle>::iterator particleIterator = particleGroup.particles.begin();
-		particleIterator != particleGroup.particles.end();) {
+	perViewData_[particleIndex_]->viewProjection = camera->GetViewMatrix() * camera->GetProjectionMatrix();
+	perViewData_[particleIndex_]->billboardMatrix = Inverse(camera->GetViewMatrix());
 
-		if (numInstance >= kMaxNumInstance)break;
+	perViewResource_[particleIndex_]->Unmap(0, nullptr);
 
-		Matrix4x4 cameraMatrix = Inverse(camera->GetViewMatrix());
-
-		Matrix4x4 worldMatrix = cameraMatrix;
-		worldMatrix.m[3][0] = (*particleIterator).transform.translate.x;
-		worldMatrix.m[3][1] = (*particleIterator).transform.translate.y;
-		worldMatrix.m[3][2] = (*particleIterator).transform.translate.z;
-
-		Quaternion rotate;
-		rotate = MakeRotateAxisAngleQuaternion({ 1,0,0 }, (*particleIterator).transform.rotate.x);
-		rotate = rotate * MakeRotateAxisAngleQuaternion({ 0,0,1 }, (*particleIterator).transform.rotate.z);
-
-		worldMatrix = MakeRotateMatrix(rotate) * worldMatrix;
-
-		for (int i = 0; i < 3; i++) {
-			worldMatrix.m[0][i] *= (*particleIterator).transform.scale.x;
-		}
-		for (int i = 0; i < 3; i++) {
-			worldMatrix.m[1][i] *= (*particleIterator).transform.scale.y;
-		}
-		for (int i = 0; i < 3; i++) {
-			worldMatrix.m[2][i] *= (*particleIterator).transform.scale.z;
-		}
-
-		particleData_[particleIndex_][numInstance]->World = worldMatrix;
-		particleData_[particleIndex_][numInstance]->WorldInverseTranspose = Transpose(Inverse(worldMatrix));
-		Matrix4x4 worldViewProjectionMatrix = worldMatrix * camera->GetViewMatrix() * camera->GetProjectionMatrix();
-		particleData_[particleIndex_][numInstance]->WVP = worldViewProjectionMatrix;
-		particleData_[particleIndex_][numInstance]->color = (*particleIterator).color;
-
-		++numInstance;
-		++particleIterator;
-	}
-
-	particleGroup.instancingResource->Unmap(0, nullptr);
+	commandList_->SetGraphicsRootConstantBufferView(0, perViewResource_[particleIndex_]->GetGPUVirtualAddress());
 
 	//マテリアルデータを更新
 	particleMaterialResource_[particleIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&particleMaterialData_[particleIndex_]));
@@ -1000,10 +966,12 @@ void GameEngine::DrawParticle_(ParticleGroup particleGroup) {
 
 	fogResource_->Unmap(0, nullptr);
 
-	//マテリアルCBufferの場所を設定
-	commandList_->SetGraphicsRootConstantBufferView(0, particleMaterialResource_[particleIndex_]->GetGPUVirtualAddress());
+	commandList_->SetGraphicsRootConstantBufferView(4, fogResource_->GetGPUVirtualAddress());
 
-	commandList_->SetGraphicsRootConstantBufferView(3, fogResource_->GetGPUVirtualAddress());
+	//マテリアルCBufferの場所を設定
+	commandList_->SetGraphicsRootConstantBufferView(3, particleMaterialResource_[particleIndex_]->GetGPUVirtualAddress());
+
+	commandList_->SetGraphicsRootConstantBufferView(4, fogResource_->GetGPUVirtualAddress());
 
 	//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
 	commandList_->SetGraphicsRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(particleGroup.textureIndex));
@@ -1011,10 +979,78 @@ void GameEngine::DrawParticle_(ParticleGroup particleGroup) {
 	commandList_->SetGraphicsRootDescriptorTable(1, srvManager_->GetGPUDescriptorHandle(particleGroup.instancingIndex));
 
 	dxCommon_->UpdateDepthTexture();
-	commandList_->SetGraphicsRootDescriptorTable(4, srvManager_->GetGPUDescriptorHandle(dxCommon_->GetDepthBufferIndex()));
+	commandList_->SetGraphicsRootDescriptorTable(5, srvManager_->GetGPUDescriptorHandle(dxCommon_->GetDepthBufferIndex()));
 
 	//描画(DrawCall)
-	commandList_->DrawIndexedInstanced(6, numInstance, 0, 0, 0);
+	commandList_->DrawIndexedInstanced(6, ParticleManager::kMaxParticle, 0, 0, 0);
+
+	particleIndex_++;
+}
+
+void GameEngine::DrawParticle_AddBlend_(ParticleGroup particleGroup) {
+
+	//上限に達していたら描画しない
+	if (particleIndex_ > kMaxInstanceIndex)return;
+
+	ComputeParticle(particleGroup);
+
+	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
+	commandList_->SetGraphicsRootSignature(particle_RootSignature_.Get());
+	commandList_->SetPipelineState(particle_AddBlend_PipelineState_.Get());	//PSOを設定
+
+	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
+	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	commandList_->IASetVertexBuffers(0, 1, &ParticleManager::GetInstance()->GetVertexBufferView());	//VBVを設定
+	commandList_->IASetIndexBuffer(&ParticleManager::GetInstance()->GetIndexBufferView());	//IBVを設定
+
+	std::shared_ptr<Camera> camera = particleGroup.camera;
+
+	perViewResource_[particleIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&perViewData_[particleIndex_]));
+
+	perViewData_[particleIndex_]->viewProjection = camera->GetViewMatrix() * camera->GetProjectionMatrix();
+	perViewData_[particleIndex_]->billboardMatrix = Inverse(camera->GetViewMatrix());
+
+	perViewResource_[particleIndex_]->Unmap(0, nullptr);
+
+	commandList_->SetGraphicsRootConstantBufferView(0, perViewResource_[particleIndex_]->GetGPUVirtualAddress());
+
+	//マテリアルデータを更新
+	particleMaterialResource_[particleIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&particleMaterialData_[particleIndex_]));
+
+	particleMaterialData_[particleIndex_]->uvTransform = MakeIdentity4x4();
+	particleMaterialData_[particleIndex_]->enableDirectionalLighting = false;
+	particleMaterialData_[particleIndex_]->enablePointLighting = false;
+	particleMaterialData_[particleIndex_]->enableSpotLighting = false;
+	particleMaterialData_[particleIndex_]->reflection = 0;
+	particleMaterialData_[particleIndex_]->shininess = 0;
+	particleMaterialData_[particleIndex_]->color = { 1.0f,1.0f,1.0f,1.0f };
+
+	particleMaterialResource_[particleIndex_]->Unmap(0, nullptr);
+
+	fogResource_->Map(0, nullptr, reinterpret_cast<void**>(&fogData_));
+
+	fogData_->windowSize = { float(winApp_->kClientWidth_),float(winApp_->kClientHeight_) };
+
+	fogResource_->Unmap(0, nullptr);
+
+	commandList_->SetGraphicsRootConstantBufferView(4, fogResource_->GetGPUVirtualAddress());
+
+	//マテリアルCBufferの場所を設定
+	commandList_->SetGraphicsRootConstantBufferView(3, particleMaterialResource_[particleIndex_]->GetGPUVirtualAddress());
+
+	commandList_->SetGraphicsRootConstantBufferView(4, fogResource_->GetGPUVirtualAddress());
+
+	//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
+	commandList_->SetGraphicsRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(particleGroup.textureIndex));
+
+	commandList_->SetGraphicsRootDescriptorTable(1, srvManager_->GetGPUDescriptorHandle(particleGroup.instancingIndex));
+
+	dxCommon_->UpdateDepthTexture();
+	commandList_->SetGraphicsRootDescriptorTable(5, srvManager_->GetGPUDescriptorHandle(dxCommon_->GetDepthBufferIndex()));
+
+	//描画(DrawCall)
+	commandList_->DrawIndexedInstanced(6, ParticleManager::kMaxParticle, 0, 0, 0);
 
 	particleIndex_++;
 }
@@ -2015,8 +2051,8 @@ void GameEngine::DrawPrimitiveCylinder_Billboard_(PrimitiveCylinder* primitiveCy
 void GameEngine::ComputeSkinning_(Object* object) {
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-	commandList_->SetComputeRootSignature(compute_RootSignature_.Get());
-	commandList_->SetPipelineState(skinning_PipelineState_.Get());	//PSOを設定
+	commandList_->SetComputeRootSignature(compute_Skinning_RootSignature_.Get());
+	commandList_->SetPipelineState(compute_Skinning_PipelineState_.Get());	//PSOを設定
 
 	//WVPデータを更新
 	Matrix4x4* Matrix4x4MappedBase = nullptr;
@@ -2127,4 +2163,38 @@ void GameEngine::ComputeSkinning_(Object* object) {
 
 	boneIndex_++;
 
+}
+
+void GameEngine::ComputeParticle_(ParticleGroup particleGroup) {
+
+	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
+	commandList_->SetComputeRootSignature(compute_Initialize_Particle_RootSignature_.Get());
+	commandList_->SetPipelineState(compute_Initialize_Particle_PipelineState_.Get());	//PSOを設定
+
+	// UAV -> VertexBuffer
+	D3D12_RESOURCE_BARRIER barrier{};
+	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	barrier.Transition.pResource = particleGroup.instancingResource.Get();
+	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
+	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+
+	commandList_->ResourceBarrier(1, &barrier);
+
+	commandList_->SetComputeRootDescriptorTable(0, srvManager_->GetGPUDescriptorHandle(particleGroup.instancingUAVIndex));
+
+	//描画(DrawCall)(頂点は勝手に入るのでIndexedじゃない)
+	commandList_->Dispatch(1, 1, 1);
+
+	// UAV -> VertexBuffer
+	barrier = {};
+	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	barrier.Transition.pResource = particleGroup.instancingResource.Get();
+	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
+	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+
+	commandList_->ResourceBarrier(1, &barrier);
 }

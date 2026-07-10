@@ -55,21 +55,6 @@ void SampleScene::Initialize() {
 	sprite_[1]->Initialize("resources/DebugResources/monsterBall.png");
 	sprite_[1]->SetPosition(Vector2{ 50,50 });
 
-	//エフェクト
-	ParticleManager::GetInstance()->CreateParticleGroup("particle", "resources/DebugResources/circle.png");
-	particleEmitter_ = make_unique<ParticleEmitter>("particle");
-	emitter_.count = 2;
-	emitter_.beforeColor = { 1.0f,1.0f,1.0f,1.0f };
-	emitter_.afterColor = { 1.0f,1.0f,1.0f,0.0f };
-	emitter_.lifeTime = 1.0f;
-	emitter_.frequency = 0.5f;
-	emitter_.frequencyTime = 0.0f;
-	ParticleManager::GetInstance()->SetEmitter("particle", emitter_);
-	accelerationField_.area.min = { -0.5f,-0.5f,-0.5f };
-	accelerationField_.area.max = { 0.5f,0.5f,0.5f };
-	accelerationField_.acceleration = { 0.0f,0.0f,0.0f };
-	ParticleManager::GetInstance()->SetField("particle", accelerationField_);
-
 
 	//音源
 	audio_ = make_unique<Audio>();
@@ -136,6 +121,21 @@ void SampleScene::Initialize() {
 		objectTransform_[i].translate.x = i * 3 - 9.0f;
 		object_[i]->SetTransform(objectTransform_[i]);
 	}
+
+	//エフェクト
+	ParticleManager::GetInstance()->CreateParticleGroup("particle", "resources/DebugResources/circle.png");
+	particleEmitter_ = make_unique<ParticleEmitter>("particle");
+	emitter_.count = 2;
+	emitter_.beforeColor = { 1.0f,1.0f,1.0f,1.0f };
+	emitter_.afterColor = { 1.0f,1.0f,1.0f,0.0f };
+	emitter_.lifeTime = 1.0f;
+	emitter_.frequency = 0.5f;
+	emitter_.frequencyTime = 0.0f;
+	ParticleManager::GetInstance()->SetEmitter("particle", emitter_);
+	accelerationField_.area.min = { -0.5f,-0.5f,-0.5f };
+	accelerationField_.area.max = { 0.5f,0.5f,0.5f };
+	accelerationField_.acceleration = { 0.0f,0.0f,0.0f };
+	ParticleManager::GetInstance()->SetField("particle", accelerationField_);
 
 	std::unique_ptr<Object> box_;
 	/*box_ = make_unique<Object>();
@@ -605,7 +605,7 @@ void SampleScene::Update() {
 
 	gltfs_[gltfIndex_]->Draw3D();
 
-	particleEmitter_->Draw();
+	particleEmitter_->Draw_AddBlend();
 
 	if (isDisplayUI) {
 		for (INT i = 0; i < sprite_.size(); i++) {
