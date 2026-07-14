@@ -148,12 +148,6 @@ void Player::Update() {
 				velocity_ = Normalize(velocity_) * kMaxSpeed / 2;
 			}
 
-			//移動
-			transform_.translate += velocity_;
-
-			transform_.translate.x = std::clamp(transform_.translate.x, -58.5f, 58.5f);
-			transform_.translate.z = std::clamp(transform_.translate.z, -58.5f, 58.5f);
-
 			if (!(isTargeted_)) {
 				angle = std::atan2(velocity_.x, velocity_.z);
 			}
@@ -201,41 +195,26 @@ void Player::Update() {
 			{
 			case Player::DODGE_ANGLE::FRONT:
 				//前転
-				velocity_ = Vector3{ 0.0f,0.0f,1.0f } * Easing::Lerp(0.2f, dodgeSpeed, powf(1.0f - dodgeActiveTime / kMaxDodgeActiveTime, 3));
+				velocity_ = Vector3{ 0.0f,0.0f,1.0f } * Easing::Lerp(0.2f, dodgeSpeed, powf(1.0f - dodgeActiveTime / kMaxDodgeActiveTime, 3)) * MakeRotateYMatrix(transform_.rotate.y);
 				transform_.rotate.x = Easing::Lerp(0.0f, std::numbers::pi_v<float> *2, 1.0f - powf(1.0f - dodgeActiveTime / kMaxDodgeActiveTime, 3));
 				break;
 			case Player::DODGE_ANGLE::BACK:
 				//後転
-				velocity_ = Vector3{ 0.0f,0.0f,-1.0f } * Easing::Lerp(0.2f, dodgeSpeed, powf(1.0f - dodgeActiveTime / kMaxDodgeActiveTime, 3));
+				velocity_ = Vector3{ 0.0f,0.0f,-1.0f } * Easing::Lerp(0.2f, dodgeSpeed, powf(1.0f - dodgeActiveTime / kMaxDodgeActiveTime, 3)) * MakeRotateYMatrix(transform_.rotate.y);
 				transform_.rotate.x = -Easing::Lerp(0.0f, std::numbers::pi_v<float> *2, 1.0f - powf(1.0f - dodgeActiveTime / kMaxDodgeActiveTime, 3));
 				break;
 			case Player::DODGE_ANGLE::RIGHT:
 				//右側転
-				velocity_ = Vector3{ 1.0f,0.0f,0.0f } * Easing::Lerp(0.2f, dodgeSpeed, powf(1.0f - dodgeActiveTime / kMaxDodgeActiveTime, 3));
+				velocity_ = Vector3{ 1.0f,0.0f,0.0f } * Easing::Lerp(0.2f, dodgeSpeed, powf(1.0f - dodgeActiveTime / kMaxDodgeActiveTime, 3)) * MakeRotateYMatrix(transform_.rotate.y);
 				transform_.rotate.z = -Easing::Lerp(0.0f, std::numbers::pi_v<float> *2, 1.0f - powf(1.0f - dodgeActiveTime / kMaxDodgeActiveTime, 3));
 				break;
 			case Player::DODGE_ANGLE::LEFT:
 				//左側転
-				velocity_ = Vector3{ -1.0f,0.0f,0.0f } * Easing::Lerp(0.2f, dodgeSpeed, powf(1.0f - dodgeActiveTime / kMaxDodgeActiveTime, 3));
+				velocity_ = Vector3{ -1.0f,0.0f,0.0f } * Easing::Lerp(0.2f, dodgeSpeed, powf(1.0f - dodgeActiveTime / kMaxDodgeActiveTime, 3)) * MakeRotateYMatrix(transform_.rotate.y);
 				transform_.rotate.z = Easing::Lerp(0.0f, std::numbers::pi_v<float> *2, 1.0f - powf(1.0f - dodgeActiveTime / kMaxDodgeActiveTime, 3));
 				break;
 			default:
 				break;
-			}
-
-			Matrix4x4 rotateMatrix = MakeRotateYMatrix(transform_.rotate.y);
-			velocity_ = rotateMatrix * velocity_;
-
-			//移動
-			transform_.translate += velocity_;
-
-			if (transform_.translate.x > 58.5f || transform_.translate.x < -58.5f ||
-				transform_.translate.z > 58.5f || transform_.translate.z < -58.5f) {
-				transform_.translate.x = std::clamp(transform_.translate.x, -58.5f, 58.5f);
-				transform_.translate.z = std::clamp(transform_.translate.z, -58.5f, 58.5f);
-				stunTime = kMaxHitFenceStunTime;
-				dodgeActiveTime = kMaxDodgeActiveTime;
-				AudioHolder::GetInstance()->GetAudio(AudioIndex::Fence_Collision_SE).lock()->SoundPlayWave();
 			}
 
 			SRT emitterTransform{};
@@ -348,6 +327,27 @@ void Player::Update() {
 	ImGui::InputInt("remainingRounds", &remainingRounds_);
 	ImGui::End();
 #endif
+
+	if (stunTime > 0.0f) {
+		velocity_ = {};
+	}
+
+	//移動
+	velocity_ = stage_->MoveWithCollision(colliders_->GetSphereColliders()[0], velocity_);
+
+	transform_.translate = colliders_->GetSphereColliders()[0].colliderSphere.center;
+	transform_.translate += velocity_;
+
+	if ((transform_.translate.x > 58.5f || transform_.translate.x < -58.5f ||
+		transform_.translate.z > 58.5f || transform_.translate.z < -58.5f) && 
+		dodgeActiveTime < kMaxDodgeActiveTime) {
+		stunTime = kMaxHitFenceStunTime;
+		dodgeActiveTime = kMaxDodgeActiveTime;
+		AudioHolder::GetInstance()->GetAudio(AudioIndex::Fence_Collision_SE).lock()->SoundPlayWave();
+	}
+
+	transform_.translate.x = std::clamp(transform_.translate.x, -58.5f, 58.5f);
+	transform_.translate.z = std::clamp(transform_.translate.z, -58.5f, 58.5f);
 
 	*trackingTransform_ = transform_;
 

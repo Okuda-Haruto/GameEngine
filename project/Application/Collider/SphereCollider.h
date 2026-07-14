@@ -7,13 +7,13 @@
 
 struct SphereCollider {
 	//ローカル座標
-	Sphere localSphere_;
+	Sphere localSphere;
 	//ペアレント座標
-	std::shared_ptr<Matrix4x4> parentMatrix_;
+	std::shared_ptr<Matrix4x4> parentMatrix;
 	//接触範囲
-	Sphere colliderSphere_;
+	Sphere colliderSphere;
 	//自分->相手
-	uint8_t sourceId_;
+	uint8_t sourceId;
 	//相手->自分
-	uint8_t targetId_;
+	uint8_t targetId;
 };

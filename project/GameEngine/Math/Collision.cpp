@@ -16,13 +16,14 @@ Vector3 Project(const Vector3& v1, const Vector3& v2) {
 	return vector;
 }
 
-//最終接点
+//最近接点
 Vector3 ClosestPoint(const Vector3& point, const Line& line) {
 	float t = Dot(point - line.origin, line.diff)
 		/ Dot(line.diff, line.diff);
 
 	return line.origin + line.diff * t;
 }
+//最近接点
 Vector3 ClosestPoint(const Vector3& point, const Ray& ray) {
 	float t = Dot(point - ray.origin, ray.diff)
 		/ Dot(ray.diff, ray.diff);
@@ -32,6 +33,7 @@ Vector3 ClosestPoint(const Vector3& point, const Ray& ray) {
 
 	return ray.origin + ray.diff * t;
 }
+//最近接点
 Vector3 ClosestPoint(const Vector3& point, const Segment& segment) {
 	float t = Dot(point - segment.origin, segment.diff)
 		/ Dot(segment.diff, segment.diff);
@@ -41,6 +43,102 @@ Vector3 ClosestPoint(const Vector3& point, const Segment& segment) {
 
 	return segment.origin + segment.diff * t;
 }
+//最近接点
+Vector3 ClosestPoint(const Vector3& point, const AABB& aabb) {
+	Vector3 closestPoint = {
+		std::clamp(point.x, aabb.min.x, aabb.max.x),
+		std::clamp(point.y, aabb.min.y, aabb.max.y),
+		std::clamp(point.z, aabb.min.z, aabb.max.z),
+	};
+
+	return closestPoint;
+}
+//最近接点
+Vector3 ClosestPoint(const Vector3& point, const OBB& obb) {
+	Matrix4x4 obbWorldMatrix{
+		.m{
+			{obb.orientations[0].x	,obb.orientations[0].y	,obb.orientations[0].z	,0.0f},
+			{obb.orientations[1].x	,obb.orientations[1].y	,obb.orientations[1].z	,0.0f},
+			{obb.orientations[2].x	,obb.orientations[2].y	,obb.orientations[2].z	,0.0f},
+			{obb.center.x			,obb.center.y			,obb.center.z			,1.0f},
+		}
+	};
+	Matrix4x4 obbWorldMatrixInverse = Inverse(obbWorldMatrix);
+
+	Vector3 localPoint = point * obbWorldMatrixInverse;
+
+	AABB localAABB = {
+		{-obb.size.x,-obb.size.y,-obb.size.z},
+		{+obb.size.x,+obb.size.y,+obb.size.z}
+	};
+
+	Vector3 closestPoint = {
+		std::clamp(localPoint.x, localAABB.min.x, localAABB.max.x),
+		std::clamp(localPoint.y, localAABB.min.y, localAABB.max.y),
+		std::clamp(localPoint.z, localAABB.min.z, localAABB.max.z),
+	};
+
+	return closestPoint;
+}
+
+float DistanceSegmentSegment(const Segment& s1, const Segment& s2)
+{
+	const float EPS = 1e-6f;
+
+	Vector3 r = s1.origin - s2.origin;
+
+	float a = Dot(s1.diff, s1.diff);
+	float e = Dot(s2.diff, s2.diff);
+	float f = Dot(s2.diff, r);
+
+	float s, t;
+
+	if (a <= EPS && e <= EPS)
+		return Length(s1.origin - s2.origin);
+
+	if (a <= EPS)
+	{
+		s = 0.0f;
+		t = std::clamp(f / e, 0.0f, 1.0f);
+	} else
+	{
+		float c = Dot(s1.diff, r);
+
+		if (e <= EPS)
+		{
+			t = 0.0f;
+			s = std::clamp(-c / a, 0.0f, 1.0f);
+		} else
+		{
+			float b = Dot(s1.diff, s2.diff);
+			float denom = a * e - b * b;
+
+			if (denom != 0.0f)
+				s = std::clamp((b * f - c * e) / denom, 0.0f, 1.0f);
+			else
+				s = 0.0f;
+
+			t = (b * s + f) / e;
+
+			if (t < 0.0f)
+			{
+				t = 0.0f;
+				s = std::clamp(-c / a, 0.0f, 1.0f);
+			} else if (t > 1.0f)
+			{
+				t = 1.0f;
+				s = std::clamp((b - c) / a, 0.0f, 1.0f);
+			}
+		}
+	}
+
+	Vector3 c1 = s1.origin + s1.diff * s;
+	Vector3 c2 = s2.origin + s2.diff * t;
+
+	return Length(c1 - c2);
+}
+
+
 
 //球と球の衝突
 bool IsCollision(const Sphere& s1, const Sphere& s2) {
@@ -97,27 +195,27 @@ bool IsCollision(const Segment& segment, const Plane& plane) {
 
 //直線と球の当たり判定
 bool IsCollision(const Line& line, const Sphere& sphere){
-	Vector3 closest = ClosestPoint(sphere.center, line);
+	Vector3 closestPoint = ClosestPoint(sphere.center, line);
 
-	float distance = Length(closest - sphere.center);
+	float distance = Length(closestPoint - sphere.center);
 
 	return distance <= sphere.radius;
 }
 
 //半直線と球の当たり判定
 bool IsCollision(const Ray& ray, const Sphere& sphere){
-	Vector3 closest = ClosestPoint(sphere.center, ray);
+	Vector3 closestPoint = ClosestPoint(sphere.center, ray);
 
-	float distance = Length(closest - sphere.center);
+	float distance = Length(closestPoint - sphere.center);
 
 	return distance <= sphere.radius;
 }
 
 //線分と球の当たり判定
 bool IsCollision(const Segment& segment, const Sphere& sphere){
-	Vector3 closest = ClosestPoint(sphere.center, segment);
+	Vector3 closestPoint = ClosestPoint(sphere.center, segment);
 
-	float distance = Length(closest - sphere.center);
+	float distance = Length(closestPoint - sphere.center);
 
 	return distance <= sphere.radius;
 }
@@ -193,112 +291,183 @@ bool IsCollision(const AABB& aabb, const Sphere& sphere) {
 //AABBと直線の衝突
 bool IsCollision(const AABB& aabb, const Line& line) {
 
-	Vector3 min = {
-		(aabb.min.x - line.origin.x) / line.diff.x,
-		(aabb.min.y - line.origin.y) / line.diff.y,
-		(aabb.min.z - line.origin.z) / line.diff.z,
-	};
-	Vector3 max = {
-		(aabb.max.x - line.origin.x) / line.diff.x,
-		(aabb.max.y - line.origin.y) / line.diff.y,
-		(aabb.max.z - line.origin.z) / line.diff.z,
-	};
+	float tmin = -FLT_MAX;
+	float tmax = FLT_MAX;
 
-	float tNearX = std::min(min.x, max.x), tFarX = std::max(min.x, max.x);
-	float tNearY = std::min(min.y, max.y), tFarY = std::max(min.y, max.y);
-	float tNearZ = std::min(min.z, max.z), tFarZ = std::max(min.z, max.z);
+	if (fabs(line.diff.x) < 1e-6f) {
+		if (line.origin.x < aabb.min.x ||
+			line.origin.x > aabb.max.x) {
+			//AABBの外なので絶対当たらない
+			return false;
+		}
+	} else {
+		float tx1 = (aabb.min.x - line.origin.x) / line.diff.x;
+		float tx2 = (aabb.max.x - line.origin.x) / line.diff.x;
 
-	//AABBとの衝突点(貫通点)のtが小さい方
-	float tmin = std::max(std::max(tNearX, tNearY), tNearZ);
-	//AABBとの衝突点(貫通点)のtが大きい方
-	float tmax = std::min(std::min(tFarX, tFarY), tFarZ);
+		tmin = std::max(tmin, std::min(tx1, tx2));
+		tmax = std::min(tmax, std::max(tx1, tx2));
 
-	if (tmin <= tmax) {
-		return true;
+		if (tmin > tmax) {
+			return false;
+		}
 	}
-	return false;
+	if (fabs(line.diff.y) < 1e-6f) {
+		if (line.origin.y < aabb.min.y ||
+			line.origin.y > aabb.max.y) {
+			//AABBの外なので絶対当たらない
+			return false;
+		}
+	} else {
+		float ty1 = (aabb.min.y - line.origin.y) / line.diff.y;
+		float ty2 = (aabb.max.y - line.origin.y) / line.diff.y;
+
+		tmin = std::max(tmin, std::min(ty1, ty2));
+		tmax = std::min(tmax, std::max(ty1, ty2));
+
+		if (tmin > tmax) {
+			return false;
+		}
+	}
+	if (fabs(line.diff.z) < 1e-6f) {
+		if (line.origin.z < aabb.min.z ||
+			line.origin.z > aabb.max.z) {
+			//AABBの外なので絶対当たらない
+			return false;
+		}
+	} else {
+		float tz1 = (aabb.min.z - line.origin.z) / line.diff.z;
+		float tz2 = (aabb.max.z - line.origin.z) / line.diff.z;
+
+		tmin = std::max(tmin, std::min(tz1, tz2));
+		tmax = std::min(tmax, std::max(tz1, tz2));
+
+		if (tmin > tmax) {
+			return false;
+		}
+	}
+
+	return true;
 }
 //AABBと半直線の衝突
 bool IsCollision(const AABB& aabb, const Ray& ray) {
 
-	Vector3 min = {
-		(aabb.min.x - ray.origin.x) / ray.diff.x,
-		(aabb.min.y - ray.origin.y) / ray.diff.y,
-		(aabb.min.z - ray.origin.z) / ray.diff.z,
-	};
-	Vector3 max = {
-		(aabb.max.x - ray.origin.x) / ray.diff.x,
-		(aabb.max.y - ray.origin.y) / ray.diff.y,
-		(aabb.max.z - ray.origin.z) / ray.diff.z,
-	};
+	float tmin = 0.0f;
+	float tmax = FLT_MAX;
 
-	float tNearX = std::min(min.x, max.x), tFarX = std::max(min.x, max.x);
-	float tNearY = std::min(min.y, max.y), tFarY = std::max(min.y, max.y);
-	float tNearZ = std::min(min.z, max.z), tFarZ = std::max(min.z, max.z);
+	if (fabs(ray.diff.x) < 1e-6f) {
+		if (ray.origin.x < aabb.min.x ||
+			ray.origin.x > aabb.max.x) {
+			//AABBの外なので絶対当たらない
+			return false;
+		}
+	} else {
+		float tx1 = (aabb.min.x - ray.origin.x) / ray.diff.x;
+		float tx2 = (aabb.max.x - ray.origin.x) / ray.diff.x;
 
-	//AABBとの衝突点(貫通点)のtが小さい方
-	float tmin = std::max(std::max(tNearX, tNearY), tNearZ);
-	//AABBとの衝突点(貫通点)のtが大きい方
-	float tmax = std::min(std::min(tFarX, tFarY), tFarZ);
+		tmin = std::max(tmin, std::min(tx1, tx2));
+		tmax = std::min(tmax, std::max(tx1, tx2));
 
-	if (tmin <= tmax && tmax >= 0.0f) {
-		return true;
+		if (tmin > tmax) {
+			return false;
+		}
 	}
-	return false;
+	if (fabs(ray.diff.y) < 1e-6f) {
+		if (ray.origin.y < aabb.min.y ||
+			ray.origin.y > aabb.max.y) {
+			//AABBの外なので絶対当たらない
+			return false;
+		}
+	} else {
+		float ty1 = (aabb.min.y - ray.origin.y) / ray.diff.y;
+		float ty2 = (aabb.max.y - ray.origin.y) / ray.diff.y;
+
+		tmin = std::max(tmin, std::min(ty1, ty2));
+		tmax = std::min(tmax, std::max(ty1, ty2));
+
+		if (tmin > tmax) {
+			return false;
+		}
+	}
+	if (fabs(ray.diff.z) < 1e-6f) {
+		if (ray.origin.z < aabb.min.z ||
+			ray.origin.z > aabb.max.z) {
+			//AABBの外なので絶対当たらない
+			return false;
+		}
+	} else {
+		float tz1 = (aabb.min.z - ray.origin.z) / ray.diff.z;
+		float tz2 = (aabb.max.z - ray.origin.z) / ray.diff.z;
+
+		tmin = std::max(tmin, std::min(tz1, tz2));
+		tmax = std::min(tmax, std::max(tz1, tz2));
+
+		if (tmin > tmax) {
+			return false;
+		}
+	}
+
+	return true;
 }
 
 //AABBと線分の衝突
 bool IsCollision(const AABB& aabb, const Segment& segment) {
 
-	Vector3 min = {
-		(aabb.min.x - segment.origin.x) / segment.diff.x,
-		(aabb.min.y - segment.origin.y) / segment.diff.y,
-		(aabb.min.z - segment.origin.z) / segment.diff.z,
-	};
-	//Nan対策
-	if ((aabb.min.x - segment.origin.x) == 0 && segment.diff.x == 0) {
-		min.x = (aabb.min.x - (segment.origin.x - 0.00001f)) / (segment.diff.x - 0.00001f);
+	float tmin = 0.0f;
+	float tmax = 1.0f;
+
+	if (fabs(segment.diff.x) < 1e-6f) {
+		if (segment.origin.x < aabb.min.x ||
+			segment.origin.x > aabb.max.x) {
+			//AABBの外なので絶対当たらない
+			return false;    
+		}
+	} else {
+		float tx1 = (aabb.min.x - segment.origin.x) / segment.diff.x;
+		float tx2 = (aabb.max.x - segment.origin.x) / segment.diff.x;
+
+		tmin = std::max(tmin, std::min(tx1, tx2));
+		tmax = std::min(tmax, std::max(tx1, tx2));
+
+		if (tmin > tmax) {
+			return false;
+		}
 	}
-	if ((aabb.min.y - segment.origin.y) == 0 && segment.diff.y == 0) {
-		min.y = (aabb.min.y - (segment.origin.y - 0.00001f)) / (segment.diff.y - 0.00001f);
+	if (fabs(segment.diff.y) < 1e-6f) {
+		if (segment.origin.y < aabb.min.y ||
+			segment.origin.y > aabb.max.y) {
+			//AABBの外なので絶対当たらない
+			return false;
+		}
+	} else {
+		float ty1 = (aabb.min.y - segment.origin.y) / segment.diff.y;
+		float ty2 = (aabb.max.y - segment.origin.y) / segment.diff.y;
+
+		tmin = std::max(tmin, std::min(ty1, ty2));
+		tmax = std::min(tmax, std::max(ty1, ty2));
+
+		if (tmin > tmax) {
+			return false;
+		}
 	}
-	if ((aabb.min.z - segment.origin.z) == 0 && segment.diff.z == 0) {
-		min.z = (aabb.min.z - (segment.origin.z - 0.00001f)) / (segment.diff.z - 0.00001f);
+	if (fabs(segment.diff.z) < 1e-6f) {
+		if (segment.origin.z < aabb.min.z ||
+			segment.origin.z > aabb.max.z) {
+			//AABBの外なので絶対当たらない
+			return false;
+		}
+	} else {
+		float tz1 = (aabb.min.z - segment.origin.z) / segment.diff.z;
+		float tz2 = (aabb.max.z - segment.origin.z) / segment.diff.z;
+
+		tmin = std::max(tmin, std::min(tz1, tz2));
+		tmax = std::min(tmax, std::max(tz1, tz2));
+
+		if (tmin > tmax) {
+			return false;
+		}
 	}
 
-	Vector3 max = {
-		(aabb.max.x - segment.origin.x) / segment.diff.x,
-		(aabb.max.y - segment.origin.y) / segment.diff.y,
-		(aabb.max.z - segment.origin.z) / segment.diff.z,
-	};
-	//Nan対策
-	if ((aabb.max.x - segment.origin.x) == 0 && segment.diff.x == 0) {
-		max.x = (aabb.max.x - (segment.origin.x - 0.00001f)) / (segment.diff.x - 0.00001f);
-	}
-	if ((aabb.max.y - segment.origin.y) == 0 && segment.diff.y == 0) {
-		max.y = (aabb.max.y - (segment.origin.y - 0.00001f)) / (segment.diff.y - 0.00001f);
-	}
-	if ((aabb.max.z - segment.origin.z) == 0 && segment.diff.z == 0) {
-		max.z = (aabb.max.z - (segment.origin.z - 0.00001f)) / (segment.diff.z - 0.00001f);
-	}
-
-	float tNearX = std::min(min.x, max.x), tFarX = std::max(min.x, max.x);
-	float tNearY = std::min(min.y, max.y), tFarY = std::max(min.y, max.y);
-	float tNearZ = std::min(min.z, max.z), tFarZ = std::max(min.z, max.z);
-
-	//AABBとの衝突点(貫通点)のtが小さい方
-	float tmin = std::max(std::max(tNearX, tNearY), tNearZ);
-	//AABBとの衝突点(貫通点)のtが大きい方
-	float tmax = std::min(std::min(tFarX, tFarY), tFarZ);
-
-	if (fabsf(tmin) == INFINITY || fabsf(tmax) == INFINITY) {
-		return true;
-	}
-
-	if (tmin <= tmax && tmin <= 1.0f && tmax >= 0.0f) {
-		return true;
-	}
-	return false;
+	return true;
 }
 
 //OBBと球の衝突
@@ -412,7 +581,7 @@ bool IsCollision(const OBB& obb, const Segment& segment) {
 
 	Segment localSegment;
 	localSegment.origin = localOrigin;
-	localSegment.diff = localEnd + localOrigin;
+	localSegment.diff = localEnd - localOrigin;
 
 	return IsCollision(localAABB, localSegment);
 }
@@ -565,6 +734,111 @@ bool IsCollision(const OBB& obb1, const OBB& obb2) {
 	return true;
 }
 
+//カプセルと球の衝突
+bool IsCollision(const Capsule& capsule, const Sphere& sphere) {
+	Vector3 closestPoint = ClosestPoint(sphere.center, capsule.axis);
+
+	float distance = Length(closestPoint - sphere.center);
+
+	return distance <= capsule.radius + sphere.radius;
+}
+
+//カプセルとAABBの衝突
+bool IsCollision(const Capsule& capsule, const AABB& aabb) {
+
+	AABB collisionAABB = {
+		aabb.min - Vector3{capsule.radius,capsule.radius,capsule.radius},
+		aabb.max + Vector3{capsule.radius,capsule.radius,capsule.radius},
+	};
+
+	float tmin = 0.0f;
+	float tmax = 1.0f;
+
+	if (fabs(capsule.axis.diff.x) < 1e-6f) {
+		if (capsule.axis.origin.x < collisionAABB.min.x ||
+			capsule.axis.origin.x > collisionAABB.max.x) {
+			//AABBの外なので絶対当たらない
+			return false;
+		}
+	} else {
+		float tx1 = (collisionAABB.min.x - capsule.axis.origin.x) / capsule.axis.diff.x;
+		float tx2 = (collisionAABB.max.x - capsule.axis.origin.x) / capsule.axis.diff.x;
+
+		tmin = std::max(tmin, std::min(tx1, tx2));
+		tmax = std::min(tmax, std::max(tx1, tx2));
+
+		if (tmin > tmax) {
+			return false;
+		}
+	}
+	if (fabs(capsule.axis.diff.y) < 1e-6f) {
+		if (capsule.axis.origin.y < collisionAABB.min.y ||
+			capsule.axis.origin.y > collisionAABB.max.y) {
+			//AABBの外なので絶対当たらない
+			return false;
+		}
+	} else {
+		float ty1 = (collisionAABB.min.y - capsule.axis.origin.y) / capsule.axis.diff.y;
+		float ty2 = (collisionAABB.max.y - capsule.axis.origin.y) / capsule.axis.diff.y;
+
+		tmin = std::max(tmin, std::min(ty1, ty2));
+		tmax = std::min(tmax, std::max(ty1, ty2));
+
+		if (tmin > tmax) {
+			return false;
+		}
+	}
+	if (fabs(capsule.axis.diff.z) < 1e-6f) {
+		if (capsule.axis.origin.z < collisionAABB.min.z ||
+			capsule.axis.origin.z > collisionAABB.max.z) {
+			//AABBの外なので絶対当たらない
+			return false;
+		}
+	} else {
+		float tz1 = (collisionAABB.min.z - capsule.axis.origin.z) / capsule.axis.diff.z;
+		float tz2 = (collisionAABB.max.z - capsule.axis.origin.z) / capsule.axis.diff.z;
+
+		tmin = std::max(tmin, std::min(tz1, tz2));
+		tmax = std::min(tmax, std::max(tz1, tz2));
+
+		if (tmin > tmax) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+//カプセルとOBBの衝突
+bool IsCollision(const Capsule& capsule, const OBB& obb) {
+
+	Matrix4x4 obbWorldMatrix{
+		.m{
+			{obb.orientations[0].x	,obb.orientations[0].y	,obb.orientations[0].z	,0.0f},
+			{obb.orientations[1].x	,obb.orientations[1].y	,obb.orientations[1].z	,0.0f},
+			{obb.orientations[2].x	,obb.orientations[2].y	,obb.orientations[2].z	,0.0f},
+			{obb.center.x			,obb.center.y			,obb.center.z			,1.0f},
+		}
+	};
+
+	Matrix4x4 obbWorldMatrixInverse = Inverse(obbWorldMatrix);
+
+	Vector3 localOrigin = capsule.axis.origin * obbWorldMatrixInverse;
+	Vector3 localEnd = (capsule.axis.origin + capsule.axis.diff) * obbWorldMatrixInverse;
+
+	AABB localAABB{
+		{-obb.size.x,-obb.size.y,-obb.size.z},
+		{+obb.size.x,+obb.size.y,+obb.size.z}
+	};
+
+	Capsule localCapsule;
+	localCapsule.axis.origin = localOrigin;
+	localCapsule.axis.diff = localEnd - localOrigin;
+	localCapsule.radius = capsule.radius;
+
+	return IsCollision(localCapsule, localAABB);
+}
+
 //objモデルと線分の衝突
 bool IsCollision(const ModelData& model, const Segment& segment) {
 
@@ -590,3 +864,11 @@ bool IsCollision(const ModelData& model, const Segment& segment) {
 
 	return false;
 }
+
+//移動カプセルと球の衝突
+/*std::optional<float> MoveCollision(const Capsule& capsule, const Vector3& velocity, const Sphere& sphere) {
+	Segment moveSegment = {
+		sphere.center,
+		-velocity
+	};
+}*/

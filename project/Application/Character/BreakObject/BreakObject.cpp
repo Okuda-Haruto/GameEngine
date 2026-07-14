@@ -9,7 +9,18 @@ std::weak_ptr<DirectionalLight> BreakObject::directionalLight_;
 std::weak_ptr<PointLight> BreakObject::pointLight_;
 Stage* BreakObject:: stage_;
 
-void BreakObject::Initialize(std::string directoryPath, std::string fileName, SRT startTransform, float maxHP) {
+void BreakBehavior_Explosion_Small::Behavior() {
+	if (Length(stage_->GetBoss()->GetTransform().translate - breakObject_->GetTransform().translate) < 13) {
+		stage_->GetBoss()->Damage(15);
+		breakObject_->GetGameCamera().lock()->SetShakeTime(0.2f);
+	}
+}
+
+void BreakBehavior_DropItem::Behavior() {
+
+}
+
+void BreakObject::Initialize(std::string directoryPath, std::string fileName, SRT startTransform, float maxHP, std::unique_ptr<BaseBreakBehavior> breakBehavior) {
 	
 	maxHP_ = maxHP;
 	HP_ = maxHP_;
@@ -28,7 +39,20 @@ void BreakObject::Initialize(std::string directoryPath, std::string fileName, SR
 	trackingSphere_->radius = Length(transform_.scale);
 	gameCamera_.lock()->SetTargetSphere(trackingSphere_);
 
-	BaseCharacter::Initialize(trackingSphere_->radius, CollisionID_Anything_Body);
+	BaseCharacter::Initialize(trackingSphere_->radius, CollisionID_Item_Body);
+
+	OBB obb;
+	obb.center = { 0,0,0 };
+	obb.orientations[0] = { 1,0,0 };
+	obb.orientations[1] = { 0,1,0 };
+	obb.orientations[2] = { 0,0,1 };
+	obb.size = transform_.scale;
+
+	colliders_->AddOBBCollider(obb, CollisionID_Anything_Body, CollisionID_Anything_Body, colliderParent_);
+	colliders_->Update();
+
+	breakBehavior_ = move(breakBehavior);
+	breakBehavior_->Initialize(stage_, this);
 }
 
 void BreakObject::Update() {
@@ -50,10 +74,11 @@ void BreakObject::IsCollision(uint8_t targetId) {
 
 		//particle_->Emit();
 
-		gameCamera_.lock()->SetShakeTime(0.2f);
+		gameCamera_.lock()->SetShakeTime(0.05f);
+
 
 		if (IsDead()) {
-
+			breakBehavior_->Behavior();
 		}
 	}
 }

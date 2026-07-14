@@ -235,7 +235,7 @@ void Boss::Initialize(std::string filepath, Stage* stage, std::shared_ptr<GameCa
 	action->SetSteps(move(steps));
 
 	PatternCondition condition{};
-	condition.farDistance = 15.0f;
+	condition.nearDistance = 30.0f;
 	condition.priority = 5;
 
 	std::unique_ptr<BossPattern> pattern = std::make_unique<BossPattern>();
@@ -244,145 +244,11 @@ void Boss::Initialize(std::string filepath, Stage* stage, std::shared_ptr<GameCa
 	pattern->Initialize(this);
 	patterns_["3shot"] = move(pattern);
 
-	//2
-	steps.clear();
-	steps.push_back(make_unique<Step_LockOnPlayer>());
-	step_WaitTime = std::make_unique<Step_WaitTime>();
-	step_WaitTime->Initialize(2.0f);
-	steps.push_back(move(step_WaitTime));
-	steps.push_back(make_unique<Step_LockOnRelease>());
-	step_MoveFront = std::make_unique<Step_MoveFront>();
-	step_MoveFront->Initialize(0.8f, 0.5f);
-	steps.push_back(move(step_MoveFront));
-	steps.push_back(make_unique<Step_WaitStep>());
-
-	action.reset();
-	action = std::make_unique<BossAction>();
-	action->SetSteps(move(steps));
-
-	condition = {};
-	condition.nearDistance = 30.0f;
-	condition.priority = 5;
-
-	pattern.reset();
-	pattern = std::make_unique<BossPattern>();
-	pattern->SetAction(move(action));
-	pattern->SetCondition(condition);
-	pattern->Initialize(this);
-	patterns_["FrontMove"] = move(pattern);
-
-	//3
-	steps.clear();
-	steps.push_back(make_unique<Step_LockOnPlayer>());
-	step_WaitTime = std::make_unique<Step_WaitTime>();
-	step_WaitTime->Initialize(0.2f);
-	steps.push_back(move(step_WaitTime));
-	step_MoveFront = std::make_unique<Step_MoveFront>();
-	step_MoveFront->Initialize(0.4f, 1.0f);
-	steps.push_back(move(step_MoveFront));
-	steps.push_back(make_unique<Step_WaitStep>());
-	steps.push_back(make_unique<Step_LockOnRelease>());
-
-	action.reset();
-	action = std::make_unique<BossAction>();
-	action->SetSteps(move(steps));
-
-	condition = {};
-	condition.farDistance = 50.0f;
-	condition.priority = 8;
-
-	pattern.reset();
-	pattern = std::make_unique<BossPattern>();
-	pattern->SetAction(move(action));
-	pattern->SetCondition(condition);
-	pattern->Initialize(this);
-	patterns_["FarPlayer_01"] = move(pattern);
-
-	//4
-	steps.clear();
-	steps.push_back(make_unique<Step_LockOnPlayer>());
-	step_WaitTime = std::make_unique<Step_WaitTime>();
-	step_WaitTime->Initialize(1.0f);
-	steps.push_back(move(step_WaitTime));
-	steps.push_back(make_unique<Step_LockOnRelease>());
-	step_MoveFront = std::make_unique<Step_MoveFront>();
-	step_MoveFront->Initialize(1.8f, 0.75f);
-	steps.push_back(move(step_MoveFront));
-	steps.push_back(make_unique<Step_WaitStep>());
-	steps.push_back(make_unique<Step_LockOnPlayer>());
-	step_WaitTime = std::make_unique<Step_WaitTime>();
-	step_WaitTime->Initialize(0.5f);
-	steps.push_back(move(step_WaitTime));
-	steps.push_back(make_unique<Step_LockOnRelease>());
-	step_MoveFront = std::make_unique<Step_MoveFront>();
-	step_MoveFront->Initialize(1.8f, 0.75f);
-	steps.push_back(move(step_MoveFront));
-	steps.push_back(make_unique<Step_WaitStep>());
-	steps.push_back(make_unique<Step_LockOnPlayer>());
-	step_WaitTime = std::make_unique<Step_WaitTime>();
-	step_WaitTime->Initialize(0.5f);
-	steps.push_back(move(step_WaitTime));
-	steps.push_back(make_unique<Step_LockOnRelease>());
-	step_MoveFront = std::make_unique<Step_MoveFront>();
-	step_MoveFront->Initialize(1.8f, 0.75f);
-	steps.push_back(move(step_MoveFront));
-	steps.push_back(make_unique<Step_WaitStep>());
-	step_WaitTime = std::make_unique<Step_WaitTime>();
-	step_WaitTime->Initialize(0.5f);
-	steps.push_back(move(step_WaitTime));
-
-	action.reset();
-	action = std::make_unique<BossAction>();
-	action->SetSteps(move(steps));
-
-	condition = {};
-	condition.maxHpRate = 0.5f;
-	condition.priority = 6;
-
-	pattern.reset();
-	pattern = std::make_unique<BossPattern>();
-	pattern->SetAction(move(action));
-	pattern->SetCondition(condition);
-	pattern->Initialize(this);
-	patterns_["Dash"] = move(pattern);
-
-	//5
-	steps.clear();
-	steps.push_back(make_unique<Step_LockOnPlayer>());
-	step_WaitTime = std::make_unique<Step_WaitTime>();
-	step_WaitTime->Initialize(0.2f);
-	steps.push_back(move(step_WaitTime));
-	step_MoveFront = std::make_unique<Step_MoveFront>();
-	step_MoveFront->Initialize(0.6f, 0.8f);
-	steps.push_back(move(step_MoveFront));
-	steps.push_back(make_unique<Step_WaitStep>());
-	step_WaitTime = std::make_unique<Step_WaitTime>();
-	step_WaitTime->Initialize(0.2f);
-	steps.push_back(move(step_WaitTime));
-	steps.push_back(make_unique<Step_LockOnRelease>());
-	step_ShotBulletToFront = make_unique<Step_ShotBulletToFront>();
-	step_ShotBulletToFront->Initialize(0.05f, 1.0f);
-	steps.push_back(move(step_ShotBulletToFront));
-
-	action.reset();
-	action = std::make_unique<BossAction>();
-	action->SetSteps(move(steps));
-
-	condition = {};
-	condition.farDistance = 40.0f;
-	condition.maxHpRate = 0.5f;
-	condition.priority = 9;
-
-	pattern.reset();
-	pattern = std::make_unique<BossPattern>();
-	pattern->SetAction(move(action));
-	pattern->SetCondition(condition);
-	pattern->Initialize(this);
-	patterns_["FarPlayer_02"] = move(pattern);
-
 	patternName_ = {};
 	lerpPositionTime_ = 0;
 	velocityStateTime_ = 0;
+
+	state_ = State::Move;
 
 	BaseCharacter::Initialize(trackingSphere_->radius, CollisionID_Enemy_Body);
 }
@@ -404,48 +270,89 @@ void Boss::Update() {
 			color = { (HP_ / maxHP_), (HP_ / maxHP_), (HP_ / maxHP_), 1.0f };
 			object_->SetColor(color);
 
-			if (!patternName_.empty()) {
-				patterns_[patternName_]->Update();
-				velocity_ = {};
-				BossAction* action = patterns_[patternName_]->GetAction();
-				isAction_ = false;
-				if (!action->IsEnd()) {
-					//位置線形補完
-					lerpPosition_ = action->GetLerpPosition();
-					if (lerpPosition_) {
-						transform_.translate = Lerp(lerpPosition_->startVector, lerpPosition_->endVector, lerpPositionTime_);
-						lerpPositionTime_ += 1.0f / 60.0f;
-						if (lerpPositionTime_ > lerpPosition_->time) {
-							action->ResetLerpPosition();
-							lerpPositionTime_ = 0.0f;
+			switch (state_)
+			{
+			case Boss::State::None:
+				//何もしない。エディター等動かしたくない場合に
+				break;
+			case Boss::State::Event:
+				//イベントシーンを管理
+
+				break;
+			case Boss::State::Move:
+				//移動
+
+				//ボス、プレイヤー間カプセル
+				Capsule capsule;
+				capsule.axis.origin = transform_.translate;
+				capsule.axis.diff = player_->GetTransform()->translate - transform_.translate;
+				capsule.radius = colliders_->GetSphereColliders()[0].colliderSphere.radius;
+				//プレイヤーとの間に邪魔なオブジェクトがあるか
+				if (stage_->BossObstructed(capsule)) {
+					float maxAngle = 0.0f;
+					//ある場合最も角度が緩やかで衝突しない角度にする
+					for (float dir = 10.0f; dir < 180.0f;){
+
+						//-も含めて精査
+						if (dir > 0.0f) {
+							dir = -dir;
+						} else {
+							dir = -dir + 10.0f;
 						}
-						isAction_ = true;
-					}
-
-					//速度
-					velocityState_ = action->GetVelocityState();
-					if (velocityState_) {
-						velocity_ = velocityState_->velocity;
-						velocityStateTime_ += 1.0f / 60.0f;
-						if (velocityStateTime_ > velocityState_->time) {
-							action->ResetVelocityState();
-							velocityStateTime_ = 0.0f;
-						}
-						isAction_ = true;
-					}
-
-					if (lerpPosition_ || velocityState_) {
-						SRT transform;
-						transform.translate = transform_.translate;
-						transform.translate.y = 0.0f;
-						moveParticle_->SetTransform(transform);
-					}
-
-					//ロックオン中か
-					if (action->GetIsLockOnPlayer()) {
 						SRT playerTransform = *player_->GetTransform();
-						lockOnPosition_ = playerTransform.translate;
 
+						capsule.axis.diff = player_->GetTransform()->translate - transform_.translate;
+						capsule.axis.diff = capsule.axis.diff * MakeRotateYMatrix(std::numbers::pi_v<float> / 180 * dir);
+						if (!stage_->BossObstructed(capsule)) {
+							SRT playerTransform = *player_->GetTransform();
+							//プレイヤー方向を向かせる
+							float angle = std::atan2(capsule.axis.diff.x, capsule.axis.diff.z);
+
+							//最短角度補完
+							float d = angle - transform_.rotate.y;
+
+							if (d >= std::numbers::pi_v<float>*2) {
+								d = angle - transform_.rotate.y;
+							}
+
+							d = std::fmodf(d, std::numbers::pi_v<float> *2);
+
+							if (d > std::numbers::pi_v<float>) {
+								d -= std::numbers::pi_v<float> *2;
+							} else if (d < -std::numbers::pi_v<float>) {
+								d += std::numbers::pi_v<float> *2;
+							}
+
+							if (d > std::numbers::pi_v<float>) {
+								d -= std::numbers::pi_v<float> *2;
+							} else if (d < -std::numbers::pi_v<float>) {
+								d += std::numbers::pi_v<float> *2;
+							}
+
+							//正直あまりやりたくはない方法だが2πを超えると遠回りで回転してしまうので致し方無い
+							transform_.rotate.y = (transform_.rotate.y + d * 0.2f);
+							transform_.rotate.y = std::fmodf(transform_.rotate.y, std::numbers::pi_v<float> *2);
+
+							velocity_ = Vector3{ 0,0,1 } * MakeRotateYMatrix(transform_.rotate.y) * 0.5f;
+
+							maxAngle = dir;
+							break;
+						}
+					}
+					//直進ならアクションに移行
+					if (maxAngle == 0.0f) {
+						if (NextPattern()) {
+							state_ = State::PatternExecution;
+						}
+					} else {
+						velocity_ = Vector3{ 0,0,1 } * MakeRotateYMatrix(transform_.rotate.y) * 0.5f;
+					}
+				} else {
+					//次のパターン抽選
+					if (!NextPattern()) {
+						//該当するパターンがない場合移動
+
+						SRT playerTransform = *player_->GetTransform();
 						//プレイヤー方向を向かせる
 						Vector3 diff = Normalize(Vector3(playerTransform.translate.x, 0.0f, playerTransform.translate.z) - Vector3(transform_.translate.x, 0.0f, transform_.translate.z));
 						float angle = std::atan2(diff.x, diff.z);
@@ -474,16 +381,103 @@ void Boss::Update() {
 						//正直あまりやりたくはない方法だが2πを超えると遠回りで回転してしまうので致し方無い
 						transform_.rotate.y = (transform_.rotate.y + d * 0.2f);
 						transform_.rotate.y = std::fmodf(transform_.rotate.y, std::numbers::pi_v<float> *2);
+
+						velocity_ = Vector3{ 0,0,1 } * MakeRotateYMatrix(transform_.rotate.y) * 0.5f;
+
+					} else {
+						//直進ならアクションに移行
+						state_ = State::PatternExecution;
+					}
+				}
+				break;
+			case Boss::State::PatternExecution:
+				//パターン実行
+				if (!patternName_.empty()) {
+					patterns_[patternName_]->Update();
+					BossAction* action = patterns_[patternName_]->GetAction();
+					isAction_ = false;
+					if (!action->IsEnd()) {
+						//位置線形補完
+						lerpPosition_ = action->GetLerpPosition();
+						if (lerpPosition_) {
+							transform_.translate = Lerp(lerpPosition_->startVector, lerpPosition_->endVector, lerpPositionTime_);
+							lerpPositionTime_ += 1.0f / 60.0f;
+							if (lerpPositionTime_ > lerpPosition_->time) {
+								action->ResetLerpPosition();
+								lerpPositionTime_ = 0.0f;
+							}
+							isAction_ = true;
+						}
+
+						//速度
+						velocityState_ = action->GetVelocityState();
+						if (velocityState_) {
+							velocity_ = velocityState_->velocity;
+							velocityStateTime_ += 1.0f / 60.0f;
+							if (velocityStateTime_ > velocityState_->time) {
+								action->ResetVelocityState();
+								velocityStateTime_ = 0.0f;
+							}
+							isAction_ = true;
+						}
+
+						if (lerpPosition_ || velocityState_) {
+							SRT transform;
+							transform.translate = transform_.translate;
+							transform.translate.y = 0.0f;
+							moveParticle_->SetTransform(transform);
+						}
+
+						//ロックオン中か
+						if (action->GetIsLockOnPlayer()) {
+							SRT playerTransform = *player_->GetTransform();
+
+							//プレイヤー方向を向かせる
+							Vector3 diff = Normalize(Vector3(playerTransform.translate.x, 0.0f, playerTransform.translate.z) - Vector3(transform_.translate.x, 0.0f, transform_.translate.z));
+							float angle = std::atan2(diff.x, diff.z);
+
+							//最短角度補完
+							float d = angle - transform_.rotate.y;
+
+							if (d >= std::numbers::pi_v<float>*2) {
+								d = angle - transform_.rotate.y;
+							}
+
+							d = std::fmodf(d, std::numbers::pi_v<float> *2);
+
+							if (d > std::numbers::pi_v<float>) {
+								d -= std::numbers::pi_v<float> *2;
+							} else if (d < -std::numbers::pi_v<float>) {
+								d += std::numbers::pi_v<float> *2;
+							}
+
+							if (d > std::numbers::pi_v<float>) {
+								d -= std::numbers::pi_v<float> *2;
+							} else if (d < -std::numbers::pi_v<float>) {
+								d += std::numbers::pi_v<float> *2;
+							}
+
+							//正直あまりやりたくはない方法だが2πを超えると遠回りで回転してしまうので致し方無い
+							transform_.rotate.y = (transform_.rotate.y + d * 0.2f);
+							transform_.rotate.y = std::fmodf(transform_.rotate.y, std::numbers::pi_v<float> *2);
+						}
+					} else {
+						state_ = State::Move;
 					}
 				} else {
-					NextPattern();
+					state_ = State::Move;
 				}
-			} else {
-				NextPattern();
+				break;
+			default:
+				break;
 			}
 
+			velocity_ = stage_->MoveWithCollision(colliders_->GetSphereColliders()[0], velocity_);
+
+			transform_.translate = colliders_->GetSphereColliders()[0].colliderSphere.center;
 			transform_.translate += velocity_;
 			transform_.translate.y = 1.0f;
+			velocity_ = {};
 
 			transform_.translate.x = std::clamp(transform_.translate.x, -59.0f, 59.0f);
 			transform_.translate.z = std::clamp(transform_.translate.z, -59.0f, 59.0f);
@@ -544,8 +538,6 @@ void Boss::ReadBossFile(std::string filePath) {
 	file.close();
 
 	//基本ステータス
-	bossName_ = bossJson["name"];
-
 	object_ = std::make_unique<Object>();
 	object_->Initialize(ModelManager::GetInstance()->GetModel(bossJson["name"]["directoryPath"], bossJson["name"]["modelname"]));
 
@@ -580,7 +572,7 @@ void Boss::ReadBossFile(std::string filePath) {
 	}
 }
 
-void Boss::NextPattern() {
+bool Boss::NextPattern() {
 	int8_t maxPriority = 0;
 
 	float distance = Length(player_->GetTransform()->translate - transform_.translate);
@@ -619,8 +611,7 @@ void Boss::NextPattern() {
 
 	//空白のまま送る
 	if (patternNames.empty()) {
-		patternName_ = {};
-		return;
+		return false;
 	} else if (patternNames.size() == 1) {
 		patternName_ = patternNames[0];
 	} else {
@@ -628,4 +619,6 @@ void Boss::NextPattern() {
 	}
 
 	patterns_[patternName_]->Initialize(this);
+
+	return true;
 }

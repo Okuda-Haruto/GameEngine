@@ -386,6 +386,126 @@ public:
 		return "Step_ShotBulletToFront";
 	}
 };
+/*
+//向いてる方向に弾発射
+class Step_ShotBulletToBone : public BaseStep {
+private:
+	std::string boneName_;
+	float spread_;
+	float speed_;
+#ifdef USE_IMGUI
+	char inputBoneName_[64] = {};
+#endif
+public:
+	void Initialize(std::string boneName, float spread, float speed) { boneName_ = boneName; spread_ = spread; speed_ = speed; }
+	void Activate(BossAction* action) override;
+
+	nlohmann::json WriteStep() override {
+		return{
+			{"step","Step_ShotBulletToBone"},
+			{"boneName",boneName_},
+			{"spread",spread_},
+			{"speed",speed_},
+		};
+	}
+
+	void ReadStep(const nlohmann::json_abi_v3_12_0::json& stepJson) override {
+		Initialize(stepJson["boneName"], stepJson["spread"], stepJson["speed"]);
+#ifdef USE_IMGUI
+		strncpy_s(inputBoneName_, boneName_.c_str(), sizeof(inputBoneName_));
+#endif
+	}
+	void EditorItem() override {
+#ifdef USE_IMGUI
+
+		if (ImGui::InputText("ボーン名", inputBoneName_, sizeof(inputBoneName_))) {
+			boneName_ = inputBoneName_;
+		}
+		ImGui::DragFloat("拡散角度", &spread_);
+		ImGui::DragFloat("指定速度", &speed_);
+#endif
+	}
+	std::string GetName() override {
+		return "Step_ShotBulletToBone";
+	}
+};
+
+//爆弾投擲
+class Step_ThrowBombToFixedPosition : public BaseStep {
+private:
+	Vector3 position_;
+	float spread_;
+	float speed_;
+public:
+	void Initialize(Vector3 position, float spread, float speed) { position_ = position; spread_ = spread; speed_ = speed; }
+	void Activate(BossAction* action) override;
+
+	nlohmann::json WriteStep() override {
+		return{
+			{"step","Step_ThrowBombToFixedPosition"},
+			{"position",position_},
+			{"spread",spread_},
+			{"speed",speed_},
+		};
+	}
+
+	void ReadStep(const nlohmann::json_abi_v3_12_0::json& stepJson) override {
+		Initialize(stepJson["position"].get<Vector3>(), stepJson["spread"], stepJson["speed"]);
+	}
+	void EditorItem() override {
+#ifdef USE_IMGUI
+		ImGui::DragFloat3("指定位置", &position_.x);
+		ImGui::DragFloat("拡散角度", &spread_);
+		ImGui::DragFloat("指定速度", &speed_);
+#endif
+	}
+	std::string GetName() override {
+		return "Step_ThrowBombToFixedPosition";
+	}
+};
+
+//爆弾投擲
+class Step_ThrowBombToBone : public BaseStep {
+private:
+	std::string boneName_;
+	float spread_;
+	float speed_;
+#ifdef USE_IMGUI
+	char inputBoneName_[64] = {};
+#endif
+public:
+	void Initialize(std::string boneName, float spread, float speed) { boneName_ = boneName; spread_ = spread; speed_ = speed; }
+	void Activate(BossAction* action) override;
+
+	nlohmann::json WriteStep() override {
+		return{
+			{"step","Step_ShotBulletToBone"},
+			{"boneName",boneName_},
+			{"spread",spread_},
+			{"speed",speed_},
+		};
+	}
+
+	void ReadStep(const nlohmann::json_abi_v3_12_0::json& stepJson) override {
+		Initialize(stepJson["boneName"], stepJson["spread"], stepJson["speed"]);
+#ifdef USE_IMGUI
+		strncpy_s(inputBoneName_, boneName_.c_str(), sizeof(inputBoneName_));
+#endif
+	}
+	void EditorItem() override {
+#ifdef USE_IMGUI
+
+		if (ImGui::InputText("ボーン名", inputBoneName_, sizeof(inputBoneName_))) {
+			boneName_ = inputBoneName_;
+		}
+		ImGui::DragFloat("拡散角度", &spread_);
+		ImGui::DragFloat("指定速度", &speed_);
+#endif
+	}
+	std::string GetName() override {
+		return "Step_ShotBulletToBone";
+	}
+};*/
 
 #pragma endregion
 
@@ -473,6 +593,9 @@ struct PatternCondition {
 	std::optional<float> nearDistance;
 	//プレイヤーとの距離(遠い場合判定)
 	std::optional<float> farDistance;
+	//特定の部位が存在している場合
+	//std::string partsName;
+
 	//優先度(9~1)
 	int8_t priority;
 };
@@ -507,15 +630,24 @@ class Stage;
 
 class Boss : public BaseCharacter
 {
+public:
+	//ボス状態
+	enum class State {
+		None,				//無し。初期状態
+		Event,				//イベント。ボスがアニメーションする
+		Move,				//移動。行動が使えなかったりするなら行う
+		PatternExecution	//行動
+	};
+
 private:
+
+	//ボス状態
+	State state_ = State::None;
 
 	float angle;
 
 	//ターゲット用Sphere
 	std::shared_ptr<Sphere> trackingSphere_;
-
-	//いらないかも
-	std::string bossName_;
 
 	//体力
 	float maxHP_;
@@ -572,6 +704,9 @@ public:
 
 	void SetTransfrom(SRT transfrom) { transform_ = transfrom; object_->SetTransform(transform_); }
 
+	State GetBossState() { return state_ ; }
+	void SetBossState(State state) { state_ = state; }
+
 	void SetCamera(shared_ptr<Camera> camera) { object_->SetCamera(camera); }
 
 	void SetModel(std::shared_ptr<Model> model) { object_->Initialize(model); }
@@ -580,6 +715,8 @@ public:
 
 	void SetDirectionalLight(shared_ptr<DirectionalLight> directionalLight) { object_->SetDirectionalLight(directionalLight); }
 	void SetPointLight(shared_ptr<PointLight> pointLight) { object_->SetPointLight(pointLight); }
+
+	void Damage(float damage) { HP_ -= damage; }
 
 	bool IsDead() { return HP_ <= 0; }
 
@@ -595,6 +732,7 @@ private:
 
 	void ReadBossFile(std::string filePath);
 
-	void NextPattern();
+	//次のパターン
+	bool NextPattern();
 };
 

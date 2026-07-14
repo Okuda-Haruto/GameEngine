@@ -15,11 +15,10 @@ void LockOnCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> inp
 	transform_ = {};
 	pushRStickTime_ = 0;
 	if (gameCamera_->GetObserverTransform()) {
-		targetAngle_ = gameCamera_->GetObserverTransform()->rotate;
+		cameraAngle_ = gameCamera_->GetObserverTransform()->rotate;
 	} else {
-		targetAngle_ = {};
+		cameraAngle_ = {};
 	}
-	cameraAngle_ = {};
 }
 
 void LockOnCamera::Update() {
@@ -59,8 +58,29 @@ void LockOnCamera::Update() {
 		}
 		cameraAngle_ += rotateVelocity_;
 
+		//角度範囲
+		if (cameraAngle_.x > std::numbers::pi_v<float> / 2) {
+			cameraAngle_.x = std::numbers::pi_v<float> / 2;
+		} else if (cameraAngle_.x < -std::numbers::pi_v<float> / 2) {
+			cameraAngle_.x = -std::numbers::pi_v<float> / 2;
+		}
+		if (cameraAngle_.y > std::numbers::pi_v<float>) {
+			cameraAngle_.y -= std::numbers::pi_v<float> *2;
+		} else if (cameraAngle_.y < -std::numbers::pi_v<float>) {
+			cameraAngle_.y += std::numbers::pi_v<float> *2;
+		}
+
 		//注目対象が存在している場合
 		if (targetSpehre_.lock()) {
+			//角度範囲
+			if (fabsf(targetAngle_.y - cameraAngle_.y) > std::numbers::pi_v<float>) {
+				if (targetAngle_.y - cameraAngle_.y > 0.0f) {
+					targetAngle_.y -= std::numbers::pi_v<float> * 2;
+				} else {
+					targetAngle_.y += std::numbers::pi_v<float> * 2;
+				}
+			}
+
 			//傾けた分をある程度戻す
 			if (Length(cameraAngle_ - targetAngle_) > 0.01f) {
 				cameraAngle_ = Easing::Lerp(cameraAngle_, targetAngle_, kAngleLerpLate);
@@ -102,6 +122,11 @@ void LockOnCamera::Update() {
 
 			//視線にロックオン対象が接触しているか
 			std::vector<std::weak_ptr<Sphere>> targetSpheres = gameCamera_->GetTargetSpheres();
+			std::erase_if(targetSpheres,
+				[](const std::weak_ptr<Sphere>& sphere) {
+					return sphere.expired();
+				});
+
 			Ray playerRay = {
 				.origin = transform_.translate,
 				.diff = rotateMatrix * Vector3{0,0,1}
@@ -114,17 +139,22 @@ void LockOnCamera::Update() {
 			std::weak_ptr<Sphere> keepTargetSphere;
 			float observerDistance = 0;
 			for (auto& target : targetSpheres) {
-				if (IsCollision(playerRay, *target.lock())) {
-					//既に他の球が接触済みなら近い方をターゲットに
-					if (keepTargetSphere.lock()) {
-						float length = Length(keepTargetSphere.lock()->center - transform_.translate);
+				auto sphere = target.lock();
+				if (!sphere) {
+					continue;
+				}
+
+				if (IsCollision(playerRay, *sphere)) {
+					float length = Length(sphere->center - transform_.translate);
+
+					if (auto keep = keepTargetSphere.lock()) {
 						if (observerDistance > length) {
 							keepTargetSphere = target;
 							observerDistance = length;
 						}
 					} else {
 						keepTargetSphere = target;
-						observerDistance = Length(keepTargetSphere.lock()->center - transform_.translate);
+						observerDistance = length;
 					}
 				}
 			}

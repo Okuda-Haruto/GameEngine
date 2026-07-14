@@ -1,6 +1,7 @@
 #include "Colliders.h"
 #include <Operation/Operation.h>
 #include <Collision.h>
+#include <PrimitiveManager/Primitive3DManager.h>
 
 void Colliders::Initialize(Collider* collider) {
 	collider_ = collider;
@@ -9,48 +10,59 @@ void Colliders::Initialize(Collider* collider) {
 void Colliders::Update() {
 
 	for (int i = 0; i < sphereColliders_.size(); i++) {
-		sphereColliders_[i].colliderSphere_.center = sphereColliders_[i].localSphere_.center * *(sphereColliders_[i].parentMatrix_.get());
-		sphereColliders_[i].colliderSphere_.radius = sphereColliders_[i].localSphere_.radius;
+		sphereColliders_[i].colliderSphere.center = sphereColliders_[i].localSphere.center * *(sphereColliders_[i].parentMatrix.get());
+		sphereColliders_[i].colliderSphere.radius = sphereColliders_[i].localSphere.radius;
+#ifdef USE_IMGUI
+		Primitive3DManager::GetInstance()->AddSphere(sphereColliders_[i].colliderSphere);
+#endif // USE_IMGUI
 	}
 
 	for (int i = 0; i < obbColliders_.size(); i++) {
-		obbColliders_[i].colliderOBB_.center = obbColliders_[i].localOBB_.center * *(obbColliders_[i].parentMatrix_.get());
-		obbColliders_[i].colliderOBB_.orientations[0] = obbColliders_[i].localOBB_.orientations[0];
-		obbColliders_[i].colliderOBB_.orientations[1] = obbColliders_[i].localOBB_.orientations[1];
-		obbColliders_[i].colliderOBB_.orientations[2] = obbColliders_[i].localOBB_.orientations[2];
-		obbColliders_[i].colliderOBB_.size = obbColliders_[i].localOBB_.size;
+		obbColliders_[i].colliderOBB.center = obbColliders_[i].localOBB.center * *(obbColliders_[i].parentMatrix.get());
+		obbColliders_[i].colliderOBB.orientations[0] = obbColliders_[i].localOBB.orientations[0];
+		obbColliders_[i].colliderOBB.orientations[1] = obbColliders_[i].localOBB.orientations[1];
+		obbColliders_[i].colliderOBB.orientations[2] = obbColliders_[i].localOBB.orientations[2];
+		obbColliders_[i].colliderOBB.size = obbColliders_[i].localOBB.size;
+#ifdef USE_IMGUI
+		Primitive3DManager::GetInstance()->AddOBB(obbColliders_[i].colliderOBB);
+#endif // USE_IMGUI
+	}
+	if (grundCollider_.parentMatrix) {
+		grundCollider_.colliderSphere.center = grundCollider_.localSphere.center * *(grundCollider_.parentMatrix.get());
+		grundCollider_.colliderSphere.radius = grundCollider_.localSphere.radius;
 	}
 }
 
-void Colliders::AddSphereCollider(Sphere localSphere, int8_t sourceId_, int8_t targetId_, std::shared_ptr<Matrix4x4> parentMatrix) {
+void Colliders::AddSphereCollider(Sphere localSphere, int8_t sourceId, int8_t targetId, std::shared_ptr<Matrix4x4> parentMatrix) {
 	SphereCollider collider;
 	
-	collider.localSphere_ = localSphere;
-	collider.sourceId_ = sourceId_;
-	collider.targetId_ = targetId_;
-	collider.parentMatrix_ = parentMatrix;
+	collider.localSphere = localSphere;
+	collider.sourceId = sourceId;
+	collider.targetId = targetId;
+	collider.parentMatrix = parentMatrix;
 
 	sphereColliders_.push_back(collider);
 }
 
-void Colliders::AddOBBCollider(OBB localOBB, int8_t sourceId_, int8_t targetId_, std::shared_ptr<Matrix4x4> parentMatrix) {
+void Colliders::AddOBBCollider(OBB localOBB, int8_t sourceId, int8_t targetId, std::shared_ptr<Matrix4x4> parentMatrix) {
 	OBBCollider collider;
 
-	collider.localOBB_ = localOBB;
-	collider.sourceId_ = sourceId_;
-	collider.targetId_ = targetId_;
-	collider.parentMatrix_ = parentMatrix;
+	collider.localOBB = localOBB;
+	collider.sourceId = sourceId;
+	collider.targetId = targetId;
+	collider.parentMatrix = parentMatrix;
 
 	obbColliders_.push_back(collider);
 }
 
 
-void Colliders::SetGrundCollider(OBB localOBB, int8_t sourceId_, int8_t targetId_) {
-	OBBCollider collider;
+void Colliders::SetGrundCollider(Sphere localSphere, int8_t sourceId, int8_t targetId, std::shared_ptr<Matrix4x4> parentMatrix) {
+	SphereCollider collider;
 
-	collider.localOBB_ = localOBB;
-	collider.sourceId_ = sourceId_;
-	collider.targetId_ = targetId_;
+	collider.localSphere = localSphere;
+	collider.sourceId = sourceId;
+	collider.targetId = targetId;
+	collider.parentMatrix = parentMatrix;
 
 	grundCollider_ = collider;
 }

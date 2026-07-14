@@ -95,7 +95,7 @@ void TextureManager::MakeRenderTexture(const std::string& renderName) {
 	TextureData& textureData = textureDatas[renderName];
 
 	//textureData.metadata = mipImages.GetMetadata();
-	const Vector4 kRenderTargetClearValue{ 1.0f,0.0f,0.0f,1.0f };	//いったんわかりやすいように赤
+	const Vector4 kRenderTargetClearValue{ 0.0f,0.0f,0.0f,1.0f };
 	DirectXCommon::RTVResource rtvResource = dxCommon_->CreateRenderTextureResource(1280, 720, DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, kRenderTargetClearValue);
 	textureData.resource = rtvResource.resource;
 
