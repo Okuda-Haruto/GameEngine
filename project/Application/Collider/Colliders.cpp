@@ -1,6 +1,7 @@
 #include "Colliders.h"
 #include <Operation/Operation.h>
 #include <Collision.h>
+#include <PrimitiveManager/Primitive3DManager.h>
 
 void Colliders::Initialize(Collider* collider) {
 	collider_ = collider;
@@ -11,6 +12,9 @@ void Colliders::Update() {
 	for (int i = 0; i < sphereColliders_.size(); i++) {
 		sphereColliders_[i].colliderSphere.center = sphereColliders_[i].localSphere.center * *(sphereColliders_[i].parentMatrix.get());
 		sphereColliders_[i].colliderSphere.radius = sphereColliders_[i].localSphere.radius;
+#ifdef USE_IMGUI
+		Primitive3DManager::GetInstance()->AddSphere(sphereColliders_[i].colliderSphere);
+#endif // USE_IMGUI
 	}
 
 	for (int i = 0; i < obbColliders_.size(); i++) {
@@ -19,38 +23,46 @@ void Colliders::Update() {
 		obbColliders_[i].colliderOBB.orientations[1] = obbColliders_[i].localOBB.orientations[1];
 		obbColliders_[i].colliderOBB.orientations[2] = obbColliders_[i].localOBB.orientations[2];
 		obbColliders_[i].colliderOBB.size = obbColliders_[i].localOBB.size;
+#ifdef USE_IMGUI
+		Primitive3DManager::GetInstance()->AddOBB(obbColliders_[i].colliderOBB);
+#endif // USE_IMGUI
+	}
+	if (grundCollider_.parentMatrix) {
+		grundCollider_.colliderSphere.center = grundCollider_.localSphere.center * *(grundCollider_.parentMatrix.get());
+		grundCollider_.colliderSphere.radius = grundCollider_.localSphere.radius;
 	}
 }
 
-void Colliders::AddSphereCollider(Sphere localSphere, int8_t sourceId_, int8_t targetId_, std::shared_ptr<Matrix4x4> parentMatrix) {
+void Colliders::AddSphereCollider(Sphere localSphere, int8_t sourceId, int8_t targetId, std::shared_ptr<Matrix4x4> parentMatrix) {
 	SphereCollider collider;
 	
 	collider.localSphere = localSphere;
-	collider.sourceId = sourceId_;
-	collider.targetId = targetId_;
+	collider.sourceId = sourceId;
+	collider.targetId = targetId;
 	collider.parentMatrix = parentMatrix;
 
 	sphereColliders_.push_back(collider);
 }
 
-void Colliders::AddOBBCollider(OBB localOBB, int8_t sourceId_, int8_t targetId_, std::shared_ptr<Matrix4x4> parentMatrix) {
+void Colliders::AddOBBCollider(OBB localOBB, int8_t sourceId, int8_t targetId, std::shared_ptr<Matrix4x4> parentMatrix) {
 	OBBCollider collider;
 
 	collider.localOBB = localOBB;
-	collider.sourceId = sourceId_;
-	collider.targetId = targetId_;
+	collider.sourceId = sourceId;
+	collider.targetId = targetId;
 	collider.parentMatrix = parentMatrix;
 
 	obbColliders_.push_back(collider);
 }
 
 
-void Colliders::SetGrundCollider(Capsule localCapsule, int8_t sourceId_, int8_t targetId_) {
-	CapsuleCollider collider;
+void Colliders::SetGrundCollider(Sphere localSphere, int8_t sourceId, int8_t targetId, std::shared_ptr<Matrix4x4> parentMatrix) {
+	SphereCollider collider;
 
-	collider.localCapsule = localCapsule;
-	collider.sourceId = sourceId_;
-	collider.targetId = targetId_;
+	collider.localSphere = localSphere;
+	collider.sourceId = sourceId;
+	collider.targetId = targetId;
+	collider.parentMatrix = parentMatrix;
 
 	grundCollider_ = collider;
 }

@@ -4,6 +4,7 @@
 #include <GameEngine.h>
 #include <numbers>
 #include <Math/Easing.h>
+#include <PushOut/PushOut.h>
 
 Stage::~Stage() {
 	playerBullets_.clear();
@@ -164,16 +165,16 @@ void Stage::Initialize(StageData stageData, std::shared_ptr<Input> input) {
 	boss_->SetPointLight(pointLight_);
 
 	std::unique_ptr<BreakObject> breakObject = std::make_unique<BreakObject>();
-	breakObject->Initialize("resources/Object", "Box.obj", SRT{ {2,2,2} ,{0,0,0},{25,1.5f,25} }, 2);
+	breakObject->Initialize("resources/Object", "Box.obj", SRT{ {2,2,2} ,{0,0,0},{25,1.5f,25} }, 2, std::make_unique<BreakBehavior_Explosion_Small>());
 	breakObjects_.push_back(move(breakObject));
 	breakObject = std::make_unique<BreakObject>();
-	breakObject->Initialize("resources/Object", "Box.obj", SRT{ {2,2,2} ,{0,0,0},{-25,1.5f,25} }, 2);
+	breakObject->Initialize("resources/Object", "Box.obj", SRT{ {2,2,2} ,{0,0,0},{-25,1.5f,25} }, 2, std::make_unique<BreakBehavior_Explosion_Small>());
 	breakObjects_.push_back(move(breakObject));
 	breakObject = std::make_unique<BreakObject>();
-	breakObject->Initialize("resources/Object", "Box.obj", SRT{ {2,2,2} ,{0,0,0},{25,1.5f,-25} }, 2);
+	breakObject->Initialize("resources/Object", "Box.obj", SRT{ {2,2,2} ,{0,0,0},{25,1.5f,-25} }, 2, std::make_unique<BreakBehavior_Explosion_Small>());
 	breakObjects_.push_back(move(breakObject));
 	breakObject = std::make_unique<BreakObject>();
-	breakObject->Initialize("resources/Object", "Box.obj", SRT{ {2,2,2} ,{0,0,0},{-25,1.5f,-25} }, 2);
+	breakObject->Initialize("resources/Object", "Box.obj", SRT{ {2,2,2} ,{0,0,0},{-25,1.5f,-25} }, 2, std::make_unique<BreakBehavior_Explosion_Small>());
 	breakObjects_.push_back(move(breakObject));
 
 	//接触可能オブジェクト
@@ -424,7 +425,53 @@ void Stage::Collision() {
 	}
 }
 
-/*void Stage::MoveWithCollision(CapsuleCollider collider, SRT& transform, Vector3 velocity) {
+bool Stage::BossObstructed(const Capsule& capsule) {
+	std::list<Colliders*> colliders;
+
+	//今回は障害物だけで判定
+	for (auto& object : breakObjects_) {
+		colliders.push_back(object.get()->GetColliders());
+	}
+
+	//障害物コライダー
+	std::vector<OBBCollider> obbCollider;
+	for (auto& colliderObject_ : colliderObjects_) {
+		std::vector<OBBCollider> colliders = colliderObject_->GetCollider()->GetOBBColliders();
+		for (auto& collider : colliders) {
+			obbCollider.push_back(collider);
+		}
+	}
+
+	for (std::list<Colliders*>::iterator iteratorA = colliders.begin();
+		iteratorA != colliders.end(); iteratorA++) {
+
+		//球接触判定
+		std::vector<SphereCollider> sphereColliderA = (*iteratorA)->GetSphereColliders();
+
+
+		if (sphereColliderA.size() > 0) {
+			for (int a = 0; a < sphereColliderA.size(); a++) {
+
+				if (IsCollision(capsule, sphereColliderA[a].colliderSphere)) {
+					return true;
+				}
+			}
+		}
+
+
+		for (int a = 0; a < sphereColliderA.size(); a++) {
+			for (int i = 0; i < obbCollider.size(); i++) {
+				if (IsCollision(capsule, obbCollider[i].colliderOBB)) {
+					return true;
+				}
+			}
+
+		}
+	}
+	return false;
+}
+
+Vector3 Stage::MoveWithCollision(SphereCollider& collider, Vector3 velocity) {
 	std::list<Colliders*> colliders;
 	colliders.push_back(player_.get()->GetColliders());
 	colliders.push_back(boss_.get()->GetColliders());
@@ -450,37 +497,27 @@ void Stage::Collision() {
 	for (std::list<Colliders*>::iterator iteratorA = colliders.begin();
 		iteratorA != colliders.end(); iteratorA++) {
 
-		//球接触判定
-		std::vector<SphereCollider> sphereColliderA = (*iteratorA)->GetSphereColliders();
+		//接触判定
+		std::vector<OBBCollider> obbColliderA = (*iteratorA)->GetOBBColliders();
 
+		if (obbColliderA.size() > 0) {
+			for (int a = 0; a < obbColliderA.size(); a++) {
 
-		if (sphereColliderA.size() > 0) {
-			for (int a = 0; a < sphereColliderA.size(); a++) {
-
-				//同一のグループの属するなら抜ける
-				if (collider.sourceId & 0b01 && sphereColliderA[a].targetId & 0b01 ||
-					collider.sourceId & 0b10 && sphereColliderA[a].targetId & 0b10 ||
-					collider.sourceId & 0b00 && sphereColliderA[a].targetId & 0b00) {
-					continue;
-				}
-
-				if (IsCollision(sphereColliderA[a].colliderSphere, collider)) {
-
+				if (IsCollision(obbColliderA[a].colliderOBB, collider.colliderSphere)) {
+					return PushOut(collider.colliderSphere, velocity, obbColliderA[a].colliderOBB);
 				}
 			}
 		}
 
-
-		for (int a = 0; a < sphereColliderA.size(); a++) {
-			for (int i = 0; i < obbCollider.size(); i++) {
-				if (IsCollision(obbCollider[i].colliderOBB, (sphereColliderA[a].colliderSphere))) {
-					(*iteratorA)->IsCollision(obbCollider[i].sourceId);
-				}
+		for (int i = 0; i < obbCollider.size(); i++) {
+			if (IsCollision(obbCollider[i].colliderOBB, collider.colliderSphere)) {
+				return PushOut(collider.colliderSphere, velocity, obbCollider[i].colliderOBB);
 			}
-
 		}
 	}
-}*/
+
+	return velocity;
+}
 
 void Stage::AddPlayerBullet(Vector3 translate, Vector3 rotate) {
 	unique_ptr<PlayerBullet> newBullet = make_unique<PlayerBullet>();
@@ -528,9 +565,9 @@ void Stage::AddBossBullet(Vector3 translate, Vector3 rotate) {
 	AudioHolder::GetInstance()->GetAudio(AudioIndex::Shot_SE).lock()->SoundPlayWave();
 }
 
-void Stage::AddBreakObject(std::string directoryPath, std::string fileName, SRT startTransform, float maxHP) {
+void Stage::AddBreakObject(std::string directoryPath, std::string fileName, SRT startTransform, float maxHP, std::unique_ptr<BaseBreakBehavior> breakBehavior) {
 	unique_ptr<BreakObject> newObject = make_unique<BreakObject>();
-	newObject->Initialize(directoryPath, fileName, startTransform, maxHP);
+	newObject->Initialize(directoryPath, fileName, startTransform, maxHP, move(breakBehavior));
 	breakObjects_.push_back(move(newObject));
 
 

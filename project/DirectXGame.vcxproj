@@ -63,7 +63,9 @@
     <ClCompile Include="Application\BackGround\Fence\Fence.cpp" />
     <ClCompile Include="Application\BackGround\Tumbleweed\Tumbleweed.cpp" />
     <ClCompile Include="Application\Bullet\BaseBullet.cpp" />
+    <ClCompile Include="Application\Bullet\BossBullet\Bomb\Bomb.cpp" />
     <ClCompile Include="Application\Bullet\BossBullet\BossBullet.cpp" />
+    <ClCompile Include="Application\Bullet\BossBullet\ShockWave\ShockWave.cpp" />
     <ClCompile Include="Application\Bullet\PlayerBullet\PlayerBullet.cpp" />
     <ClCompile Include="Application\Character\BaseCharacter.cpp" />
     <ClCompile Include="Application\Character\Boss\Boss.cpp" />
@@ -94,6 +96,7 @@
     <ClCompile Include="GameEngine\LoadFile\LoadGLTFFile.cpp" />
     <ClCompile Include="GameEngine\Math\LerpKeyFrame\LerpKeyFrame.cpp" />
     <ClCompile Include="GameEngine\Math\Operation\Operation.cpp" />
+    <ClCompile Include="GameEngine\Math\PushOut\PushOut.cpp" />
     <ClCompile Include="GameEngine\Modules\Animation\Animation.cpp" />
     <ClCompile Include="GameEngine\Modules\AudioManager\AudioManager.cpp" />
     <ClCompile Include="GameEngine\Modules\ConvertString\ConvertString.cpp" />
@@ -139,7 +142,9 @@
     <ClInclude Include="Application\BackGround\Fence\Fence.h" />
     <ClInclude Include="Application\BackGround\Tumbleweed\Tumbleweed.h" />
     <ClInclude Include="Application\Bullet\BaseBullet.h" />
+    <ClInclude Include="Application\Bullet\BossBullet\Bomb\Bomb.h" />
     <ClInclude Include="Application\Bullet\BossBullet\BossBullet.h" />
+    <ClInclude Include="Application\Bullet\BossBullet\ShockWave\ShockWave.h" />
     <ClInclude Include="Application\Bullet\PlayerBullet\PlayerBullet.h" />
     <ClInclude Include="Application\Character\BaseCharacter.h" />
     <ClInclude Include="Application\Character\Boss\Boss.h" />
@@ -199,6 +204,7 @@
     <ClInclude Include="GameEngine\LoadFile\LoadGLTFFile.h" />
     <ClInclude Include="GameEngine\Math\LerpKeyFrame\LerpKeyFrame.h" />
     <ClInclude Include="GameEngine\Math\Operation\Operation.h" />
+    <ClInclude Include="GameEngine\Math\PushOut\PushOut.h" />
     <ClInclude Include="GameEngine\Math\Quaternion.h" />
     <ClInclude Include="GameEngine\Math\QuaternionTransform.h" />
     <ClInclude Include="GameEngine\Math\Shape\AABB.h" />

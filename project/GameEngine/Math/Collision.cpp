@@ -43,6 +43,43 @@ Vector3 ClosestPoint(const Vector3& point, const Segment& segment) {
 
 	return segment.origin + segment.diff * t;
 }
+//最近接点
+Vector3 ClosestPoint(const Vector3& point, const AABB& aabb) {
+	Vector3 closestPoint = {
+		std::clamp(point.x, aabb.min.x, aabb.max.x),
+		std::clamp(point.y, aabb.min.y, aabb.max.y),
+		std::clamp(point.z, aabb.min.z, aabb.max.z),
+	};
+
+	return closestPoint;
+}
+//最近接点
+Vector3 ClosestPoint(const Vector3& point, const OBB& obb) {
+	Matrix4x4 obbWorldMatrix{
+		.m{
+			{obb.orientations[0].x	,obb.orientations[0].y	,obb.orientations[0].z	,0.0f},
+			{obb.orientations[1].x	,obb.orientations[1].y	,obb.orientations[1].z	,0.0f},
+			{obb.orientations[2].x	,obb.orientations[2].y	,obb.orientations[2].z	,0.0f},
+			{obb.center.x			,obb.center.y			,obb.center.z			,1.0f},
+		}
+	};
+	Matrix4x4 obbWorldMatrixInverse = Inverse(obbWorldMatrix);
+
+	Vector3 localPoint = point * obbWorldMatrixInverse;
+
+	AABB localAABB = {
+		{-obb.size.x,-obb.size.y,-obb.size.z},
+		{+obb.size.x,+obb.size.y,+obb.size.z}
+	};
+
+	Vector3 closestPoint = {
+		std::clamp(localPoint.x, localAABB.min.x, localAABB.max.x),
+		std::clamp(localPoint.y, localAABB.min.y, localAABB.max.y),
+		std::clamp(localPoint.z, localAABB.min.z, localAABB.max.z),
+	};
+
+	return closestPoint;
+}
 
 float DistanceSegmentSegment(const Segment& s1, const Segment& s2)
 {

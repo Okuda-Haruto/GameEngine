@@ -48,10 +48,13 @@ private:
 	float maxHP_;
 	float HP_;
 
+	//死亡時に発動する
+	std::unique_ptr<BaseBreakBehavior> breakBehavior_;
+
 public:
 
 	//初期化
-	void Initialize(std::string directoryPath, std::string fileName, SRT startTransform, float maxHP);
+	void Initialize(std::string directoryPath, std::string fileName, SRT startTransform, float maxHP, std::unique_ptr<BaseBreakBehavior> breakBehavior);
 	//更新
 	void Update();
 	//描画
@@ -67,6 +70,7 @@ public:
 	std::shared_ptr<Sphere> GetTrackingSphere() { return trackingSphere_; }
 
 	void SetCamera(shared_ptr<Camera> camera) { object_->SetCamera(camera); }
+	std::weak_ptr<GameCamera> GetGameCamera() { return gameCamera_; }
 
 	bool IsDead() { return HP_ <= 0; }
 	float GetHP() { return HP_; }

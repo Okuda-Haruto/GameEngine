@@ -17,6 +17,10 @@ Vector3 ClosestPoint(const Vector3& point, const Line& line);
 Vector3 ClosestPoint(const Vector3& point, const Ray& ray);
 //最近接点
 Vector3 ClosestPoint(const Vector3& point, const Segment& segment);
+//最近接点
+Vector3 ClosestPoint(const Vector3& point, const AABB& aabb);
+//最近接点
+Vector3 ClosestPoint(const Vector3& point, const OBB& aabb);
 
 //球と球の衝突
 bool IsCollision(const Sphere& s1, const Sphere& s2);
@@ -62,6 +66,8 @@ bool IsCollision(const OBB& obb1, const OBB& obb2);
 bool IsCollision(const Capsule& capsule, const Sphere& sphere);
 //カプセルとAABBの衝突
 bool IsCollision(const Capsule& capsule, const AABB& aabb);
+//カプセルとOBBの衝突
+bool IsCollision(const Capsule& capsule, const OBB& obb);
 
 //objモデルと線分の衝突
 bool IsCollision(const ModelData& model, const Segment& segment);

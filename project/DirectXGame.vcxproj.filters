@@ -85,9 +85,6 @@
     <ClCompile Include="Application\Bullet\BaseBullet.cpp">
       <Filter>Application\Bullet</Filter>
     </ClCompile>
-    <ClCompile Include="Application\Bullet\PlayerBullet\PlayerBullet.cpp">
-      <Filter>Application\Bullet\PlayerBullet</Filter>
-    </ClCompile>
     <ClCompile Include="Application\Character\BaseCharacter.cpp">
       <Filter>Application\Character</Filter>
     </ClCompile>
@@ -289,6 +286,18 @@
     <ClCompile Include="Application\Character\BreakObject\BreakObject.cpp">
       <Filter>Application\Character\BreakObject</Filter>
     </ClCompile>
+    <ClCompile Include="GameEngine\Math\PushOut\PushOut.cpp">
+      <Filter>GameEngine\Math\PushOut</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Bullet\BossBullet\Bomb\Bomb.cpp">
+      <Filter>Application\Bullet\BossBullet\Bomb</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Bullet\BossBullet\ShockWave\ShockWave.cpp">
+      <Filter>Application\Bullet\BossBullet\ShockWave</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Bullet\PlayerBullet\PlayerBullet.cpp">
+      <Filter>Application\Bullet\PlayerBullet</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\BackGround\Ground\Ground.h">
@@ -299,9 +308,6 @@
     </ClInclude>
     <ClInclude Include="Application\Bullet\BaseBullet.h">
       <Filter>Application\Bullet</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Bullet\PlayerBullet\PlayerBullet.h">
-      <Filter>Application\Bullet\PlayerBullet</Filter>
     </ClInclude>
     <ClInclude Include="Application\Character\BaseCharacter.h">
       <Filter>Application\Character</Filter>
@@ -687,6 +693,18 @@
     <ClInclude Include="Application\Collider\CapsuleCollider.h">
       <Filter>Application\Collider</Filter>
     </ClInclude>
+    <ClInclude Include="GameEngine\Math\PushOut\PushOut.h">
+      <Filter>GameEngine\Math\PushOut</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Bullet\BossBullet\Bomb\Bomb.h">
+      <Filter>Application\Bullet\BossBullet\Bomb</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Bullet\BossBullet\ShockWave\ShockWave.h">
+      <Filter>Application\Bullet\BossBullet\ShockWave</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Bullet\PlayerBullet\PlayerBullet.h">
+      <Filter>Application\Bullet\PlayerBullet</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -958,6 +976,15 @@
     </Filter>
     <Filter Include="Application\Character\BreakObject">
       <UniqueIdentifier>{3dcb621a-1c29-428e-816a-34a28f1ac1aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\Math\PushOut">
+      <UniqueIdentifier>{5a2c6a70-96f3-4144-a7ab-1cf51f0325ec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Bullet\BossBullet\Bomb">
+      <UniqueIdentifier>{71b276ab-acfe-44fd-bb69-e7458046ad42}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Bullet\BossBullet\ShockWave">
+      <UniqueIdentifier>{dd502589-f4d3-4b45-a727-b8b3b7c16930}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

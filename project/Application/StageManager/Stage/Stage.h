@@ -96,13 +96,15 @@ public:
 	//衝突
 	void Collision();
 
+	bool BossObstructed(const Capsule& capsule);
+
 	//コライダーを考慮した移動
-	//void MoveWithCollision(CapsuleCollider collider, SRT& transform, Vector3 velocity);
+	Vector3 MoveWithCollision(SphereCollider& collider, Vector3 velocity);
 
 	//後でクォータニオンにしたい
 	void AddPlayerBullet(Vector3 translate, Vector3 rotate);
 	void AddBossBullet(Vector3 translate, Vector3 rotate);
-	void AddBreakObject(std::string directoryPath, std::string fileName, SRT startTransform, float maxHP);
+	void AddBreakObject(std::string directoryPath, std::string fileName, SRT startTransform, float maxHP, std::unique_ptr<BaseBreakBehavior> breakBehavior);
 
 	void SetDebugCamera(std::shared_ptr<DebugCamera> debugCamera) { debugCamera_ = debugCamera; gameCamera_->SetDebugCamera(debugCamera_); }
 
