@@ -125,17 +125,13 @@ void SampleScene::Initialize() {
 	//エフェクト
 	ParticleManager::GetInstance()->CreateParticleGroup("particle", "resources/DebugResources/circle.png");
 	particleEmitter_ = make_unique<ParticleEmitter>("particle");
-	emitter_.count = 2;
-	emitter_.beforeColor = { 1.0f,1.0f,1.0f,1.0f };
-	emitter_.afterColor = { 1.0f,1.0f,1.0f,0.0f };
-	emitter_.lifeTime = 1.0f;
-	emitter_.frequency = 0.5f;
-	emitter_.frequencyTime = 0.0f;
-	ParticleManager::GetInstance()->SetEmitter("particle", emitter_);
-	accelerationField_.area.min = { -0.5f,-0.5f,-0.5f };
-	accelerationField_.area.max = { 0.5f,0.5f,0.5f };
-	accelerationField_.acceleration = { 0.0f,0.0f,0.0f };
-	ParticleManager::GetInstance()->SetField("particle", accelerationField_);
+	emitterSphere_.count = 10;
+	emitterSphere_.frequency = 0.5f;
+	emitterSphere_.frequencyTime = 0.0f;
+	emitterSphere_.translate = Vector3(0.0f, 0.0f, 0.0f);
+	emitterSphere_.radius = 1.0f;
+	emitterSphere_.emit = 0;
+	ParticleManager::GetInstance()->SetEmitter("particle", emitterSphere_);
 
 	std::unique_ptr<Object> box_;
 	/*box_ = make_unique<Object>();
@@ -444,27 +440,6 @@ void SampleScene::Update() {
 	}
 
 	static SRT emitterTransform{};
-
-	emitterTransform = { 1,1,1 };
-
-	ImGui::DragFloat("パーティクル Scale", &emitterTransform.scale.x, 0.1f);
-	ImGui::SliderAngle("パーティクル RotateX", &emitterTransform.rotate.x);
-	ImGui::SliderAngle("パーティクル RotateY", &emitterTransform.rotate.y);
-	ImGui::SliderAngle("パーティクル Rotatez", &emitterTransform.rotate.z);
-	ImGui::DragFloat3("パーティクル Translate", &emitterTransform.translate.x, 0.1f);
-	ImGui::ColorPicker4("beforecolor", &emitter_.beforeColor.x);
-	ImGui::ColorPicker4("aftercolor", &emitter_.afterColor.x);
-	int count = int(emitter_.count);
-	ImGui::DragInt("パーティクル count", &count);
-	emitter_.count = count;
-	ImGui::DragFloat("パーティクル LifeTime", &emitter_.lifeTime, 0.01f);
-	ImGui::DragFloat("パーティクル frequency", &emitter_.frequency, 0.01f);
-	particleEmitter_->SetEmitter(emitter_);
-
-	ImGui::DragFloat3("エリアmin", &accelerationField_.area.min.x, 0.1f);
-	ImGui::DragFloat3("エリアmax", &accelerationField_.area.max.x, 0.1f);
-	ImGui::DragFloat3("エリアAcceleration", &accelerationField_.acceleration.translate.x, 0.01f);
-	particleEmitter_->SetField(accelerationField_);
 
 	for (INT i = 0; i < sprite_.size(); i++) {
 		std::string str;

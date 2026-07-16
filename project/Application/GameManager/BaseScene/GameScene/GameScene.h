@@ -6,10 +6,11 @@
 #include <RadialBlurData.h>
 
 #include <StageManager/Stage/Stage.h>
+#include <ParticleEmitter/ParticleEmitter.h>
 
 #include "Sprite/Sprite.h"
-#include "Editor/ParticleEditor/ParticleEditor.h"
 #include "AudioHolder/AudioHolder.h"
+
 #include <array>
 #include <fstream>
 
@@ -26,13 +27,9 @@ private:
 	std::unique_ptr<Sprite> fadeSprite_;
 
 	std::unique_ptr<ParticleEmitter> particle_;
-	std::unique_ptr<ParticleEditor> editor_;
 	std::unique_ptr<ParticleEmitter> particle_2;
-	std::unique_ptr<ParticleEditor> editor_2;
 	std::unique_ptr<ParticleEmitter> particle_3;
-	std::unique_ptr<ParticleEditor> editor_3;
 	std::unique_ptr<ParticleEmitter> particle_4;
-	std::unique_ptr<ParticleEditor> editor_4;
 
 	std::unique_ptr<PrimitiveRing> ring_;
 	SRT ringTransform_;

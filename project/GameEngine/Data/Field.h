@@ -1,5 +1,5 @@
 #pragma once
-#include <Vector3.h>
+#include <SRT.h>
 #include <AABB.h>
 
 struct AccelerationField {

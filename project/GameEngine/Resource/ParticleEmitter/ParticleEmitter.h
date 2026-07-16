@@ -13,13 +13,13 @@ public:
 	void Draw();
 	void Draw_AddBlend();
 
-	void SetEmitter(Emitter emitter);
+	void SetEmitter(EmitterSphere emitterSphere);
 	void SetField(AccelerationField accelerationField);
 	void SetTransform(SRT transform) { transform_ = transform; }
 
 	std::string GetName() { return name_; }
 	SRT GetTransform() { return transform_; }
-	Emitter GetEmitter() { return ParticleManager::GetInstance()->GetParticleGroups()[name_].emitter; }
+	EmitterSphere GetEmitter() { return *ParticleManager::GetInstance()->GetParticleGroups()[name_].emitterSphere; }
 
 private:
 	//名前

@@ -29,6 +29,7 @@
 #include <VertexInfluence.h>
 #include <SkinningInformation.h>
 #include <PerView.h>
+#include <PerFrame.h>
 
 #include <Audio/Audio.h>
 #include "Input/Input.h"
@@ -91,6 +92,7 @@ private:
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> cubemap_RootSignature_;
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> compute_Skinning_RootSignature_;
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> compute_Initialize_Particle_RootSignature_;
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> compute_Emit_Particle_RootSignature_;
 
 	//Windowのメッセージ
 	MSG msg_{};
@@ -117,6 +119,7 @@ private:
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> cubemap_PipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> compute_Skinning_PipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> compute_Initialize_Particle_PipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> compute_Emit_Particle_PipelineState_ = nullptr;
 
 public:
 	//描画可能なモデルの数(通常)
@@ -165,6 +168,10 @@ private:
 	std::array <Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxInstanceIndex > perViewResource_;
 	//インスタンスデータ
 	std::array <PerView*, kMaxInstanceIndex> perViewData_;
+	//インスタンス用リソース
+	Microsoft::WRL::ComPtr<ID3D12Resource> perFrameResource_;
+	//インスタンスデータ
+	PerFrame* perFrameData_;
 	//インスタンス用リソース
 	std::array <Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxInstanceIndex > particleResource_;
 	//インスタンスデータ
@@ -312,7 +319,8 @@ private:
 	void DrawPrimitiveCylinder_Billboard_(PrimitiveCylinder* primitiveCylinder, SRT transform, Material material);
 
 	void ComputeSkinning_(Object* object);
-	void ComputeParticle_(ParticleGroup particleGroup);
+	void Compute_Initialize_Particle_(ParticleGroup particleGroup);
+	void Compute_Emit_Particle_(ParticleGroup particleGroup);
 
 	WindowsAPI* GetWindowsAPI_() { return winApp_.get(); }
 
@@ -418,7 +426,8 @@ public:
 	static void DrawPrimitiveCylinder(PrimitiveCylinder* primitiveCylinder, SRT transform, Material material) { return GetInstance()->DrawPrimitiveCylinder_(primitiveCylinder, transform, material); };
 	static void DrawPrimitiveCylinder_Billboard(PrimitiveCylinder* primitiveCylinder, SRT transform, Material material) { return GetInstance()->DrawPrimitiveCylinder_Billboard_(primitiveCylinder, transform, material); };
 
-	static void ComputeParticle(ParticleGroup particleGroup) { return GetInstance()->ComputeParticle_(particleGroup); }
+	static void Compute_Initialize_Particle(ParticleGroup particleGroup) { return GetInstance()->Compute_Initialize_Particle_(particleGroup); }
+	static void Compute_Emit_Particle(ParticleGroup particleGroup) { return GetInstance()->Compute_Emit_Particle_(particleGroup); }
 
 	[[nodiscard]]
 	static WindowsAPI* GetWindowsAPI() { return GetInstance()->GetWindowsAPI_(); }

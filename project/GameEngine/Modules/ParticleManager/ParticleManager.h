@@ -7,7 +7,7 @@
 #include <VertexData.h>
 #include <Material.h>
 #include <ParticleCS.h>
-#include <Emitter.h>
+#include <EmitterSphere.h>
 #include <Field.h>
 #include <InstancingTransformationMatrix.h>
 #include <Camera/Camera.h>
@@ -17,7 +17,8 @@ using namespace std;
 struct ParticleGroup {
 	std::string TextureFilePath;
 	uint32_t textureIndex = 0;// テクスチャ番号
-	Emitter emitter;
+	Microsoft::WRL::ComPtr<ID3D12Resource> emitterSphereResource;
+	EmitterSphere* emitterSphere;
 	std::vector<AccelerationField> accelerationFields;
 	std::list<ParticleCS> particles;
 	std::shared_ptr<Camera> camera;
@@ -25,6 +26,8 @@ struct ParticleGroup {
 	Microsoft::WRL::ComPtr<ID3D12Resource> instancingResource;
 	uint32_t instancingUAVIndex = 0;
 	uint32_t numInstance = 0;
+	Microsoft::WRL::ComPtr<ID3D12Resource> freeCounterResource;
+	uint32_t freeCounterUAVindex = 0;
 	std::vector <InstancingTransformationMatrix> instancingData;
 };
 
@@ -82,7 +85,7 @@ public:
 
 	void Emit(const std::string name, SRT transform, uint32_t count);
 
-	void SetEmitter(const std::string name, Emitter emitter);
+	void SetEmitter(const std::string name, EmitterSphere emitterSphere);
 	void SetField(const std::string name, AccelerationField accelerationField);
 	void SetCamera(const std::string name, std::shared_ptr<Camera> camera);
 

@@ -49,12 +49,11 @@ void Stage::Initialize(StageData stageData, std::shared_ptr<Input> input) {
 	BossBullet::SetPointLight(pointLight_);
 	BreakObject::SetPointLight(pointLight_);
 
-	ParticleManager::GetInstance()->CreateParticleGroup("Particle_Sandstorm", "resources/Particle/sand.png");
+	/*ParticleManager::GetInstance()->CreateParticleGroup("Particle_Sandstorm", "resources/Particle/sand.png");
 	particle_ = std::make_unique<ParticleEmitter>("Particle_Sandstorm");
 
-	Emitter emitter;
+	EmitterSphere emitter;
 	emitter.count = 2;
-	emitter.lifeTime = 3.0f;
 	emitter.frequency = 0.1f;
 	emitter.frequencyTime = 0.0f;
 	emitter.spawnRange.min = { -5.0f,-0.5f,-50.0f };
@@ -141,7 +140,7 @@ void Stage::Initialize(StageData stageData, std::shared_ptr<Input> input) {
 	emitterTransform_4.scale = { 3.0f,3.0f,3.0f };
 	emitterTransform_4.rotate = { 0.0f,0.0f,0.0f };
 	emitterTransform_4.translate = { 0.0f,0.0f,0.0f };
-	particle_4->SetTransform(emitterTransform_4);
+	particle_4->SetTransform(emitterTransform_4);*/
 
 	//背景
 	backGround_ = std::make_unique<BackGround>();
@@ -430,14 +429,14 @@ void Stage::AddPlayerBullet(Vector3 translate, Vector3 rotate) {
 
 	pointLightElement_.intensity = 1.0f;
 
-	SRT transform = particle_2->GetTransform();
-	Emitter emitter = particle_2->GetEmitter();
+	/*SRT transform = particle_2->GetTransform();
+	Emit emitter = particle_2->GetEmitter();
 	transform.translate = pointLightElement_.position;
 	emitter.angleBase = Normalize(rotateMatrix * Vector3(0.0f, 0.0f, 0.8f) + Vector3(0.0f, 1.0f, 0.0f));
 	particle_2->SetTransform(transform);
 	particle_2->SetEmitter(emitter);
 
-	particle_2->Emit();
+	particle_2->Emit();*/
 
 	AudioHolder::GetInstance()->GetAudio(AudioIndex::Shot_SE).lock()->SoundPlayWave();
 }
@@ -453,14 +452,14 @@ void Stage::AddBossBullet(Vector3 translate, Vector3 rotate) {
 
 	pointLightElement_.intensity = 1.0f;
 
-	SRT transform = particle_2->GetTransform();
+	/*SRT transform = particle_2->GetTransform();
 	Emitter emitter = particle_2->GetEmitter();
 	transform.translate = pointLightElement_.position;
 	emitter.angleBase = Normalize(rotateMatrix * Vector3(0.0f, 0.0f, 0.8f) + Vector3(0.0f, 1.0f, 0.0f));
 	particle_2->SetTransform(transform);
 	particle_2->SetEmitter(emitter);
 
-	particle_2->Emit();
+	particle_2->Emit();*/
 
 	AudioHolder::GetInstance()->GetAudio(AudioIndex::Shot_SE).lock()->SoundPlayWave();
 }

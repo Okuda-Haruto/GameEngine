@@ -113,8 +113,9 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 	particleGroup.TextureFilePath = textureFilePath;
 	particleGroup.textureIndex = TextureManager::GetInstance()->GetSrvIndex(textureFilePath);
 	particleGroup.camera = Object::GetDefaultCamera();
+	particleGroup.emitterSphereResource = dxCommon_->CreateBufferResources(sizeof(EmitterSphere));
 
-	// instancing 用リソースを maxInstances 分確保する（sizeof(Particles) * kMaxParticle）
+	// instancing 用リソースを kMaxParticle 分確保する（sizeof(ParticleCS) * kMaxParticle）
 	particleGroup.instancingResource = dxCommon_->CreateOutputResources(sizeof(ParticleCS) * kMaxParticle);
 
 	particleGroup.instancingIndex = srvManager_->Allocate();
@@ -124,25 +125,34 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 	// SRV を作成（NumElements と stride は一致させる）
 	srvManager_->CreateSRVforStructuredBuffer(particleGroup.instancingIndex, particleGroup.instancingResource.Get(), kMaxParticle, sizeof(ParticleCS));
 	srvManager_->CreateUAVforStructuredBuffer(particleGroup.instancingUAVIndex, particleGroup.instancingResource.Get(), kMaxParticle, sizeof(ParticleCS));
+
+	// パーティクル数 用リソースを kMaxParticle 分確保する（sizeof(int32_t) * kMaxParticle）
+	particleGroup.freeCounterResource = dxCommon_->CreateOutputResources(sizeof(int32_t) * kMaxParticle);
+
+	particleGroup.freeCounterUAVindex = srvManager_->Allocate();
+
+	srvManager_->CreateUAVforStructuredBuffer(particleGroup.freeCounterUAVindex, particleGroup.freeCounterResource.Get(), kMaxParticle, sizeof(int32_t));
+
+	GameEngine::Compute_Initialize_Particle(particleGroup);
 }
 
 void ParticleManager::Emit(const std::string name, SRT transform, uint32_t count) {
 	//読み込み済みテクスチャを検索
 	if (particleGroups.contains(name)) {
-		for (uint32_t i = 0; i < count; i++) {
+		
+		GameEngine::Compute_Emit_Particle(particleGroups[name]);
 
-			if (i > GameEngine::kMaxNumInstance) {
-				break;
-			}
-			
-		}
 	}
 }
 
-void ParticleManager::SetEmitter(const std::string name, Emitter emitter) {
+void ParticleManager::SetEmitter(const std::string name, EmitterSphere emitterSphere) {
 	//読み込み済みテクスチャを検索
 	if (particleGroups.contains(name)) {
-		particleGroups[name].emitter = emitter;
+		particleGroups[name].emitterSphereResource->Map(0, nullptr, reinterpret_cast<void**>(&particleGroups[name].emitterSphere));
+
+		*particleGroups[name].emitterSphere = emitterSphere;
+
+		particleGroups[name].emitterSphereResource->Unmap(0, nullptr);
 	}
 }
 

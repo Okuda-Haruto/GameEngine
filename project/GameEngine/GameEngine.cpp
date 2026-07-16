@@ -143,6 +143,7 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	cubemap_RootSignature_ = dxCommon_->Cubemap_RootSignatureInitialvalue();
 	compute_Skinning_RootSignature_ = dxCommon_->Compute_Skinning_RootSignatureInitialvalue();
 	compute_Initialize_Particle_RootSignature_ = dxCommon_->Compute_Initialize_Particle_RootSignatureInitialvalue();
+	compute_Emit_Particle_RootSignature_ = dxCommon_->Compute_Emit_Particle_RootSignatureInitialvalue();
 
 	//Shaderをコンパイルする
 	Microsoft::WRL::ComPtr<IDxcBlob> Object3DVertexShaderBlob = dxCommon_->CompileShader(L"./resources/Shader/Object3D.VS.hlsl", L"vs_6_0");
@@ -192,7 +193,9 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	Microsoft::WRL::ComPtr<IDxcBlob> SkinningCSBlob = dxCommon_->CompileShader(L"./resources/Shader/Skinning.CS.hlsl", L"cs_6_0");
 	assert(SkinningCSBlob != nullptr);
 	Microsoft::WRL::ComPtr<IDxcBlob> InitializePartilceCSBlob = dxCommon_->CompileShader(L"./resources/Shader/InitializeParticle.CS.hlsl", L"cs_6_0");
-	assert(SkinningCSBlob != nullptr);
+	assert(InitializePartilceCSBlob != nullptr);
+	Microsoft::WRL::ComPtr<IDxcBlob> EmitPartilceCSBlob = dxCommon_->CompileShader(L"./resources/Shader/EmitParticle.CS.hlsl", L"cs_6_0");
+	assert(EmitPartilceCSBlob != nullptr);
 
 	//PSOを生成
 	object3D_PipelineState_ = Triangle_PipelineStateInitialvalue(device_, object_RootSignature_, Object3DVertexShaderBlob.Get(), Object3DPixelShaderBlob.Get());
@@ -216,6 +219,7 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	cubemap_PipelineState_ = Cubemap_PipelineStateInitialvalue(device_, cubemap_RootSignature_, CubemapVSBlob.Get(), CubemapPSBlob.Get());
 	compute_Skinning_PipelineState_ = Compute_PipelineStateInitialvalue(device_, compute_Skinning_RootSignature_, SkinningCSBlob.Get());
 	compute_Initialize_Particle_PipelineState_ = Compute_PipelineStateInitialvalue(device_, compute_Initialize_Particle_RootSignature_, InitializePartilceCSBlob.Get());
+	compute_Emit_Particle_PipelineState_ = Compute_PipelineStateInitialvalue(device_, compute_Emit_Particle_RootSignature_, EmitPartilceCSBlob.Get());
 	//XAudioエンジンのインスタンスを生成
 	hr = XAudio2Create(&xAudio2_, 0, XAUDIO2_DEFAULT_PROCESSOR);
 	assert(SUCCEEDED(hr));
@@ -310,6 +314,12 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	for (int i = 0; i < kMaxInstanceIndex; i++) {
 		perViewResource_[i] = dxCommon_->CreateBufferResources(sizeof(PerView));
 	}
+
+	perFrameResource_ = dxCommon_->CreateBufferResources(sizeof(PerFrame));
+
+	perFrameResource_->Map(0, nullptr, reinterpret_cast<void**>(&perFrameData_));
+	perFrameData_->time = 0;
+	perFrameResource_->Unmap(0, nullptr);
 }
 
 
@@ -924,7 +934,7 @@ void GameEngine::DrawParticle_(ParticleGroup particleGroup) {
 	//上限に達していたら描画しない
 	if (particleIndex_ > kMaxInstanceIndex)return;
 
-	ComputeParticle(particleGroup);
+	Compute_Emit_Particle_(particleGroup);
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList_->SetGraphicsRootSignature(particle_RootSignature_.Get());
@@ -992,7 +1002,7 @@ void GameEngine::DrawParticle_AddBlend_(ParticleGroup particleGroup) {
 	//上限に達していたら描画しない
 	if (particleIndex_ > kMaxInstanceIndex)return;
 
-	ComputeParticle(particleGroup);
+	Compute_Emit_Particle_(particleGroup);
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList_->SetGraphicsRootSignature(particle_RootSignature_.Get());
@@ -2142,7 +2152,6 @@ void GameEngine::ComputeSkinning_(Object* object) {
 
 	commandList_->SetComputeRootConstantBufferView(4, objectSkinningInformationResource_[boneIndex_].Get()->GetGPUVirtualAddress());
 
-	//描画(DrawCall)(頂点は勝手に入るのでIndexedじゃない)
 	commandList_->Dispatch(UINT(object->GetVertexIndex() + 1023) / 1024, 1, 1);
 
 
@@ -2165,11 +2174,13 @@ void GameEngine::ComputeSkinning_(Object* object) {
 
 }
 
-void GameEngine::ComputeParticle_(ParticleGroup particleGroup) {
+void GameEngine::Compute_Initialize_Particle_(ParticleGroup particleGroup) {
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList_->SetComputeRootSignature(compute_Initialize_Particle_RootSignature_.Get());
 	commandList_->SetPipelineState(compute_Initialize_Particle_PipelineState_.Get());	//PSOを設定
+
+	srvManager_->SetDescriptorHeap();
 
 	// UAV -> VertexBuffer
 	D3D12_RESOURCE_BARRIER barrier{};
@@ -2179,12 +2190,20 @@ void GameEngine::ComputeParticle_(ParticleGroup particleGroup) {
 	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
 	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
 	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+	commandList_->ResourceBarrier(1, &barrier);
 
+	barrier = {};
+	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	barrier.Transition.pResource = particleGroup.freeCounterResource.Get();
+	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
+	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 	commandList_->ResourceBarrier(1, &barrier);
 
 	commandList_->SetComputeRootDescriptorTable(0, srvManager_->GetGPUDescriptorHandle(particleGroup.instancingUAVIndex));
+	commandList_->SetComputeRootDescriptorTable(1, srvManager_->GetGPUDescriptorHandle(particleGroup.freeCounterUAVindex));
 
-	//描画(DrawCall)(頂点は勝手に入るのでIndexedじゃない)
 	commandList_->Dispatch(1, 1, 1);
 
 	// UAV -> VertexBuffer
@@ -2195,6 +2214,75 @@ void GameEngine::ComputeParticle_(ParticleGroup particleGroup) {
 	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
 	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
 	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+	commandList_->ResourceBarrier(1, &barrier);
 
+	barrier = {};
+	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	barrier.Transition.pResource = particleGroup.freeCounterResource.Get();
+	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
+	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+	commandList_->ResourceBarrier(1, &barrier);
+}
+
+void GameEngine::Compute_Emit_Particle_(ParticleGroup particleGroup) {
+
+	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
+	commandList_->SetComputeRootSignature(compute_Emit_Particle_RootSignature_.Get());
+	commandList_->SetPipelineState(compute_Emit_Particle_PipelineState_.Get());	//PSOを設定
+
+	// UAV -> VertexBuffer
+	D3D12_RESOURCE_BARRIER barrier{};
+	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	barrier.Transition.pResource = particleGroup.instancingResource.Get();
+	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
+	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+	commandList_->ResourceBarrier(1, &barrier);
+
+	barrier = {};
+	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	barrier.Transition.pResource = particleGroup.freeCounterResource.Get();
+	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
+	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+	commandList_->ResourceBarrier(1, &barrier);
+
+	commandList_->SetComputeRootDescriptorTable(0, srvManager_->GetGPUDescriptorHandle(particleGroup.instancingUAVIndex));
+	commandList_->SetComputeRootDescriptorTable(1, srvManager_->GetGPUDescriptorHandle(particleGroup.freeCounterUAVindex));
+
+	commandList_->SetComputeRootConstantBufferView(2, particleGroup.emitterSphereResource->GetGPUVirtualAddress());
+
+	perFrameResource_->Map(0, nullptr, reinterpret_cast<void**>(&perFrameData_));
+
+	perFrameData_->deltaTime = GetDeltaTime();
+	perFrameData_->time += perFrameData_->deltaTime;
+
+	perFrameResource_->Unmap(0, nullptr);
+
+	commandList_->SetComputeRootConstantBufferView(3, perFrameResource_->GetGPUVirtualAddress());
+
+	commandList_->Dispatch(1, 1, 1);
+
+	// UAV -> VertexBuffer
+	barrier = {};
+	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	barrier.Transition.pResource = particleGroup.instancingResource.Get();
+	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
+	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+	commandList_->ResourceBarrier(1, &barrier);
+
+	barrier = {};
+	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	barrier.Transition.pResource = particleGroup.freeCounterResource.Get();
+	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
+	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 	commandList_->ResourceBarrier(1, &barrier);
 }

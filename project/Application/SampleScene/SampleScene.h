@@ -28,9 +28,7 @@ private:
 	// 3Dモデルデータ
 	std::array<SRT, 7> objectTransform_;
 
-	Emitter emitter_;
-	AccelerationField accelerationField_;
-	SRT particleTransform_;
+	EmitterSphere emitterSphere_;
 	std::unique_ptr<ParticleEmitter> particleEmitter_ = nullptr;
 
 	std::unique_ptr<PrimitiveRing> ring_;

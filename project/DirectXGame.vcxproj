@@ -90,7 +90,6 @@
     <ClCompile Include="GameEngine\DebugTool\ExportDump.cpp" />
     <ClCompile Include="GameEngine\DebugTool\ImGuiManager\ImGuiManager.cpp" />
     <ClCompile Include="GameEngine\DebugTool\Log.cpp" />
-    <ClCompile Include="GameEngine\Editor\ParticleEditor\ParticleEditor.cpp" />
     <ClCompile Include="GameEngine\LoadFile\LoadGLTFFile.cpp" />
     <ClCompile Include="GameEngine\Math\LerpKeyFrame\LerpKeyFrame.cpp" />
     <ClCompile Include="GameEngine\Math\Operation\Operation.cpp" />
@@ -173,6 +172,7 @@
     <ClInclude Include="GameEngine\Data\ColorChange.h" />
     <ClInclude Include="GameEngine\Data\DissolveData.h" />
     <ClInclude Include="GameEngine\Data\Emitter.h" />
+    <ClInclude Include="GameEngine\Data\EmitterSphere.h" />
     <ClInclude Include="GameEngine\Data\Field.h" />
     <ClInclude Include="GameEngine\Data\Fog.h" />
     <ClInclude Include="GameEngine\Data\GPURandomSeed.h" />
@@ -186,6 +186,7 @@
     <ClInclude Include="GameEngine\Data\BoneMatrix.h" />
     <ClInclude Include="GameEngine\Data\ParticleCS.h" />
     <ClInclude Include="GameEngine\Data\Parts.h" />
+    <ClInclude Include="GameEngine\Data\PerFrame.h" />
     <ClInclude Include="GameEngine\Data\PointLightElement.h" />
     <ClInclude Include="GameEngine\Data\RadialBlurData.h" />
     <ClInclude Include="GameEngine\Data\SkinningInformation.h" />
@@ -195,7 +196,6 @@
     <ClInclude Include="GameEngine\Data\VertexInfluence.h" />
     <ClInclude Include="GameEngine\Data\VignetteData.h" />
     <ClInclude Include="GameEngine\DebugTool\ImGuiManager\ImGuiManager.h" />
-    <ClInclude Include="GameEngine\Editor\ParticleEditor\ParticleEditor.h" />
     <ClInclude Include="GameEngine\Factory\AbstractSceneFactory\AbstractSceneFactory.h" />
     <ClInclude Include="GameEngine\LoadFile\JsonUtils.h" />
     <ClInclude Include="GameEngine\LoadFile\LoadGLTFFile.h" />
@@ -282,6 +282,17 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="resources\Shader\EmitParticle.CS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Development|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Development|x64'">4.0</ShaderModel>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
     <FxCompile Include="resources\Shader\InitializeParticle.CS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>

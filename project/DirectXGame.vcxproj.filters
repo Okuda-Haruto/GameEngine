@@ -79,6 +79,9 @@
     <FxCompile Include="resources\Shader\InitializeParticle.CS.hlsl">
       <Filter>GameEngine\Shader</Filter>
     </FxCompile>
+    <FxCompile Include="resources\Shader\EmitParticle.CS.hlsl">
+      <Filter>GameEngine\Shader</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -195,9 +198,6 @@
     </ClCompile>
     <ClCompile Include="GameEngine\DebugTool\ImGuiManager\ImGuiManager.cpp">
       <Filter>GameEngine\DebugTool\ImGuiManager</Filter>
-    </ClCompile>
-    <ClCompile Include="GameEngine\Editor\ParticleEditor\ParticleEditor.cpp">
-      <Filter>GameEngine\Editor</Filter>
     </ClCompile>
     <ClCompile Include="GameEngine\Math\Operation\Operation.cpp">
       <Filter>GameEngine\Math\Operation</Filter>
@@ -507,9 +507,6 @@
     <ClInclude Include="GameEngine\DebugTool\ImGuiManager\ImGuiManager.h">
       <Filter>GameEngine\DebugTool\ImGuiManager</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\Editor\ParticleEditor\ParticleEditor.h">
-      <Filter>GameEngine\Editor</Filter>
-    </ClInclude>
     <ClInclude Include="GameEngine\Math\Operation\Operation.h">
       <Filter>GameEngine\Math\Operation</Filter>
     </ClInclude>
@@ -696,6 +693,12 @@
     <ClInclude Include="GameEngine\Data\PerView.h">
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
+    <ClInclude Include="GameEngine\Data\EmitterSphere.h">
+      <Filter>GameEngine\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Data\PerFrame.h">
+      <Filter>GameEngine\Data</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -856,9 +859,6 @@
     </Filter>
     <Filter Include="GameEngine\LoadFile\GLTF">
       <UniqueIdentifier>{247048d6-d430-4237-9e90-0b89364d0db5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GameEngine\Editor">
-      <UniqueIdentifier>{c35b57a5-245b-4abc-bf2f-b0d4cd4e04ba}</UniqueIdentifier>
     </Filter>
     <Filter Include="GameEngine\Math\Operation">
       <UniqueIdentifier>{4b389da2-57a0-43b5-bc5d-3eebca42f631}</UniqueIdentifier>

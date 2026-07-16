@@ -50,6 +50,8 @@ public:
 	void PreDraw();
 	void RenderPreDraw(std::string textureName);
 
+	void SetDescriptorHeap();
+
 	//SRVセット
 	void SetGraphicsRootDescriptorTable(UINT RootParameterIndex, uint32_t srvIndex);
 

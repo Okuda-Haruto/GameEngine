@@ -144,6 +144,12 @@ void SRVManager::RenderPreDraw(std::string textureName) {
 	dxCommon_->RenderPreDraw(textureName);
 }
 
+void SRVManager::SetDescriptorHeap() {
+	//描画用のDescriptorHeapの設定
+	ID3D12DescriptorHeap* descriptorHeaps[] = { descriptorHeap_.Get() };
+	dxCommon_->GetCommandList()->SetDescriptorHeaps(1, descriptorHeaps);
+}
+
 void SRVManager::SetGraphicsRootDescriptorTable(UINT RootParameterIndex, uint32_t srvIndex) {
 	dxCommon_->GetCommandList()->SetGraphicsRootDescriptorTable(RootParameterIndex, GetGPUDescriptorHandle(srvIndex));
 }
