@@ -82,17 +82,11 @@
     <ClCompile Include="Application\BackGround\Skydome\Skydome.cpp">
       <Filter>Application\BackGround\Skydome</Filter>
     </ClCompile>
-    <ClCompile Include="Application\Bullet\BaseBullet.cpp">
-      <Filter>Application\Bullet</Filter>
+    <ClCompile Include="Application\Entity\Boss\Boss.cpp">
+      <Filter>Application\Entity\Boss</Filter>
     </ClCompile>
-    <ClCompile Include="Application\Character\BaseCharacter.cpp">
-      <Filter>Application\Character</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Character\Boss\Boss.cpp">
-      <Filter>Application\Character\Boss</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Character\Player\Player.cpp">
-      <Filter>Application\Character\Player</Filter>
+    <ClCompile Include="Application\Entity\Player\Player.cpp">
+      <Filter>Application\Entity\Player</Filter>
     </ClCompile>
     <ClCompile Include="Application\GameCamera\GameCamera.cpp">
       <Filter>Application\GameCamera</Filter>
@@ -175,8 +169,8 @@
     <ClCompile Include="Application\GameManager\BaseScene\TitleScene\TitleScene.cpp">
       <Filter>Application\GameManager\BaseScene\TitleScene</Filter>
     </ClCompile>
-    <ClCompile Include="Application\Character\Item\Item.cpp">
-      <Filter>Application\Character\Item</Filter>
+    <ClCompile Include="Application\Entity\Item\Item.cpp">
+      <Filter>Application\Entity\Item</Filter>
     </ClCompile>
     <ClCompile Include="GameEngine\Modules\AudioManager\AudioManager.cpp">
       <Filter>GameEngine\Modules\AudioManager</Filter>
@@ -193,14 +187,11 @@
     <ClCompile Include="GameEngine\Math\Operation\Operation.cpp">
       <Filter>GameEngine\Math\Operation</Filter>
     </ClCompile>
-    <ClCompile Include="GameEngine\Modules\PrimitiveManager\Primitive3DManager.cpp">
+    <ClCompile Include="GameEngine\Modules\PrimitiveManager\PrimitiveManager.cpp">
       <Filter>GameEngine\Modules\PrimitiveManager</Filter>
     </ClCompile>
     <ClCompile Include="Application\BackGround\Fence\Fence.cpp">
       <Filter>Application\BackGround\Fence</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Bullet\BossBullet\BossBullet.cpp">
-      <Filter>Application\Bullet\BossBullet</Filter>
     </ClCompile>
     <ClCompile Include="Application\GameManager\SceneManager\SceneManager.cpp">
       <Filter>Application\GameManager\SceneManager</Filter>
@@ -247,8 +238,8 @@
     <ClCompile Include="GameEngine\Modules\Animation\Animation.cpp">
       <Filter>GameEngine\Modules\Animation</Filter>
     </ClCompile>
-    <ClCompile Include="Application\ColliderObject\ColliderObject.cpp">
-      <Filter>Application\ColiderObject</Filter>
+    <ClCompile Include="Application\Entity\ColliderObject\ColliderObject.cpp">
+      <Filter>Application\Entity\ColiderObject</Filter>
     </ClCompile>
     <ClCompile Include="GameEngine\Modules\PrimitiveManager\PrimitiveBox.cpp">
       <Filter>GameEngine\Modules\PrimitiveManager</Filter>
@@ -283,20 +274,26 @@
     <ClCompile Include="GameEngine\Modules\PrimitiveManager\PrimitiveCylinder.cpp">
       <Filter>GameEngine\Modules\PrimitiveManager</Filter>
     </ClCompile>
-    <ClCompile Include="Application\Character\BreakObject\BreakObject.cpp">
-      <Filter>Application\Character\BreakObject</Filter>
+    <ClCompile Include="Application\Entity\BreakObject\BreakObject.cpp">
+      <Filter>Application\Entity\BreakObject</Filter>
     </ClCompile>
     <ClCompile Include="GameEngine\Math\PushOut\PushOut.cpp">
       <Filter>GameEngine\Math\PushOut</Filter>
     </ClCompile>
-    <ClCompile Include="Application\Bullet\BossBullet\Bomb\Bomb.cpp">
-      <Filter>Application\Bullet\BossBullet\Bomb</Filter>
+    <ClCompile Include="Application\Entity\Bomb\Bomb.cpp">
+      <Filter>Application\Entity\Bomb</Filter>
     </ClCompile>
-    <ClCompile Include="Application\Bullet\BossBullet\ShockWave\ShockWave.cpp">
-      <Filter>Application\Bullet\BossBullet\ShockWave</Filter>
+    <ClCompile Include="Application\Entity\ShockWave\ShockWave.cpp">
+      <Filter>Application\Entity\ShockWave</Filter>
     </ClCompile>
-    <ClCompile Include="Application\Bullet\PlayerBullet\PlayerBullet.cpp">
-      <Filter>Application\Bullet\PlayerBullet</Filter>
+    <ClCompile Include="Application\Entity\Bullet\Bullet.cpp">
+      <Filter>Application\Entity\Bullet</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Entity\BaseEntity.cpp">
+      <Filter>Application\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Event\Event.cpp">
+      <Filter>Application\Event</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -306,17 +303,11 @@
     <ClInclude Include="Application\BackGround\Skydome\Skydome.h">
       <Filter>Application\BackGround\Skydome</Filter>
     </ClInclude>
-    <ClInclude Include="Application\Bullet\BaseBullet.h">
-      <Filter>Application\Bullet</Filter>
+    <ClInclude Include="Application\Entity\Boss\Boss.h">
+      <Filter>Application\Entity\Boss</Filter>
     </ClInclude>
-    <ClInclude Include="Application\Character\BaseCharacter.h">
-      <Filter>Application\Character</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Character\Boss\Boss.h">
-      <Filter>Application\Character\Boss</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Character\Player\Player.h">
-      <Filter>Application\Character\Player</Filter>
+    <ClInclude Include="Application\Entity\Player\Player.h">
+      <Filter>Application\Entity\Player</Filter>
     </ClInclude>
     <ClInclude Include="Application\GameCamera\GameCamera.h">
       <Filter>Application\GameCamera</Filter>
@@ -495,8 +486,8 @@
     <ClInclude Include="Application\Collider\SphereCollider.h">
       <Filter>Application\Collider</Filter>
     </ClInclude>
-    <ClInclude Include="Application\Character\Item\Item.h">
-      <Filter>Application\Character\Item</Filter>
+    <ClInclude Include="Application\Entity\Item\Item.h">
+      <Filter>Application\Entity\Item</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\Modules\AudioManager\AudioManager.h">
       <Filter>GameEngine\Modules\AudioManager</Filter>
@@ -516,14 +507,11 @@
     <ClInclude Include="GameEngine\Math\Operation\Operation.h">
       <Filter>GameEngine\Math\Operation</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\Modules\PrimitiveManager\Primitive3DManager.h">
+    <ClInclude Include="GameEngine\Modules\PrimitiveManager\PrimitiveManager.h">
       <Filter>GameEngine\Modules\PrimitiveManager</Filter>
     </ClInclude>
     <ClInclude Include="Application\BackGround\Fence\Fence.h">
       <Filter>Application\BackGround\Fence</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Bullet\BossBullet\BossBullet.h">
-      <Filter>Application\Bullet\BossBullet</Filter>
     </ClInclude>
     <ClInclude Include="Application\GameManager\SceneManager\SceneManager.h">
       <Filter>Application\GameManager\SceneManager</Filter>
@@ -612,8 +600,8 @@
     <ClInclude Include="GameEngine\Math\Shape\Circle.h">
       <Filter>GameEngine\Math\Shape</Filter>
     </ClInclude>
-    <ClInclude Include="Application\ColliderObject\ColliderObject.h">
-      <Filter>Application\ColiderObject</Filter>
+    <ClInclude Include="Application\Entity\ColliderObject\ColliderObject.h">
+      <Filter>Application\Entity\ColiderObject</Filter>
     </ClInclude>
     <ClInclude Include="Application\Collider\CollisionID.h">
       <Filter>Application\Collider</Filter>
@@ -684,8 +672,8 @@
     <ClInclude Include="GameEngine\Modules\PrimitiveManager\PrimitiveCylinder.h">
       <Filter>GameEngine\Modules\PrimitiveManager</Filter>
     </ClInclude>
-    <ClInclude Include="Application\Character\BreakObject\BreakObject.h">
-      <Filter>Application\Character\BreakObject</Filter>
+    <ClInclude Include="Application\Entity\BreakObject\BreakObject.h">
+      <Filter>Application\Entity\BreakObject</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\Math\Shape\Capsule.h">
       <Filter>GameEngine\Math\Shape</Filter>
@@ -696,14 +684,20 @@
     <ClInclude Include="GameEngine\Math\PushOut\PushOut.h">
       <Filter>GameEngine\Math\PushOut</Filter>
     </ClInclude>
-    <ClInclude Include="Application\Bullet\BossBullet\Bomb\Bomb.h">
-      <Filter>Application\Bullet\BossBullet\Bomb</Filter>
+    <ClInclude Include="Application\Entity\Bomb\Bomb.h">
+      <Filter>Application\Entity\Bomb</Filter>
     </ClInclude>
-    <ClInclude Include="Application\Bullet\BossBullet\ShockWave\ShockWave.h">
-      <Filter>Application\Bullet\BossBullet\ShockWave</Filter>
+    <ClInclude Include="Application\Entity\ShockWave\ShockWave.h">
+      <Filter>Application\Entity\ShockWave</Filter>
     </ClInclude>
-    <ClInclude Include="Application\Bullet\PlayerBullet\PlayerBullet.h">
-      <Filter>Application\Bullet\PlayerBullet</Filter>
+    <ClInclude Include="Application\Entity\Bullet\Bullet.h">
+      <Filter>Application\Entity\Bullet</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Entity\BaseEntity.h">
+      <Filter>Application\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Event\Event.h">
+      <Filter>Application\Event</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -739,12 +733,6 @@
     </Filter>
     <Filter Include="Application\BackGround">
       <UniqueIdentifier>{e309db45-ad38-4d1b-bebf-41b07c47dc28}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\Bullet">
-      <UniqueIdentifier>{9729b52e-e5bf-4191-828b-59e12b459e7e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\Bullet\PlayerBullet">
-      <UniqueIdentifier>{be182511-9de2-4847-84ef-cc20be4131ea}</UniqueIdentifier>
     </Filter>
     <Filter Include="Application\GameCamera">
       <UniqueIdentifier>{8af3a526-46a8-4b26-b723-299e8ef772f1}</UniqueIdentifier>
@@ -845,18 +833,6 @@
     <Filter Include="Application\Collider">
       <UniqueIdentifier>{f99949b4-9574-4f36-ab7a-53efbffa63e0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Application\Character">
-      <UniqueIdentifier>{f7e7b00b-95d3-419b-ae9f-9f2fcc68a66c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\Character\Boss">
-      <UniqueIdentifier>{2530ba28-a9db-4654-acff-c27e512d4cbe}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\Character\Player">
-      <UniqueIdentifier>{d12b4d77-761f-4894-bbe9-30f98d7dbaf8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\Character\Item">
-      <UniqueIdentifier>{069b990c-aa2e-47d1-bc02-5aa29ac2ebc3}</UniqueIdentifier>
-    </Filter>
     <Filter Include="GameEngine\Modules\AudioManager">
       <UniqueIdentifier>{e8df6498-259c-487e-a53f-0d6e757ff025}</UniqueIdentifier>
     </Filter>
@@ -871,9 +847,6 @@
     </Filter>
     <Filter Include="GameEngine\Math\Operation">
       <UniqueIdentifier>{4b389da2-57a0-43b5-bc5d-3eebca42f631}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\Bullet\BossBullet">
-      <UniqueIdentifier>{4aa5fe03-41ea-49c0-94d6-731469498c92}</UniqueIdentifier>
     </Filter>
     <Filter Include="GameEngine\Factory">
       <UniqueIdentifier>{f6a8960a-68c9-4af8-9582-b66f0d2c11da}</UniqueIdentifier>
@@ -923,9 +896,6 @@
     <Filter Include="GameEngine\Modules\PrimitiveManager">
       <UniqueIdentifier>{f6336c19-5f0e-4227-84d0-ef1f2364fa48}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Application\ColiderObject">
-      <UniqueIdentifier>{58bafceb-5255-4031-8a16-a8b99ea52f05}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Application\GameManager\SceneManager">
       <UniqueIdentifier>{3727cc7c-0eb3-4bc1-9cd4-2b96d97824aa}</UniqueIdentifier>
     </Filter>
@@ -974,17 +944,38 @@
     <Filter Include="GameEngine\LoadFile\Json">
       <UniqueIdentifier>{e588f98e-a94f-4526-bd5c-c3eeb1db66ef}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Application\Character\BreakObject">
-      <UniqueIdentifier>{3dcb621a-1c29-428e-816a-34a28f1ac1aa}</UniqueIdentifier>
-    </Filter>
     <Filter Include="GameEngine\Math\PushOut">
       <UniqueIdentifier>{5a2c6a70-96f3-4144-a7ab-1cf51f0325ec}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Application\Bullet\BossBullet\Bomb">
+    <Filter Include="Application\Entity">
+      <UniqueIdentifier>{046419c4-bc4f-461a-a8fb-cadfc28f02b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Entity\Bullet">
+      <UniqueIdentifier>{9729b52e-e5bf-4191-828b-59e12b459e7e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Entity\ColiderObject">
+      <UniqueIdentifier>{58bafceb-5255-4031-8a16-a8b99ea52f05}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Entity\Bomb">
       <UniqueIdentifier>{71b276ab-acfe-44fd-bb69-e7458046ad42}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Application\Bullet\BossBullet\ShockWave">
+    <Filter Include="Application\Entity\ShockWave">
       <UniqueIdentifier>{dd502589-f4d3-4b45-a727-b8b3b7c16930}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Entity\Boss">
+      <UniqueIdentifier>{2530ba28-a9db-4654-acff-c27e512d4cbe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Entity\BreakObject">
+      <UniqueIdentifier>{3dcb621a-1c29-428e-816a-34a28f1ac1aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Entity\Item">
+      <UniqueIdentifier>{069b990c-aa2e-47d1-bc02-5aa29ac2ebc3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Entity\Player">
+      <UniqueIdentifier>{d12b4d77-761f-4894-bbe9-30f98d7dbaf8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Event">
+      <UniqueIdentifier>{73f183dd-332d-4161-9735-1c11cd7b4bb1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

@@ -1,6 +1,6 @@
 #include "HUD.h"
 #include <ModelHolder/ModelHolder.h>
-#include <Character/Player/Player.h>
+#include <Entity/Player/Player.h>
 #include <numbers>
 
 void HUD::Initialize(std::shared_ptr<DirectionalLight> directionalLight, Player* player) {

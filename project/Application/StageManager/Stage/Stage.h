@@ -3,12 +3,15 @@
 #include <GameCamera/GameCamera.h>
 #include <DebugCamera.h>
 #include <BackGround/BackGround.h>
-#include <Character/Player/Player.h>
-#include <Character/Boss/Boss.h>
-#include <Bullet/PlayerBullet/PlayerBullet.h>
-#include <Bullet/BossBullet/BossBullet.h>
-#include <Character/BreakObject/BreakObject.h>
-#include <ColliderObject/ColliderObject.h>
+#include <Entity/Player/Player.h>
+#include <Entity/Boss/Boss.h>
+#include <Entity/Bullet/Bullet.h>
+#include <Entity/Bomb/Bomb.h>
+#include <Entity/ShockWave/ShockWave.h>
+#include <Entity/Item/Item.h>
+#include <Entity/BreakObject/BreakObject.h>
+#include <Entity/ColliderObject/ColliderObject.h>
+#include <Event/Event.h>
 #include <HUD/HUD.h>
 #include "../StageManager.h"
 
@@ -31,8 +34,12 @@ protected:
 	std::unique_ptr<Player> player_;
 	std::unique_ptr<Boss> boss_;
 	//弾
-	std::list<std::unique_ptr<PlayerBullet>> playerBullets_;
-	std::list<std::unique_ptr<BossBullet>> bossBullets_;
+	std::list<std::unique_ptr<Bullet>> bullets_;
+	std::list<std::unique_ptr<Bomb>> bombs_;
+	std::list<std::unique_ptr<ShockWave>> shockWaves_;
+
+	//アイテム
+	std::list<std::unique_ptr<Item>> items_;
 
 	//破壊可能オブジェクト
 	std::list<std::unique_ptr<BreakObject>> breakObjects_;
@@ -102,9 +109,13 @@ public:
 	Vector3 MoveWithCollision(SphereCollider& collider, Vector3 velocity);
 
 	//後でクォータニオンにしたい
-	void AddPlayerBullet(Vector3 translate, Vector3 rotate);
-	void AddBossBullet(Vector3 translate, Vector3 rotate);
-	void AddBreakObject(std::string directoryPath, std::string fileName, SRT startTransform, float maxHP, std::unique_ptr<BaseBreakBehavior> breakBehavior);
+	void AddBullet(SRT transform, float speed, CollisionID id, Bullet::BulletMove bulletMove, std::shared_ptr<Model> model, std::unique_ptr<BaseEvent> event = nullptr);
+	void AddBomb(SRT transform, float range, float maxLifeTime, CollisionID id, std::shared_ptr<Model> model);
+	void AddShockWave(SRT transform, float range, float maxLifeTime, CollisionID id, std::unique_ptr<PrimitiveCylinder> cylinder);
+	void AddItem(SRT transform);
+	void AddBreakObject(SRT transform, float maxHP, std::shared_ptr<Model> model, std::unique_ptr<BaseEvent> event);
+
+	void Explosion(Vector3 position, float range, float maxLifeTime, CollisionID id, float damage);
 
 	void SetDebugCamera(std::shared_ptr<DebugCamera> debugCamera) { debugCamera_ = debugCamera; gameCamera_->SetDebugCamera(debugCamera_); }
 

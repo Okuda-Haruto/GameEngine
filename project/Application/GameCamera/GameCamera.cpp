@@ -132,7 +132,7 @@ void LockOnCamera::Update() {
 				.diff = rotateMatrix * Vector3{0,0,1}
 			};
 #ifdef USE_IMGUI
-			Primitive3DManager::GetInstance()->AddRay(playerRay);
+			PrimitiveManager::GetInstance()->AddRay(playerRay);
 #endif // USE_IMGUI
 
 			//ターゲット候補

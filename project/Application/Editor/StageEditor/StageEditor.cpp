@@ -5,7 +5,7 @@
 #include <GameEngine.h>
 #include <Operation/Operation.h>
 #include <Collision.h>
-#include <PrimitiveManager/Primitive3DManager.h>
+#include <PrimitiveManager/PrimitiveManager.h>
 #include <ImGuiManager/ImGuiManager.h>
 
 
@@ -221,13 +221,13 @@ void StageEditor::Update() {
 		collisionAABB.min = { playerStartTransform_->translate - playerStartTransform_->scale };
 		collisionAABB.max = { playerStartTransform_->translate + playerStartTransform_->scale };
 
-		Primitive3DManager::GetInstance()->AddAABB(collisionAABB);
+		PrimitiveManager::GetInstance()->AddAABB(collisionAABB);
 
 		//ボス初期位置
 		collisionAABB.min = { bossData_.startTransform->translate - bossData_.startTransform->scale };
 		collisionAABB.max = { bossData_.startTransform->translate + bossData_.startTransform->scale };
 
-		Primitive3DManager::GetInstance()->AddAABB(collisionAABB);
+		PrimitiveManager::GetInstance()->AddAABB(collisionAABB);
 
 		//オブジェクト初期位置
 		for (auto& object : colliderObjects_) {
@@ -235,7 +235,7 @@ void StageEditor::Update() {
 				collisionAABB.min = { object.startTransform->translate - object.startTransform->scale };
 				collisionAABB.max = { object.startTransform->translate + object.startTransform->scale };
 
-				Primitive3DManager::GetInstance()->AddAABB(collisionAABB);
+				PrimitiveManager::GetInstance()->AddAABB(collisionAABB);
 			}
 		}
 
