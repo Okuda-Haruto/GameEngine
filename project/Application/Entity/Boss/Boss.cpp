@@ -120,6 +120,53 @@ std::unique_ptr<BaseStep> ReadStepJson(const nlohmann::json_abi_v3_12_0::json& s
 	return step;
 }
 
+std::vector<std::string> GetStepNameList() {
+	std::vector<std::string> stepList = {
+		{ "Step_WaitTime" },
+		{ "Step_WaitStep" },
+		{ "Step_WaitAnimation" },
+		{ "Step_MoveFixedPositionTime" },
+		{ "Step_MoveFixedPositionSpeed" },
+		{ "Step_MoveFixedVelocity" },
+		{ "Step_MoveFront" },
+		{ "Step_MoveToLockOn" },
+		{ "Step_LockOnPlayer" },
+		{ "Step_LockOnRelease" },
+		{ "Step_ShotBulletToFront" },
+	};
+
+	return stepList;
+}
+
+std::unique_ptr<BaseStep> GetStep(std::string patternName) {
+	using StepCreator = std::function<std::unique_ptr<BaseStep>()>;
+
+	static const std::unordered_map<std::string, StepCreator> creators =
+	{
+		{ "Step_WaitTime",   [] { return std::make_unique<Step_WaitTime>(); }},
+		{ "Step_WaitStep", [] { return std::make_unique<Step_WaitStep>(); } },
+		{ "Step_WaitAnimation",   [] { return std::make_unique<Step_WaitAnimation>(); } },
+		{ "Step_MoveFixedPositionTime",   [] { return std::make_unique<Step_MoveFixedPositionTime>(); } },
+		{ "Step_MoveFixedPositionSpeed",   [] { return std::make_unique<Step_MoveFixedPositionSpeed>(); } },
+		{ "Step_MoveFixedVelocity",   [] { return std::make_unique<Step_MoveFixedVelocity>(); } },
+		{ "Step_MoveFront",   [] { return std::make_unique<Step_MoveFront>(); } },
+		{ "Step_MoveToLockOn",   [] { return std::make_unique<Step_MoveToLockOn>(); } },
+		{ "Step_LockOnPlayer",   [] { return std::make_unique<Step_LockOnPlayer>(); } },
+		{ "Step_LockOnRelease",   [] { return std::make_unique<Step_LockOnRelease>(); } },
+		{ "Step_ShotBulletToFront",   [] { return std::make_unique<Step_ShotBulletToFront>(); } },
+	};
+
+	auto it = creators.find(patternName);
+
+	if (it == creators.end()) {
+		return nullptr;
+	}
+
+	std::unique_ptr<BaseStep> step = it->second();
+
+	return step;
+}
+
 void BossAction::Update() {
 	if (!isEnd_) {
 

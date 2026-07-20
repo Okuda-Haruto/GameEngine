@@ -511,6 +511,9 @@ public:
 
 std::unique_ptr<BaseStep> ReadStepJson(const nlohmann::json_abi_v3_12_0::json& stepJson);
 
+std::vector<std::string> GetStepNameList();
+std::unique_ptr<BaseStep> GetStep(std::string patternName);
+
 //ボスのアクション
 class BossAction {
 private:
@@ -553,6 +556,8 @@ public:
 		return result;
 	}
 	void SetSteps(std::vector<std::unique_ptr<BaseStep>> steps) { steps_ = move(steps); }
+
+	void PushBackStep(std::unique_ptr<BaseStep> step) { steps_.push_back(move(step)); };
 
 	//待ち時間
 	float GetWaitTime() { return waitTime_; }

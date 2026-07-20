@@ -32,8 +32,11 @@ void BossEditor::Initialize(std::shared_ptr<Input> input) {
 	debugCamera_ = std::make_shared<DebugCamera>();
 	debugCamera_->Initialize(input_);
 
+	stepNameList_ = GetStepNameList();
+
 	state_ = EditorState::None;
 	openFile_ = OpenFile::None;
+	addPattern_ = AddPattern::None;
 }
 
 void BossEditor::Update() {
@@ -63,6 +66,76 @@ void BossEditor::Update() {
 		ImGui::InputText("ディレクトリパス", directoryPathText_, sizeof(directoryPathText_));
 		ImGui::InputText("ファイル名", modelnameText_, sizeof(modelnameText_));
 
+		ImGui::Text("パターン");
+		for (const auto& [str, pattern] : patterns_) {
+
+			//開閉どちらでもドロップできるように
+			bool originNode = ImGui::TreeNode(str.c_str());
+
+			if (ImGui::BeginDragDropTarget())
+			{
+				if (const ImGuiPayload* payload =
+					ImGui::AcceptDragDropPayload("PATTERN"))
+				{
+					const char* name = static_cast<const char*>(payload->Data);
+
+					pattern->GetAction()->PushBackStep(GetStep(name));
+				}
+
+				ImGui::EndDragDropTarget();
+			}
+
+			if (originNode) {
+
+				for (auto& step : pattern->GetAction()->GetSteps()) {
+					if (ImGui::TreeNode(step->GetName().c_str())) {
+
+						step->EditorItem();
+
+						ImGui::TreePop();
+					}
+				}
+
+				ImGui::TreePop();
+			}
+		}
+		if (ImGui::Button("パターン追加")) {
+			addPattern_ = AddPattern::AddPattern;
+		}
+
+		ImGui::End();
+
+
+		ImGui::Begin("パターン");
+
+
+		for (auto stepName : stepNameList_) {
+			ImGui::Button(stepName.c_str());
+
+			if (ImGui::BeginDragDropSource())
+			{
+				std::string str = stepName;
+
+				ImGui::SetDragDropPayload("PATTERN", str.c_str(), str.size() + 1);
+
+				ImGui::Text(str.c_str());
+
+				ImGui::EndDragDropSource();
+			}
+		}
+
+		ImGui::End();
+	}
+
+	if (addPattern_ == AddPattern::AddPattern) {
+		ImGui::Begin("パターン追加");
+		ImGui::InputText("パターン名", patternNameText_, sizeof(patternNameText_));
+		if (ImGui::Button("追加")) {
+			std::string str = patternNameText_;
+			patterns_[str] = std::make_unique<BossPattern>();
+			patterns_[str]->SetAction(std::make_unique<BossAction>());
+			addPattern_ = AddPattern::None;
+		}
 		ImGui::End();
 	}
 #endif
@@ -108,7 +181,9 @@ void BossEditor::Update() {
 }
 
 void BossEditor::Draw() {
-
+	if (stage_) {
+		stage_->Draw();
+	}
 }
 
 void BossEditor::ReadBossFile(std::string filePath) {
@@ -153,8 +228,22 @@ void BossEditor::ReadBossFile(std::string filePath) {
 
 		patterns_.emplace(name, std::move(pattern));
 	}
-	//BossEditor優先
-	//stage_->Initialize({}, input_);
+	StageData stageData{};
+	stageData.bossData.startTransform = {
+		{1.0f,1.0f,1.0f},
+		{0.0f,0.0f,0.0f},
+		{0.0f,0.0f,0.0f},
+	};
+	stageData.playerStartTransform = {
+		{1.0f,1.0f,1.0f},
+		{0.0f,0.0f,0.0f},
+		{0.0f,0.0f,0.0f},
+	};
+	stageData.bossData.filepath = filePath_;
+
+	stage_ = std::make_unique<Stage>();
+	stage_->Initialize(stageData, input_);
+	stage_->SetDebugCamera(debugCamera_);
 	state_ = EditorState::Edit;
 }
 
