@@ -87,6 +87,35 @@ void Step_ShotBulletToFront::Activate(BossAction* action) {
 	);
 };
 
+void Step_ShotBulletToTarget::Activate(BossAction* action) {
+	Vector3 bulletSpread{};
+	if (spread_ > 0.0f) {
+		bulletSpread = Vector3{ 0,GameEngine::randomFloat(0.0f,spread_),0 } * MakeRotateZMatrix(GameEngine::randomFloat(0.0f, std::numbers::pi_v<float> *2));
+	}
+	Vector3 dir = action->GetBoss()->GetPlayerTransform()->translate - action->GetBoss()->GetTransform().translate;
+	dir = Normalize(dir);
+
+	Vector3 rot;
+	rot.x = atan2(-dir.y, sqrt(dir.x * dir.x + dir.z * dir.z)); // Pitch
+	rot.y = atan2(dir.x, dir.z);                                // Yaw
+	rot.z = 0.0f;                                               // Roll
+
+	action->GetBoss()->ShotBullet(
+		action->GetBoss()->GetTransform().translate,
+		rot + bulletSpread,
+		speed_
+	);
+};
+
+void Step_ShockWave::Activate(BossAction* action) {
+	Vector3 bulletSpread{};
+	action->GetBoss()->ShotShockWave(
+		action->GetBoss()->GetTransform().translate,
+		length_,
+		maxLifeTime_
+	);
+};
+
 #pragma endregion
 
 std::unique_ptr<BaseStep> ReadStepJson(const nlohmann::json_abi_v3_12_0::json& stepJson) {
@@ -106,6 +135,8 @@ std::unique_ptr<BaseStep> ReadStepJson(const nlohmann::json_abi_v3_12_0::json& s
 		{ "Step_LockOnPlayer",   [] { return std::make_unique<Step_LockOnPlayer>(); } },
 		{ "Step_LockOnRelease",   [] { return std::make_unique<Step_LockOnRelease>(); } },
 		{ "Step_ShotBulletToFront",   [] { return std::make_unique<Step_ShotBulletToFront>(); } },
+		{ "Step_ShotBulletToTarget",   [] { return std::make_unique<Step_ShotBulletToTarget>(); } },
+		{ "Step_ShockWave",   [] { return std::make_unique<Step_ShockWave>(); } },
 	};
 
 	auto it = creators.find(stepJson["step"]);
@@ -133,6 +164,8 @@ std::vector<std::string> GetStepNameList() {
 		{ "Step_LockOnPlayer" },
 		{ "Step_LockOnRelease" },
 		{ "Step_ShotBulletToFront" },
+		{ "Step_ShotBulletToTarget" },
+		{ "Step_ShockWave" },
 	};
 
 	return stepList;
@@ -154,6 +187,8 @@ std::unique_ptr<BaseStep> GetStep(std::string patternName) {
 		{ "Step_LockOnPlayer",   [] { return std::make_unique<Step_LockOnPlayer>(); } },
 		{ "Step_LockOnRelease",   [] { return std::make_unique<Step_LockOnRelease>(); } },
 		{ "Step_ShotBulletToFront",   [] { return std::make_unique<Step_ShotBulletToFront>(); } },
+		{ "Step_ShotBulletToTarget",   [] { return std::make_unique<Step_ShotBulletToTarget>(); } },
+		{ "Step_ShockWave",   [] { return std::make_unique<Step_ShockWave>(); } },
 	};
 
 	auto it = creators.find(patternName);
@@ -231,7 +266,10 @@ void Boss::Initialize(std::string filepath, Stage* stage, std::shared_ptr<GameCa
 
 	std::unique_ptr<Step_WaitTime> step_WaitTime;
 	std::unique_ptr<Step_ShotBulletToFront> step_ShotBulletToFront;
+	std::unique_ptr<Step_ShotBulletToTarget> step_ShotBulletToTarget;
+	std::unique_ptr<Step_ShockWave> step_ShockWave;
 	std::unique_ptr<Step_MoveFront> step_MoveFront;
+	std::unique_ptr<Step_MoveFixedVelocity> step_MoveFixedVelocity;
 	//1
 	std::vector<std::unique_ptr<BaseStep>> steps;
 	steps.push_back(make_unique<Step_LockOnPlayer>());
@@ -243,7 +281,7 @@ void Boss::Initialize(std::string filepath, Stage* stage, std::shared_ptr<GameCa
 	step_WaitTime->Initialize(0.25f);
 	steps.push_back(move(step_WaitTime));
 	step_ShotBulletToFront = make_unique<Step_ShotBulletToFront>();
-	step_ShotBulletToFront->Initialize(0.05f, 1.0f);
+	step_ShotBulletToFront->Initialize(0.05f, 2.0f);
 	steps.push_back(move(step_ShotBulletToFront));
 	steps.push_back(make_unique<Step_LockOnPlayer>());
 	step_WaitTime = std::make_unique<Step_WaitTime>();
@@ -254,7 +292,7 @@ void Boss::Initialize(std::string filepath, Stage* stage, std::shared_ptr<GameCa
 	step_WaitTime->Initialize(0.25f);
 	steps.push_back(move(step_WaitTime));
 	step_ShotBulletToFront = make_unique<Step_ShotBulletToFront>();
-	step_ShotBulletToFront->Initialize(0.05f, 1.0f);
+	step_ShotBulletToFront->Initialize(0.05f, 2.0f);
 	steps.push_back(move(step_ShotBulletToFront));
 	steps.push_back(make_unique<Step_LockOnPlayer>());
 	step_WaitTime = std::make_unique<Step_WaitTime>();
@@ -266,7 +304,7 @@ void Boss::Initialize(std::string filepath, Stage* stage, std::shared_ptr<GameCa
 	steps.push_back(move(step_WaitTime));
 	for (int i = 0; i < 10; i++) {
 		step_ShotBulletToFront = make_unique<Step_ShotBulletToFront>();
-		step_ShotBulletToFront->Initialize(0.05f, 1.0f);
+		step_ShotBulletToFront->Initialize(0.05f, 2.0f);
 		steps.push_back(move(step_ShotBulletToFront));
 		step_WaitTime = std::make_unique<Step_WaitTime>();
 		step_WaitTime->Initialize(0.01f);
@@ -290,6 +328,101 @@ void Boss::Initialize(std::string filepath, Stage* stage, std::shared_ptr<GameCa
 	pattern->SetCondition(condition);
 	pattern->Initialize(this);
 	patterns_["3shot"] = move(pattern);
+
+
+	//2
+	steps.clear();
+	steps.push_back(make_unique<Step_LockOnPlayer>());
+	step_WaitTime = std::make_unique<Step_WaitTime>();
+	step_WaitTime->Initialize(0.5f);
+	steps.push_back(move(step_WaitTime));
+	steps.push_back(make_unique<Step_LockOnRelease>());
+	step_MoveFixedVelocity = std::make_unique<Step_MoveFixedVelocity>();
+	step_MoveFixedVelocity->Initialize({0.0f,1.6f,0.0f},0.25f);
+	steps.push_back(move(step_MoveFixedVelocity));
+	steps.push_back(std::make_unique<Step_WaitStep>());
+	step_MoveFront = std::make_unique<Step_MoveFront>();
+	step_MoveFront->Initialize(0.5f, 1.0f);
+	steps.push_back(move(step_MoveFront));
+	steps.push_back(std::make_unique<Step_WaitStep>());
+	step_MoveFixedVelocity = std::make_unique<Step_MoveFixedVelocity>();
+	step_MoveFixedVelocity->Initialize({ 0.0f,-1.6f,0.0f }, 0.3f);
+	steps.push_back(move(step_MoveFixedVelocity));
+	steps.push_back(std::make_unique<Step_WaitStep>());
+	step_ShockWave = std::make_unique<Step_ShockWave>();
+	step_ShockWave->Initialize(20.0f, 0.5f);
+	steps.push_back(move(step_ShockWave));
+	steps.push_back(std::make_unique<Step_WaitStep>());
+	step_WaitTime = std::make_unique<Step_WaitTime>();
+	step_WaitTime->Initialize(0.1f);
+	steps.push_back(move(step_WaitTime));
+
+
+
+
+	action = std::make_unique<BossAction>();
+	action->SetSteps(move(steps));
+
+	condition = {};
+	condition.farDistance = 20.0f;
+	condition.ignoreObstacles = true;
+	condition.priority = 4;
+
+	pattern = std::make_unique<BossPattern>();
+	pattern->SetAction(move(action));
+	pattern->SetCondition(condition);
+	pattern->Initialize(this);
+	patterns_["Jump"] = move(pattern);
+
+	//2
+	steps.clear();
+	steps.push_back(make_unique<Step_LockOnPlayer>());
+	step_WaitTime = std::make_unique<Step_WaitTime>();
+	step_WaitTime->Initialize(0.5f);
+	steps.push_back(move(step_WaitTime));
+	steps.push_back(make_unique<Step_LockOnRelease>());
+	step_MoveFixedVelocity = std::make_unique<Step_MoveFixedVelocity>();
+	step_MoveFixedVelocity->Initialize({ 0.0f,1.6f,0.0f }, 0.1f);
+	steps.push_back(move(step_MoveFixedVelocity));
+	steps.push_back(std::make_unique<Step_WaitStep>());
+	step_WaitTime = std::make_unique<Step_WaitTime>();
+	step_WaitTime->Initialize(0.5f);
+	steps.push_back(move(step_WaitTime));
+	for (int i = 0; i < 3; i++) {
+		for (int j = 0; j < 10; j++) {
+			step_ShotBulletToTarget = make_unique<Step_ShotBulletToTarget>();
+			step_ShotBulletToTarget->Initialize(0.1f, 2.0f);
+			steps.push_back(move(step_ShotBulletToTarget));
+		}
+		step_WaitTime = std::make_unique<Step_WaitTime>();
+		step_WaitTime->Initialize(0.1f);
+		steps.push_back(move(step_WaitTime));
+	}
+	steps.push_back(std::make_unique<Step_WaitStep>());
+	step_MoveFixedVelocity = std::make_unique<Step_MoveFixedVelocity>();
+	step_MoveFixedVelocity->Initialize({ 0.0f,-1.6f,0.0f }, 0.2f);
+	steps.push_back(move(step_MoveFixedVelocity));
+	steps.push_back(std::make_unique<Step_WaitStep>());
+	step_WaitTime = std::make_unique<Step_WaitTime>();
+	step_WaitTime->Initialize(0.1f);
+	steps.push_back(move(step_WaitTime));
+
+
+
+
+	action = std::make_unique<BossAction>();
+	action->SetSteps(move(steps));
+
+	condition = {};
+	condition.farDistance = 45.0f;
+	condition.ignoreObstacles = true;
+	condition.priority = 5;
+
+	pattern = std::make_unique<BossPattern>();
+	pattern->SetAction(move(action));
+	pattern->SetCondition(condition);
+	pattern->Initialize(this);
+	patterns_["JumpShot"] = move(pattern);
 
 	patternName_ = {};
 	lerpPositionTime_ = 0;
@@ -509,10 +642,14 @@ void Boss::Update() {
 							transform_.rotate.y = std::fmodf(transform_.rotate.y, std::numbers::pi_v<float> *2);
 						}
 					} else {
-						state_ = State::Move;
+						if (!NextPattern()) {
+							state_ = State::Move;
+						}
 					}
 				} else {
-					state_ = State::Move;
+					if (!NextPattern()) {
+						state_ = State::Move;
+					}
 				}
 				break;
 			default:
@@ -523,7 +660,9 @@ void Boss::Update() {
 
 			transform_.translate = colliders_->GetSphereColliders()[0].colliderSphere.center;
 			transform_.translate += velocity_;
-			transform_.translate.y = 1.0f;
+			if (transform_.translate.y < 1.0f) {
+				transform_.translate.y = 1.0f;
+			}
 			velocity_ = {};
 
 			transform_.translate.x = std::clamp(transform_.translate.x, -59.0f, 59.0f);
@@ -538,7 +677,9 @@ void Boss::Update() {
 		}
 	}
 	SRT displayTransform = transform_;
-	displayTransform.translate.y = 1.5f;
+	if (displayTransform.translate.y < 1.5f) {
+		displayTransform.translate.y = 1.5f;
+	}
 	object_->SetTransform(displayTransform);
 	object_->Update();
 	BaseEntity::Update();
@@ -563,7 +704,26 @@ void Boss::IsCollisionGround(OBB obb) {
 }
 
 void Boss::ShotBullet(Vector3 startPoint, Vector3 rotate, float speed) {
-	stage_->AddBullet(transform_, 2.0f, CollisionID_Enemy_Attack, Bullet::BulletMove::NormalBullet, ModelManager::GetInstance()->GetModel("resources/Bullet", "Bullet.obj"));
+	SRT transform = {
+		{1,1,1},
+		rotate,
+		startPoint,
+	};
+
+	stage_->AddBullet(transform, speed, CollisionID_Enemy_Attack, Bullet::BulletMove::NormalBullet, ModelManager::GetInstance()->GetModel("resources/Bullet", "Bullet.obj"));
+}
+
+void Boss::ShotShockWave(Vector3 startPoint, float length, float maxLifeTime) {
+	SRT transform = {
+		{1.0f,3.0f,1.0f},
+		{0,0,0},
+		startPoint.x,0.0f,startPoint.z,
+	};
+
+	std::unique_ptr<PrimitiveCylinder> cylider = std::make_unique<PrimitiveCylinder>();
+	cylider->Initialize(TextureManager::GetInstance()->GetSrvIndex("resources/DebugResources/gradationLine.png"), gameCamera_->GetCamera(), GameEngine::GetDirectXCommon());
+
+	stage_->AddShockWave(transform, length, maxLifeTime, CollisionID_Enemy_Attack, move(cylider));
 }
 
 void Boss::ReadBossFile(std::string filePath) {
@@ -620,6 +780,35 @@ void Boss::ReadBossFile(std::string filePath) {
 }
 
 bool Boss::NextPattern() {
+
+	bool isCollisionObjects = false;
+	//ボス、プレイヤー間カプセル
+	Capsule capsule;
+	capsule.axis.origin = transform_.translate;
+	capsule.axis.diff = player_->GetTransform()->translate - transform_.translate;
+	capsule.radius = colliders_->GetSphereColliders()[0].colliderSphere.radius;
+	//プレイヤーとの間に邪魔なオブジェクトがあるか
+	if (stage_->BossObstructed(capsule)) {
+		//ある場合最も角度が緩やかで衝突しない角度にする
+		for (float dir = 10.0f; dir < 180.0f;) {
+
+			//-も含めて精査
+			if (dir > 0.0f) {
+				dir = -dir;
+			} else {
+				dir = -dir + 10.0f;
+			}
+			SRT playerTransform = *player_->GetTransform();
+
+			capsule.axis.diff = player_->GetTransform()->translate - transform_.translate;
+			capsule.axis.diff = capsule.axis.diff * MakeRotateYMatrix(std::numbers::pi_v<float> / 180 * dir);
+			if (!stage_->BossObstructed(capsule)) {
+				isCollisionObjects = true;
+				break;
+			}
+		}
+	}
+
 	int8_t maxPriority = 0;
 
 	float distance = Length(player_->GetTransform()->translate - transform_.translate);
@@ -629,6 +818,11 @@ bool Boss::NextPattern() {
 
 		//優先度が同じ場合も通す
 		if (condition.priority >= maxPriority) {
+			//オブジェクト衝突を無視するか
+			if (!condition.ignoreObstacles && isCollisionObjects) {
+				continue;
+			}
+
 			//近距離判定
 			if (condition.nearDistance && condition.nearDistance < distance) {
 				continue;

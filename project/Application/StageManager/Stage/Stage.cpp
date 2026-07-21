@@ -254,6 +254,9 @@ void Stage::Update() {
 		for (auto& bullet : bullets_) {
 			bullet->Update();
 		}
+		for (auto& shockWave : shockWaves_) {
+			shockWave->Update();
+		}
 		for (auto& object : breakObjects_) {
 			object->Update();
 		}
@@ -269,6 +272,9 @@ void Stage::Update() {
 
 		std::erase_if(bullets_, [](const auto& bullet) {
 			return bullet->IsDead();
+			});
+		std::erase_if(shockWaves_, [](const auto& shockWave) {
+			return shockWave->IsDead();
 			});
 		std::erase_if(breakObjects_, [](const auto& object) {
 			return object->IsDead();
@@ -331,6 +337,9 @@ void Stage::Draw() {
 
 	ring_->DrawBillBoard(ringTransform_, ringMaterial_);
 
+	for (auto& shockWave : shockWaves_) {
+		shockWave->Draw();
+	}
 	if(cylinderTime_ < kMaxCyliderTime_) {
 		cylider_->Draw(cylinderTransform_, cylinderMaterial_);
 	}
@@ -353,6 +362,9 @@ void Stage::Collision() {
 	colliders.push_back(boss_.get()->GetColliders());
 	for (auto& bullet : bullets_) {
 		colliders.push_back(bullet.get()->GetColliders());
+	}
+	for (auto& shockWave : shockWaves_) {
+		colliders.push_back(shockWave.get()->GetColliders());
 	}
 	for (auto& object : breakObjects_) {
 		colliders.push_back(object.get()->GetColliders());

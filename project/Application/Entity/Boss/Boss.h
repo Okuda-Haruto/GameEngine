@@ -386,6 +386,68 @@ public:
 		return "Step_ShotBulletToFront";
 	}
 };
+
+//ターゲットに対して弾発射
+class Step_ShotBulletToTarget : public BaseStep {
+private:
+	float spread_;
+	float speed_;
+public:
+	void Initialize(float spread, float speed) { spread_ = spread; speed_ = speed; }
+	void Activate(BossAction* action) override;
+
+	nlohmann::json WriteStep() override {
+		return{
+			{"step","Step_ShotBulletToTarget"},
+			{"spread",spread_},
+			{"speed",speed_},
+		};
+	}
+
+	void ReadStep(const nlohmann::json_abi_v3_12_0::json& stepJson) override {
+		Initialize(stepJson["spread"], stepJson["speed"]);
+	}
+	void EditorItem() override {
+#ifdef USE_IMGUI
+		ImGui::DragFloat("拡散角度", &spread_);
+		ImGui::DragFloat("指定速度", &speed_);
+#endif
+	}
+	std::string GetName() override {
+		return "Step_ShotBulletToTarget";
+	}
+};
+
+//地面に衝撃波を出す
+class Step_ShockWave : public BaseStep {
+private:
+	float length_;
+	float maxLifeTime_;
+public:
+	void Initialize(float length, float maxLifeTime) { length_ = length; maxLifeTime_ = maxLifeTime; }
+	void Activate(BossAction* action) override;
+
+	nlohmann::json WriteStep() override {
+		return{
+			{"step","Step_ShockWave"},
+			{"length",length_},
+			{"maxLifeTime",maxLifeTime_},
+		};
+	}
+
+	void ReadStep(const nlohmann::json_abi_v3_12_0::json& stepJson) override {
+		Initialize(stepJson["spread"], stepJson["speed"]);
+	}
+	void EditorItem() override {
+#ifdef USE_IMGUI
+		ImGui::DragFloat("拡散角度", &length_);
+		ImGui::DragFloat("指定速度", &maxLifeTime_);
+#endif
+	}
+	std::string GetName() override {
+		return "Step_ShockWave";
+	}
+};
 /*
 //向いてる方向に弾発射
 class Step_ShotBulletToBone : public BaseStep {
@@ -598,6 +660,9 @@ struct PatternCondition {
 	std::optional<float> nearDistance;
 	//プレイヤーとの距離(遠い場合判定)
 	std::optional<float> farDistance;
+	//プレイヤーとの間にオブジェクトが存在しても行動するか
+	bool ignoreObstacles = false;
+
 	//特定の部位が存在している場合
 	//std::string partsName;
 
@@ -730,6 +795,7 @@ public:
 	bool IsAction() { return isAction_; }
 
 	void ShotBullet(Vector3 startPoint, Vector3 rotate, float speed);
+	void ShotShockWave(Vector3 startPoint, float length, float maxLifeTime);
 
 	void EmitMoveParticle(SRT transform) { moveParticle_->Emit(transform); }
 

@@ -1,6 +1,8 @@
+#define NOMINMAX
 #include "Colliders.h"
 #include <Operation/Operation.h>
 #include <Collision.h>
+#include <algorithm>
 #include <PrimitiveManager/PrimitiveManager.h>
 
 void Colliders::Initialize(Collider* collider) {
@@ -11,7 +13,13 @@ void Colliders::Update() {
 
 	for (int i = 0; i < sphereColliders_.size(); i++) {
 		sphereColliders_[i].colliderSphere.center = sphereColliders_[i].localSphere.center * *(sphereColliders_[i].parentMatrix.get());
-		sphereColliders_[i].colliderSphere.radius = sphereColliders_[i].localSphere.radius;
+		float sx = Length(Vector3(sphereColliders_[i].parentMatrix.get()->m[0][0], sphereColliders_[i].parentMatrix.get()->m[0][1], sphereColliders_[i].parentMatrix.get()->m[0][2]));
+		float sy = Length(Vector3(sphereColliders_[i].parentMatrix.get()->m[1][0], sphereColliders_[i].parentMatrix.get()->m[1][1], sphereColliders_[i].parentMatrix.get()->m[1][2]));
+		float sz = Length(Vector3(sphereColliders_[i].parentMatrix.get()->m[2][0], sphereColliders_[i].parentMatrix.get()->m[2][1], sphereColliders_[i].parentMatrix.get()->m[2][2]));
+
+		float scale = std::max({ sx, sy, sz });
+
+		sphereColliders_[i].colliderSphere.radius = sphereColliders_[i].localSphere.radius * scale;
 #ifdef USE_IMGUI
 		PrimitiveManager::GetInstance()->AddSphere(sphereColliders_[i].colliderSphere);
 #endif // USE_IMGUI

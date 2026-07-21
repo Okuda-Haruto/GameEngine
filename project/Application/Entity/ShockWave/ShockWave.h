@@ -11,6 +11,7 @@ private:
 	float range_;
 
 	std::unique_ptr<PrimitiveCylinder> cylinder_;
+	Material cylinderMaterial_;
 
 	float maxLifeTime_;
 	float lifeTime_ = 0.0f;

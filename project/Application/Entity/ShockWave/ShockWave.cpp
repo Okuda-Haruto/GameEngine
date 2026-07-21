@@ -1,6 +1,7 @@
 #include "ShockWave.h"
 #include "Operation/Operation.h"
 #include <numbers>
+#include <Easing.h>
 
 weak_ptr<Camera> ShockWave::camera_;
 weak_ptr<DirectionalLight> ShockWave::directionalLight_;
@@ -10,11 +11,16 @@ void ShockWave::Initialize(SRT transform, float range, float maxLifeTime, Collis
 
 	range_ = range;
 	maxLifeTime_ = maxLifeTime;
+	transform_ = transform;
+
 
 	cylinder_ = move(cylinder);
 
 	lifeTime_ = 0.0f;
 	isDead = false;
+
+	cylinderMaterial_.color = { 1.0f,1.0f,1.0f,1.0f };
+	cylinderMaterial_.uvTransform = MakeIdentity4x4();
 
 	BaseEntity::Initialize(1.0f, id);
 }
@@ -29,23 +35,18 @@ void ShockWave::Update() {
 	}
 
 
+	float scale = Easing::EaseOut(1.0f,range_,lifeTime_ / maxLifeTime_);
+	transform_.scale = { scale ,3.0f,scale };
 
-	object_->SetTransform(transform_);
 	BaseEntity::Update();
 }
 
 void ShockWave::Draw() {
 	if (!isDead) {
-		object_->Draw3D();
+		cylinder_->Draw(transform_, cylinderMaterial_);
 	}
 }
 
 void ShockWave::IsCollision(uint8_t targetId) {
 
-	if (!(targetId & 0b0010) &&	//敵側ではない
-		(targetId & 0b1000 ||	//衝突するもの
-			targetId & CollisionID_Player_Attack)) {	//プレイヤー攻撃
-
-		isDead = true;
-	}
 }
