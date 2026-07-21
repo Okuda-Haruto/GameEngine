@@ -1,7 +1,7 @@
 #include "Animation.h"
 #include "LerpKeyFrame/LerpKeyFrame.h"
 #include "Operation/Operation.h"
-#include <PrimitiveManager/Primitive3DManager.h>
+#include <PrimitiveManager/PrimitiveManager.h>
 
 void ApplyAnimation(Skeleton& skeleton, AnimationData& animationData, AnimationInterpolation interpolation, float time) {
 	for (Joint& joint : skeleton.joints) {

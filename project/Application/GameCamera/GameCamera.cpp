@@ -15,7 +15,8 @@ void LockOnCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> inp
 	transform_ = {};
 	pushRStickTime_ = 0;
 	if (gameCamera_->GetObserverTransform()) {
-		cameraAngle_ = gameCamera_->GetObserverTransform()->rotate;
+		cameraAngle_ = gameCamera_->GetTransform()->rotate;
+		cameraAngle_.x = 0.0f;
 	} else {
 		cameraAngle_ = {};
 	}
@@ -132,7 +133,7 @@ void LockOnCamera::Update() {
 				.diff = rotateMatrix * Vector3{0,0,1}
 			};
 #ifdef USE_IMGUI
-			Primitive3DManager::GetInstance()->AddRay(playerRay);
+			PrimitiveManager::GetInstance()->AddRay(playerRay);
 #endif // USE_IMGUI
 
 			//ターゲット候補

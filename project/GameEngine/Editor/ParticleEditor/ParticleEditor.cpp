@@ -1,5 +1,5 @@
 #include "ParticleEditor.h"
-#include "PrimitiveManager/Primitive3DManager.h"
+#include "PrimitiveManager/PrimitiveManager.h"
 #include "Operation/Operation.h"
 #ifdef USE_IMGUI
 #include <imgui/imgui.h>
@@ -95,24 +95,24 @@ void ParticleEditor::Update() {
 
 void ParticleEditor::Draw() {
 #ifdef USE_IMGUI
-	Primitive3DManager::GetInstance()->AddPoint(transform_.translate);
+	PrimitiveManager::GetInstance()->AddPoint(transform_.translate);
 	AABB aabb = emitter_.spawnRange;
 	aabb.min = emitter_.spawnRange.min + transform_.translate;
 	aabb.max = emitter_.spawnRange.max + transform_.translate;
-	Primitive3DManager::GetInstance()->AddAABB(aabb);
+	PrimitiveManager::GetInstance()->AddAABB(aabb);
 	Line line;
 	line.origin = transform_.translate;
 	line.diff = emitter_.angleBase * emitter_.speedBase;
-	Primitive3DManager::GetInstance()->AddLine(line);
+	PrimitiveManager::GetInstance()->AddLine(line);
 
-	Primitive3DManager::GetInstance()->AddAABB(field_.area);
+	PrimitiveManager::GetInstance()->AddAABB(field_.area);
 	line.origin = {
 		(field_.area.min.x + field_.area.max.x) / 2,
 		(field_.area.min.y + field_.area.max.y) / 2,
 		(field_.area.min.z + field_.area.max.z) / 2,
 	};
 	line.diff = field_.acceleration.translate;
-	Primitive3DManager::GetInstance()->AddLine(line);
+	PrimitiveManager::GetInstance()->AddLine(line);
 #endif
 
 	particleEmitter_->Draw();

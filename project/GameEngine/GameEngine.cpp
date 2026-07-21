@@ -60,7 +60,7 @@ void GameEngine::Finalize_() {
 	TextureManager::GetInstance()->Finalize();
 	ModelManager::GetInstance()->Finalize();
 	SpriteManager::GetInstance()->Finalize();
-	Primitive3DManager::GetInstance()->Finalize();
+	PrimitiveManager::GetInstance()->Finalize();
 	Object::FinalizeDefaultCamera();
 	ParticleManager::GetInstance()->Finalize();
 
@@ -113,7 +113,7 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	TextureManager::GetInstance()->Initialize(dxCommon_.get(), srvManager_.get());
 	ModelManager::GetInstance()->Initialize(dxCommon_.get());
 	SpriteManager::GetInstance()->Initialize(dxCommon_.get());
-	Primitive3DManager::GetInstance()->Initialize(dxCommon_.get(), srvManager_.get());
+	PrimitiveManager::GetInstance()->Initialize(dxCommon_.get(), srvManager_.get());
 
 	//カメラ初期値
 	std::shared_ptr<Camera> DefaultCamera = std::make_shared<Camera>();
@@ -253,9 +253,9 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 		if (i == 0)startInstancingSpriteIndex_ = index;
 	}
 
-	for (int i = 0; i < Primitive3DManager::SHAPE_count; i++) {
+	for (int i = 0; i < PrimitiveManager::SHAPE_count; i++) {
 		primitiveMaterialResource_[i] = dxCommon_->CreateBufferResources(sizeof(Material));
-		primitiveResource_[i] = dxCommon_->CreateBufferResources(sizeof(InstancingTransformationMatrix) * Primitive3DManager::kMaxNumPrimitive);
+		primitiveResource_[i] = dxCommon_->CreateBufferResources(sizeof(InstancingTransformationMatrix) * PrimitiveManager::kMaxNumPrimitive);
 	}
 
 	fogResource_ = dxCommon_->CreateBufferResources(sizeof(Fog));
@@ -345,7 +345,7 @@ void GameEngine::PreDraw_() {
 
 void GameEngine::PostDraw_() {
 
-	Primitive3DManager::GetInstance()->Draw();
+	PrimitiveManager::GetInstance()->Draw();
 
 #ifdef USE_IMGUI
 	dxCommon_->RenderPostDraw();
@@ -1362,7 +1362,7 @@ void GameEngine::DrawOutline_(std::string textureName, std::shared_ptr<Camera> c
 
 }
 
-void GameEngine::DrawLine_(std::list<Primitive3DManager::PrimitiveLine> lines, Primitive3DManager::PrimitiveResource primitiveResource) {
+void GameEngine::DrawLine_(std::list<PrimitiveManager::PrimitiveLine> lines, PrimitiveManager::PrimitiveResource primitiveResource) {
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList_->SetGraphicsRootSignature(object_Instancing_RootSignature_.Get());
 	commandList_->SetPipelineState(line_NoDepth_PipelineState_.Get());	//PSOを設定
@@ -1370,8 +1370,8 @@ void GameEngine::DrawLine_(std::list<Primitive3DManager::PrimitiveLine> lines, P
 	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
 	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 
-	commandList_->IASetVertexBuffers(0, 1, &Primitive3DManager::GetInstance()->GetVertexBufferView());	//VBVを設定
-	commandList_->IASetIndexBuffer(&Primitive3DManager::GetInstance()->GetIndexBufferView());	//IBVを設定
+	commandList_->IASetVertexBuffers(0, 1, &PrimitiveManager::GetInstance()->GetVertexBufferView());	//VBVを設定
+	commandList_->IASetIndexBuffer(&PrimitiveManager::GetInstance()->GetIndexBufferView());	//IBVを設定
 
 	Camera* camera = Object::GetDefaultCamera().get();
 
@@ -1380,21 +1380,21 @@ void GameEngine::DrawLine_(std::list<Primitive3DManager::PrimitiveLine> lines, P
 
 	//WVPデータを更新
 	InstancingTransformationMatrix* mappedBase = nullptr;
-	primitiveResource_[Primitive3DManager::SHAPE_Line]->Map(0, nullptr, reinterpret_cast<void**>(&mappedBase));
+	primitiveResource_[PrimitiveManager::SHAPE_Line]->Map(0, nullptr, reinterpret_cast<void**>(&mappedBase));
 	// mappedBase が nullptr でないかチェック
 	if (mappedBase == nullptr) {
 		assert(0);
 	}
 	// 各要素ポインタを mappedBase に初期化
-	for (uint32_t j = 0; j < Primitive3DManager::kMaxNumPrimitive; ++j) {
-		primitiveData_[Primitive3DManager::SHAPE_Line][j] = mappedBase + j;
+	for (uint32_t j = 0; j < PrimitiveManager::kMaxNumPrimitive; ++j) {
+		primitiveData_[PrimitiveManager::SHAPE_Line][j] = mappedBase + j;
 	}
 
 	uint32_t numInstance = 0;
-	for (std::list<Primitive3DManager::PrimitiveLine>::iterator lineIterator = lines.begin();
+	for (std::list<PrimitiveManager::PrimitiveLine>::iterator lineIterator = lines.begin();
 		lineIterator != lines.end(); ++lineIterator) {
 
-		if (numInstance >= Primitive3DManager::kMaxNumPrimitive)break;
+		if (numInstance >= PrimitiveManager::kMaxNumPrimitive)break;
 
 		SRT transform{};
 		transform.scale.x = Length((*lineIterator).line.diff);	//直線の長さ
@@ -1409,32 +1409,32 @@ void GameEngine::DrawLine_(std::list<Primitive3DManager::PrimitiveLine> lines, P
 
 		Matrix4x4 worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
 
-		primitiveData_[Primitive3DManager::SHAPE_Line][numInstance]->World = worldMatrix;
-		primitiveData_[Primitive3DManager::SHAPE_Line][numInstance]->WorldInverseTranspose = Transpose(Inverse(worldMatrix));
+		primitiveData_[PrimitiveManager::SHAPE_Line][numInstance]->World = worldMatrix;
+		primitiveData_[PrimitiveManager::SHAPE_Line][numInstance]->WorldInverseTranspose = Transpose(Inverse(worldMatrix));
 		Matrix4x4 worldViewProjectionMatrix = worldMatrix * camera->GetViewMatrix() * camera->GetProjectionMatrix();
-		primitiveData_[Primitive3DManager::SHAPE_Line][numInstance]->WVP = worldViewProjectionMatrix;
-		primitiveData_[Primitive3DManager::SHAPE_Line][numInstance]->color = (*lineIterator).color;
+		primitiveData_[PrimitiveManager::SHAPE_Line][numInstance]->WVP = worldViewProjectionMatrix;
+		primitiveData_[PrimitiveManager::SHAPE_Line][numInstance]->color = (*lineIterator).color;
 
 		++numInstance;
 	}
 
-	primitiveResource_[Primitive3DManager::SHAPE_Line]->Unmap(0, nullptr);
+	primitiveResource_[PrimitiveManager::SHAPE_Line]->Unmap(0, nullptr);
 
 	//マテリアルデータを更新
-	primitiveMaterialResource_[Primitive3DManager::SHAPE_Line]->Map(0, nullptr, reinterpret_cast<void**>(&primitiveMaterialData_[Primitive3DManager::SHAPE_Line]));
+	primitiveMaterialResource_[PrimitiveManager::SHAPE_Line]->Map(0, nullptr, reinterpret_cast<void**>(&primitiveMaterialData_[PrimitiveManager::SHAPE_Line]));
 
-	primitiveMaterialData_[Primitive3DManager::SHAPE_Line]->uvTransform = MakeIdentity4x4();
-	primitiveMaterialData_[Primitive3DManager::SHAPE_Line]->enableDirectionalLighting = false;
-	primitiveMaterialData_[Primitive3DManager::SHAPE_Line]->enablePointLighting = false;
-	primitiveMaterialData_[Primitive3DManager::SHAPE_Line]->enableSpotLighting = false;
-	primitiveMaterialData_[Primitive3DManager::SHAPE_Line]->reflection = 0;
-	primitiveMaterialData_[Primitive3DManager::SHAPE_Line]->shininess = 0;
-	primitiveMaterialData_[Primitive3DManager::SHAPE_Line]->color = { 1.0f,1.0f,1.0f,1.0f };
+	primitiveMaterialData_[PrimitiveManager::SHAPE_Line]->uvTransform = MakeIdentity4x4();
+	primitiveMaterialData_[PrimitiveManager::SHAPE_Line]->enableDirectionalLighting = false;
+	primitiveMaterialData_[PrimitiveManager::SHAPE_Line]->enablePointLighting = false;
+	primitiveMaterialData_[PrimitiveManager::SHAPE_Line]->enableSpotLighting = false;
+	primitiveMaterialData_[PrimitiveManager::SHAPE_Line]->reflection = 0;
+	primitiveMaterialData_[PrimitiveManager::SHAPE_Line]->shininess = 0;
+	primitiveMaterialData_[PrimitiveManager::SHAPE_Line]->color = { 1.0f,1.0f,1.0f,1.0f };
 
-	primitiveMaterialResource_[Primitive3DManager::SHAPE_Line]->Unmap(0, nullptr);
+	primitiveMaterialResource_[PrimitiveManager::SHAPE_Line]->Unmap(0, nullptr);
 
 	//マテリアルCBufferの場所を設定
-	commandList_->SetGraphicsRootConstantBufferView(0, primitiveMaterialResource_[Primitive3DManager::SHAPE_Line]->GetGPUVirtualAddress());
+	commandList_->SetGraphicsRootConstantBufferView(0, primitiveMaterialResource_[PrimitiveManager::SHAPE_Line]->GetGPUVirtualAddress());
 	//wvp用のCBufferの場所を設定
 
 	//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
@@ -1443,12 +1443,12 @@ void GameEngine::DrawLine_(std::list<Primitive3DManager::PrimitiveLine> lines, P
 	commandList_->SetGraphicsRootDescriptorTable(1, srvManager_->GetGPUDescriptorHandle(primitiveResource.instancingIndex));
 
 	// SRV を作成（NumElements と stride は一致させる）
-	srvManager_->CreateSRVforStructuredBuffer(primitiveResource.instancingIndex, primitiveResource_[Primitive3DManager::SHAPE_Line].Get(), Primitive3DManager::kMaxNumPrimitive, sizeof(InstancingTransformationMatrix));
+	srvManager_->CreateSRVforStructuredBuffer(primitiveResource.instancingIndex, primitiveResource_[PrimitiveManager::SHAPE_Line].Get(), PrimitiveManager::kMaxNumPrimitive, sizeof(InstancingTransformationMatrix));
 	//描画(DrawCall)
 	commandList_->DrawIndexedInstanced(primitiveResource.offset.indexCount, numInstance, primitiveResource.offset.indexStart, 0, 0);
 }
 
-void GameEngine::DrawPoint_(std::list<Primitive3DManager::PrimitivePoint> points, Primitive3DManager::PrimitiveResource primitiveResource) {
+void GameEngine::DrawPoint_(std::list<PrimitiveManager::PrimitivePoint> points, PrimitiveManager::PrimitiveResource primitiveResource) {
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList_->SetGraphicsRootSignature(object_Instancing_RootSignature_.Get());
 	commandList_->SetPipelineState(line_NoDepth_PipelineState_.Get());	//PSOを設定
@@ -1456,8 +1456,8 @@ void GameEngine::DrawPoint_(std::list<Primitive3DManager::PrimitivePoint> points
 	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
 	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 
-	commandList_->IASetVertexBuffers(0, 1, &Primitive3DManager::GetInstance()->GetVertexBufferView());	//VBVを設定
-	commandList_->IASetIndexBuffer(&Primitive3DManager::GetInstance()->GetIndexBufferView());	//IBVを設定
+	commandList_->IASetVertexBuffers(0, 1, &PrimitiveManager::GetInstance()->GetVertexBufferView());	//VBVを設定
+	commandList_->IASetIndexBuffer(&PrimitiveManager::GetInstance()->GetIndexBufferView());	//IBVを設定
 
 	Camera* camera = Object::GetDefaultCamera().get();
 
@@ -1466,21 +1466,21 @@ void GameEngine::DrawPoint_(std::list<Primitive3DManager::PrimitivePoint> points
 
 	//WVPデータを更新
 	InstancingTransformationMatrix* mappedBase = nullptr;
-	primitiveResource_[Primitive3DManager::SHAPE_Point]->Map(0, nullptr, reinterpret_cast<void**>(&mappedBase));
+	primitiveResource_[PrimitiveManager::SHAPE_Point]->Map(0, nullptr, reinterpret_cast<void**>(&mappedBase));
 	// mappedBase が nullptr でないかチェック
 	if (mappedBase == nullptr) {
 		assert(0);
 	}
 	// 各要素ポインタを mappedBase に初期化
-	for (uint32_t j = 0; j < Primitive3DManager::kMaxNumPrimitive; ++j) {
-		primitiveData_[Primitive3DManager::SHAPE_Point][j] = mappedBase + j;
+	for (uint32_t j = 0; j < PrimitiveManager::kMaxNumPrimitive; ++j) {
+		primitiveData_[PrimitiveManager::SHAPE_Point][j] = mappedBase + j;
 	}
 
 	uint32_t numInstance = 0;
-	for (std::list<Primitive3DManager::PrimitivePoint>::iterator pointIterator = points.begin();
+	for (std::list<PrimitiveManager::PrimitivePoint>::iterator pointIterator = points.begin();
 		pointIterator != points.end(); ++pointIterator) {
 
-		if (numInstance >= Primitive3DManager::kMaxNumPrimitive)break;
+		if (numInstance >= PrimitiveManager::kMaxNumPrimitive)break;
 
 		SRT transform{};
 		transform.scale = Vector3{ 1.0f,1.0f,1.0f };
@@ -1488,32 +1488,32 @@ void GameEngine::DrawPoint_(std::list<Primitive3DManager::PrimitivePoint> points
 
 		Matrix4x4 worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
 
-		primitiveData_[Primitive3DManager::SHAPE_Point][numInstance]->World = worldMatrix;
-		primitiveData_[Primitive3DManager::SHAPE_Point][numInstance]->WorldInverseTranspose = Transpose(Inverse(worldMatrix));
+		primitiveData_[PrimitiveManager::SHAPE_Point][numInstance]->World = worldMatrix;
+		primitiveData_[PrimitiveManager::SHAPE_Point][numInstance]->WorldInverseTranspose = Transpose(Inverse(worldMatrix));
 		Matrix4x4 worldViewProjectionMatrix = worldMatrix * camera->GetViewMatrix() * camera->GetProjectionMatrix();
-		primitiveData_[Primitive3DManager::SHAPE_Point][numInstance]->WVP = worldViewProjectionMatrix;
-		primitiveData_[Primitive3DManager::SHAPE_Point][numInstance]->color = (*pointIterator).color;
+		primitiveData_[PrimitiveManager::SHAPE_Point][numInstance]->WVP = worldViewProjectionMatrix;
+		primitiveData_[PrimitiveManager::SHAPE_Point][numInstance]->color = (*pointIterator).color;
 
 		++numInstance;
 	}
 
-	primitiveResource_[Primitive3DManager::SHAPE_Point]->Unmap(0, nullptr);
+	primitiveResource_[PrimitiveManager::SHAPE_Point]->Unmap(0, nullptr);
 
 	//マテリアルデータを更新
-	primitiveMaterialResource_[Primitive3DManager::SHAPE_Point]->Map(0, nullptr, reinterpret_cast<void**>(&primitiveMaterialData_[Primitive3DManager::SHAPE_Point]));
+	primitiveMaterialResource_[PrimitiveManager::SHAPE_Point]->Map(0, nullptr, reinterpret_cast<void**>(&primitiveMaterialData_[PrimitiveManager::SHAPE_Point]));
 
-	primitiveMaterialData_[Primitive3DManager::SHAPE_Point]->uvTransform = MakeIdentity4x4();
-	primitiveMaterialData_[Primitive3DManager::SHAPE_Point]->enableDirectionalLighting = false;
-	primitiveMaterialData_[Primitive3DManager::SHAPE_Point]->enablePointLighting = false;
-	primitiveMaterialData_[Primitive3DManager::SHAPE_Point]->enableSpotLighting = false;
-	primitiveMaterialData_[Primitive3DManager::SHAPE_Point]->reflection = 0;
-	primitiveMaterialData_[Primitive3DManager::SHAPE_Point]->shininess = 0;
-	primitiveMaterialData_[Primitive3DManager::SHAPE_Point]->color = { 1.0f,1.0f,1.0f,1.0f };
+	primitiveMaterialData_[PrimitiveManager::SHAPE_Point]->uvTransform = MakeIdentity4x4();
+	primitiveMaterialData_[PrimitiveManager::SHAPE_Point]->enableDirectionalLighting = false;
+	primitiveMaterialData_[PrimitiveManager::SHAPE_Point]->enablePointLighting = false;
+	primitiveMaterialData_[PrimitiveManager::SHAPE_Point]->enableSpotLighting = false;
+	primitiveMaterialData_[PrimitiveManager::SHAPE_Point]->reflection = 0;
+	primitiveMaterialData_[PrimitiveManager::SHAPE_Point]->shininess = 0;
+	primitiveMaterialData_[PrimitiveManager::SHAPE_Point]->color = { 1.0f,1.0f,1.0f,1.0f };
 
-	primitiveMaterialResource_[Primitive3DManager::SHAPE_Point]->Unmap(0, nullptr);
+	primitiveMaterialResource_[PrimitiveManager::SHAPE_Point]->Unmap(0, nullptr);
 
 	//マテリアルCBufferの場所を設定
-	commandList_->SetGraphicsRootConstantBufferView(0, primitiveMaterialResource_[Primitive3DManager::SHAPE_Point]->GetGPUVirtualAddress());
+	commandList_->SetGraphicsRootConstantBufferView(0, primitiveMaterialResource_[PrimitiveManager::SHAPE_Point]->GetGPUVirtualAddress());
 	//wvp用のCBufferの場所を設定
 
 	//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
@@ -1522,12 +1522,12 @@ void GameEngine::DrawPoint_(std::list<Primitive3DManager::PrimitivePoint> points
 	commandList_->SetGraphicsRootDescriptorTable(1, srvManager_->GetGPUDescriptorHandle(primitiveResource.instancingIndex));
 
 	// SRV を作成（NumElements と stride は一致させる）
-	srvManager_->CreateSRVforStructuredBuffer(primitiveResource.instancingIndex, primitiveResource_[Primitive3DManager::SHAPE_Point].Get(), Primitive3DManager::kMaxNumPrimitive, sizeof(InstancingTransformationMatrix));
+	srvManager_->CreateSRVforStructuredBuffer(primitiveResource.instancingIndex, primitiveResource_[PrimitiveManager::SHAPE_Point].Get(), PrimitiveManager::kMaxNumPrimitive, sizeof(InstancingTransformationMatrix));
 	//描画(DrawCall)
 	commandList_->DrawIndexedInstanced(primitiveResource.offset.indexCount, numInstance, primitiveResource.offset.indexStart, 0, 0);
 }
 
-void GameEngine::DrawOBB_(std::list<Primitive3DManager::PrimitiveOBB> obbs, Primitive3DManager::PrimitiveResource primitiveResource) {
+void GameEngine::DrawOBB_(std::list<PrimitiveManager::PrimitiveOBB> obbs, PrimitiveManager::PrimitiveResource primitiveResource) {
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList_->SetGraphicsRootSignature(object_Instancing_RootSignature_.Get());
 	commandList_->SetPipelineState(line_NoDepth_PipelineState_.Get());	//PSOを設定
@@ -1535,8 +1535,8 @@ void GameEngine::DrawOBB_(std::list<Primitive3DManager::PrimitiveOBB> obbs, Prim
 	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
 	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 
-	commandList_->IASetVertexBuffers(0, 1, &Primitive3DManager::GetInstance()->GetVertexBufferView());	//VBVを設定
-	commandList_->IASetIndexBuffer(&Primitive3DManager::GetInstance()->GetIndexBufferView());	//IBVを設定
+	commandList_->IASetVertexBuffers(0, 1, &PrimitiveManager::GetInstance()->GetVertexBufferView());	//VBVを設定
+	commandList_->IASetIndexBuffer(&PrimitiveManager::GetInstance()->GetIndexBufferView());	//IBVを設定
 
 	Camera* camera = Object::GetDefaultCamera().get();
 
@@ -1545,21 +1545,21 @@ void GameEngine::DrawOBB_(std::list<Primitive3DManager::PrimitiveOBB> obbs, Prim
 
 	//WVPデータを更新
 	InstancingTransformationMatrix* mappedBase = nullptr;
-	primitiveResource_[Primitive3DManager::SHAPE_OBB]->Map(0, nullptr, reinterpret_cast<void**>(&mappedBase));
+	primitiveResource_[PrimitiveManager::SHAPE_OBB]->Map(0, nullptr, reinterpret_cast<void**>(&mappedBase));
 	// mappedBase が nullptr でないかチェック
 	if (mappedBase == nullptr) {
 		assert(0);
 	}
 	// 各要素ポインタを mappedBase に初期化
-	for (uint32_t j = 0; j < Primitive3DManager::kMaxNumPrimitive; ++j) {
-		primitiveData_[Primitive3DManager::SHAPE_OBB][j] = mappedBase + j;
+	for (uint32_t j = 0; j < PrimitiveManager::kMaxNumPrimitive; ++j) {
+		primitiveData_[PrimitiveManager::SHAPE_OBB][j] = mappedBase + j;
 	}
 
 	uint32_t numInstance = 0;
-	for (std::list<Primitive3DManager::PrimitiveOBB>::iterator aabbIterator = obbs.begin();
+	for (std::list<PrimitiveManager::PrimitiveOBB>::iterator aabbIterator = obbs.begin();
 		aabbIterator != obbs.end(); ++aabbIterator) {
 
-		if (numInstance >= Primitive3DManager::kMaxNumPrimitive)break;
+		if (numInstance >= PrimitiveManager::kMaxNumPrimitive)break;
 
 		SRT transform{};
 		transform.scale = Vector3{ 1.0f,1.0f,1.0f };
@@ -1571,32 +1571,32 @@ void GameEngine::DrawOBB_(std::list<Primitive3DManager::PrimitiveOBB> obbs, Prim
 		worldMatrix.m[1][0] *= (*aabbIterator).obb.orientations[1].x; worldMatrix.m[1][1] *= (*aabbIterator).obb.orientations[1].y; worldMatrix.m[1][2] *= (*aabbIterator).obb.orientations[1].z;
 		worldMatrix.m[2][0] *= (*aabbIterator).obb.orientations[2].x; worldMatrix.m[2][1] *= (*aabbIterator).obb.orientations[2].y; worldMatrix.m[2][2] *= (*aabbIterator).obb.orientations[2].z;
 
-		primitiveData_[Primitive3DManager::SHAPE_OBB][numInstance]->World = worldMatrix;
-		primitiveData_[Primitive3DManager::SHAPE_OBB][numInstance]->WorldInverseTranspose = Transpose(Inverse(worldMatrix));
+		primitiveData_[PrimitiveManager::SHAPE_OBB][numInstance]->World = worldMatrix;
+		primitiveData_[PrimitiveManager::SHAPE_OBB][numInstance]->WorldInverseTranspose = Transpose(Inverse(worldMatrix));
 		Matrix4x4 worldViewProjectionMatrix = worldMatrix * camera->GetViewMatrix() * camera->GetProjectionMatrix();
-		primitiveData_[Primitive3DManager::SHAPE_OBB][numInstance]->WVP = worldViewProjectionMatrix;
-		primitiveData_[Primitive3DManager::SHAPE_OBB][numInstance]->color = (*aabbIterator).color;
+		primitiveData_[PrimitiveManager::SHAPE_OBB][numInstance]->WVP = worldViewProjectionMatrix;
+		primitiveData_[PrimitiveManager::SHAPE_OBB][numInstance]->color = (*aabbIterator).color;
 
 		++numInstance;
 	}
 
-	primitiveResource_[Primitive3DManager::SHAPE_OBB]->Unmap(0, nullptr);
+	primitiveResource_[PrimitiveManager::SHAPE_OBB]->Unmap(0, nullptr);
 
 	//マテリアルデータを更新
-	primitiveMaterialResource_[Primitive3DManager::SHAPE_OBB]->Map(0, nullptr, reinterpret_cast<void**>(&primitiveMaterialData_[Primitive3DManager::SHAPE_OBB]));
+	primitiveMaterialResource_[PrimitiveManager::SHAPE_OBB]->Map(0, nullptr, reinterpret_cast<void**>(&primitiveMaterialData_[PrimitiveManager::SHAPE_OBB]));
 
-	primitiveMaterialData_[Primitive3DManager::SHAPE_OBB]->uvTransform = MakeIdentity4x4();
-	primitiveMaterialData_[Primitive3DManager::SHAPE_OBB]->enableDirectionalLighting = false;
-	primitiveMaterialData_[Primitive3DManager::SHAPE_OBB]->enablePointLighting = false;
-	primitiveMaterialData_[Primitive3DManager::SHAPE_OBB]->enableSpotLighting = false;
-	primitiveMaterialData_[Primitive3DManager::SHAPE_OBB]->reflection = 0;
-	primitiveMaterialData_[Primitive3DManager::SHAPE_OBB]->shininess = 0;
-	primitiveMaterialData_[Primitive3DManager::SHAPE_OBB]->color = { 1.0f,1.0f,1.0f,1.0f };
+	primitiveMaterialData_[PrimitiveManager::SHAPE_OBB]->uvTransform = MakeIdentity4x4();
+	primitiveMaterialData_[PrimitiveManager::SHAPE_OBB]->enableDirectionalLighting = false;
+	primitiveMaterialData_[PrimitiveManager::SHAPE_OBB]->enablePointLighting = false;
+	primitiveMaterialData_[PrimitiveManager::SHAPE_OBB]->enableSpotLighting = false;
+	primitiveMaterialData_[PrimitiveManager::SHAPE_OBB]->reflection = 0;
+	primitiveMaterialData_[PrimitiveManager::SHAPE_OBB]->shininess = 0;
+	primitiveMaterialData_[PrimitiveManager::SHAPE_OBB]->color = { 1.0f,1.0f,1.0f,1.0f };
 
-	primitiveMaterialResource_[Primitive3DManager::SHAPE_OBB]->Unmap(0, nullptr);
+	primitiveMaterialResource_[PrimitiveManager::SHAPE_OBB]->Unmap(0, nullptr);
 
 	//マテリアルCBufferの場所を設定
-	commandList_->SetGraphicsRootConstantBufferView(0, primitiveMaterialResource_[Primitive3DManager::SHAPE_OBB]->GetGPUVirtualAddress());
+	commandList_->SetGraphicsRootConstantBufferView(0, primitiveMaterialResource_[PrimitiveManager::SHAPE_OBB]->GetGPUVirtualAddress());
 	//wvp用のCBufferの場所を設定
 
 	//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
@@ -1605,12 +1605,12 @@ void GameEngine::DrawOBB_(std::list<Primitive3DManager::PrimitiveOBB> obbs, Prim
 	commandList_->SetGraphicsRootDescriptorTable(1, srvManager_->GetGPUDescriptorHandle(primitiveResource.instancingIndex));
 
 	// SRV を作成（NumElements と stride は一致させる）
-	srvManager_->CreateSRVforStructuredBuffer(primitiveResource.instancingIndex, primitiveResource_[Primitive3DManager::SHAPE_OBB].Get(), Primitive3DManager::kMaxNumPrimitive, sizeof(InstancingTransformationMatrix));
+	srvManager_->CreateSRVforStructuredBuffer(primitiveResource.instancingIndex, primitiveResource_[PrimitiveManager::SHAPE_OBB].Get(), PrimitiveManager::kMaxNumPrimitive, sizeof(InstancingTransformationMatrix));
 	//描画(DrawCall)
 	commandList_->DrawIndexedInstanced(primitiveResource.offset.indexCount, numInstance, primitiveResource.offset.indexStart, 0, 0);
 }
 
-void GameEngine::DrawSphere_(std::list<Primitive3DManager::PrimitiveSphere> spheres, Primitive3DManager::PrimitiveResource primitiveResource) {
+void GameEngine::DrawSphere_(std::list<PrimitiveManager::PrimitiveSphere> spheres, PrimitiveManager::PrimitiveResource primitiveResource) {
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList_->SetGraphicsRootSignature(object_Instancing_RootSignature_.Get());
 	commandList_->SetPipelineState(line_NoDepth_PipelineState_.Get());	//PSOを設定
@@ -1618,8 +1618,8 @@ void GameEngine::DrawSphere_(std::list<Primitive3DManager::PrimitiveSphere> sphe
 	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
 	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 
-	commandList_->IASetVertexBuffers(0, 1, &Primitive3DManager::GetInstance()->GetVertexBufferView());	//VBVを設定
-	commandList_->IASetIndexBuffer(&Primitive3DManager::GetInstance()->GetIndexBufferView());	//IBVを設定
+	commandList_->IASetVertexBuffers(0, 1, &PrimitiveManager::GetInstance()->GetVertexBufferView());	//VBVを設定
+	commandList_->IASetIndexBuffer(&PrimitiveManager::GetInstance()->GetIndexBufferView());	//IBVを設定
 
 	Camera* camera = Object::GetDefaultCamera().get();
 
@@ -1628,21 +1628,21 @@ void GameEngine::DrawSphere_(std::list<Primitive3DManager::PrimitiveSphere> sphe
 
 	//WVPデータを更新
 	InstancingTransformationMatrix* mappedBase = nullptr;
-	primitiveResource_[Primitive3DManager::SHAPE_Sphere]->Map(0, nullptr, reinterpret_cast<void**>(&mappedBase));
+	primitiveResource_[PrimitiveManager::SHAPE_Sphere]->Map(0, nullptr, reinterpret_cast<void**>(&mappedBase));
 	// mappedBase が nullptr でないかチェック
 	if (mappedBase == nullptr) {
 		assert(0);
 	}
 	// 各要素ポインタを mappedBase に初期化
-	for (uint32_t j = 0; j < Primitive3DManager::kMaxNumPrimitive; ++j) {
-		primitiveData_[Primitive3DManager::SHAPE_Sphere][j] = mappedBase + j;
+	for (uint32_t j = 0; j < PrimitiveManager::kMaxNumPrimitive; ++j) {
+		primitiveData_[PrimitiveManager::SHAPE_Sphere][j] = mappedBase + j;
 	}
 
 	uint32_t numInstance = 0;
-	for (std::list<Primitive3DManager::PrimitiveSphere>::iterator sphereIterator = spheres.begin();
+	for (std::list<PrimitiveManager::PrimitiveSphere>::iterator sphereIterator = spheres.begin();
 		sphereIterator != spheres.end(); ++sphereIterator) {
 
-		if (numInstance >= Primitive3DManager::kMaxNumPrimitive)break;
+		if (numInstance >= PrimitiveManager::kMaxNumPrimitive)break;
 
 		SRT transform{};
 		transform.scale = Vector3{ 1.0f,1.0f,1.0f };
@@ -1651,32 +1651,32 @@ void GameEngine::DrawSphere_(std::list<Primitive3DManager::PrimitiveSphere> sphe
 
 		Matrix4x4 worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
 
-		primitiveData_[Primitive3DManager::SHAPE_Sphere][numInstance]->World = worldMatrix;
-		primitiveData_[Primitive3DManager::SHAPE_Sphere][numInstance]->WorldInverseTranspose = Transpose(Inverse(worldMatrix));
+		primitiveData_[PrimitiveManager::SHAPE_Sphere][numInstance]->World = worldMatrix;
+		primitiveData_[PrimitiveManager::SHAPE_Sphere][numInstance]->WorldInverseTranspose = Transpose(Inverse(worldMatrix));
 		Matrix4x4 worldViewProjectionMatrix = worldMatrix * camera->GetViewMatrix() * camera->GetProjectionMatrix();
-		primitiveData_[Primitive3DManager::SHAPE_Sphere][numInstance]->WVP = worldViewProjectionMatrix;
-		primitiveData_[Primitive3DManager::SHAPE_Sphere][numInstance]->color = (*sphereIterator).color;
+		primitiveData_[PrimitiveManager::SHAPE_Sphere][numInstance]->WVP = worldViewProjectionMatrix;
+		primitiveData_[PrimitiveManager::SHAPE_Sphere][numInstance]->color = (*sphereIterator).color;
 
 		++numInstance;
 	}
 
-	primitiveResource_[Primitive3DManager::SHAPE_Sphere]->Unmap(0, nullptr);
+	primitiveResource_[PrimitiveManager::SHAPE_Sphere]->Unmap(0, nullptr);
 
 	//マテリアルデータを更新
-	primitiveMaterialResource_[Primitive3DManager::SHAPE_Sphere]->Map(0, nullptr, reinterpret_cast<void**>(&primitiveMaterialData_[Primitive3DManager::SHAPE_Sphere]));
+	primitiveMaterialResource_[PrimitiveManager::SHAPE_Sphere]->Map(0, nullptr, reinterpret_cast<void**>(&primitiveMaterialData_[PrimitiveManager::SHAPE_Sphere]));
 
-	primitiveMaterialData_[Primitive3DManager::SHAPE_Sphere]->uvTransform = MakeIdentity4x4();
-	primitiveMaterialData_[Primitive3DManager::SHAPE_Sphere]->enableDirectionalLighting = false;
-	primitiveMaterialData_[Primitive3DManager::SHAPE_Sphere]->enablePointLighting = false;
-	primitiveMaterialData_[Primitive3DManager::SHAPE_Sphere]->enableSpotLighting = false;
-	primitiveMaterialData_[Primitive3DManager::SHAPE_Sphere]->reflection = 0;
-	primitiveMaterialData_[Primitive3DManager::SHAPE_Sphere]->shininess = 0;
-	primitiveMaterialData_[Primitive3DManager::SHAPE_Sphere]->color = { 1.0f,1.0f,1.0f,1.0f };
+	primitiveMaterialData_[PrimitiveManager::SHAPE_Sphere]->uvTransform = MakeIdentity4x4();
+	primitiveMaterialData_[PrimitiveManager::SHAPE_Sphere]->enableDirectionalLighting = false;
+	primitiveMaterialData_[PrimitiveManager::SHAPE_Sphere]->enablePointLighting = false;
+	primitiveMaterialData_[PrimitiveManager::SHAPE_Sphere]->enableSpotLighting = false;
+	primitiveMaterialData_[PrimitiveManager::SHAPE_Sphere]->reflection = 0;
+	primitiveMaterialData_[PrimitiveManager::SHAPE_Sphere]->shininess = 0;
+	primitiveMaterialData_[PrimitiveManager::SHAPE_Sphere]->color = { 1.0f,1.0f,1.0f,1.0f };
 
-	primitiveMaterialResource_[Primitive3DManager::SHAPE_Sphere]->Unmap(0, nullptr);
+	primitiveMaterialResource_[PrimitiveManager::SHAPE_Sphere]->Unmap(0, nullptr);
 
 	//マテリアルCBufferの場所を設定
-	commandList_->SetGraphicsRootConstantBufferView(0, primitiveMaterialResource_[Primitive3DManager::SHAPE_Sphere]->GetGPUVirtualAddress());
+	commandList_->SetGraphicsRootConstantBufferView(0, primitiveMaterialResource_[PrimitiveManager::SHAPE_Sphere]->GetGPUVirtualAddress());
 	//wvp用のCBufferの場所を設定
 
 	//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
@@ -1685,7 +1685,7 @@ void GameEngine::DrawSphere_(std::list<Primitive3DManager::PrimitiveSphere> sphe
 	commandList_->SetGraphicsRootDescriptorTable(1, srvManager_->GetGPUDescriptorHandle(primitiveResource.instancingIndex));
 
 	// SRV を作成（NumElements と stride は一致させる）
-	srvManager_->CreateSRVforStructuredBuffer(primitiveResource.instancingIndex, primitiveResource_[Primitive3DManager::SHAPE_Sphere].Get(), Primitive3DManager::kMaxNumPrimitive, sizeof(InstancingTransformationMatrix));
+	srvManager_->CreateSRVforStructuredBuffer(primitiveResource.instancingIndex, primitiveResource_[PrimitiveManager::SHAPE_Sphere].Get(), PrimitiveManager::kMaxNumPrimitive, sizeof(InstancingTransformationMatrix));
 	//描画(DrawCall)
 	commandList_->DrawIndexedInstanced(primitiveResource.offset.indexCount, numInstance, primitiveResource.offset.indexStart, 0, 0);
 }

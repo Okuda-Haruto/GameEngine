@@ -39,7 +39,7 @@
 #include "ModelManager/ModelManager.h"
 #include "SRVManager/SRVManager.h"
 #include "ParticleManager/ParticleManager.h"
-#include "PrimitiveManager/Primitive3DManager.h"
+#include "PrimitiveManager/PrimitiveManager.h"
 #include <PrimitiveManager/PrimitiveBox.h>
 #include <PrimitiveManager/PrimitiveRing.h>
 #include <PrimitiveManager/PrimitiveCylinder.h>
@@ -191,13 +191,13 @@ private:
 
 #pragma region primitive
 	//マテリアルリソース
-	std::array<Microsoft::WRL::ComPtr<ID3D12Resource>, Primitive3DManager::SHAPE_count> primitiveMaterialResource_;
+	std::array<Microsoft::WRL::ComPtr<ID3D12Resource>, PrimitiveManager::SHAPE_count> primitiveMaterialResource_;
 	//マテリアルデータ
-	std::array<Material*, Primitive3DManager::SHAPE_count> primitiveMaterialData_;
+	std::array<Material*, PrimitiveManager::SHAPE_count> primitiveMaterialData_;
 	//インスタンス用リソース
-	std::array<Microsoft::WRL::ComPtr<ID3D12Resource>, Primitive3DManager::SHAPE_count> primitiveResource_;
+	std::array<Microsoft::WRL::ComPtr<ID3D12Resource>, PrimitiveManager::SHAPE_count> primitiveResource_;
 	//インスタンスデータ
-	std::array<std::array<InstancingTransformationMatrix*, Primitive3DManager::kMaxNumPrimitive>, Primitive3DManager::SHAPE_count> primitiveData_;
+	std::array<std::array<InstancingTransformationMatrix*, PrimitiveManager::kMaxNumPrimitive>, PrimitiveManager::SHAPE_count> primitiveData_;
 #pragma endregion
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> fogResource_;
@@ -260,10 +260,10 @@ private:
 	void DrawGaussianFillter_(std::string textureName, BoxFilterData data);
 	void DrawOutline_(std::string textureName, std::shared_ptr<Camera> camera);
 
-	void DrawLine_(std::list<Primitive3DManager::PrimitiveLine> lines, Primitive3DManager::PrimitiveResource primitiveResource);
-	void DrawPoint_(std::list<Primitive3DManager::PrimitivePoint> points, Primitive3DManager::PrimitiveResource primitiveResource);
-	void DrawOBB_(std::list<Primitive3DManager::PrimitiveOBB> obbs, Primitive3DManager::PrimitiveResource primitiveResource);
-	void DrawSphere_(std::list<Primitive3DManager::PrimitiveSphere> spheres, Primitive3DManager::PrimitiveResource primitiveResource);
+	void DrawLine_(std::list<PrimitiveManager::PrimitiveLine> lines, PrimitiveManager::PrimitiveResource primitiveResource);
+	void DrawPoint_(std::list<PrimitiveManager::PrimitivePoint> points, PrimitiveManager::PrimitiveResource primitiveResource);
+	void DrawOBB_(std::list<PrimitiveManager::PrimitiveOBB> obbs, PrimitiveManager::PrimitiveResource primitiveResource);
+	void DrawSphere_(std::list<PrimitiveManager::PrimitiveSphere> spheres, PrimitiveManager::PrimitiveResource primitiveResource);
 
 	void DrawPrimitiveBox_(PrimitiveBox* primitiveBox);
 	void DrawPrimitiveRing_(PrimitiveRing* primitiveRing, SRT transform, Material material);
@@ -363,10 +363,10 @@ public:
 	static void DrawGaussiianFillter(std::string textureName, BoxFilterData data) { return GetInstance()->DrawGaussianFillter_(textureName, data); }
 	static void DrawOutline(std::string textureName, std::shared_ptr<Camera> camera) { return GetInstance()->DrawOutline_(textureName, camera); }
 
-	static void DrawLine(std::list<Primitive3DManager::PrimitiveLine> lines, Primitive3DManager::PrimitiveResource primitiveResource) { return GetInstance()->DrawLine_(lines, primitiveResource); }
-	static void DrawPoint(std::list<Primitive3DManager::PrimitivePoint> points, Primitive3DManager::PrimitiveResource primitiveResource) { return GetInstance()->DrawPoint_(points, primitiveResource); }
-	static void DrawOBB(std::list<Primitive3DManager::PrimitiveOBB> obbs, Primitive3DManager::PrimitiveResource primitiveResource) { return GetInstance()->DrawOBB_(obbs, primitiveResource); }
-	static void DrawSphere(std::list<Primitive3DManager::PrimitiveSphere> spheres, Primitive3DManager::PrimitiveResource primitiveResource) { return GetInstance()->DrawSphere_(spheres, primitiveResource); }
+	static void DrawLine(std::list<PrimitiveManager::PrimitiveLine> lines, PrimitiveManager::PrimitiveResource primitiveResource) { return GetInstance()->DrawLine_(lines, primitiveResource); }
+	static void DrawPoint(std::list<PrimitiveManager::PrimitivePoint> points, PrimitiveManager::PrimitiveResource primitiveResource) { return GetInstance()->DrawPoint_(points, primitiveResource); }
+	static void DrawOBB(std::list<PrimitiveManager::PrimitiveOBB> obbs, PrimitiveManager::PrimitiveResource primitiveResource) { return GetInstance()->DrawOBB_(obbs, primitiveResource); }
+	static void DrawSphere(std::list<PrimitiveManager::PrimitiveSphere> spheres, PrimitiveManager::PrimitiveResource primitiveResource) { return GetInstance()->DrawSphere_(spheres, primitiveResource); }
 
 	static void DrawPrimitiveBox(PrimitiveBox* primitiveBox) { return GetInstance()->DrawPrimitiveBox_(primitiveBox); }
 	static void DrawPrimitiveRing(PrimitiveRing* primitiveRing, SRT transform, Material material) { return GetInstance()->DrawPrimitiveRing_(primitiveRing, transform, material); };

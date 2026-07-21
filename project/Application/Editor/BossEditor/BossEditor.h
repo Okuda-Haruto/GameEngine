@@ -58,6 +58,15 @@ private:
 	};
 	OpenFile openFile_;
 
+	//ボスパターン追加
+	enum class AddPattern {
+		None,
+		AddPattern,		//パターン追加
+	};
+	AddPattern addPattern_;
+	char patternNameText_[32] = {};
+
+
 	//ボス名
 	std::string bossName_;
 	//描画するモデルファイルへのパス
@@ -65,6 +74,10 @@ private:
 	std::string modelname_;
 	//最大HP
 	uint32_t maxHP_;
+
+	//ステップ達
+	std::vector<std::string> stepNameList_;
+
 	//ボス行動パターン
 	std::unordered_map<std::string, std::unique_ptr<BossPattern>> patterns_;
 

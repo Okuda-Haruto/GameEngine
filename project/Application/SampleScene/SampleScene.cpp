@@ -564,21 +564,21 @@ void SampleScene::Update() {
 	static Line line = { .origin{0.0f,2.0f,0.0f},.diff{0.0f,0.0f,1.0f} };
 	ImGui::DragFloat3("Line origin", &line.origin.x, 0.01f);
 	ImGui::DragFloat3("Line diff", &line.diff.x, 0.01f);
-	Primitive3DManager::GetInstance()->AddLine(line);
+	PrimitiveManager::GetInstance()->AddLine(line);
 
 	static Vector3 point = { 0.0f,0.0f,0.0f };
 	ImGui::DragFloat3("Point pos", &point.x, 0.01f);
-	//Primitive3DManager::GetInstance()->AddPoint(point);
+	//PrimitiveManager::GetInstance()->AddPoint(point);
 
 	static AABB aabb = { .min{-1.0f,-1.0f,-1.0f},.max{1.0f,1.0f,1.0f} };
 	ImGui::DragFloat3("AABB min", &aabb.min.x, 0.01f);
 	ImGui::DragFloat3("AABB max", &aabb.max.x, 0.01f);
-	Primitive3DManager::GetInstance()->AddAABB(aabb);
+	PrimitiveManager::GetInstance()->AddAABB(aabb);
 
 	static Sphere sphere = { .center{0.0f,1.0f,0.0f},.radius{1.0f} };
 	ImGui::DragFloat3("Sphere center", &sphere.center.x, 0.01f);
 	ImGui::DragFloat("Sphere radius", &sphere.radius, 0.01f);
-	Primitive3DManager::GetInstance()->AddSphere(sphere);
+	PrimitiveManager::GetInstance()->AddSphere(sphere);
 
 	if (ImGui::Button("アニメーションリセット")) {
 		object_[5]->ResetTimer();

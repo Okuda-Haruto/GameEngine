@@ -3,7 +3,7 @@
 #include <memory>
 #include <Object/Object.h>
 #include <Collider/Colliders.h>
-#include <Character/Boss/Boss.h>
+#include <Entity/Boss/Boss.h>
 #include <StageManager/Stage/Stage.h>
 #include <GameManager/BaseScene/BaseScene.h>
 #include <Math/Shape/Line.h>

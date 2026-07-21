@@ -7,8 +7,7 @@
 #include <PushOut/PushOut.h>
 
 Stage::~Stage() {
-	playerBullets_.clear();
-	bossBullets_.clear();
+	bullets_.clear();
 
 #ifdef USE_IMGUI
 	backGround_->SaveBackGround("resources/CSV/BackGround.csv");
@@ -24,8 +23,7 @@ void Stage::Initialize(StageData stageData, std::shared_ptr<Input> input) {
 	gameCamera_ = std::make_unique<GameCamera>();
 	gameCamera_->Initialize(input_);
 	gameCamera_->ChangeCamera(std::make_unique<LockOnCamera>(), 0.0f);
-	PlayerBullet::SetCamera(gameCamera_->GetCamera());
-	BossBullet::SetCamera(gameCamera_->GetCamera());
+	Bullet::SetCamera(gameCamera_->GetCamera());
 	BreakObject::SetGameCamera(gameCamera_);
 
 	directionalLight_ = std::make_unique<DirectionalLight>();
@@ -34,8 +32,7 @@ void Stage::Initialize(StageData stageData, std::shared_ptr<Input> input) {
 	directionalLightElement_.direction = Normalize(Vector3{ 0.0f,-1.0f,1.0f });
 	directionalLightElement_.intensity = 1.0f;
 	directionalLight_->SetDirectionalLightElement(directionalLightElement_);
-	PlayerBullet::SetDirectionalLight(directionalLight_);
-	BossBullet::SetDirectionalLight(directionalLight_);
+	Bullet::SetDirectionalLight(directionalLight_);
 	BreakObject::SetDirectionalLight(directionalLight_);
 
 	pointLight_ = std::make_unique<PointLight>();
@@ -46,8 +43,7 @@ void Stage::Initialize(StageData stageData, std::shared_ptr<Input> input) {
 	pointLightElement_.position = {};
 	pointLightElement_.decay = 1.0f;
 	pointLight_->SetPointLightElement(pointLightElement_);
-	PlayerBullet::SetPointLight(pointLight_);
-	BossBullet::SetPointLight(pointLight_);
+	Bullet::SetPointLight(pointLight_);
 	BreakObject::SetPointLight(pointLight_);
 
 	ParticleManager::GetInstance()->CreateParticleGroup("Particle_Sandstorm", "resources/Particle/sand.png");
@@ -165,16 +161,24 @@ void Stage::Initialize(StageData stageData, std::shared_ptr<Input> input) {
 	boss_->SetPointLight(pointLight_);
 
 	std::unique_ptr<BreakObject> breakObject = std::make_unique<BreakObject>();
-	breakObject->Initialize("resources/Object", "Box.obj", SRT{ {2,2,2} ,{0,0,0},{25,1.5f,25} }, 2, std::make_unique<BreakBehavior_Explosion_Small>());
+	std::unique_ptr<Event_Explosion> exprotion = std::make_unique<Event_Explosion>();
+	exprotion->Initialize(this,12.0f,0.5f,CollisionID_Player_Attack,15.0f);
+	breakObject->Initialize(SRT{ {2,2,2} ,{0,0,0},{25,1.5f,25} }, 2, ModelManager::GetInstance()->GetModel("resources/Object", "Box.obj"), move(exprotion));
 	breakObjects_.push_back(move(breakObject));
 	breakObject = std::make_unique<BreakObject>();
-	breakObject->Initialize("resources/Object", "Box.obj", SRT{ {2,2,2} ,{0,0,0},{-25,1.5f,25} }, 2, std::make_unique<BreakBehavior_Explosion_Small>());
+	exprotion = std::make_unique<Event_Explosion>();
+	exprotion->Initialize(this, 12.0f, 0.5f, CollisionID_Player_Attack, 15.0f);
+	breakObject->Initialize(SRT{ {2,2,2} ,{0,0,0},{-25,1.5f,25} }, 2, ModelManager::GetInstance()->GetModel("resources/Object", "Box.obj"), move(exprotion));
 	breakObjects_.push_back(move(breakObject));
 	breakObject = std::make_unique<BreakObject>();
-	breakObject->Initialize("resources/Object", "Box.obj", SRT{ {2,2,2} ,{0,0,0},{25,1.5f,-25} }, 2, std::make_unique<BreakBehavior_Explosion_Small>());
+	exprotion = std::make_unique<Event_Explosion>();
+	exprotion->Initialize(this, 12.0f, 0.5f, CollisionID_Player_Attack, 15.0f);
+	breakObject->Initialize(SRT{ {2,2,2} ,{0,0,0},{25,1.5f,-25} }, 2, ModelManager::GetInstance()->GetModel("resources/Object", "Box.obj"), move(exprotion));
 	breakObjects_.push_back(move(breakObject));
 	breakObject = std::make_unique<BreakObject>();
-	breakObject->Initialize("resources/Object", "Box.obj", SRT{ {2,2,2} ,{0,0,0},{-25,1.5f,-25} }, 2, std::make_unique<BreakBehavior_Explosion_Small>());
+	exprotion = std::make_unique<Event_Explosion>();
+	exprotion->Initialize(this, 12.0f, 0.5f, CollisionID_Player_Attack, 15.0f);
+	breakObject->Initialize(SRT{ {2,2,2} ,{0,0,0},{-25,1.5f,-25} }, 2, ModelManager::GetInstance()->GetModel("resources/Object", "Box.obj"), move(exprotion));
 	breakObjects_.push_back(move(breakObject));
 
 	//接触可能オブジェクト
@@ -247,11 +251,11 @@ void Stage::Update() {
 			pointLight_->SetPointLightElement(pointLightElement_);
 		}
 
-		for (auto& bullet : playerBullets_) {
+		for (auto& bullet : bullets_) {
 			bullet->Update();
 		}
-		for (auto& bullet : bossBullets_) {
-			bullet->Update();
+		for (auto& shockWave : shockWaves_) {
+			shockWave->Update();
 		}
 		for (auto& object : breakObjects_) {
 			object->Update();
@@ -266,12 +270,11 @@ void Stage::Update() {
 
 		Collision();
 
-		std::erase_if(playerBullets_, [](const auto& bullet) {
+		std::erase_if(bullets_, [](const auto& bullet) {
 			return bullet->IsDead();
 			});
-
-		std::erase_if(bossBullets_, [](const auto& bullet) {
-			return bullet->IsDead();
+		std::erase_if(shockWaves_, [](const auto& shockWave) {
+			return shockWave->IsDead();
 			});
 		std::erase_if(breakObjects_, [](const auto& object) {
 			return object->IsDead();
@@ -318,11 +321,7 @@ void Stage::Draw() {
 
 	boss_->Draw();
 
-	for (auto& bullet : playerBullets_) {
-		bullet->Draw();
-	}
-
-	for (auto& bullet : bossBullets_) {
+	for (auto& bullet : bullets_) {
 		bullet->Draw();
 	}
 
@@ -338,6 +337,9 @@ void Stage::Draw() {
 
 	ring_->DrawBillBoard(ringTransform_, ringMaterial_);
 
+	for (auto& shockWave : shockWaves_) {
+		shockWave->Draw();
+	}
 	if(cylinderTime_ < kMaxCyliderTime_) {
 		cylider_->Draw(cylinderTransform_, cylinderMaterial_);
 	}
@@ -358,11 +360,11 @@ void Stage::Collision() {
 	std::list<Colliders*> colliders;
 	colliders.push_back(player_.get()->GetColliders());
 	colliders.push_back(boss_.get()->GetColliders());
-	for (auto& bullet : playerBullets_) {
+	for (auto& bullet : bullets_) {
 		colliders.push_back(bullet.get()->GetColliders());
 	}
-	for (auto& bullet : bossBullets_) {
-		colliders.push_back(bullet.get()->GetColliders());
+	for (auto& shockWave : shockWaves_) {
+		colliders.push_back(shockWave.get()->GetColliders());
 	}
 	for (auto& object : breakObjects_) {
 		colliders.push_back(object.get()->GetColliders());
@@ -475,10 +477,7 @@ Vector3 Stage::MoveWithCollision(SphereCollider& collider, Vector3 velocity) {
 	std::list<Colliders*> colliders;
 	colliders.push_back(player_.get()->GetColliders());
 	colliders.push_back(boss_.get()->GetColliders());
-	for (auto& bullet : playerBullets_) {
-		colliders.push_back(bullet.get()->GetColliders());
-	}
-	for (auto& bullet : bossBullets_) {
+	for (auto& bullet : bullets_) {
 		colliders.push_back(bullet.get()->GetColliders());
 	}
 	for (auto& object : breakObjects_) {
@@ -519,10 +518,10 @@ Vector3 Stage::MoveWithCollision(SphereCollider& collider, Vector3 velocity) {
 	return velocity;
 }
 
-void Stage::AddPlayerBullet(Vector3 translate, Vector3 rotate) {
-	unique_ptr<PlayerBullet> newBullet = make_unique<PlayerBullet>();
-	newBullet->Initialize(translate, rotate);
-	playerBullets_.push_back(move(newBullet));
+void Stage::AddBullet(SRT transform, float speed, CollisionID id, Bullet::BulletMove bulletMove, std::shared_ptr<Model> model, std::unique_ptr<BaseEvent> event){
+	unique_ptr<Bullet> newBullet = make_unique<Bullet>();
+	newBullet->Initialize(transform, 2.0f, id, Bullet::BulletMove::NormalBullet, model, move(event));
+	bullets_.push_back(move(newBullet));
 
 	Matrix4x4 rotateMatrix = MakeRotateYMatrix(player_->GetTransform()->rotate.y);
 	pointLightElement_.position = player_->GetTransform()->translate + rotateMatrix * Vector3(0.0f, 0.0f, 1.0f);
@@ -530,11 +529,11 @@ void Stage::AddPlayerBullet(Vector3 translate, Vector3 rotate) {
 
 	pointLightElement_.intensity = 1.0f;
 
-	SRT transform = particle_2->GetTransform();
+	SRT particleTransform = particle_2->GetTransform();
 	Emitter emitter = particle_2->GetEmitter();
-	transform.translate = pointLightElement_.position;
+	particleTransform.translate = pointLightElement_.position;
 	emitter.angleBase = Normalize(rotateMatrix * Vector3(0.0f, 0.0f, 0.8f) + Vector3(0.0f, 1.0f, 0.0f));
-	particle_2->SetTransform(transform);
+	particle_2->SetTransform(particleTransform);
 	particle_2->SetEmitter(emitter);
 
 	particle_2->Emit();
@@ -542,33 +541,30 @@ void Stage::AddPlayerBullet(Vector3 translate, Vector3 rotate) {
 	AudioHolder::GetInstance()->GetAudio(AudioIndex::Shot_SE).lock()->SoundPlayWave();
 }
 
-void Stage::AddBossBullet(Vector3 translate, Vector3 rotate) {
-	unique_ptr<BossBullet> newBullet = make_unique<BossBullet>();
-	newBullet->Initialize(translate, rotate);
-	bossBullets_.push_back(move(newBullet));
-
-	Matrix4x4 rotateMatrix = MakeRotateYMatrix(boss_->GetTransform().rotate.y);
-	pointLightElement_.position = boss_->GetTransform().translate + rotateMatrix * Vector3(0.0f, 0.0f, 1.0f);
-	pointLight_->SetPointLightElement(pointLightElement_);
-
-	pointLightElement_.intensity = 1.0f;
-
-	SRT transform = particle_2->GetTransform();
-	Emitter emitter = particle_2->GetEmitter();
-	transform.translate = pointLightElement_.position;
-	emitter.angleBase = Normalize(rotateMatrix * Vector3(0.0f, 0.0f, 0.8f) + Vector3(0.0f, 1.0f, 0.0f));
-	particle_2->SetTransform(transform);
-	particle_2->SetEmitter(emitter);
-
-	particle_2->Emit();
-
-	AudioHolder::GetInstance()->GetAudio(AudioIndex::Shot_SE).lock()->SoundPlayWave();
+void Stage::AddBomb(SRT transform, float range, float maxLifeTime, CollisionID id, std::shared_ptr<Model> model) {
+	unique_ptr<Bomb> newBomb = make_unique<Bomb>();
+	newBomb->Initialize(transform, range, maxLifeTime, id, model);
+	bombs_.push_back(move(newBomb));
 }
 
-void Stage::AddBreakObject(std::string directoryPath, std::string fileName, SRT startTransform, float maxHP, std::unique_ptr<BaseBreakBehavior> breakBehavior) {
+void Stage::AddShockWave(SRT transform, float range, float maxLifeTime, CollisionID id, std::unique_ptr<PrimitiveCylinder> cylinder) {
+	unique_ptr<ShockWave> newShockWave = make_unique<ShockWave>();
+	newShockWave->Initialize(transform, range, maxLifeTime, id, move(cylinder));
+	shockWaves_.push_back(move(newShockWave));
+}
+
+void Stage::AddItem(SRT transform) {
+	unique_ptr<Item> newItem = make_unique<Item>();
+	newItem->Initialize(transform);
+	items_.push_back(move(newItem));
+}
+
+void Stage::AddBreakObject(SRT transform, float maxHP, std::shared_ptr<Model> model, std::unique_ptr<BaseEvent> event) {
 	unique_ptr<BreakObject> newObject = make_unique<BreakObject>();
-	newObject->Initialize(directoryPath, fileName, startTransform, maxHP, move(breakBehavior));
+	newObject->Initialize(transform, maxHP, model, move(event));
 	breakObjects_.push_back(move(newObject));
+}
 
+void Stage::Explosion(Vector3 position, float range, float maxLifeTime, CollisionID id, float damage) {
 
 }
