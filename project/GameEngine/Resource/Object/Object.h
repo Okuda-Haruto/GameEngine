@@ -12,6 +12,7 @@
 #include <PointLight/PointLight.h>
 #include <SpotLight/SpotLight.h>
 #include <Joint.h>
+#include <AABB.h>
 
 using namespace std;
 
@@ -23,6 +24,11 @@ private:
 	std::vector<Parts> parts_;
 	// SRT
 	SRT transform_;
+
+	//AABBリソース
+	Microsoft::WRL::ComPtr<ID3D12Resource> aabbResource_;
+	//頂点包含AABB
+	AABB vertexAABB_{};
 
 	//カメラ
 	shared_ptr<Camera> camera_;

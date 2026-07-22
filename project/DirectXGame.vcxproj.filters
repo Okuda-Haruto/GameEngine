@@ -82,6 +82,9 @@
     <FxCompile Include="resources\Shader\EmitParticle.CS.hlsl">
       <Filter>GameEngine\Shader</Filter>
     </FxCompile>
+    <FxCompile Include="resources\Shader\RayTracingCS.hlsl">
+      <Filter>GameEngine\Shader</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -462,9 +465,6 @@
     <ClInclude Include="GameEngine\Data\BoneMatrix.h">
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\Data\Parts.h">
-      <Filter>GameEngine\Data</Filter>
-    </ClInclude>
     <ClInclude Include="GameEngine\Data\PointLightElement.h">
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
@@ -697,6 +697,9 @@
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
     <ClInclude Include="GameEngine\Data\PerFrame.h">
+      <Filter>GameEngine\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Data\Parts.h">
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
   </ItemGroup>
