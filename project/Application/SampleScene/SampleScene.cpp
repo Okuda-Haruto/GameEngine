@@ -578,7 +578,7 @@ void SampleScene::Update() {
 		}
 	}
 
-	gltfs_[gltfIndex_]->Draw3D();
+	//gltfs_[gltfIndex_]->Draw3D();
 
 	particleEmitter_->Draw_AddBlend();
 

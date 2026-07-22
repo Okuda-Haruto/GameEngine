@@ -93,6 +93,7 @@ private:
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> compute_Skinning_RootSignature_;
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> compute_Initialize_Particle_RootSignature_;
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> compute_Emit_Particle_RootSignature_;
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> compute_Update_Particle_RootSignature_;
 
 	//Windowのメッセージ
 	MSG msg_{};
@@ -120,6 +121,7 @@ private:
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> compute_Skinning_PipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> compute_Initialize_Particle_PipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> compute_Emit_Particle_PipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> compute_Update_Particle_PipelineState_ = nullptr;
 
 public:
 	//描画可能なモデルの数(通常)
@@ -320,7 +322,7 @@ private:
 
 	void ComputeSkinning_(Object* object);
 	void Compute_Initialize_Particle_(ParticleGroup particleGroup);
-	void Compute_Emit_Particle_(ParticleGroup particleGroup);
+	void Compute_Update_Particle_(ParticleGroup particleGroup);
 
 	WindowsAPI* GetWindowsAPI_() { return winApp_.get(); }
 
@@ -427,7 +429,7 @@ public:
 	static void DrawPrimitiveCylinder_Billboard(PrimitiveCylinder* primitiveCylinder, SRT transform, Material material) { return GetInstance()->DrawPrimitiveCylinder_Billboard_(primitiveCylinder, transform, material); };
 
 	static void Compute_Initialize_Particle(ParticleGroup particleGroup) { return GetInstance()->Compute_Initialize_Particle_(particleGroup); }
-	static void Compute_Emit_Particle(ParticleGroup particleGroup) { return GetInstance()->Compute_Emit_Particle_(particleGroup); }
+	static void Compute_Update_Particle(ParticleGroup particleGroup) { return GetInstance()->Compute_Update_Particle_(particleGroup); }
 
 	[[nodiscard]]
 	static WindowsAPI* GetWindowsAPI() { return GetInstance()->GetWindowsAPI_(); }

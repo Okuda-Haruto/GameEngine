@@ -144,6 +144,7 @@ public:
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> Compute_Skinning_RootSignatureInitialvalue();
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> Compute_Initialize_Particle_RootSignatureInitialvalue();
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> Compute_Emit_Particle_RootSignatureInitialvalue();
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> Compute_Update_Particle_RootSignatureInitialvalue();
 
 	//シェーダーのコンパイル
 	Microsoft::WRL::ComPtr<IDxcBlob> CompileShader(const std::wstring& filePath,const wchar_t* profile);

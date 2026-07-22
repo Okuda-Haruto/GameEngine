@@ -76,11 +76,14 @@
     <FxCompile Include="resources\Shader\Skinning.CS.hlsl">
       <Filter>GameEngine\Shader</Filter>
     </FxCompile>
+    <FxCompile Include="resources\Shader\UpdateParticle.CS.hlsl">
+      <Filter>GameEngine\Shader\Particle</Filter>
+    </FxCompile>
     <FxCompile Include="resources\Shader\InitializeParticle.CS.hlsl">
-      <Filter>GameEngine\Shader</Filter>
+      <Filter>GameEngine\Shader\Particle</Filter>
     </FxCompile>
     <FxCompile Include="resources\Shader\EmitParticle.CS.hlsl">
-      <Filter>GameEngine\Shader</Filter>
+      <Filter>GameEngine\Shader\Particle</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
@@ -967,6 +970,9 @@
     </Filter>
     <Filter Include="Application\Character\BreakObject">
       <UniqueIdentifier>{3dcb621a-1c29-428e-816a-34a28f1ac1aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\Shader\Particle">
+      <UniqueIdentifier>{e2a81f74-9497-494c-9b15-83a8b5a7de14}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

@@ -140,7 +140,7 @@ void ParticleManager::Emit(const std::string name, SRT transform, uint32_t count
 	//読み込み済みテクスチャを検索
 	if (particleGroups.contains(name)) {
 		
-		GameEngine::Compute_Emit_Particle(particleGroups[name]);
+		GameEngine::Compute_Update_Particle(particleGroups[name]);
 
 	}
 }
