@@ -9,6 +9,7 @@ enum REFLECTION {
 };
 
 enum SHADING {
+	SHADING_None = -1,
 	SHADING_Phong,			
 	SHADING_Blinn_Phong,
 };

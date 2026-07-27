@@ -103,6 +103,7 @@
     <ClCompile Include="GameEngine\LoadFile\LoadObjFile.cpp" />
     <ClCompile Include="GameEngine\Math\Collision.cpp" />
     <ClCompile Include="GameEngine\Modules\ModelManager\ModelManager.cpp" />
+    <ClCompile Include="GameEngine\Modules\ObjectManager\ObejctManager.cpp" />
     <ClCompile Include="GameEngine\Modules\PrimitiveManager\Primitive3DManager.cpp" />
     <ClCompile Include="GameEngine\Modules\PrimitiveManager\PrimitiveBox.cpp" />
     <ClCompile Include="GameEngine\Modules\PrimitiveManager\PrimitiveCylinder.cpp" />
@@ -175,6 +176,7 @@
     <ClInclude Include="GameEngine\Data\EmitterSphere.h" />
     <ClInclude Include="GameEngine\Data\Field.h" />
     <ClInclude Include="GameEngine\Data\Fog.h" />
+    <ClInclude Include="GameEngine\Data\GPUAABB.h" />
     <ClInclude Include="GameEngine\Data\GPURandomSeed.h" />
     <ClInclude Include="GameEngine\Data\InstancingTransformationMatrix.h" />
     <ClInclude Include="GameEngine\Data\Keyframe.h" />
@@ -239,6 +241,7 @@
     <ClInclude Include="GameEngine\Math\Vector3.h" />
     <ClInclude Include="GameEngine\Math\Vector4.h" />
     <ClInclude Include="GameEngine\Modules\ModelManager\ModelManager.h" />
+    <ClInclude Include="GameEngine\Modules\ObjectManager\ObejctManager.h" />
     <ClInclude Include="GameEngine\Modules\PrimitiveManager\Primitive3DManager.h" />
     <ClInclude Include="GameEngine\Modules\PrimitiveManager\PrimitiveBox.h" />
     <ClInclude Include="GameEngine\Modules\PrimitiveManager\PrimitiveCylinder.h" />

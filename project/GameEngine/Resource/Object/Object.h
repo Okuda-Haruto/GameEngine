@@ -12,7 +12,7 @@
 #include <PointLight/PointLight.h>
 #include <SpotLight/SpotLight.h>
 #include <Joint.h>
-#include <AABB.h>
+#include <ObjectManager/ObejctManager.h>
 
 using namespace std;
 
@@ -20,15 +20,19 @@ class Object {
 private:
 	// モデル
 	std::shared_ptr<Model> model_ = nullptr;
-	// パーツ(offset)
-	std::vector<Parts> parts_;
 	// SRT
 	SRT transform_;
+	SRT uvTransform_;
 
-	//AABBリソース
-	Microsoft::WRL::ComPtr<ID3D12Resource> aabbResource_;
-	//頂点包含AABB
-	AABB vertexAABB_{};
+	//元データ
+	Microsoft::WRL::ComPtr<ID3D12Resource> objectResource_;
+	ObjectData* objectData_;
+	//加工済みデータ
+	Microsoft::WRL::ComPtr<ID3D12Resource> processedResource_;
+	ObjectData* processedData_;
+	//マテリアル
+	Microsoft::WRL::ComPtr<ID3D12Resource> materialResource_;
+	Material* materialData_;
 
 	//カメラ
 	shared_ptr<Camera> camera_;
@@ -79,6 +83,16 @@ public:
 
 	void ResetTimer() { animationTime_ = 0.0f; }
 
+	ID3D12Resource* GetObjectResource() { return objectResource_.Get(); }
+	ObjectData* GetObjectData() { return objectData_; }
+	ID3D12Resource* GetProcessedResource() { return processedResource_.Get(); }
+	ID3D12Resource* GetMaterialResource() { return materialResource_.Get(); }
+	void SetMaterial(Material material) { *materialData_ = material; }
+	void SetColor(Vector4 color) { materialData_->color = color; }
+	void SetRefrection(int32_t refrection) { materialData_->reflection = refrection; }
+	void SetShading(SHADING shading) { materialData_->shading = shading; }
+	void SetShininess(float shininess) { materialData_->shininess = shininess; }
+
 	static shared_ptr<Camera> GetDefaultCamera() { return DefaultCamera; }
 	static void SetDefaultCamera(shared_ptr<Camera> defaultCamera) { DefaultCamera = defaultCamera; }
 	//デフォルトカメラ消去
@@ -87,19 +101,8 @@ public:
 	shared_ptr<Camera> GetCamera() { return camera_; }
 	void SetCamera(shared_ptr<Camera> camera) { camera_ = camera; }
 
-	std::vector<Parts> GetParts() { return parts_; }
-	void SetParts(Parts parts, uint32_t index) { parts_[index] = parts; }
 	SRT GetTransform() { return transform_; }
 	void SetTransform(SRT transform) { transform_ = transform; }
-
-	void SetColor(Vector4 color) { for (Parts part : parts_) { part.material->color = color; }; }
-
-	//反射方法(例:REFLECTION_Lambert)
-	void SetReflection(UINT reflection);
-	
-	void SetShading(UINT shading);
-	//鏡面反射(大きいほどつるつるになる。例:40.0f)
-	void SetShininess(float shininess);
 
 	void SetDirectionalLight(const shared_ptr<DirectionalLight>& directionalLight) { directionalLight_ = directionalLight; }
 	void SetPointLight(const shared_ptr<PointLight>& pointLight) { pointLight_ = pointLight; }
@@ -107,18 +110,6 @@ public:
 	void SetCubeTextureIndex(int32_t cubeTextureIndex) { cubeTextureIndex_ = cubeTextureIndex; }
 
 	int32_t GetCubeTextureIndex() { return cubeTextureIndex_; }
-	
-	//頂点バッファビュー
-	D3D12_VERTEX_BUFFER_VIEW& GetVBV() { return model_->GetVBV(); }
-	//インデックスバッファビュー
-	D3D12_INDEX_BUFFER_VIEW& GetIBV() { return model_->GetIBV(); }
-
-	VertexData* GetModelVertexDatas() { return model_->GetVertexDatas(); }
-	std::vector<VertexInfluence> GetVertexInfluences() { return model_->GetVertexInfluences(); }
-	//頂点の数
-	UINT GetVertexIndex() { return model_->GetVertexIndex(); }
-	//オフセット
-	std::vector<Offset> GetOffsets() { return model_->GetOffsets(); }
 
 	//アニメーションを使用するか
 	void SetIsUseAnimation(bool isUseAnimation) { isUseAnimation_ = isUseAnimation; }
@@ -137,4 +128,7 @@ public:
 
 	//ボーン
 	std::vector<Bone> GetBones() { return bones_; }
+
+	std::vector<VertexData> GetModelVertices() { return model_->GetVertices(); }
+	std::vector<VertexInfluence> GetVertexInfluences() { return model_->GetVertexInfluences(); }
 };

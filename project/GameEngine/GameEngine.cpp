@@ -811,7 +811,7 @@ void GameEngine::DrawInstancingObject_3D_(std::list<Object*> objects, shared_ptr
 	commandList_->SetGraphicsRootSignature(object_Instancing_RootSignature_.Get());
 	commandList_->SetPipelineState(object3D_Instancing_PipelineState_.Get());	//PSOを設定
 
-	commandList_->IASetVertexBuffers(0, 1, &(*objectIterator)->GetVBV());	//VBVを設定
+	commandList_->IASetVertexBuffers(0, 1, ObjectManager);	//VBVを設定
 	commandList_->IASetIndexBuffer(&(*objectIterator)->GetIBV());	//IBVを設定
 
 	//カメラのワールド座標をCBufferに送る
@@ -2099,10 +2099,10 @@ void GameEngine::ComputeSkinning_(Object* object) {
 		objectInputVertexData_[boneIndex_][j] = VertexMappedBase + j;
 	}
 
-	VertexData* vertexDatas = object->GetModelVertexDatas();
-	for (UINT i = 0; i < object->GetVertexIndex(); i++) {
+	std::vector<VertexData> vertexData = object->GetModelVertices();
+	for (UINT i = 0; i < vertexData.size(); i++) {
 		if (i > kMaxNumVertexes)break;
-		*objectInputVertexData_[boneIndex_][i] = vertexDatas[i];
+		*objectInputVertexData_[boneIndex_][i] = vertexData[i];
 	}
 
 	objectInputVertexResource_[boneIndex_]->Unmap(0, nullptr);
@@ -2146,18 +2146,18 @@ void GameEngine::ComputeSkinning_(Object* object) {
 
 	objectSkinningInformationResource_[boneIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&objectSkinningInformationData_[boneIndex_]));
 
-	objectSkinningInformationData_[boneIndex_]->numVertuces = object->GetVertexIndex();
+	objectSkinningInformationData_[boneIndex_]->numVertuces = UINT(vertexData.size());
 
 	objectSkinningInformationResource_[boneIndex_]->Unmap(0, nullptr);
 
 	commandList_->SetComputeRootConstantBufferView(4, objectSkinningInformationResource_[boneIndex_].Get()->GetGPUVirtualAddress());
 
-	commandList_->Dispatch(UINT(object->GetVertexIndex() + 1023) / 1024, 1, 1);
+	commandList_->Dispatch(UINT(vertexData.size() + 1023) / 1024, 1, 1);
 
 
 
 	//使用するリソースのサイズは頂点のサイズ
-	objectOutputVertexBufferView_[boneIndex_].SizeInBytes = UINT(sizeof(VertexData) * object->GetVertexIndex());
+	objectOutputVertexBufferView_[boneIndex_].SizeInBytes = UINT(sizeof(VertexData) * UINT(vertexData.size()));
 
 	// UAV -> VertexBuffer
 	barrier = {};

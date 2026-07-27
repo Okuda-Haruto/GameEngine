@@ -298,6 +298,9 @@
     <ClCompile Include="Application\Character\BreakObject\BreakObject.cpp">
       <Filter>Application\Character\BreakObject</Filter>
     </ClCompile>
+    <ClCompile Include="GameEngine\Modules\ObjectManager\ObejctManager.cpp">
+      <Filter>GameEngine\Modules\ObejctManager</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\BackGround\Ground\Ground.h">
@@ -702,6 +705,12 @@
     <ClInclude Include="GameEngine\Data\Parts.h">
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
+    <ClInclude Include="GameEngine\Modules\ObjectManager\ObejctManager.h">
+      <Filter>GameEngine\Modules\ObejctManager</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Data\GPUAABB.h">
+      <Filter>GameEngine\Data</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -970,6 +979,9 @@
     </Filter>
     <Filter Include="Application\Character\BreakObject">
       <UniqueIdentifier>{3dcb621a-1c29-428e-816a-34a28f1ac1aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\Modules\ObejctManager">
+      <UniqueIdentifier>{b3962803-a6ed-49b8-92ca-142033ddbd03}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

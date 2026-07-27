@@ -22,20 +22,39 @@ StructuredBuffer<VertexInfluence> gInfluences : register(t2);
 
 RWStructuredBuffer<Vertex> gOutputVertices : register(u0);
 
-struct SkinningInformation
+struct AABB
 {
-    uint numVertuces;
+    float3 min;
+    float padding0;
+    float3 max;
+    float padding1;
 };
-ConstantBuffer<SkinningInformation> gSkinningInformation : register(b0);
+
+struct OffsetAllocation
+{
+    int vertexStart;
+    int vertexCount;
+    int indexStart;
+    int indexCount;
+};
+
+struct ObjectData
+{
+    AABB rayTracingAABB;
+    OffsetAllocation allocation;
+};
+ConstantBuffer<ObjectData> gInputObjectData : register(b0);
+RWStructuredBuffer<ObjectData> gOutPutObjectData : register(u1);
 
 [numthreads(1024, 1, 1)]
 void main( uint3 DTid : SV_DispatchThreadID )
 {
     uint vertexIndex = DTid.x;
-    if (vertexIndex < gSkinningInformation.numVertuces)
+    AABB aabb;
+    if (vertexIndex < gInputObjectData.allocation.vertexCount)
     {
-        Vertex input = gInputVertices[vertexIndex];
-        VertexInfluence influence = gInfluences[vertexIndex];
+        Vertex input = gInputVertices[gInputObjectData.allocation.vertexStart + vertexIndex];
+        VertexInfluence influence = gInfluences[gInputObjectData.allocation.vertexStart + vertexIndex];
         
         Vertex skinned;
         skinned.texcoord = input.texcoord;
@@ -69,6 +88,10 @@ void main( uint3 DTid : SV_DispatchThreadID )
             skinned.position = input.position;
             skinned.normal = input.normal;
         }
-        gOutputVertices[vertexIndex] = skinned;
+        gOutputVertices[gInputObjectData.allocation.vertexStart + vertexIndex] = skinned;
     }
+    
+    gOutPutObjectData[0].allocation = gInputObjectData.allocation;
+    gOutPutObjectData[0].rayTracingAABB = aabb;
+
 }
