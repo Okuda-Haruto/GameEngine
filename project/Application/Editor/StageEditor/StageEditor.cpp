@@ -213,10 +213,12 @@ void StageEditor::Update() {
 		if (mouse.click[MOUSE_BOTTON_LEFT].trigger) {
 			//マウスカーソルの半直線を取得
 			Ray cursorRay = GetCursorRay(stage_->GetGameCamera(), input_);
-			nextTransform_.reset();
-			std::shared_ptr<SRT> nearTransform = GetObjectTransformFromRay(cursorRay);
-			if (nearTransform) {
-				nextTransform_ = nearTransform;
+			if (ImGuiManager::GetIsGameHovered()) {
+				nextTransform_.reset();
+				std::shared_ptr<SRT> nearTransform = GetObjectTransformFromRay(cursorRay);
+				if (nearTransform) {
+					nextTransform_ = nearTransform;
+				}
 			}
 			if (nextTransform_.lock()) {
 				beforeTransform_ = *nextTransform_.lock();
@@ -288,8 +290,10 @@ void StageEditor::Update() {
 			if (keyboard.keys[DIK_DELETE].trigger || keyboard.keys[DIK_BACKSPACE].trigger) {
 				if (indexType_ == IndexType::ColliderObject) {
 					commands_.push_back(std::make_unique<DeleteColliderObjectCommand>(this, cursorObjectIndex_));
+					commandIndex_++;
 				} else if (indexType_ == IndexType::BreakObject) {
 					commands_.push_back(std::make_unique<DeleteBreakObjectCommand>(this, cursorObjectIndex_));
+					commandIndex_++;
 				}
 				nextTransform_.reset();
 			}

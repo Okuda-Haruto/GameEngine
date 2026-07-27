@@ -1,6 +1,8 @@
 #include "ImGuiManager.h"
 #include <TextureManager/TextureManager.h>
 
+bool ImGuiManager::isGameHovered_;
+
 ImGuiManager::~ImGuiManager() {
 #ifdef USE_IMGUI
 	//ImGuiの終了処理
@@ -87,6 +89,8 @@ void ImGuiManager::End() {
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
 
 	ImGui::Begin("Game");
+
+	isGameHovered_ = ImGui::IsWindowHovered();
 
 	ImGuizmo::SetDrawlist();
 

@@ -20,6 +20,7 @@ public:
 		SRT* transform;
 		bool isNew;
 	};
+
 private:
 	DirectXCommon* dxCommon_ = nullptr;
 	SRVManager* srvManager_ = nullptr;
@@ -32,6 +33,7 @@ private:
 	Vector2 gameScreenSize_;
 	Vector2 gameScreenPosition_;
 
+	static bool isGameHovered_;
 public:
 	~ImGuiManager();
 
@@ -46,5 +48,7 @@ public:
 	void SetGizmoOperation(ImGuizmo::OPERATION gizmoOperation) { currentGizmoOperation_ = gizmoOperation; }
 	Vector2 GetGameScreenSize() { return gameScreenSize_; }
 	Vector2 GetGameScreenPosition() { return gameScreenPosition_; }
+
+	static bool GetIsGameHovered() { return isGameHovered_; }
 #endif
 };
