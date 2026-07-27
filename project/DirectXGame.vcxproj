@@ -278,8 +278,6 @@
     <ProjectReference Include="externals\ImGuizmo\ImGuizmo.vcxproj">
       <Project>{690ae87d-471c-4a38-94ea-dbc0324e9abc}</Project>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup Condition="'$(Configuration)|$(Platform)'!='Release|x64'">
     <ProjectReference Include="externals\imgui\imgui.vcxproj">
       <Project>{59c8d6cc-f707-4d83-8786-9ac07e89cfe9}</Project>
     </ProjectReference>
