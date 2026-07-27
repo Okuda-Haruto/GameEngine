@@ -196,12 +196,12 @@ void StageEditor::Update() {
 				keyboard.keys[DIK_V].trigger) {
 				if (copyIndexType_ == IndexType::ColliderObject) {
 					commands_.resize(commandIndex_);
-					commands_.push_back(std::make_unique<AddColliderObjectCommand>(this, currentColliderIndex_, *colliderObjects_[copyObjectIndex_].startTransform, colliderObjects_[copyObjectIndex_].directoryPath, colliderObjects_[copyObjectIndex_].filename));
+					commands_.push_back(std::make_unique<AddColliderObjectCommand>(this, currentColliderIndex_, copyTransform_, colliderObjects_[copyObjectIndex_].directoryPath, colliderObjects_[copyObjectIndex_].filename));
 					commandIndex_++;
 					currentColliderIndex_++;
 				} else if (copyIndexType_ == IndexType::BreakObject) {
 					commands_.resize(commandIndex_);
-					commands_.push_back(std::make_unique<AddBreakObjectCommand>(this, currentBreakIndex_, *breakObjects_[copyObjectIndex_].startTransform, breakObjects_[copyObjectIndex_].directoryPath, breakObjects_[copyObjectIndex_].filename));
+					commands_.push_back(std::make_unique<AddBreakObjectCommand>(this, currentBreakIndex_, copyTransform_, breakObjects_[copyObjectIndex_].directoryPath, breakObjects_[copyObjectIndex_].filename));
 					commandIndex_++;
 					currentBreakIndex_++;
 				}
@@ -213,6 +213,7 @@ void StageEditor::Update() {
 		if (mouse.click[MOUSE_BOTTON_LEFT].trigger) {
 			//マウスカーソルの半直線を取得
 			Ray cursorRay = GetCursorRay(stage_->GetGameCamera(), input_);
+			nextTransform_.reset();
 			std::shared_ptr<SRT> nearTransform = GetObjectTransformFromRay(cursorRay);
 			if (nearTransform) {
 				nextTransform_ = nearTransform;
@@ -280,6 +281,7 @@ void StageEditor::Update() {
 				keyboard.keys[DIK_C].trigger) {
 				copyIndexType_ = indexType_;
 				copyObjectIndex_ = cursorObjectIndex_;
+				copyTransform_ = before;
 			}
 
 			//削除

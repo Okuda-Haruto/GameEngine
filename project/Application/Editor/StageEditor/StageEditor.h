@@ -173,6 +173,8 @@ private:
 	IndexType copyIndexType_;
 	//選択しているオブジェクト番号
 	int32_t copyObjectIndex_;
+	//コピー座標
+	SRT copyTransform_;
 
 	//移動前の座標
 	SRT beforeTransform_;
