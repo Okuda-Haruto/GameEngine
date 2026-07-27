@@ -160,32 +160,20 @@ void Stage::Initialize(StageData stageData, std::shared_ptr<Input> input) {
 	boss_->SetDirectionalLight(directionalLight_);
 	boss_->SetPointLight(pointLight_);
 
-	std::unique_ptr<BreakObject> breakObject = std::make_unique<BreakObject>();
-	std::unique_ptr<Event_Explosion> exprotion = std::make_unique<Event_Explosion>();
-	exprotion->Initialize(this,12.0f,0.5f,CollisionID_Player_Attack,15.0f);
-	breakObject->Initialize(SRT{ {2,2,2} ,{0,0,0},{25,1.5f,25} }, 2, ModelManager::GetInstance()->GetModel("resources/Object", "Box.obj"), move(exprotion));
-	breakObjects_.push_back(move(breakObject));
-	breakObject = std::make_unique<BreakObject>();
-	exprotion = std::make_unique<Event_Explosion>();
-	exprotion->Initialize(this, 12.0f, 0.5f, CollisionID_Player_Attack, 15.0f);
-	breakObject->Initialize(SRT{ {2,2,2} ,{0,0,0},{-25,1.5f,25} }, 2, ModelManager::GetInstance()->GetModel("resources/Object", "Box.obj"), move(exprotion));
-	breakObjects_.push_back(move(breakObject));
-	breakObject = std::make_unique<BreakObject>();
-	exprotion = std::make_unique<Event_Explosion>();
-	exprotion->Initialize(this, 12.0f, 0.5f, CollisionID_Player_Attack, 15.0f);
-	breakObject->Initialize(SRT{ {2,2,2} ,{0,0,0},{25,1.5f,-25} }, 2, ModelManager::GetInstance()->GetModel("resources/Object", "Box.obj"), move(exprotion));
-	breakObjects_.push_back(move(breakObject));
-	breakObject = std::make_unique<BreakObject>();
-	exprotion = std::make_unique<Event_Explosion>();
-	exprotion->Initialize(this, 12.0f, 0.5f, CollisionID_Player_Attack, 15.0f);
-	breakObject->Initialize(SRT{ {2,2,2} ,{0,0,0},{-25,1.5f,-25} }, 2, ModelManager::GetInstance()->GetModel("resources/Object", "Box.obj"), move(exprotion));
-	breakObjects_.push_back(move(breakObject));
-
 	//接触可能オブジェクト
 	for (auto& object : stageData.colliderObjects) {
 		std::unique_ptr<ColliderObject> colliderObject = std::make_unique<ColliderObject>();
 		colliderObject->Initialize(ModelManager::GetInstance()->GetModel(object.directoryPath, object.filename), directionalLight_, gameCamera_.get(), object.startTransform);
 		colliderObjects_.push_back(move(colliderObject));
+	}
+
+	//接触可能オブジェクト
+	for (auto& object : stageData.breakObjects) {
+		std::unique_ptr<BreakObject> breakObject = std::make_unique<BreakObject>();
+		std::unique_ptr<Event_Explosion> exprotion = std::make_unique<Event_Explosion>();
+		exprotion->Initialize(this, 12.0f, 0.5f, CollisionID_Player_Attack, 15.0f);
+		breakObject->Initialize(object.startTransform, 2, ModelManager::GetInstance()->GetModel(object.directoryPath, object.filename), move(exprotion));
+		breakObjects_.push_back(move(breakObject));
 	}
 
 	//情報表示

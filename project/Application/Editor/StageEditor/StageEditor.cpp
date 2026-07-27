@@ -27,22 +27,22 @@ void StageEditor::MoveCommand::RedoCommand() {
 	*targetTransform_.lock() = afterTransform_;
 }
 
-StageEditor::AddColliderObjectCommand::AddColliderObjectCommand(StageEditor* editor, int32_t index, std::string directoryPath, std::string filename) {
+StageEditor::AddColliderObjectCommand::AddColliderObjectCommand(StageEditor* editor, int32_t index, SRT transform, std::string directoryPath, std::string filename) {
 	editor_ = editor;
 	index_ = index;
 
-	editor_->AddColliderObject(index, directoryPath, filename);
+	editor_->AddColliderObject(index, transform, directoryPath, filename);
 
 	//DoとRedoで行うことは同じ
 	RedoCommand();
 }
 
 void StageEditor::AddColliderObjectCommand::UndoCommand() {
-	editor_->SetEnableObject(index_, false);
+	editor_->SetEnableColliderObject(index_, false);
 }
 
 void StageEditor::AddColliderObjectCommand::RedoCommand() {
-	editor_->SetEnableObject(index_, true);
+	editor_->SetEnableColliderObject(index_, true);
 }
 
 StageEditor::DeleteColliderObjectCommand::DeleteColliderObjectCommand(StageEditor* editor, int32_t index) {
@@ -54,11 +54,45 @@ StageEditor::DeleteColliderObjectCommand::DeleteColliderObjectCommand(StageEdito
 }
 
 void StageEditor::DeleteColliderObjectCommand::UndoCommand() {
-	editor_->SetEnableObject(index_, true);
+	editor_->SetEnableColliderObject(index_, true);
 }
 
 void StageEditor::DeleteColliderObjectCommand::RedoCommand() {
-	editor_->SetEnableObject(index_, false);
+	editor_->SetEnableColliderObject(index_, false);
+}
+
+StageEditor::AddBreakObjectCommand::AddBreakObjectCommand(StageEditor* editor, int32_t index, SRT transform, std::string directoryPath, std::string filename) {
+	editor_ = editor;
+	index_ = index;
+
+	editor_->AddBreakObject(index, transform, directoryPath, filename);
+
+	//DoとRedoで行うことは同じ
+	RedoCommand();
+}
+
+void StageEditor::AddBreakObjectCommand::UndoCommand() {
+	editor_->SetEnableBreakObject(index_, false);
+}
+
+void StageEditor::AddBreakObjectCommand::RedoCommand() {
+	editor_->SetEnableBreakObject(index_, true);
+}
+
+StageEditor::DeleteBreakObjectCommand::DeleteBreakObjectCommand(StageEditor* editor, int32_t index) {
+	editor_ = editor;
+	index_ = index;
+
+	//DoとRedoで行うことは同じ
+	RedoCommand();
+}
+
+void StageEditor::DeleteBreakObjectCommand::UndoCommand() {
+	editor_->SetEnableBreakObject(index_, true);
+}
+
+void StageEditor::DeleteBreakObjectCommand::RedoCommand() {
+	editor_->SetEnableBreakObject(index_, false);
 }
 
 void StageEditor::Initialize(std::shared_ptr<Input> input) {
@@ -85,6 +119,8 @@ void StageEditor::Initialize(std::shared_ptr<Input> input) {
 
 	state_ = EditorState::None;
 	openFile_ = OpenFile::None;
+	indexType_ = IndexType::None;
+	copyIndexType_ = IndexType::None;
 
 	isEditingTransform_ = false;
 }
@@ -99,6 +135,9 @@ void StageEditor::Update() {
 		stage_->GetPlayer()->SetTransfrom(*playerStartTransform_);
 		for (auto& colliderObject : colliderObjects_) {
 			colliderObject.object->SetTransform(*colliderObject.startTransform);
+		}
+		for (auto& breakObject : breakObjects_) {
+			breakObject.object->SetTransform(*breakObject.startTransform);
 		}
 	}
 	if (state_ == EditorState::None) {
@@ -116,9 +155,14 @@ void StageEditor::Update() {
 	
 		OpenFileWindow();
 	} else if (state_ == EditorState::Edit) {
-		ImGui::Begin("オブジェクト配置");
+		ImGui::Begin("地形オブジェクト配置");
 		//フォルダ名取得
-		ImGuiFileTree_obj();
+		ImGuiFileTree_ColliderObject();
+		ImGui::End();
+
+		ImGui::Begin("破壊可能オブジェクト配置");
+		//フォルダ名取得
+		ImGuiFileTree_BreakObject();
 		ImGui::End();
 
 		ImGui::Begin("ファイル操作");
@@ -146,6 +190,22 @@ void StageEditor::Update() {
 			}
 
 		}
+
+		//ペーストコマンド
+			if ((keyboard.keys[DIK_LCONTROL].hold || keyboard.keys[DIK_RCONTROL].hold) &&
+				keyboard.keys[DIK_V].trigger) {
+				if (copyIndexType_ == IndexType::ColliderObject) {
+					commands_.resize(commandIndex_);
+					commands_.push_back(std::make_unique<AddColliderObjectCommand>(this, currentColliderIndex_, *colliderObjects_[copyObjectIndex_].startTransform, colliderObjects_[copyObjectIndex_].directoryPath, colliderObjects_[copyObjectIndex_].filename));
+					commandIndex_++;
+					currentColliderIndex_++;
+				} else if (copyIndexType_ == IndexType::BreakObject) {
+					commands_.resize(commandIndex_);
+					commands_.push_back(std::make_unique<AddBreakObjectCommand>(this, currentBreakIndex_, *breakObjects_[copyObjectIndex_].startTransform, breakObjects_[copyObjectIndex_].directoryPath, breakObjects_[copyObjectIndex_].filename));
+					commandIndex_++;
+					currentBreakIndex_++;
+				}
+			}
 
 
 
@@ -214,6 +274,23 @@ void StageEditor::Update() {
 				GameEngine::GetImGuiManager()->SetGizmoOperation(ImGuizmo::TRANSLATE);
 			}
 			ImGui::End();
+
+			//コピー
+			if ((keyboard.keys[DIK_LCONTROL].hold || keyboard.keys[DIK_RCONTROL].hold) &&
+				keyboard.keys[DIK_C].trigger) {
+				copyIndexType_ = indexType_;
+				copyObjectIndex_ = cursorObjectIndex_;
+			}
+
+			//削除
+			if (keyboard.keys[DIK_DELETE].trigger || keyboard.keys[DIK_BACKSPACE].trigger) {
+				if (indexType_ == IndexType::ColliderObject) {
+					commands_.push_back(std::make_unique<DeleteColliderObjectCommand>(this, cursorObjectIndex_));
+				} else if (indexType_ == IndexType::BreakObject) {
+					commands_.push_back(std::make_unique<DeleteBreakObjectCommand>(this, cursorObjectIndex_));
+				}
+				nextTransform_.reset();
+			}
 		}
 
 		AABB collisionAABB;
@@ -231,6 +308,16 @@ void StageEditor::Update() {
 
 		//オブジェクト初期位置
 		for (auto& object : colliderObjects_) {
+			if (object.enableObject) {
+				collisionAABB.min = { object.startTransform->translate - object.startTransform->scale };
+				collisionAABB.max = { object.startTransform->translate + object.startTransform->scale };
+
+				PrimitiveManager::GetInstance()->AddAABB(collisionAABB, Vector4{0.0f,0.0f,0.0f,1.0f});
+			}
+		}
+
+		//オブジェクト初期位置
+		for (auto& object : breakObjects_) {
 			if (object.enableObject) {
 				collisionAABB.min = { object.startTransform->translate - object.startTransform->scale };
 				collisionAABB.max = { object.startTransform->translate + object.startTransform->scale };
@@ -256,6 +343,11 @@ void StageEditor::Draw() {
 			object.object->Draw3D();
 		}
 	}
+	for (auto& object : breakObjects_) {
+		if (object.enableObject) {
+			object.object->Draw3D();
+		}
+	}
 }
 
 void StageEditor::ReadStageFile(std::string filePath) {
@@ -268,6 +360,7 @@ void StageEditor::ReadStageFile(std::string filePath) {
 	stage_->Initialize(stageData_, input_);
 	stage_->SetDebugCamera(debugCamera_);
 	stage_->ClearColliderObjects();
+	stage_->ClearBreakObjects();
 
 	for (auto& data : stageData_.colliderObjects) {
 		EditorObject editorObject;
@@ -286,10 +379,29 @@ void StageEditor::ReadStageFile(std::string filePath) {
 		currentColliderIndex_++;
 	}
 
+	for (auto& data : stageData_.breakObjects) {
+		EditorObject editorObject;
+		editorObject.object = std::make_shared<Object>();
+		editorObject.object->Initialize(ModelManager::GetInstance()->GetModel(data.directoryPath, data.filename));
+		editorObject.object->SetDirectionalLight(stage_->GetDirectionalLight());
+		editorObject.object->SetPointLight(stage_->GetPointLight());
+		editorObject.startTransform = std::make_shared<SRT>();
+		*editorObject.startTransform = data.startTransform;
+
+		editorObject.directoryPath = data.directoryPath;
+		editorObject.filename = data.filename;
+
+		breakObjects_.push_back(editorObject);
+
+		currentBreakIndex_++;
+	}
+
 	state_ = EditorState::Edit;
 }
 
 void StageEditor::WriteStageFile() {
+	stageData_ = {};
+
 	//データ入力
 	stageData_.bossData.filepath = bossData_.filePath;
 	stageData_.bossData.startTransform = *bossData_.startTransform;
@@ -308,11 +420,23 @@ void StageEditor::WriteStageFile() {
 		data.startTransform = *object.startTransform;
 		stageData_.colliderObjects.push_back(data);
 	}
+	
+	for (auto& object : breakObjects_) {
+		//無効化されているオブジェクトは使用しない
+		if (!object.enableObject)continue;
+
+		//一旦衝突判定無し
+		BreakObjectData data;
+		data.directoryPath = object.directoryPath;
+		data.filename = object.filename;
+		data.startTransform = *object.startTransform;
+		stageData_.breakObjects.push_back(data);
+	}
 
 	StageManager::GetInstance()->WriteStage(filePath_, stageData_);
 }
 
-void StageEditor::AddColliderObject(int32_t index, std::string directoryPath, std::string filename) {
+void StageEditor::AddColliderObject(int32_t index, SRT transform, std::string directoryPath, std::string filename) {
 	//新しく作った場合のみobjectを追加
 	if (colliderObjects_.size() <= index) {
 		EditorObject editorObject;
@@ -321,16 +445,31 @@ void StageEditor::AddColliderObject(int32_t index, std::string directoryPath, st
 		editorObject.object->SetDirectionalLight(stage_->GetDirectionalLight());
 		editorObject.object->SetPointLight(stage_->GetPointLight());
 		editorObject.startTransform = std::make_shared<SRT>();
-		*editorObject.startTransform = {
-			{1.0f,1.0f,1.0f},
-			{0.0f,0.0f,0.0f},
-			{0.0f,0.0f,0.0f}
-		};
+		*editorObject.startTransform = transform;
 
 		editorObject.directoryPath = directoryPath;
 		editorObject.filename = filename;
 
 		colliderObjects_.push_back(std::move(editorObject));
+	}
+
+}
+
+void StageEditor::AddBreakObject(int32_t index, SRT transform, std::string directoryPath, std::string filename) {
+	//新しく作った場合のみobjectを追加
+	if (breakObjects_.size() <= index) {
+		EditorObject editorObject;
+		editorObject.object = std::make_shared<Object>();
+		editorObject.object->Initialize(ModelManager::GetInstance()->GetModel(directoryPath, filename));
+		editorObject.object->SetDirectionalLight(stage_->GetDirectionalLight());
+		editorObject.object->SetPointLight(stage_->GetPointLight());
+		editorObject.startTransform = std::make_shared<SRT>();
+		*editorObject.startTransform = transform;
+
+		editorObject.directoryPath = directoryPath;
+		editorObject.filename = filename;
+
+		breakObjects_.push_back(std::move(editorObject));
 	}
 
 }
@@ -387,6 +526,7 @@ std::shared_ptr<SRT> StageEditor::GetObjectTransformFromRay(Ray ray) {
 
 	//Transformだけではどれを選択してるかわからないのでindexを得る
 	cursorObjectIndex_ = -1;
+	indexType_ = IndexType::None;
 
 	AABB collisionAABB;
 	//プレイヤー初期位置
@@ -395,6 +535,7 @@ std::shared_ptr<SRT> StageEditor::GetObjectTransformFromRay(Ray ray) {
 
 	if (IsCollision(collisionAABB, ray)) {
 		result = playerStartTransform_;
+		indexType_ = IndexType::Player;
 	}
 	//ボス初期位置
 	collisionAABB.min = { bossData_.startTransform->translate - bossData_.startTransform->scale };
@@ -407,10 +548,13 @@ std::shared_ptr<SRT> StageEditor::GetObjectTransformFromRay(Ray ray) {
 			Length(bossData_.startTransform->translate - ray.origin)) {
 
 			result = bossData_.startTransform;
+			indexType_ = IndexType::Boss;
 		}
 	}
 	//オブジェクト初期位置
 	for (int32_t index = 0; index < colliderObjects_.size();index++) {
+		if (!colliderObjects_[index].enableObject)continue;
+
 		collisionAABB.min = { colliderObjects_[index].startTransform->translate - colliderObjects_[index].startTransform->scale};
 		collisionAABB.max = { colliderObjects_[index].startTransform->translate + colliderObjects_[index].startTransform->scale };
 
@@ -418,11 +562,35 @@ std::shared_ptr<SRT> StageEditor::GetObjectTransformFromRay(Ray ray) {
 			if (!result) {
 				result = colliderObjects_[index].startTransform;
 				cursorObjectIndex_ = index;
+				indexType_ = IndexType::ColliderObject;
 			} else if (Length(result->translate - ray.origin) <=
 				Length(colliderObjects_[index].startTransform->translate - ray.origin)) {
 
 				result = colliderObjects_[index].startTransform;
 				cursorObjectIndex_ = index;
+				indexType_ = IndexType::ColliderObject;
+			}
+		}
+	}
+
+	//オブジェクト初期位置
+	for (int32_t index = 0; index < breakObjects_.size(); index++) {
+		if (!breakObjects_[index].enableObject)continue;
+
+		collisionAABB.min = { breakObjects_[index].startTransform->translate - breakObjects_[index].startTransform->scale };
+		collisionAABB.max = { breakObjects_[index].startTransform->translate + breakObjects_[index].startTransform->scale };
+
+		if (IsCollision(collisionAABB, ray)) {
+			if (!result) {
+				result = breakObjects_[index].startTransform;
+				cursorObjectIndex_ = index;
+				indexType_ = IndexType::BreakObject;
+			} else if (Length(result->translate - ray.origin) <=
+				Length(breakObjects_[index].startTransform->translate - ray.origin)) {
+
+				result = breakObjects_[index].startTransform;
+				cursorObjectIndex_ = index;
+				indexType_ = IndexType::BreakObject;
 			}
 		}
 	}
@@ -525,23 +693,48 @@ std::string StageEditor::LoadLastOpenFilePath() {
 	return lastOpenFilePath;
 }
 
-void StageEditor::ImGuiFileTree_obj(std::string path, std::string name) {
+void StageEditor::ImGuiFileTree_ColliderObject(std::string path, std::string name) {
 #ifdef USE_IMGUI
 	if (ImGui::TreeNode(name.c_str())) {
 		for (const auto& entry : std::filesystem::directory_iterator(path))
 		{
 			if (entry.is_directory())
 			{
-				ImGuiFileTree_obj(path + "/" + entry.path().filename().string(), entry.path().filename().string());
+				ImGuiFileTree_ColliderObject(path + "/" + entry.path().filename().string(), entry.path().filename().string());
 			} else if (entry.is_regular_file()) {
 				//objファイル
 				if (entry.path().extension() == ".obj")
 				{
 					if (ImGui::Button(entry.path().filename().string().c_str())) {
 						commands_.resize(commandIndex_);
-						commands_.push_back(std::make_unique<AddColliderObjectCommand>(this, currentColliderIndex_, path, entry.path().filename().string()));	//パスとファイル名が必要なのでこうするしかない
+						commands_.push_back(std::make_unique<AddColliderObjectCommand>(this, currentColliderIndex_, SRT{ {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} }, path, entry.path().filename().string()));	//パスとファイル名が必要なのでこうするしかない
 						commandIndex_++;
 						currentColliderIndex_++;
+					}
+				}
+			}
+		}
+		ImGui::TreePop();
+	}
+#endif
+}
+void StageEditor::ImGuiFileTree_BreakObject(std::string path, std::string name) {
+#ifdef USE_IMGUI
+	if (ImGui::TreeNode(name.c_str())) {
+		for (const auto& entry : std::filesystem::directory_iterator(path))
+		{
+			if (entry.is_directory())
+			{
+				ImGuiFileTree_BreakObject(path + "/" + entry.path().filename().string(), entry.path().filename().string());
+			} else if (entry.is_regular_file()) {
+				//objファイル
+				if (entry.path().extension() == ".obj")
+				{
+					if (ImGui::Button(entry.path().filename().string().c_str())) {
+						commands_.resize(commandIndex_);
+						commands_.push_back(std::make_unique<AddBreakObjectCommand>(this, currentBreakIndex_, SRT{ {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} }, path, entry.path().filename().string()));	//パスとファイル名が必要なのでこうするしかない
+						commandIndex_++;
+						currentBreakIndex_++;
 					}
 				}
 			}

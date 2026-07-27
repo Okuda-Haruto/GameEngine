@@ -15,6 +15,15 @@ struct ColliderObjectData {
 	SRT startTransform;
 };
 
+//破壊可能オブジェクトデータ
+struct BreakObjectData {
+	//モデルパス
+	std::string directoryPath;
+	std::string filename;
+	//出現座標
+	SRT startTransform;
+};
+
 //ボスに関するデータ
 struct BossData {
 	//ボスファイルのパス
@@ -31,6 +40,8 @@ struct StageData {
 	SRT playerStartTransform;
 	//接触可能オブジェクト
 	std::vector<ColliderObjectData> colliderObjects;
+	//破壊可能オブジェクト
+	std::vector<BreakObjectData> breakObjects;
 };
 
 //ステージ管理

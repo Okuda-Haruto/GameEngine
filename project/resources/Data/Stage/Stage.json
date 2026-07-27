@@ -19,6 +19,92 @@
             }
         }
     },
+    "breakObject": {
+        "2": {
+            "directoryPath": "resources/Object",
+            "filename": "Box.obj",
+            "startTransform": {
+                "rotate": {
+                    "x": 0.0,
+                    "y": -0.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 2.0,
+                    "y": 2.0,
+                    "z": 2.0
+                },
+                "translate": {
+                    "x": 25.0,
+                    "y": 2.0,
+                    "z": 25.0
+                }
+            }
+        },
+        "3": {
+            "directoryPath": "resources/Object",
+            "filename": "Box.obj",
+            "startTransform": {
+                "rotate": {
+                    "x": 0.0,
+                    "y": -0.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 2.0,
+                    "y": 2.0,
+                    "z": 2.0
+                },
+                "translate": {
+                    "x": -25.0,
+                    "y": 2.0,
+                    "z": 25.0
+                }
+            }
+        },
+        "4": {
+            "directoryPath": "resources/Object",
+            "filename": "Box.obj",
+            "startTransform": {
+                "rotate": {
+                    "x": 0.0,
+                    "y": -0.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 2.0,
+                    "y": 2.0,
+                    "z": 2.0
+                },
+                "translate": {
+                    "x": 25.0,
+                    "y": 2.0,
+                    "z": -25.0
+                }
+            }
+        },
+        "5": {
+            "directoryPath": "resources/Object",
+            "filename": "Box.obj",
+            "startTransform": {
+                "rotate": {
+                    "x": 0.0,
+                    "y": -0.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 2.0,
+                    "y": 2.0,
+                    "z": 2.0
+                },
+                "translate": {
+                    "x": -25.0,
+                    "y": 2.0,
+                    "z": -25.0
+                }
+            }
+        }
+    },
     "colliderObject": {
         "0": {
             "directoryPath": "resources/BackGround/Tumbleweed",

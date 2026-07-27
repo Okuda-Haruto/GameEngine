@@ -292,7 +292,7 @@ void GameScene::Draw() {
 	data.vignetteCurve = 0.2f;
 	data.isUseRandom = 0;
 	
-	GameEngine::DrawScreen("Vignette");
+	GameEngine::DrawScreen("render");
 
 	stage_->DrawSprite();
 }

@@ -128,6 +128,7 @@ public:
 	bool IsEnd() { return isEnd_; }
 
 	void ClearColliderObjects() { colliderObjects_.clear(); }
+	void ClearBreakObjects() { breakObjects_.clear(); }
 
 	void SetRingColorA(float a) { ringMaterial_.color.w = a; }
 };
