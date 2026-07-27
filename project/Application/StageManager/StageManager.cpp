@@ -49,6 +49,21 @@ StageData StageManager::ReadStage(std::string filePath) {
 		stageData.colliderObjects.push_back(std::move(data));
 	}
 
+	objectsJson = stagejson["breakObject"];
+
+	//読み込んだオブジェクト
+	for (auto iterator = objectsJson.begin(); iterator != objectsJson.end(); ++iterator)
+	{
+		const auto& obj = iterator.value();
+
+		BreakObjectData data;
+		data.directoryPath = obj["directoryPath"];
+		data.filename = obj["filename"];
+		data.startTransform = obj["startTransform"].get<SRT>();
+
+		stageData.breakObjects.push_back(std::move(data));
+	}
+
 	return stageData;
 }
 
@@ -68,6 +83,14 @@ void StageManager::WriteStage(std::string filePath, StageData stageData) {
 		stageJson["colliderObject"][std::to_string(index)]["directoryPath"] = object.directoryPath;
 		stageJson["colliderObject"][std::to_string(index)]["filename"] = object.filename;
 		stageJson["colliderObject"][std::to_string(index)]["startTransform"] = object.startTransform;
+
+		index++;
+	}
+	for (auto& object : stageData.breakObjects)
+	{
+		stageJson["breakObject"][std::to_string(index)]["directoryPath"] = object.directoryPath;
+		stageJson["breakObject"][std::to_string(index)]["filename"] = object.filename;
+		stageJson["breakObject"][std::to_string(index)]["startTransform"] = object.startTransform;
 
 		index++;
 	}

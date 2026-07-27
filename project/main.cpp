@@ -25,7 +25,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	gameManager->Initialize();
 
-	//SceneManager::GetInstance()->ChangeScene("BossEditor");
+#ifdef DEBUG
+	SceneManager::GetInstance()->ChangeScene("StageEditor");
+#endif // DEBUG
 
 	//ウィンドウの×ボタンが押されるまでループ
 	while (GameEngine::WindowState()) {
