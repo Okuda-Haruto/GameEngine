@@ -284,11 +284,21 @@ void GameScene::Update() {
 	GameEngine::DrawScreen("BoxFilter", vignettedata);
 
 	GameEngine::RenderPostDraw();
+
+	GameEngine::RenderPreDraw("RadialBlur");
+
+	RadialBlurData radialBlurdata;
+	radialBlurdata.center = { 0.5,0.5f };
+	radialBlurdata.blurWidth = 0.01f * (1.0f - stage_->GetPlayer()->GetDodgeActiveTimeRate());
+
+	GameEngine::DrawScreen("Vignette", radialBlurdata);
+
+	GameEngine::RenderPostDraw();
 }
 
 void GameScene::Draw() {
 
-	GameEngine::DrawScreen("Vignette");
+	GameEngine::DrawScreen("RadialBlur", dissolveData_, TextureManager::GetInstance()->GetSrvIndex("resources/DebugResources/noise0.png"));
 
 	stage_->DrawSprite();
 }

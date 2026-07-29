@@ -16,6 +16,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	TextureManager::GetInstance()->MakeRenderTexture("ColorChange");
 	TextureManager::GetInstance()->MakeRenderTexture("BoxFilter");
 	TextureManager::GetInstance()->MakeRenderTexture("Vignette");
+	TextureManager::GetInstance()->MakeRenderTexture("RadialBlur");
 	TextureManager::GetInstance()->MakeRenderTexture("Dissolve");
 
 	TextureManager::GetInstance()->LoadTexture("resources/DebugResources/noise0.png");

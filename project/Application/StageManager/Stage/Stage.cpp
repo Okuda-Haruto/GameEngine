@@ -301,6 +301,8 @@ void Stage::Update() {
 	cylinderTransform_.scale = Easing::EaseOut(Vector3{ 1.5f,3.0f,1.5f }, Vector3{4.5f,0.0f,4.5f}, cylinderTime_ / kMaxCyliderTime_);
 	cylinderMaterial_.color.w = Easing::EaseOut(0.0f, 1.0f, cylinderTime_ / kMaxCyliderTime_);
 	cylinderMaterial_.uvTransform = MakeTranslateMatrix({ Easing::EaseOut(0.0f,1.0f,cylinderTime_ / kMaxCyliderTime_),0.0f,0.0f });
+
+	gameCamera_->SetSepiaTone(player_->GetInvincibleTimeRate());
 }
 
 void Stage::Draw() {

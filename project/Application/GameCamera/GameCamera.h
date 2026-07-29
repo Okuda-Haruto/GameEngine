@@ -135,6 +135,7 @@ public:
 	BaseCamera* GetNowCamera() { return nowCamera_.get(); }
 	shared_ptr<Camera> GetCamera() { return camera_; }
 	float GetSepiaTone() { return sepiaTone_; }
+	void SetSepiaTone(float sepiaTone) { sepiaTone_ = sepiaTone; }
 
 	//追従対象を指定
 	void SetObserverTransform(SRT* observerTransform) { observerTransform_ = observerTransform; }
