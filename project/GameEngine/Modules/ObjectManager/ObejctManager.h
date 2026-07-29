@@ -14,7 +14,13 @@ struct OffsetAllocation {
 	uint32_t indexCount;
 };
 
-struct ObjectData {
+struct InputObjectData {
+	OffsetAllocation allocation;
+	Matrix4x4 worldMatrix;
+	int32_t objectNumber;
+};
+
+struct OutputObjectData {
 	GPUAABB rayTracingAABB;
 	OffsetAllocation allocation;
 };
@@ -53,6 +59,14 @@ private:
 	D3D12_INDEX_BUFFER_VIEW indexBufferView_{};
 	//インデックスデータ
 	uint32_t* mappedIndexData_ = nullptr;
+
+	//レイトレーシング接触範囲リソース
+	Microsoft::WRL::ComPtr<ID3D12Resource> objectDataResource_;
+	//レイトレーシング接触範囲データ
+	OutputObjectData* mappedObjectData_ = nullptr;
+	//レイトレーシング接触範囲バッファIndex
+	uint32_t objectDataBufferUAVindex_;
+
 public:
 
 	ObjectManager() = default;
@@ -71,9 +85,21 @@ public:
 
 	uint32_t GetVerticesBufferUAVindex() { return verticesBufferUAVindex_; }
 	uint32_t GetVerticesBufferSRVindex() { return verticesBufferSRVindex_; }
+	uint32_t GetObjectDataBufferUAVindex() { return objectDataBufferUAVindex_; }
+
+	D3D12_VERTEX_BUFFER_VIEW GetVBV() { return vertexBufferView_; }
+	D3D12_INDEX_BUFFER_VIEW GetIBV() { return indexBufferView_; }
+	ID3D12Resource* GetVertexResource() { return vertexResource_.Get(); }
+	ID3D12Resource* GetObjectDataResource() { return objectDataResource_.Get(); }
+
 
 	OffsetAllocation MakeNewOffsetAllocation(shared_ptr<Model> model);
 
-	Microsoft::WRL::ComPtr<ID3D12Resource> MakeObjectDataSRVResource();
-	Microsoft::WRL::ComPtr<ID3D12Resource> MakeObjectDataUAVResource();
+	Microsoft::WRL::ComPtr<ID3D12Resource> MakeSRVResource(size_t sizeInBytes);
+	Microsoft::WRL::ComPtr<ID3D12Resource> MakeUAVResource(size_t sizeInBytes);
+
+	void SetDrawBufferView() {
+		dxCommon_->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferView_);	//VBVを設定
+		dxCommon_->GetCommandList()->IASetIndexBuffer(&indexBufferView_);	//IBVを設定
+	}
 };

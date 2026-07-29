@@ -1,5 +1,18 @@
 #include "ObejctManager.h"
 
+unique_ptr<ObjectManager> ObjectManager::instance;
+
+ObjectManager* ObjectManager::GetInstance() {
+	if (!instance) {
+		instance = make_unique<ObjectManager>();
+	}
+	return instance.get();
+}
+
+void ObjectManager::Finalize() {
+	instance.reset();
+}
+
 void ObjectManager::Initialize(DirectXCommon* dxCommon, SRVManager* srvManager) {
 
 	dxCommon_ = dxCommon;
@@ -24,7 +37,7 @@ void ObjectManager::Initialize(DirectXCommon* dxCommon, SRVManager* srvManager) 
 	//1頂点あたりのサイズ
 	vertexBufferView_.StrideInBytes = sizeof(VertexData);
 
-	//Sprite用のインデックスリソースを作る
+	//Object用のインデックスリソースを作る
 	indexResource_ = dxCommon_->CreateBufferResources(sizeof(uint32_t) * maxIndexSize);
 
 	//インデックスバッファビューを作成する
@@ -34,6 +47,12 @@ void ObjectManager::Initialize(DirectXCommon* dxCommon, SRVManager* srvManager) 
 	indexBufferView_.SizeInBytes = UINT(sizeof(uint32_t) * maxIndexSize);
 	//インデックスはuint32_tとする
 	indexBufferView_.Format = DXGI_FORMAT_R32_UINT;
+
+	//レイトレーシング接触範囲用リソースを作る
+	objectDataResource_ = dxCommon_->CreateOutputResources(sizeof(OutputObjectData) * maxIndexSize);
+
+	objectDataBufferUAVindex_ = srvManager_->Allocate();
+	srvManager_->CreateUAVforStructuredBuffer(objectDataBufferUAVindex_, objectDataResource_.Get(), maxIndexSize, sizeof(OutputObjectData));
 }
 
 OffsetAllocation ObjectManager::MakeNewOffsetAllocation(shared_ptr<Model> model) {
@@ -47,12 +66,6 @@ OffsetAllocation ObjectManager::MakeNewOffsetAllocation(shared_ptr<Model> model)
 	allocation.vertexCount = uint32_t(vertices.size());
 	allocation.indexCount = uint32_t(indexes.size());
 
-	vertexResource_->Map(0, nullptr, reinterpret_cast<void**>(&mappedVertexData_));
-
-	memcpy(mappedVertexData_ + allocation.vertexStart, vertices.data(), vertices.size() * sizeof(VertexData));
-
-	vertexResource_->Unmap(0, nullptr);
-
 	indexResource_->Map(0, nullptr, reinterpret_cast<void**>(&mappedIndexData_));
 
 	memcpy(mappedIndexData_ + allocation.indexStart, indexes.data(), indexes.size() * sizeof(uint32_t));
@@ -65,10 +78,10 @@ OffsetAllocation ObjectManager::MakeNewOffsetAllocation(shared_ptr<Model> model)
 	return allocation;
 }
 
-Microsoft::WRL::ComPtr<ID3D12Resource> ObjectManager::MakeObjectDataSRVResource() {
-	return dxCommon_->CreateBufferResources(sizeof(ObjectData));
+Microsoft::WRL::ComPtr<ID3D12Resource> ObjectManager::MakeSRVResource(size_t sizeInBytes) {
+	return dxCommon_->CreateBufferResources(sizeInBytes);
 }
 
-Microsoft::WRL::ComPtr<ID3D12Resource> ObjectManager::MakeObjectDataUAVResource(){
-	return dxCommon_->CreateOutputResources(sizeof(ObjectData));
+Microsoft::WRL::ComPtr<ID3D12Resource> ObjectManager::MakeUAVResource(size_t sizeInBytes){
+	return dxCommon_->CreateOutputResources(sizeInBytes);
 }

@@ -26,13 +26,13 @@ private:
 
 	//元データ
 	Microsoft::WRL::ComPtr<ID3D12Resource> objectResource_;
-	ObjectData* objectData_;
-	//加工済みデータ
-	Microsoft::WRL::ComPtr<ID3D12Resource> processedResource_;
-	ObjectData* processedData_;
+	InputObjectData* objectData_;
 	//マテリアル
 	Microsoft::WRL::ComPtr<ID3D12Resource> materialResource_;
 	Material* materialData_;
+
+	//テクスチャ
+	uint32_t textureIndex_;
 
 	//カメラ
 	shared_ptr<Camera> camera_;
@@ -77,21 +77,20 @@ public:
 
 	//描画
 	void Draw3D();
-	void Draw3D(uint32_t index);
 	void Draw2D();
-	void Draw2D(uint32_t index);
 
 	void ResetTimer() { animationTime_ = 0.0f; }
 
 	ID3D12Resource* GetObjectResource() { return objectResource_.Get(); }
-	ObjectData* GetObjectData() { return objectData_; }
-	ID3D12Resource* GetProcessedResource() { return processedResource_.Get(); }
+	InputObjectData* GetObjectData() { return objectData_; }
 	ID3D12Resource* GetMaterialResource() { return materialResource_.Get(); }
+	Material* GetMaterialData() { return materialData_; }
 	void SetMaterial(Material material) { *materialData_ = material; }
 	void SetColor(Vector4 color) { materialData_->color = color; }
-	void SetRefrection(int32_t refrection) { materialData_->reflection = refrection; }
-	void SetShading(SHADING shading) { materialData_->shading = shading; }
+	void SetReflection(int32_t reflection) { materialData_->reflection = reflection; }
+	void SetShading(int32_t shading) { materialData_->shading = shading; }
 	void SetShininess(float shininess) { materialData_->shininess = shininess; }
+	void SetEnviromentCoefficient(float enviromentCoefficient) { materialData_->enviromentCoefficient = enviromentCoefficient; }
 
 	static shared_ptr<Camera> GetDefaultCamera() { return DefaultCamera; }
 	static void SetDefaultCamera(shared_ptr<Camera> defaultCamera) { DefaultCamera = defaultCamera; }
@@ -103,6 +102,11 @@ public:
 
 	SRT GetTransform() { return transform_; }
 	void SetTransform(SRT transform) { transform_ = transform; }
+
+	SRT GetUVTransform() { return uvTransform_; }
+	void SetUVTransform(SRT transform) { uvTransform_ = transform; }
+
+	int32_t GetTexureIndex() { return textureIndex_; }
 
 	void SetDirectionalLight(const shared_ptr<DirectionalLight>& directionalLight) { directionalLight_ = directionalLight; }
 	void SetPointLight(const shared_ptr<PointLight>& pointLight) { pointLight_ = pointLight; }

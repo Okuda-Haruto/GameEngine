@@ -13,9 +13,8 @@ void BossBullet::Initialize(Vector3 translate, Vector3 rotate) {
 	object_->SetDirectionalLight(directionalLight_.lock());
 	object_->SetPointLight(pointLight_.lock());
 	object_->SetCubeTextureIndex(TextureManager::GetInstance()->GetSrvIndex("resources/BackGround/minedump_flats_1k.dds"));
-	std::vector<Parts> parts = object_->GetParts();
-	parts[0].material->enviromentCoefficient = 1.0f;
-	object_->SetParts(parts[0], 0);
+	
+	object_->SetEnviromentCoefficient(1.0f);
 	transform_ = {
 		{1.0f,1.0f,1.0f},
 		rotate,

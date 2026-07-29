@@ -64,7 +64,7 @@ void BackGround::Draw() {
 	fence_->Draw();
 	tumbleweed_->Draw();
 	for (int i = 0; i < objects_.size();i++) {
-		objects_[i]->Draw3D(indexes_[i]);
+		//objects_[i]->Draw3D(indexes_[i]);
 	}
 }
 

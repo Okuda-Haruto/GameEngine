@@ -43,9 +43,7 @@ void SampleScene::Initialize() {
 	object_[6]->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/teapot", "teapot.obj"));
 
 	object_[1]->SetCubeTextureIndex(TextureManager::GetInstance()->GetSrvIndex("resources/BackGround/minedump_flats_1k.dds"));
-	std::vector<Parts> parts = object_[1]->GetParts();
-	parts[0].material->enviromentCoefficient = 0.5f;
-	object_[1]->SetParts(parts[0], 0);
+	object_[1]->SetEnviromentCoefficient(0.5f);
 
 	//2Dスプライト
 	sprite_[0] = make_unique<Sprite>();
@@ -497,32 +495,6 @@ void SampleScene::Update() {
 			ImGui::SliderAngle(str.c_str(), &objectTransform_[i].rotate.z);
 			str = "Object[" + std::to_string(i) + "] Translate";
 			ImGui::DragFloat3(str.c_str(), &objectTransform_[i].translate.x, 0.1f);
-			for (INT j = 0; j < object_[i]->GetParts().size(); j++) {
-				Parts parts = object_[i]->GetParts()[j];
-				str = "Object[" + std::to_string(i) + "]" + "Material " + std::to_string(j) + " Scale";
-				ImGui::DragFloat3(str.c_str(), &parts.transform->scale.x, 0.1f);
-				str = "Object[" + std::to_string(i) + "]" + "Material " + std::to_string(j) + " RotateX";
-				ImGui::SliderAngle(str.c_str(), &parts.transform->rotate.x);
-				str = "Object[" + std::to_string(i) + "]" + "Material " + std::to_string(j) + " RotateY";
-				ImGui::SliderAngle(str.c_str(), &parts.transform->rotate.y);
-				str = "Object[" + std::to_string(i) + "]" + "Material " + std::to_string(j) + " RotateZ";
-				ImGui::SliderAngle(str.c_str(), &parts.transform->rotate.z);
-				str = "Object[" + std::to_string(i) + "]" + "Material " + std::to_string(j) + " Transrate";
-				ImGui::DragFloat3(str.c_str(), &parts.transform->translate.x, 0.1f);
-				str = "Object[" + std::to_string(i) + "]" + "Material " + std::to_string(j) + " UVScale";
-				ImGui::DragFloat3(str.c_str(), &parts.UVtransform.scale.x, 0.1f);
-				str = "Object[" + std::to_string(i) + "]" + "Material " + std::to_string(j) + " UVRotateX";
-				ImGui::SliderAngle(str.c_str(), &parts.UVtransform.rotate.x);
-				str = "Object[" + std::to_string(i) + "]" + "Material " + std::to_string(j) + " UVRotateY";
-				ImGui::SliderAngle(str.c_str(), &parts.UVtransform.rotate.y);
-				str = "Object[" + std::to_string(i) + "]" + "Material " + std::to_string(j) + " UVRotateZ";
-				ImGui::SliderAngle(str.c_str(), &parts.UVtransform.rotate.z);
-				str = "Object[" + std::to_string(i) + "]" + "Material " + std::to_string(j) + " UVTransrate";
-				ImGui::DragFloat3(str.c_str(), &parts.UVtransform.translate.x, 0.1f);
-				str = "Object[" + std::to_string(i) + "]" + "Material " + std::to_string(j) + " Color";
-				ImGui::ColorEdit4(str.c_str(), &parts.material->color.x);
-				object_[i]->SetParts(parts, j);
-			}
 		}
 		object_[i]->SetTransform(objectTransform_[i]);
 	}

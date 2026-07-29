@@ -55,7 +55,7 @@ public:
 
 	DirectXCommon* GetDirectXCommon() { return dxCommon_; }
 
-	std::vector<VertexData> GetVertices() { return modelData_.vertices; }
+	std::string GetTextureFilePath() { return modelData_.material.textureFilepath; }
 private:
 
 	//階層構造の行列変換

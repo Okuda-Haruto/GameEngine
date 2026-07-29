@@ -1,4 +1,3 @@
-
 struct BoneMatrix
 {
     float4x4 boneMatrix;
@@ -22,14 +21,6 @@ StructuredBuffer<VertexInfluence> gInfluences : register(t2);
 
 RWStructuredBuffer<Vertex> gOutputVertices : register(u0);
 
-struct AABB
-{
-    float3 min;
-    float padding0;
-    float3 max;
-    float padding1;
-};
-
 struct OffsetAllocation
 {
     int vertexStart;
@@ -38,19 +29,18 @@ struct OffsetAllocation
     int indexCount;
 };
 
-struct ObjectData
+struct InputObjectData
 {
-    AABB rayTracingAABB;
     OffsetAllocation allocation;
+    float4x4 worldMatrix;
+    int objectNumber;
 };
-ConstantBuffer<ObjectData> gInputObjectData : register(b0);
-RWStructuredBuffer<ObjectData> gOutPutObjectData : register(u1);
+ConstantBuffer<InputObjectData> gInputObjectData : register(b0);
 
 [numthreads(1024, 1, 1)]
 void main( uint3 DTid : SV_DispatchThreadID )
 {
     uint vertexIndex = DTid.x;
-    AABB aabb;
     if (vertexIndex < gInputObjectData.allocation.vertexCount)
     {
         Vertex input = gInputVertices[gInputObjectData.allocation.vertexStart + vertexIndex];
@@ -90,8 +80,4 @@ void main( uint3 DTid : SV_DispatchThreadID )
         }
         gOutputVertices[gInputObjectData.allocation.vertexStart + vertexIndex] = skinned;
     }
-    
-    gOutPutObjectData[0].allocation = gInputObjectData.allocation;
-    gOutPutObjectData[0].rayTracingAABB = aabb;
-
 }

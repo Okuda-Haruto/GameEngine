@@ -13,7 +13,7 @@ void Object::Initialize(shared_ptr<Model> model) {
 	model_ = model;
 	
 	//頂点リソースを作る
-	objectResource_ = ObjectManager::GetInstance()->MakeObjectDataSRVResource();
+	objectResource_ = ObjectManager::GetInstance()->MakeSRVResource(sizeof(InputObjectData));
 
 	objectResource_->Map(0, nullptr, reinterpret_cast<void**>(&objectData_));
 
@@ -21,9 +21,9 @@ void Object::Initialize(shared_ptr<Model> model) {
 
 	objectResource_->Unmap(0, nullptr);
 
-	processedResource_ = ObjectManager::GetInstance()->MakeObjectDataUAVResource();
 
-	materialResource_ = ObjectManager::GetInstance()->MakeObjectDataSRVResource();
+
+	materialResource_ = ObjectManager::GetInstance()->MakeSRVResource(sizeof(Material));
 
 	materialResource_->Map(0, nullptr, reinterpret_cast<void**>(&materialData_));
 
@@ -37,6 +37,8 @@ void Object::Initialize(shared_ptr<Model> model) {
 	transform_.scale = { 1.0f,1.0f,1.0f };
 	uvTransform_ = {};
 	uvTransform_.scale = { 1.0f,1.0f,1.0f };
+
+	textureIndex_ = model_->GetTextureIndex(0);
 
 	if (DefaultCamera != nullptr) {
 		camera_ = DefaultCamera;
@@ -59,6 +61,16 @@ void Object::Initialize(shared_ptr<Model> model) {
 
 void Object::Update() {
 
+	//マテリアルデータを更新
+	materialResource_->Map(0, nullptr, reinterpret_cast<void**>(&materialData_));
+
+	materialData_->uvTransform = MakeAffineMatrix(uvTransform_.scale, uvTransform_.rotate, uvTransform_.translate);
+	materialData_->enableDirectionalLighting = directionalLight_.lock() != nullptr;
+	materialData_->enablePointLighting = pointLight_.lock() != nullptr;
+	materialData_->enableSpotLighting = spotLight_.lock() != nullptr;
+	materialData_->enableEnviromentMap = materialData_->enviromentCoefficient > 0.0f;
+
+	materialResource_->Unmap(0, nullptr);
 
 	//アニメーションするなら
 	if (isUseAnimation_) {
@@ -67,7 +79,6 @@ void Object::Update() {
 			AnimationData animationData = model_->GetAnimationData(animationName_);
 			animationTime_ = std::fmod(animationTime_,animationData.duration);
 		}
-		model_->BoneAnimation(skeleton_, animationTime_, animationName_, interpolation_);
 
 		for (int i = 0; i < bones_.size(); i++) {
 			if (i > 128)break;
@@ -81,14 +92,6 @@ void Object::Draw3D() {
 	GameEngine::DrawObject_3D(this, directionalLight_.lock(), pointLight_.lock(), spotLight_.lock(),0, animationTime_);
 }
 
-void Object::Draw3D(uint32_t index) {
-	GameEngine::DrawParts_3D(this, index, directionalLight_.lock(), pointLight_.lock(), spotLight_.lock());
-}
-
 void Object::Draw2D() {
 	GameEngine::DrawObject_2D(this, directionalLight_.lock());
-}
-
-void Object::Draw2D(uint32_t index) {
-	GameEngine::DrawParts_2D(this, index, directionalLight_.lock());
 }

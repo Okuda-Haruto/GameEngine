@@ -61,15 +61,7 @@ void HUD::Update() {
 void HUD::Draw() {
 	//シリンダー
 	int32_t remainingRounds = player_->GetRemainingRounds();
-	std::vector<Parts> parts = cylinder_->GetParts();
-	for (int32_t i = 1; i <= 6; i++) {
-		if (remainingRounds >= i) {
-			parts[i].material->color = { 1.0f,1.0f,1.0f,1.0f };
-		} else {
-			parts[i].material->color = { 1.0f,1.0f,1.0f,0.0f };
-		}
-		cylinder_->SetParts(parts[i], i);
-	}
+
 	cylinder_->Draw2D();
 
 	//体力(ハット)

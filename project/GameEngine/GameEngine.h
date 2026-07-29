@@ -48,6 +48,7 @@
 #include <PrimitiveManager/PrimitiveRing.h>
 #include <PrimitiveManager/PrimitiveCylinder.h>
 #include "AudioManager/AudioManager.h"
+#include "ObjectManager/ObejctManager.h"
 
 #include <vector>
 #include <array>
@@ -91,6 +92,7 @@ private:
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> screen_Dissolve_RootSignature_;
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> cubemap_RootSignature_;
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> compute_Skinning_RootSignature_;
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> compute_ObjectAABB_RootSignature_;
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> compute_Initialize_Particle_RootSignature_;
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> compute_Emit_Particle_RootSignature_;
 
@@ -118,6 +120,7 @@ private:
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> screen_Dissolve_PipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> cubemap_PipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> compute_Skinning_PipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> compute_ObjectAABB_PipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> compute_Initialize_Particle_PipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> compute_Emit_Particle_PipelineState_ = nullptr;
 
@@ -288,9 +291,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12Device> GetDevice_() { return dxCommon_->GetDevice(); }
 
 	void DrawObject_3D_(Object* object, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight, UINT animationIndex, float time);
-	void DrawParts_3D_(Object* object, uint32_t partsIndex, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight);
 	void DrawObject_2D_(Object* object, shared_ptr<DirectionalLight> directionalLight);
-	void DrawParts_2D_(Object* object, uint32_t partsIndex, shared_ptr<DirectionalLight> directionalLight);
 	void DrawInstancingObject_3D_(std::list<Object*> objects, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight);
 	void DrawParticle_(ParticleGroup particleGroup);
 	void DrawParticle_AddBlend_(ParticleGroup particleGroup);
@@ -396,9 +397,7 @@ public:
 
 
 	static void DrawObject_3D(Object* object, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight, UINT animationIndex = 0, float time = 0.0f) { return GetInstance()->DrawObject_3D_(object, directionalLight, pointLight, spotLight, animationIndex, time); }
-	static void DrawParts_3D(Object* object, uint32_t partsIndex, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight) { return GetInstance()->DrawParts_3D_(object, partsIndex, directionalLight, pointLight, spotLight); }
 	static void DrawObject_2D(Object* object, shared_ptr<DirectionalLight> directionalLight) { return GetInstance()->DrawObject_2D_(object, directionalLight); }
-	static void DrawParts_2D(Object* object, uint32_t partsIndex, shared_ptr<DirectionalLight> directionalLight) { return GetInstance()->DrawParts_2D_(object, partsIndex, directionalLight); }
 	static void DrawInstancingObject_3D(std::list<Object*> objects, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight) { return GetInstance()->DrawInstancingObject_3D_(objects, directionalLight, pointLight, spotLight); }
 	static void DrawParticle(ParticleGroup particleGroup) { return GetInstance()->DrawParticle_(particleGroup); }
 	static void DrawParticle_AddBlend(ParticleGroup particleGroup) { return GetInstance()->DrawParticle_AddBlend_(particleGroup); }
