@@ -112,5 +112,8 @@ public:
 	int32_t GetRemainingRounds() { return remainingRounds_; }
 
 	Vector3 GetMove() { return move_; }
+
+	float GetInvincibleTimeRate() { return invincibleTime_ / kMaxInvincibleTime_; }
+	float GetDodgeActiveTimeRate() { return dodgeActiveTime / kMaxDodgeActiveTime; }
 };
 

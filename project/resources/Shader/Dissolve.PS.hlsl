@@ -20,7 +20,9 @@ PixelShaderOutput main(VertexShaderOutput input)
     float mask = gMaskTexture.Sample(gSampler, input.texcoord).r;
     if (mask <= gDissolveData.threshold)
     {
-        discard;
+        PixelShaderOutput output;
+        output.color = float4(0.0f, 0.0f, 0.0f, 1.0f);
+        return output;
     }
     
     PixelShaderOutput output;
