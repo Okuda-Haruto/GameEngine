@@ -332,6 +332,11 @@ void Stage::Draw() {
 		cylider_->Draw(cylinderTransform_, cylinderMaterial_);
 	}
 
+	particle_->Draw();
+	particle_2->Draw();
+	particle_3->Draw();
+	particle_4->Draw();
+
 	hud_->Draw();
 }
 
