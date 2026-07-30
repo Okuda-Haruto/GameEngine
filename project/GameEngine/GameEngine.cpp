@@ -2199,14 +2199,23 @@ void GameEngine::Compute_Initialize_Particle_(ParticleGroup particleGroup) {
 	barrier = {};
 	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	barrier.Transition.pResource = particleGroup.freeCounterResource.Get();
+	barrier.Transition.pResource = particleGroup.freeListIndexResource.Get();
+	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
+	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+	commandList_->ResourceBarrier(1, &barrier);
+	barrier = {};
+	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	barrier.Transition.pResource = particleGroup.freeListResource.Get();
 	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
 	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
 	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 	commandList_->ResourceBarrier(1, &barrier);
 
 	commandList_->SetComputeRootDescriptorTable(0, srvManager_->GetGPUDescriptorHandle(particleGroup.instancingUAVIndex));
-	commandList_->SetComputeRootDescriptorTable(1, srvManager_->GetGPUDescriptorHandle(particleGroup.freeCounterUAVindex));
+	commandList_->SetComputeRootDescriptorTable(1, srvManager_->GetGPUDescriptorHandle(particleGroup.freeListIndexUAVindex));
+	commandList_->SetComputeRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(particleGroup.freeListUAVindex));
 
 	commandList_->Dispatch(1, 1, 1);
 
@@ -2223,7 +2232,16 @@ void GameEngine::Compute_Initialize_Particle_(ParticleGroup particleGroup) {
 	barrier = {};
 	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	barrier.Transition.pResource = particleGroup.freeCounterResource.Get();
+	barrier.Transition.pResource = particleGroup.freeListIndexResource.Get();
+	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
+	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+	commandList_->ResourceBarrier(1, &barrier);
+
+	barrier = {};
+	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	barrier.Transition.pResource = particleGroup.freeListResource.Get();
 	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
 	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
 	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
@@ -2249,16 +2267,25 @@ void GameEngine::Compute_Update_Particle_(ParticleGroup particleGroup) {
 	barrier = {};
 	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	barrier.Transition.pResource = particleGroup.freeCounterResource.Get();
+	barrier.Transition.pResource = particleGroup.freeListIndexResource.Get();
+	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
+	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+	commandList_->ResourceBarrier(1, &barrier);
+	barrier = {};
+	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	barrier.Transition.pResource = particleGroup.freeListResource.Get();
 	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
 	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
 	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 	commandList_->ResourceBarrier(1, &barrier);
 
 	commandList_->SetComputeRootDescriptorTable(0, srvManager_->GetGPUDescriptorHandle(particleGroup.instancingUAVIndex));
-	commandList_->SetComputeRootDescriptorTable(1, srvManager_->GetGPUDescriptorHandle(particleGroup.freeCounterUAVindex));
+	commandList_->SetComputeRootDescriptorTable(1, srvManager_->GetGPUDescriptorHandle(particleGroup.freeListIndexUAVindex));
+	commandList_->SetComputeRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(particleGroup.freeListUAVindex));
 
-	commandList_->SetComputeRootConstantBufferView(2, particleGroup.emitterSphereResource->GetGPUVirtualAddress());
+	commandList_->SetComputeRootConstantBufferView(3, particleGroup.emitterSphereResource->GetGPUVirtualAddress());
 
 	perFrameResource_->Map(0, nullptr, reinterpret_cast<void**>(&perFrameData_));
 
@@ -2267,7 +2294,7 @@ void GameEngine::Compute_Update_Particle_(ParticleGroup particleGroup) {
 
 	perFrameResource_->Unmap(0, nullptr);
 
-	commandList_->SetComputeRootConstantBufferView(3, perFrameResource_->GetGPUVirtualAddress());
+	commandList_->SetComputeRootConstantBufferView(4, perFrameResource_->GetGPUVirtualAddress());
 
 	//Emit
 	commandList_->Dispatch(1, 1, 1);
@@ -2285,7 +2312,16 @@ void GameEngine::Compute_Update_Particle_(ParticleGroup particleGroup) {
 	barrier = {};
 	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_UAV;
 	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	barrier.Transition.pResource = particleGroup.freeCounterResource.Get();
+	barrier.Transition.pResource = particleGroup.freeListIndexResource.Get();
+	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+	commandList_->ResourceBarrier(1, &barrier);
+
+	barrier = {};
+	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_UAV;
+	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	barrier.Transition.pResource = particleGroup.freeListResource.Get();
 	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
 	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
 	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
@@ -2296,7 +2332,8 @@ void GameEngine::Compute_Update_Particle_(ParticleGroup particleGroup) {
 	commandList_->SetPipelineState(compute_Update_Particle_PipelineState_.Get());	//PSOを設定
 
 	commandList_->SetComputeRootDescriptorTable(0, srvManager_->GetGPUDescriptorHandle(particleGroup.instancingUAVIndex));
-	commandList_->SetComputeRootDescriptorTable(1, srvManager_->GetGPUDescriptorHandle(particleGroup.freeCounterUAVindex));
+	commandList_->SetComputeRootDescriptorTable(1, srvManager_->GetGPUDescriptorHandle(particleGroup.freeListIndexUAVindex));
+	commandList_->SetComputeRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(particleGroup.freeListUAVindex));
 
 	perFrameResource_->Map(0, nullptr, reinterpret_cast<void**>(&perFrameData_));
 
@@ -2305,7 +2342,7 @@ void GameEngine::Compute_Update_Particle_(ParticleGroup particleGroup) {
 
 	perFrameResource_->Unmap(0, nullptr);
 
-	commandList_->SetComputeRootConstantBufferView(2, perFrameResource_->GetGPUVirtualAddress());
+	commandList_->SetComputeRootConstantBufferView(3, perFrameResource_->GetGPUVirtualAddress());
 
 	//Update
 	commandList_->Dispatch(1, 1, 1);
@@ -2323,7 +2360,16 @@ void GameEngine::Compute_Update_Particle_(ParticleGroup particleGroup) {
 	barrier = {};
 	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	barrier.Transition.pResource = particleGroup.freeCounterResource.Get();
+	barrier.Transition.pResource = particleGroup.freeListIndexResource.Get();
+	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
+	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+	commandList_->ResourceBarrier(1, &barrier);
+
+	barrier = {};
+	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	barrier.Transition.pResource = particleGroup.freeListResource.Get();
 	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
 	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
 	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;

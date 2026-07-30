@@ -127,11 +127,18 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 	srvManager_->CreateUAVforStructuredBuffer(particleGroup.instancingUAVIndex, particleGroup.instancingResource.Get(), kMaxParticle, sizeof(ParticleCS));
 
 	// パーティクル数 用リソースを kMaxParticle 分確保する（sizeof(int32_t) * kMaxParticle）
-	particleGroup.freeCounterResource = dxCommon_->CreateOutputResources(sizeof(int32_t) * kMaxParticle);
+	particleGroup.freeListIndexResource = dxCommon_->CreateOutputResources(sizeof(int32_t) * kMaxParticle);
 
-	particleGroup.freeCounterUAVindex = srvManager_->Allocate();
+	particleGroup.freeListIndexUAVindex = srvManager_->Allocate();
 
-	srvManager_->CreateUAVforStructuredBuffer(particleGroup.freeCounterUAVindex, particleGroup.freeCounterResource.Get(), kMaxParticle, sizeof(int32_t));
+	srvManager_->CreateUAVforStructuredBuffer(particleGroup.freeListIndexUAVindex, particleGroup.freeListIndexResource.Get(), kMaxParticle, sizeof(int32_t));
+
+	// パーティクル数 用リソースを kMaxParticle 分確保する（sizeof(int32_t) * kMaxParticle）
+	particleGroup.freeListResource = dxCommon_->CreateOutputResources(sizeof(uint32_t) * kMaxParticle);
+
+	particleGroup.freeListUAVindex = srvManager_->Allocate();
+
+	srvManager_->CreateUAVforStructuredBuffer(particleGroup.freeListUAVindex, particleGroup.freeListResource.Get(), kMaxParticle, sizeof(uint32_t));
 
 	GameEngine::Compute_Initialize_Particle(particleGroup);
 }

@@ -26,8 +26,10 @@ struct ParticleGroup {
 	Microsoft::WRL::ComPtr<ID3D12Resource> instancingResource;
 	uint32_t instancingUAVIndex = 0;
 	uint32_t numInstance = 0;
-	Microsoft::WRL::ComPtr<ID3D12Resource> freeCounterResource;
-	uint32_t freeCounterUAVindex = 0;
+	Microsoft::WRL::ComPtr<ID3D12Resource> freeListIndexResource;
+	uint32_t freeListIndexUAVindex = 0;
+	Microsoft::WRL::ComPtr<ID3D12Resource> freeListResource;
+	uint32_t freeListUAVindex = 0;
 	std::vector <InstancingTransformationMatrix> instancingData;
 };
 
