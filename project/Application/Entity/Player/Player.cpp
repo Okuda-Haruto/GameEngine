@@ -24,7 +24,10 @@ void Player::Initialize(Stage* stage, std::shared_ptr<GameCamera> gameCamera, sh
 
 	//モデルの生成
 	object_ = std::make_unique<Object>();
-	object_->Initialize(ModelHolder::GetInstance()->GetModel(ModelIndex::Player));
+	object_->Initialize(ModelManager::GetInstance()->GetModel("resources/Character/human","Boss_1_anm.gltf"));
+	object_->SetAnimationName("Idle");
+	object_->SetIsUseAnimation(true);
+	object_->SetIsLoopAnimation(true);
 	transform_ = startTransform;
 	object_->SetTransform(transform_);
 
@@ -351,7 +354,17 @@ void Player::Update() {
 
 	*trackingTransform_ = transform_;
 
-	object_->SetTransform(transform_);
+	if (Length(velocity_) < 0.1f) {
+		object_->SetAnimationName("Idle");
+	} else {
+		object_->SetAnimationName("Move");
+	}
+	SRT objTransform = transform_;
+	objTransform.scale = { 0.531536f,0.531536f,0.531536f };
+	objTransform.translate.y = 0.0f;
+
+	object_->SetTransform(objTransform);
+	object_->Update();
 	BaseEntity::Update();
 
 	if (Length(velocity_) > 0.0f) {

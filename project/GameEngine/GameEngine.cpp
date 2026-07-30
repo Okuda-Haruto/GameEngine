@@ -24,6 +24,7 @@
 #include "Log.h"
 #include "Initialvalue.h"
 #include "Animation/Animation.h"
+#include <Sphere.h>
 
 #include <numbers>
 
@@ -443,6 +444,22 @@ void GameEngine::DrawObject_3D_(Object* object, shared_ptr<DirectionalLight> dir
 		for (int i = 0; i < bones.size(); i++) {
 			if (i > 128)break;
 			objectBoneData_[objectIndex_]->matrix[i] = *bones[i].finalMatrix;
+
+			Matrix4x4 nodeMatrix = Inverse(bones[i].offsetMatrix) * *bones[i].finalMatrix * partsMatrix;
+			Sphere sphere;
+			sphere.center = Vector3{ 0,0,0 } * nodeMatrix;
+			sphere.radius = 0.05f;
+			PrimitiveManager::GetInstance()->AddSphere(sphere, Vector4{ 0,1,0,1 });
+
+			Ray ray;
+			ray.origin = sphere.center;
+			ray.diff = Normalize(Vector3{
+				nodeMatrix.m[0][1],
+				nodeMatrix.m[1][1],
+				nodeMatrix.m[2][1]
+				}) * 0.25f;
+
+			PrimitiveManager::GetInstance()->AddRay(ray, Vector4{ 0,1,0,1 });
 		}
 
 		objectBoneResource_[objectIndex_]->Unmap(0,nullptr);
