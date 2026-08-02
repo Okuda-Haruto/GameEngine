@@ -214,7 +214,9 @@ void SampleScene::Update() {
 	Keyboard keyboard = input_->GetKeyboard();
 	Pad pad = input_->GetPad(0);
 
-	object_[5]->Update();
+	for (INT i = 0; i < object_.size(); i++) {
+		object_[i]->Update();
+	}
 
 	if (keyboard.keys[DIK_UP].hold || pad.Button[PAD_BUTTON_UP].hold) {
 		for (INT i = 0; i < INT(objectTransform_.size()); i++) {
@@ -550,20 +552,20 @@ void SampleScene::Update() {
 		}
 	}
 
-	gltfs_[gltfIndex_]->Draw3D();
+	//gltfs_[gltfIndex_]->Draw3D();
 
-	particleEmitter_->Draw_AddBlend();
+	//particleEmitter_->Draw_AddBlend();
 
 	if (isDisplayUI) {
 		for (INT i = 0; i < sprite_.size(); i++) {
 			if (isSpriteDraw_[i]) {
-				sprite_[i]->Draw2D();
+				//sprite_[i]->Draw2D();
 			}
 		}
 	}
 
-	ring_->DrawBillBoard(ringTransform_, ringMaterial_);
-	cylinder_->Draw(cylinderTransform_, cylinderMaterial_);
+	//ring_->DrawBillBoard(ringTransform_, ringMaterial_);
+	//cylinder_->Draw(cylinderTransform_, cylinderMaterial_);
 
 	GameEngine::RenderPostDraw();
 

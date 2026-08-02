@@ -43,8 +43,8 @@ void main( uint3 DTid : SV_DispatchThreadID )
     uint vertexIndex = DTid.x;
     if (vertexIndex < gInputObjectData.allocation.vertexCount)
     {
-        Vertex input = gInputVertices[gInputObjectData.allocation.vertexStart + vertexIndex];
-        VertexInfluence influence = gInfluences[gInputObjectData.allocation.vertexStart + vertexIndex];
+        Vertex input = gInputVertices[vertexIndex];
+        VertexInfluence influence = gInfluences[vertexIndex];
         
         Vertex skinned;
         skinned.texcoord = input.texcoord;
@@ -76,7 +76,7 @@ void main( uint3 DTid : SV_DispatchThreadID )
         else
         {
             skinned.position = input.position;
-            skinned.normal = input.normal;
+            skinned.normal = normalize(input.normal);
         }
         gOutputVertices[gInputObjectData.allocation.vertexStart + vertexIndex] = skinned;
     }
