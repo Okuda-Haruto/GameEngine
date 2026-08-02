@@ -265,6 +265,8 @@ void GameScene::Update() {
 
 	GameEngine::DrawScreen("Outline", ColorChange::COLORMODE_SEPIATONE, stage_->GetGameCamera()->GetSepiaTone());
 
+	stage_->DrawSprite();
+
 	GameEngine::RenderPostDraw();
 
 	GameEngine::RenderPreDraw("BoxFilter");
@@ -299,6 +301,4 @@ void GameScene::Update() {
 void GameScene::Draw() {
 
 	GameEngine::DrawScreen("RadialBlur", dissolveData_, TextureManager::GetInstance()->GetSrvIndex("resources/DebugResources/noise0.png"));
-
-	stage_->DrawSprite();
 }
