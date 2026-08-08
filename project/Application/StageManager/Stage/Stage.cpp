@@ -325,6 +325,8 @@ void Stage::Draw() {
 		object->Draw();
 	}
 
+#ifndef USE_IMGUI
+
 	ring_->DrawBillBoard(ringTransform_, ringMaterial_);
 
 	for (auto& shockWave : shockWaves_) {
@@ -338,6 +340,8 @@ void Stage::Draw() {
 	particle_2->Draw();
 	particle_3->Draw();
 	particle_4->Draw();
+
+#endif // !USE_IMGUI
 
 	hud_->Draw();
 }
