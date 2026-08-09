@@ -4,6 +4,42 @@ struct Ray
     float3 diff;
 };
 
+struct AABB
+{
+    float4 min;
+    float4 max;
+};
+
+bool IsCollision(AABB aabb, Ray ray)
+{
+
+    float3 min =
+    {
+        (aabb.min.x - ray.origin.x) / ray.diff.x,
+		(aabb.min.y - ray.origin.y) / ray.diff.y,
+		(aabb.min.z - ray.origin.z) / ray.diff.z,
+    };
+    float3 max =
+    {
+        (aabb.max.x - ray.origin.x) / ray.diff.x,
+		(aabb.max.y - ray.origin.y) / ray.diff.y,
+		(aabb.max.z - ray.origin.z) / ray.diff.z,
+    };
+
+    float tNearX = min(min.x, max.x), tFarX = max(min.x, max.x);
+    float tNearY = min(min.y, max.y), tFarY = max(min.y, max.y);
+    float tNearZ = min(min.z, max.z), tFarZ = max(min.z, max.z);
+
+    float tmin = max(max(tNearX, tNearY), tNearZ);
+    float tmax = min(min(tFarX, tFarY), tFarZ);
+
+    if (tmin <= tmax && tmax >= 0.0f)
+    {
+        return true;
+    }
+    return false;
+}
+
 struct TriangleVertex
 {
     float3 v[3];
@@ -17,42 +53,27 @@ bool RayTriangleIntersect(
 {
     float3 v10 = triangleVertex.v[1] - triangleVertex.v[0];
     float3 v20 = triangleVertex.v[2] - triangleVertex.v[0];
+    
+    float3 p = cross(ray.diff, v20);
+    
+    float divisor = dot(v10, p);
+    if (abs(divisor ) < 1e-6) return false;
 
-    // レイ方向 × edge2
-    float3 pvec = cross(ray.diff, v20);
+    float invDivisor = 1.0 / divisor;
+    
+    float3 d = ray.origin - triangleVertex.v[0];
+    
+    float u = dot(d, p) * invDivisor;
+    if (u < 0.0 || u > 1.0) return false;
+    
+    float3 q = cross(d, v10);
+    
+    float v = dot(ray.diff, q) * invDivisor;
+    if (v < 0.0 || (u + v) > 1.0) return false;
+    
+    t = dot(v20, q) * invDivisor;
 
-    // 行列式
-    float det = dot(v10, pvec);
-
-    // 平行判定
-    if (abs(det) < 1e-6)
-        return false;
-
-    float invDet = 1.0 / det;
-
-    // v0 → レイ始点
-    float3 tvec = ray.origin - triangleVertex.v[0];
-
-    // 重心座標 u
-    float u = dot(tvec, pvec) * invDet;
-
-    if (u < 0.0 || u > 1.0)
-        return false;
-
-    // tvec × edge1
-    float3 qvec = cross(tvec, v10);
-
-    // 重心座標 v
-    float v = dot(ray.diff, qvec) * invDet;
-
-    if (v < 0.0 || (u + v) > 1.0)
-        return false;
-
-    // レイ上の距離
-    t = dot(edge2, qvec) * invDet;
-
-    if (t < 1e-6)
-        return false;
+    if (t < 1e-6) return false;
 
     bary = float2(u, v);
 
@@ -69,6 +90,33 @@ struct RayTracingState
 };
 
 ConstantBuffer<RayTracingState> gState : register(b0);
+
+struct Vertex
+{
+    float4 position;
+    float2 texcoord;
+    float3 normal;
+};
+
+StructuredBuffer<Vertex> gVertices : register(t0);
+
+struct OffsetAllocation
+{
+    int vertexStart;
+    int vertexCount;
+    int indexStart;
+    int indexCount;
+};
+
+struct OutputObjectData
+{
+    AABB rayTracingAABB;
+    OffsetAllocation allocation;
+};
+StructuredBuffer<OutputObjectData> gObjectData : register(t1);
+
+
+RWStructuredBuffer<int> gObjectDataCounter : register(u1);
 
 RWTexture2D<float4> gTexture;
 
@@ -98,4 +146,25 @@ void main( uint3 DTid : SV_DispatchThreadID )
     Ray ray;
     ray.origin = gState.cameraPosition;
     ray.diff = normalize(world.xyz - gState.cameraPosition);
+    for (int i = 0; i < gObjectDataCounter; i++)
+    {
+        if (IsCollision(gObjectData[i].rayTracingAABB, ray))
+        {
+            float t;
+            float2 bary;
+            
+            for (int index = gObjectData[i].allocation.indexStart; index < gObjectData[i].allocation.indexCount; index += 3)
+            {
+                TriangleVertex vertexes;
+                vertexes.v[0] = gVertices[gObjectData[i].allocation.vertexStart + index];
+                vertexes.v[1] = gVertices[gObjectData[i].allocation.vertexStart + index + 1];
+                vertexes.v[2] = gVertices[gObjectData[i].allocation.vertexStart + index + 2];
+    
+                if (RayTriangleIntersect(ray, vertexes, t, bary))
+                {
+                    
+                }
+            }
+        }
+    }
 }
