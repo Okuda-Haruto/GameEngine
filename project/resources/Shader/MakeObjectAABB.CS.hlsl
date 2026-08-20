@@ -35,6 +35,8 @@ struct OutputObjectData
 };
 RWStructuredBuffer<OutputObjectData> gOutPutObjectData : register(u0);
 
+RWStructuredBuffer<uint> gObjectDataCounter : register(u1);
+
 [numthreads(1, 1, 1)]
 void main( uint3 DTid : SV_DispatchThreadID )
 {

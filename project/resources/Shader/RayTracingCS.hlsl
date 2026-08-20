@@ -12,19 +12,59 @@ struct AABB
 
 bool IsCollision(AABB aabb, Ray ray)
 {
-
-    float3 min =
+    const float FLT_MAX = 1e30f;
+    
+    float3 min;
+    float3 max;
+    
+    if (abs(ray.diff.x) < 1e-4)
     {
-        (aabb.min.x - ray.origin.x) / ray.diff.x,
-		(aabb.min.y - ray.origin.y) / ray.diff.y,
-		(aabb.min.z - ray.origin.z) / ray.diff.z,
-    };
-    float3 max =
+        if (ray.origin.x < aabb.min.x ||
+        ray.origin.x > aabb.max.x)
+        {
+            return false;
+        }
+        
+        min.x = -FLT_MAX;
+        max.x = FLT_MAX;
+    }
+    else
     {
-        (aabb.max.x - ray.origin.x) / ray.diff.x,
-		(aabb.max.y - ray.origin.y) / ray.diff.y,
-		(aabb.max.z - ray.origin.z) / ray.diff.z,
-    };
+        min.x = (aabb.min.x - ray.origin.x) / ray.diff.x;
+        max.x = (aabb.max.x - ray.origin.x) / ray.diff.x;
+    }
+    
+    if (abs(ray.diff.y) < 1e-4)
+    {
+        if (ray.origin.y < aabb.min.y ||
+        ray.origin.y > aabb.max.y)
+        {
+            return false;
+        }
+        min.y = -FLT_MAX;
+        max.y = FLT_MAX;
+    }
+    else
+    {
+        min.y = (aabb.min.y - ray.origin.y) / ray.diff.y;
+        max.y = (aabb.max.y - ray.origin.y) / ray.diff.y;
+    }
+    
+    if (abs(ray.diff.z) < 1e-4)
+    {
+        if (ray.origin.z < aabb.min.z ||
+        ray.origin.z > aabb.max.z)
+        {
+            return false;
+        }
+        min.z = -FLT_MAX;
+        max.z = FLT_MAX;
+    }
+    else
+    {
+        min.z = (aabb.min.z - ray.origin.z) / ray.diff.z;
+        max.z = (aabb.max.z - ray.origin.z) / ray.diff.z;
+    }
 
     float tNearX = min(min.x, max.x), tFarX = max(min.x, max.x);
     float tNearY = min(min.y, max.y), tFarY = max(min.y, max.y);
@@ -89,7 +129,7 @@ struct RayTracingState
     float3 cameraPosition;
 };
 
-ConstantBuffer<RayTracingState> gState : register(b0);
+ConstantBuffer<RayTracingState> gRayTracingState : register(b0);
 
 struct Vertex
 {
@@ -99,6 +139,8 @@ struct Vertex
 };
 
 StructuredBuffer<Vertex> gVertices : register(t0);
+
+StructuredBuffer<uint> gIndices : register(t1);
 
 struct OffsetAllocation
 {
@@ -113,58 +155,144 @@ struct OutputObjectData
     AABB rayTracingAABB;
     OffsetAllocation allocation;
 };
-StructuredBuffer<OutputObjectData> gObjectData : register(t1);
+StructuredBuffer<OutputObjectData> gObjectData : register(t2);
 
+StructuredBuffer<uint> gObjectDataCounter : register(t3);
 
-RWStructuredBuffer<int> gObjectDataCounter : register(u1);
+struct DirectionalLight
+{
+    float4 color;
+    float3 direction;
+    float intensity;
+};
+StructuredBuffer<DirectionalLight> gDirectionalLight : register(t4);
 
-RWTexture2D<float4> gTexture;
+struct LightingState
+{
+    int numDirectionalLight;
+};
+
+ConstantBuffer<LightingState> gLightingState : register(b1);
+
+RWTexture2D<float4> gTexture : register(u0);
 
 [numthreads(16, 16, 1)]
 void main( uint3 DTid : SV_DispatchThreadID )
 {
-    if (DTid.x >= gState.windowWidth ||
-        DTid.y >= gState.windowHeight)
+    if (DTid.x >= gRayTracingState.windowWidth ||
+        DTid.y >= gRayTracingState.windowHeight)
     {
         return;
     }
     
     float2 uv;
-    uv.x = (DTid.x + 0.5f) / gState.windowWidth;
-    uv.y = (DTid.y + 0.5f) / gState.windowHeight;
+    uv.x = (DTid.x + 0.5f) / gRayTracingState.windowWidth;
+    uv.y = (DTid.y + 0.5f) / gRayTracingState.windowHeight;
+    gTexture[DTid.xy] = float4(0.0f, 0.0f, 0.0f, 0.0f);
+    
     float2 ndc;
     ndc.x = uv.x * 2.0f - 1.0f;
     ndc.y = 1.0f - uv.y * 2.0f;
             
     float4 clip = float4(ndc, 1.0f, 1.0f);
             
-    float4 view = mul(clip, gState.inverseProjectionMatrix);
+    float4 view = mul(clip, gRayTracingState.inverseProjectionMatrix);
     view /= view.w;
             
-    float4 world = mul(view, gState.inverseViewMatrix);
+    float4 world = mul(view, gRayTracingState.inverseViewMatrix);
             
     Ray ray;
-    ray.origin = gState.cameraPosition;
-    ray.diff = normalize(world.xyz - gState.cameraPosition);
-    for (int i = 0; i < gObjectDataCounter; i++)
+    ray.origin = gRayTracingState.cameraPosition;
+    ray.diff = normalize(world.xyz - gRayTracingState.cameraPosition);
+    
+    bool isHit = false;
+    float minT = 0.0f;
+    float3 hitNormal;
+    float3 collisionPoint;
+    
+    for (int i = 0; i < gObjectDataCounter[0]; i++)
     {
         if (IsCollision(gObjectData[i].rayTracingAABB, ray))
         {
+            
             float t;
             float2 bary;
             
-            for (int index = gObjectData[i].allocation.indexStart; index < gObjectData[i].allocation.indexCount; index += 3)
+            for (int index = gObjectData[i].allocation.indexStart; index < gObjectData[i].allocation.indexStart + gObjectData[i].allocation.indexCount; index += 3)
             {
                 TriangleVertex vertexes;
-                vertexes.v[0] = gVertices[gObjectData[i].allocation.vertexStart + index];
-                vertexes.v[1] = gVertices[gObjectData[i].allocation.vertexStart + index + 1];
-                vertexes.v[2] = gVertices[gObjectData[i].allocation.vertexStart + index + 2];
+                vertexes.v[0] = gVertices[gObjectData[i].allocation.vertexStart + gIndices[index]].position;
+                vertexes.v[1] = gVertices[gObjectData[i].allocation.vertexStart + gIndices[index + 1]].position;
+                vertexes.v[2] = gVertices[gObjectData[i].allocation.vertexStart + gIndices[index + 2]].position;
     
                 if (RayTriangleIntersect(ray, vertexes, t, bary))
                 {
+                    if (t < minT || !isHit)
+                    {
+                        Vertex triangleVertex[3];
+                        triangleVertex[0] = gVertices[gObjectData[i].allocation.vertexStart + gIndices[index]];
+                        triangleVertex[1] = gVertices[gObjectData[i].allocation.vertexStart + gIndices[index + 1]];
+                        triangleVertex[2] = gVertices[gObjectData[i].allocation.vertexStart + gIndices[index + 2]];
                     
+                        hitNormal = normalize(triangleVertex[0].normal * (1.0 - bary.x - bary.y) +
+                                       triangleVertex[1].normal * bary.x +
+                                       triangleVertex[2].normal * bary.y);
+                    
+                        collisionPoint = ray.origin + ray.diff * t +
+                                                  hitNormal * 1e-3;
+                        isHit = true;
+                        minT = t;
+
+                    }
+                }
+                
+            }
+            
+        }
+    }
+    
+    if (isHit)
+    {
+        
+        for (int lightIndex = 0; lightIndex < gLightingState.numDirectionalLight; lightIndex++)
+        {
+            float NdotL = dot(hitNormal, -gDirectionalLight[lightIndex].direction);
+
+            if (NdotL <= 0)
+            {
+                continue;
+            }
+            
+            Ray directionalShadowRay;
+            directionalShadowRay.origin = collisionPoint;
+            directionalShadowRay.diff = -gDirectionalLight[lightIndex].direction;
+
+            for (int i = 0; i < gObjectDataCounter[0]; i++)
+            {
+                if (IsCollision(gObjectData[i].rayTracingAABB, directionalShadowRay))
+                {
+            
+                    float t;
+                    float2 bary;
+            
+                    for (int index = gObjectData[i].allocation.indexStart; index < gObjectData[i].allocation.indexStart + gObjectData[i].allocation.indexCount; index += 3)
+                    {
+                        TriangleVertex vertexes;
+                        vertexes.v[0] = gVertices[gObjectData[i].allocation.vertexStart + gIndices[index]].position;
+                        vertexes.v[1] = gVertices[gObjectData[i].allocation.vertexStart + gIndices[index + 1]].position;
+                        vertexes.v[2] = gVertices[gObjectData[i].allocation.vertexStart + gIndices[index + 2]].position;
+    
+                        if (RayTriangleIntersect(directionalShadowRay, vertexes, t, bary))
+                        {
+                            gTexture[DTid.xy] = float4(0.0f, 0.0f, 0.0f, 0.5f);
+                            return;
+                        }
+                
+                    }
+            
                 }
             }
         }
     }
+
 }
