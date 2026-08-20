@@ -41,6 +41,8 @@ private:
 	DissolveData dissolveData_;
 	BoxFilterData boxFilterData_;
 
+	bool isTutorial_;
+
 public:
 
 	~GameScene();

@@ -76,6 +76,7 @@ protected:
 
 	bool isClear_ = false;
 	bool isEnd_ = false;
+	bool isTutorial_ = false;
 public:
 
 	~Stage();
@@ -85,7 +86,7 @@ public:
 	/// </summary>
 	/// <param name="stageData">選択したステージ</param>
 	/// <param name="input">入力</param>
-	void Initialize(StageData stageData, std::shared_ptr<Input> input);
+	void Initialize(bool isTutorial, StageData stageData, std::shared_ptr<Input> input);
 
 	/// <summary>
 	/// 更新処理

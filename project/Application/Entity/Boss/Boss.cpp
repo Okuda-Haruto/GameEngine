@@ -255,12 +255,11 @@ void Boss::Initialize(std::string filepath, Stage* stage, std::shared_ptr<GameCa
 	transform_ = startTransform;
 	object_->SetTransform(transform_);
 
-	isStartAnimation_ = true;
+	isStartAnimation_ = false;
 
 	trackingSphere_ = std::make_shared<Sphere>();
 	trackingSphere_->center = transform_.translate;
 	trackingSphere_->radius = Length(transform_.scale);
-	gameCamera_->SetTargetSphere(trackingSphere_);
 
 	moveParticle_ = std::make_unique<ParticleEmitter>("Particle_Move");
 

@@ -363,7 +363,7 @@ void StageEditor::ReadStageFile(std::string filePath) {
 	*playerStartTransform_ = stageData_.playerStartTransform;
 
 	stage_ = std::make_unique<Stage>();
-	stage_->Initialize(stageData_, input_);
+	stage_->Initialize(false, stageData_, input_);
 	stage_->SetDebugCamera(debugCamera_);
 	stage_->ClearColliderObjects();
 	stage_->ClearBreakObjects();

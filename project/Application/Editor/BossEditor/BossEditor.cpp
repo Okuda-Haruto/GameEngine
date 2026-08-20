@@ -242,7 +242,7 @@ void BossEditor::ReadBossFile(std::string filePath) {
 	stageData.bossData.filepath = filePath_;
 
 	stage_ = std::make_unique<Stage>();
-	stage_->Initialize(stageData, input_);
+	stage_->Initialize(false, stageData, input_);
 	stage_->SetDebugCamera(debugCamera_);
 	state_ = EditorState::Edit;
 }
