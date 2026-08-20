@@ -77,6 +77,8 @@ protected:
 	bool isClear_ = false;
 	bool isEnd_ = false;
 	bool isTutorial_ = false;
+
+	int tutorialNum_;
 public:
 
 	~Stage();
