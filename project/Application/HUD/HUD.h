@@ -1,6 +1,7 @@
 #pragma once
 #include <Object/Object.h>
 #include <Sprite/Sprite.h>
+#include <Input/Input.h>
 
 class Player;
 
@@ -20,13 +21,22 @@ private:
 	std::array<std::unique_ptr<Sprite>, 4> sprite_;
 	std::array<SRT, 4> spriteTransform;
 
+	//チュートリアル
+	std::unique_ptr<Sprite> tutorialSprite_;
+	int tutorialNum_;
+	bool isTutorial_;
+
+	std::shared_ptr<Input> input_;
+
 	Player* player_;
 public:
 
-	void Initialize(std::shared_ptr<DirectionalLight> directionalLight, Player* player);
+	void Initialize(bool isTutorial, std::shared_ptr<Input> input, std::shared_ptr<DirectionalLight> directionalLight, Player* player);
 
 	void Update();
 
 	void Draw();
 	void DrawSprite();
+
+	void EndTutorial() { isTutorial_ = false; }
 };

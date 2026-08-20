@@ -152,7 +152,7 @@ void GameScene::Initialize(shared_ptr<Input> input) {
 
 
 	stage_ = std::make_unique<Stage>();
-	stage_->Initialize(StageManager::GetInstance()->ReadStage("resources/Data/Stage/Stage.json"), input_);
+	stage_->Initialize(true, StageManager::GetInstance()->ReadStage("resources/Data/Stage/Stage.json"), input_);
 
 	fadeSprite_ = std::make_unique<Sprite>();
 	fadeSprite_->Initialize("resources/DebugResources/white2x2.png");

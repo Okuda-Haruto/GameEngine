@@ -14,7 +14,7 @@ Stage::~Stage() {
 #endif
 }
 
-void Stage::Initialize(StageData stageData, std::shared_ptr<Input> input) {
+void Stage::Initialize(bool isTutorial, StageData stageData, std::shared_ptr<Input> input) {
 	input_ = input;
 
 	BreakObject::SetStage(this);
@@ -178,7 +178,7 @@ void Stage::Initialize(StageData stageData, std::shared_ptr<Input> input) {
 
 	//情報表示
 	hud_ = std::make_unique<HUD>();
-	hud_->Initialize(directionalLight_, player_.get());
+	hud_->Initialize(true, input, directionalLight_, player_.get());
 
 	ring_ = std::make_unique<PrimitiveRing>();
 	ring_->Initialize(TextureManager::GetInstance()->GetSrvIndex("resources/Particle/gradationLine.png"), gameCamera_->GetCamera(), GameEngine::GetDirectXCommon());
@@ -189,12 +189,9 @@ void Stage::Initialize(StageData stageData, std::shared_ptr<Input> input) {
 
 	cylider_ = std::make_unique<PrimitiveCylinder>();
 	cylider_->Initialize(TextureManager::GetInstance()->GetSrvIndex("resources/DebugResources/gradationLine.png"), gameCamera_->GetCamera(), GameEngine::GetDirectXCommon());
-	cylinderTransform_ = boss_->GetTransform();
-	cylinderTransform_.translate.y = 0.0f;
-	cylinderTransform_.scale = { 1.5f,3.0f,1.5f };
-	cylinderMaterial_.color = { 1.0f,1.0f,1.0f,1.0f };
-	cylinderMaterial_.uvTransform = MakeIdentity4x4();
-	cylinderTime_ = 0.0f;
+	cylinderTime_ = kMaxCyliderTime_;
+
+	isTutorial_ = isTutorial;
 }
 
 void Stage::Update() {
@@ -252,8 +249,10 @@ void Stage::Update() {
 			object->Update();
 		}
 
-		if (!debugCamera_) {
-			boss_->Update();
+		if (!isTutorial_) {
+			if (!debugCamera_) {
+				boss_->Update();
+			}
 		}
 
 		Collision();
@@ -303,13 +302,30 @@ void Stage::Update() {
 	cylinderMaterial_.uvTransform = MakeTranslateMatrix({ Easing::EaseOut(0.0f,1.0f,cylinderTime_ / kMaxCyliderTime_),0.0f,0.0f });
 
 	gameCamera_->SetSepiaTone(player_->GetInvincibleTimeRate());
+
+	if (isTutorial_ && pad.Button[PAD_BUTTON_RT].hold && pad.Button[PAD_BUTTON_B].hold) {
+		isTutorial_ = false;
+
+		gameCamera_->SetTargetSphere(boss_->GetTrackingSphere());
+
+		cylinderTransform_ = boss_->GetTransform();
+		cylinderTransform_.translate.y = 0.0f;
+		cylinderTransform_.scale = { 1.5f,3.0f,1.5f };
+		cylinderMaterial_.color = { 1.0f,1.0f,1.0f,1.0f };
+		cylinderMaterial_.uvTransform = MakeIdentity4x4();
+		cylinderTime_ = 0.0f;
+
+		hud_->EndTutorial();
+	}
 }
 
 void Stage::Draw() {
 
 	player_->Draw();
 
-	boss_->Draw();
+	if (!isTutorial_) {
+		boss_->Draw();
+	}
 
 	for (auto& bullet : bullets_) {
 		bullet->Draw();
@@ -353,7 +369,9 @@ void Stage::DrawSprite() {
 void Stage::Collision() {
 	std::list<Colliders*> colliders;
 	colliders.push_back(player_.get()->GetColliders());
-	colliders.push_back(boss_.get()->GetColliders());
+	if (!isTutorial_) {
+		colliders.push_back(boss_.get()->GetColliders());
+	}
 	for (auto& bullet : bullets_) {
 		colliders.push_back(bullet.get()->GetColliders());
 	}
@@ -470,7 +488,9 @@ bool Stage::BossObstructed(const Capsule& capsule) {
 Vector3 Stage::MoveWithCollision(SphereCollider& collider, Vector3 velocity) {
 	std::list<Colliders*> colliders;
 	colliders.push_back(player_.get()->GetColliders());
-	colliders.push_back(boss_.get()->GetColliders());
+	if (!isTutorial_) {
+		colliders.push_back(boss_.get()->GetColliders());
+	}
 	for (auto& bullet : bullets_) {
 		colliders.push_back(bullet.get()->GetColliders());
 	}
@@ -517,8 +537,8 @@ void Stage::AddBullet(SRT transform, float speed, CollisionID id, Bullet::Bullet
 	newBullet->Initialize(transform, 2.0f, id, Bullet::BulletMove::NormalBullet, model, move(event));
 	bullets_.push_back(move(newBullet));
 
-	Matrix4x4 rotateMatrix = MakeRotateYMatrix(player_->GetTransform()->rotate.y);
-	pointLightElement_.position = player_->GetTransform()->translate + rotateMatrix * Vector3(0.0f, 0.0f, 1.0f);
+	Matrix4x4 rotateMatrix = MakeRotateYMatrix(transform.rotate.y);
+	pointLightElement_.position = transform.translate + rotateMatrix * Vector3(0.0f, 0.0f, 1.0f);
 	pointLight_->SetPointLightElement(pointLightElement_);
 
 	pointLightElement_.intensity = 1.0f;

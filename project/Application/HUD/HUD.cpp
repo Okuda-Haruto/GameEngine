@@ -3,8 +3,9 @@
 #include <Entity/Player/Player.h>
 #include <numbers>
 
-void HUD::Initialize(std::shared_ptr<DirectionalLight> directionalLight, Player* player) {
+void HUD::Initialize(bool isTutorial, std::shared_ptr<Input> input, std::shared_ptr<DirectionalLight> directionalLight, Player* player) {
 	player_ = player;
+	input_ = input;
 
 	cylinder_ = std::make_unique<Object>();
 	cylinder_->Initialize(ModelHolder::GetInstance()->GetModel(ModelIndex::Cylinder));
@@ -40,9 +41,20 @@ void HUD::Initialize(std::shared_ptr<DirectionalLight> directionalLight, Player*
 	sprite_[3]->Initialize("resources/Sprite/Reload_UI.png");
 	sprite_[3]->SetPosition(Vector2{ 1280 - 148,720 - 148 });
 	sprite_[3]->SetSize(Vector2{ 128,128 });
+
+	isTutorial_ = isTutorial;
+	tutorialNum_ = 0;
+	tutorialSprite_ = make_unique<Sprite>();
+	tutorialSprite_->Initialize("resources/Sprite/tutorial.png");
+	tutorialSprite_->SetAnchorPoint({ 0.5f,0.5f });
+	tutorialSprite_->SetPosition(Vector2{ 1280 / 2,128 + 20 });
+	tutorialSprite_->SetSize(Vector2{ 417 * 2,64 * 2 });
+	tutorialSprite_->SetTextureSize({ 417,64 });
 }
 
 void HUD::Update() {
+	Pad pad = input_->GetPad();
+
 	if (animationTime_ < kMaxAnimationTime) {
 		animationTime_ += 1.0f / 60.0f;
 		if (animationTime_ > kMaxAnimationTime) {
@@ -53,9 +65,34 @@ void HUD::Update() {
 	for (int i = 0; i <= 3; i++) {
 		sprite_[i]->Update();
 	}
+	tutorialSprite_->Update();
 
 	hatTransform_.rotate.z = std::numbers::pi_v<float> / 180 * (-15 + 15 * cosf(std::numbers::pi_v<float> *2 * (animationTime_ / kMaxAnimationTime)));
 	hat_->SetTransform(hatTransform_);
+
+	if (isTutorial_) {
+		switch (tutorialNum_)
+		{
+		case 0:
+			if (pad.Button[PAD_BUTTON_RT].trigger) {
+				tutorialNum_++;
+			}
+			break;
+		case 1:
+			if (pad.Button[PAD_BUTTON_B].trigger) {
+				tutorialNum_++;
+			}
+			break;
+		case 2:
+			if (pad.Button[PAD_BUTTON_LT].trigger) {
+				tutorialNum_++;
+			}
+			break;
+		default:
+			break;
+		}
+		tutorialSprite_->SetTextureLeftTop({ 0.0f,64.0f * tutorialNum_ });
+	}
 }
 
 void HUD::Draw() {
@@ -86,5 +123,8 @@ void HUD::DrawSprite() {
 	//操作説明
 	for (auto& sprite : sprite_) {
 		sprite->Draw2D();
+	}
+	if (isTutorial_) {
+		tutorialSprite_->Draw2D();
 	}
 }
