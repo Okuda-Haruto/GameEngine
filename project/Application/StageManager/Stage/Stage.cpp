@@ -192,6 +192,7 @@ void Stage::Initialize(bool isTutorial, StageData stageData, std::shared_ptr<Inp
 	cylinderTime_ = kMaxCyliderTime_;
 
 	isTutorial_ = isTutorial;
+	tutorialNum_ = 0;
 }
 
 void Stage::Update() {
@@ -303,7 +304,30 @@ void Stage::Update() {
 
 	gameCamera_->SetSepiaTone(player_->GetInvincibleTimeRate());
 
-	if (isTutorial_ && pad.Button[PAD_BUTTON_RT].hold && pad.Button[PAD_BUTTON_B].hold) {
+	if (isTutorial_) {
+		switch (tutorialNum_)
+		{
+		case 0:
+			if (pad.Button[PAD_BUTTON_RT].trigger) {
+				tutorialNum_++;
+			}
+			break;
+		case 1:
+			if (pad.Button[PAD_BUTTON_B].trigger) {
+				tutorialNum_++;
+			}
+			break;
+		case 2:
+			if (pad.Button[PAD_BUTTON_LT].trigger) {
+				tutorialNum_++;
+			}
+			break;
+		default:
+			break;
+		}
+	}
+
+	if (isTutorial_ && pad.Button[PAD_BUTTON_RT].hold && pad.Button[PAD_BUTTON_B].hold && tutorialNum_ >= 3) {
 		isTutorial_ = false;
 
 		gameCamera_->SetTargetSphere(boss_->GetTrackingSphere());
