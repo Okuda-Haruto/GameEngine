@@ -937,7 +937,7 @@ ComPtr <ID3D12RootSignature> DirectXCommon::Compute_Skinning_RootSignatureInitia
 	outputDescriptorRange[0].BaseShaderRegister = 0;	//0から始める
 	outputDescriptorRange[0].NumDescriptors = 1;	//数は1つ
 	outputDescriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_UAV;	//UAVを使う
-	outputDescriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;	//Offsetを自動計算
+	outputDescriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;	//Offsetを自動計
 
 	//RootSignature作成
 	D3D12_ROOT_SIGNATURE_DESC descriptionRootSignature{};
@@ -991,27 +991,163 @@ ComPtr <ID3D12RootSignature> DirectXCommon::Compute_ObjectAABB_RootSignatureInit
 	vertexDescriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;	//SRVを使う
 	vertexDescriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;	//Offsetを自動計算
 	D3D12_DESCRIPTOR_RANGE outputDescriptorRange[1] = {};
-	outputDescriptorRange[0].BaseShaderRegister = 0;	//0から始める
+	outputDescriptorRange[0].BaseShaderRegister = 0;	//1から始める
 	outputDescriptorRange[0].NumDescriptors = 1;	//数は1つ
 	outputDescriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_UAV;	//UAVを使う
 	outputDescriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;	//Offsetを自動計算
+	D3D12_DESCRIPTOR_RANGE counterDescriptorRange[1] = {};
+	counterDescriptorRange[0].BaseShaderRegister = 1;	//1から始める
+	counterDescriptorRange[0].NumDescriptors = 1;	//数は1つ
+	counterDescriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_UAV;	//UAVを使う
+	counterDescriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;	//Offsetを自動計算
 
 	//RootSignature作成
 	D3D12_ROOT_SIGNATURE_DESC descriptionRootSignature{};
 	descriptionRootSignature.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 	//RootParameter作成。PixelShaderのMaterialとVertexShaderのTransform
-	D3D12_ROOT_PARAMETER rootParameters[3] = {};
+	D3D12_ROOT_PARAMETER rootParameters[4] = {};
 	rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;	//DescriptorTableを使う
 	rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;	//ALLじゃないといけない
 	rootParameters[0].DescriptorTable.pDescriptorRanges = vertexDescriptorRange;	//Tableの中身の配列を指定
 	rootParameters[0].DescriptorTable.NumDescriptorRanges = _countof(vertexDescriptorRange);	//Tableで利用する数
+	rootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;	//CBVを使う
+	rootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;	//ALLじゃないといけない
+	rootParameters[1].Descriptor.ShaderRegister = 0;	//レジスタ番号0を使う
+	rootParameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;	//DescriptorTableを使う
+	rootParameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;	//ALLじゃないといけない
+	rootParameters[2].DescriptorTable.pDescriptorRanges = outputDescriptorRange;	//Tableの中身の配列を指定
+	rootParameters[2].DescriptorTable.NumDescriptorRanges = _countof(outputDescriptorRange);	//Tableで利用する数
+	rootParameters[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;	//DescriptorTableを使う
+	rootParameters[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;	//ALLじゃないといけない
+	rootParameters[3].DescriptorTable.pDescriptorRanges = counterDescriptorRange;	//Tableの中身の配列を指定
+	rootParameters[3].DescriptorTable.NumDescriptorRanges = _countof(counterDescriptorRange);	//Tableで利用する数
+	descriptionRootSignature.pParameters = rootParameters;	//ルートパラメータ配列へのポインタ
+	descriptionRootSignature.NumParameters = _countof(rootParameters);	//配列の長さ
+
+	//シリアライズしてバイナリにする
+	ID3DBlob* signatureBlob = nullptr;
+	ID3DBlob* errorBlob = nullptr;
+	HRESULT hr = D3D12SerializeRootSignature(&descriptionRootSignature, D3D_ROOT_SIGNATURE_VERSION_1, &signatureBlob, &errorBlob);
+	//作成できない場合エラーとする
+	if (FAILED(hr)) {
+		Log(logStream_, reinterpret_cast<char*>(errorBlob->GetBufferPointer()));
+		assert(false);
+	}
+	//バイナリをもとに生成
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> rootSignature = nullptr;
+	hr = device_->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(&rootSignature));
+	assert(SUCCEEDED(hr));
+
+	return rootSignature;
+}
+
+//RootSignature作成
+ComPtr <ID3D12RootSignature> DirectXCommon::Compute_RayTracing_RootSignatureInitialvalue() {
+	D3D12_DESCRIPTOR_RANGE vertexDescriptorRange[1] = {};
+	vertexDescriptorRange[0].BaseShaderRegister = 0;	//0から始める
+	vertexDescriptorRange[0].NumDescriptors = 1;	//数は1つ
+	vertexDescriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;	//SRVを使う
+	vertexDescriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;	//Offsetを自動計算
+	D3D12_DESCRIPTOR_RANGE indexDescriptorRange[1] = {};
+	indexDescriptorRange[0].BaseShaderRegister = 1;	//1から始める
+	indexDescriptorRange[0].NumDescriptors = 1;	//数は1つ
+	indexDescriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;	//SRVを使う
+	indexDescriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;	//Offsetを自動計算
+	D3D12_DESCRIPTOR_RANGE objectDataDescriptorRange[1] = {};
+	objectDataDescriptorRange[0].BaseShaderRegister = 2;	//2から始める
+	objectDataDescriptorRange[0].NumDescriptors = 1;	//数は1つ
+	objectDataDescriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;	//SRVを使う
+	objectDataDescriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;	//Offsetを自動計算
+	D3D12_DESCRIPTOR_RANGE counterDescriptorRange[1] = {};
+	counterDescriptorRange[0].BaseShaderRegister = 3;	//3から始める
+	counterDescriptorRange[0].NumDescriptors = 1;	//数は1つ
+	counterDescriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;	//SRVを使う
+	counterDescriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;	//Offsetを自動計算
+	D3D12_DESCRIPTOR_RANGE directionalLightDescriptorRange[1] = {};
+	directionalLightDescriptorRange[0].BaseShaderRegister = 4;	//4から始める
+	directionalLightDescriptorRange[0].NumDescriptors = 1;	//数は1つ
+	directionalLightDescriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;	//SRVを使う
+	directionalLightDescriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;	//Offsetを自動計算
+
+	D3D12_DESCRIPTOR_RANGE textureDescriptorRange[1] = {};
+	textureDescriptorRange[0].BaseShaderRegister = 0;	//0から始める
+	textureDescriptorRange[0].NumDescriptors = 1;	//数は1つ
+	textureDescriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_UAV;	//UAVを使う
+	textureDescriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;	//Offsetを自動計算
+
+	//RootSignature作成
+	D3D12_ROOT_SIGNATURE_DESC descriptionRootSignature{};
+	descriptionRootSignature.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+	//RootParameter作成。PixelShaderのMaterialとVertexShaderのTransform
+	D3D12_ROOT_PARAMETER rootParameters[8] = {};
+	rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;	//CBVを使う
+	rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;	//ALLじゃないといけない
+	rootParameters[0].Descriptor.ShaderRegister = 0;	//レジスタ番号0を使う
 	rootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;	//DescriptorTableを使う
 	rootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;	//ALLじゃないといけない
-	rootParameters[1].DescriptorTable.pDescriptorRanges = outputDescriptorRange;	//Tableの中身の配列を指定
-	rootParameters[1].DescriptorTable.NumDescriptorRanges = _countof(outputDescriptorRange);	//Tableで利用する数
-	rootParameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;	//CBVを使う
+	rootParameters[1].DescriptorTable.pDescriptorRanges = vertexDescriptorRange;	//Tableの中身の配列を指定
+	rootParameters[1].DescriptorTable.NumDescriptorRanges = _countof(vertexDescriptorRange);	//Tableで利用する数
+	rootParameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;	//DescriptorTableを使う
 	rootParameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;	//ALLじゃないといけない
-	rootParameters[2].Descriptor.ShaderRegister = 0;	//レジスタ番号0を使う
+	rootParameters[2].DescriptorTable.pDescriptorRanges = indexDescriptorRange;	//Tableの中身の配列を指定
+	rootParameters[2].DescriptorTable.NumDescriptorRanges = _countof(indexDescriptorRange);	//Tableで利用する数
+	rootParameters[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;	//DescriptorTableを使う
+	rootParameters[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;	//ALLじゃないといけない
+	rootParameters[3].DescriptorTable.pDescriptorRanges = objectDataDescriptorRange;	//Tableの中身の配列を指定
+	rootParameters[3].DescriptorTable.NumDescriptorRanges = _countof(objectDataDescriptorRange);	//Tableで利用する数
+	rootParameters[4].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;	//DescriptorTableを使う
+	rootParameters[4].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;	//ALLじゃないといけない
+	rootParameters[4].DescriptorTable.pDescriptorRanges = counterDescriptorRange;	//Tableの中身の配列を指定
+	rootParameters[4].DescriptorTable.NumDescriptorRanges = _countof(counterDescriptorRange);	//Tableで利用する数
+	rootParameters[5].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;	//DescriptorTableを使う
+	rootParameters[5].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;	//ALLじゃないといけない
+	rootParameters[5].DescriptorTable.pDescriptorRanges = directionalLightDescriptorRange;	//Tableの中身の配列を指定
+	rootParameters[5].DescriptorTable.NumDescriptorRanges = _countof(directionalLightDescriptorRange);	//Tableで利用する数
+	rootParameters[6].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;	//CBVを使う
+	rootParameters[6].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;	//ALLじゃないといけない
+	rootParameters[6].Descriptor.ShaderRegister = 1;	//レジスタ番号1を使う
+	rootParameters[7].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;	//DescriptorTableを使う
+	rootParameters[7].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;	//ALLじゃないといけない
+	rootParameters[7].DescriptorTable.pDescriptorRanges = textureDescriptorRange;	//Tableの中身の配列を指定
+	rootParameters[7].DescriptorTable.NumDescriptorRanges = _countof(textureDescriptorRange);	//Tableで利用する数
+	descriptionRootSignature.pParameters = rootParameters;	//ルートパラメータ配列へのポインタ
+	descriptionRootSignature.NumParameters = _countof(rootParameters);	//配列の長さ
+
+	//シリアライズしてバイナリにする
+	ID3DBlob* signatureBlob = nullptr;
+	ID3DBlob* errorBlob = nullptr;
+	HRESULT hr = D3D12SerializeRootSignature(&descriptionRootSignature, D3D_ROOT_SIGNATURE_VERSION_1, &signatureBlob, &errorBlob);
+	//作成できない場合エラーとする
+	if (FAILED(hr)) {
+		Log(logStream_, reinterpret_cast<char*>(errorBlob->GetBufferPointer()));
+		assert(false);
+	}
+	//バイナリをもとに生成
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> rootSignature = nullptr;
+	hr = device_->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(&rootSignature));
+	assert(SUCCEEDED(hr));
+
+	return rootSignature;
+}
+
+//RootSignature作成
+ComPtr <ID3D12RootSignature> DirectXCommon::Compute_ObjectDataCounterInitialize_RootSignatureInitialvalue() {
+	D3D12_DESCRIPTOR_RANGE objectDataCounterDescriptorRange[1] = {};
+	objectDataCounterDescriptorRange[0].BaseShaderRegister = 0;	//0から始める
+	objectDataCounterDescriptorRange[0].NumDescriptors = 1;	//数は1つ
+	objectDataCounterDescriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_UAV;	//UAVを使う
+	objectDataCounterDescriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;	//Offsetを自動計算
+
+	//RootSignature作成
+	D3D12_ROOT_SIGNATURE_DESC descriptionRootSignature{};
+	descriptionRootSignature.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+	//RootParameter作成。PixelShaderのMaterialとVertexShaderのTransform
+	D3D12_ROOT_PARAMETER rootParameters[1] = {};
+	rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;	//DescriptorTableを使う
+	rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;	//ALLじゃないといけない
+	rootParameters[0].DescriptorTable.pDescriptorRanges = objectDataCounterDescriptorRange;	//Tableの中身の配列を指定
+	rootParameters[0].DescriptorTable.NumDescriptorRanges = _countof(objectDataCounterDescriptorRange);	//Tableで利用する数
+
 	descriptionRootSignature.pParameters = rootParameters;	//ルートパラメータ配列へのポインタ
 	descriptionRootSignature.NumParameters = _countof(rootParameters);	//配列の長さ
 

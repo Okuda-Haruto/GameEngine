@@ -17,7 +17,6 @@ struct OffsetAllocation {
 struct InputObjectData {
 	OffsetAllocation allocation;
 	Matrix4x4 worldMatrix;
-	int32_t objectNumber;
 };
 
 struct OutputObjectData {

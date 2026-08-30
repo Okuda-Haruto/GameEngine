@@ -82,10 +82,13 @@
     <FxCompile Include="resources\Shader\EmitParticle.CS.hlsl">
       <Filter>GameEngine\Shader</Filter>
     </FxCompile>
-    <FxCompile Include="resources\Shader\RayTracingCS.hlsl">
+    <FxCompile Include="resources\Shader\RayTracing.CS.hlsl">
       <Filter>GameEngine\Shader</Filter>
     </FxCompile>
     <FxCompile Include="resources\Shader\MakeObjectAABB.CS.hlsl">
+      <Filter>GameEngine\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="resources\Shader\ObjectDataCounterInitialize.CS.hlsl">
       <Filter>GameEngine\Shader</Filter>
     </FxCompile>
   </ItemGroup>

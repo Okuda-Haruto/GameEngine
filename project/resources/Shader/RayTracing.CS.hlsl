@@ -14,8 +14,8 @@ bool IsCollision(AABB aabb, Ray ray)
 {
     const float FLT_MAX = 1e30f;
     
-    float3 min;
-    float3 max;
+    float3 minf;
+    float3 maxf;
     
     if (abs(ray.diff.x) < 1e-4)
     {
@@ -25,13 +25,13 @@ bool IsCollision(AABB aabb, Ray ray)
             return false;
         }
         
-        min.x = -FLT_MAX;
-        max.x = FLT_MAX;
+        minf.x = -FLT_MAX;
+        maxf.x = FLT_MAX;
     }
     else
     {
-        min.x = (aabb.min.x - ray.origin.x) / ray.diff.x;
-        max.x = (aabb.max.x - ray.origin.x) / ray.diff.x;
+        minf.x = (aabb.min.x - ray.origin.x) / ray.diff.x;
+        maxf.x = (aabb.max.x - ray.origin.x) / ray.diff.x;
     }
     
     if (abs(ray.diff.y) < 1e-4)
@@ -41,13 +41,13 @@ bool IsCollision(AABB aabb, Ray ray)
         {
             return false;
         }
-        min.y = -FLT_MAX;
-        max.y = FLT_MAX;
+        minf.y = -FLT_MAX;
+        maxf.y = FLT_MAX;
     }
     else
     {
-        min.y = (aabb.min.y - ray.origin.y) / ray.diff.y;
-        max.y = (aabb.max.y - ray.origin.y) / ray.diff.y;
+        minf.y = (aabb.min.y - ray.origin.y) / ray.diff.y;
+        maxf.y = (aabb.max.y - ray.origin.y) / ray.diff.y;
     }
     
     if (abs(ray.diff.z) < 1e-4)
@@ -57,18 +57,18 @@ bool IsCollision(AABB aabb, Ray ray)
         {
             return false;
         }
-        min.z = -FLT_MAX;
-        max.z = FLT_MAX;
+        minf.z = -FLT_MAX;
+        maxf.z = FLT_MAX;
     }
     else
     {
-        min.z = (aabb.min.z - ray.origin.z) / ray.diff.z;
-        max.z = (aabb.max.z - ray.origin.z) / ray.diff.z;
+        minf.z = (aabb.min.z - ray.origin.z) / ray.diff.z;
+        maxf.z = (aabb.max.z - ray.origin.z) / ray.diff.z;
     }
 
-    float tNearX = min(min.x, max.x), tFarX = max(min.x, max.x);
-    float tNearY = min(min.y, max.y), tFarY = max(min.y, max.y);
-    float tNearZ = min(min.z, max.z), tFarZ = max(min.z, max.z);
+    float tNearX = min(minf.x, maxf.x), tFarX = max(minf.x, maxf.x);
+    float tNearY = min(minf.y, maxf.y), tFarY = max(minf.y, maxf.y);
+    float tNearZ = min(minf.z, maxf.z), tFarZ = max(minf.z, maxf.z);
 
     float tmin = max(max(tNearX, tNearY), tNearZ);
     float tmax = min(min(tFarX, tFarY), tFarZ);
@@ -91,13 +91,15 @@ bool RayTriangleIntersect(
     out float t,
     out float2 bary)
 {
+    t = 0.0f;
+    
     float3 v10 = triangleVertex.v[1] - triangleVertex.v[0];
     float3 v20 = triangleVertex.v[2] - triangleVertex.v[0];
     
     float3 p = cross(ray.diff, v20);
     
     float divisor = dot(v10, p);
-    if (abs(divisor ) < 1e-6) return false;
+    if (abs(divisor) < 1e-6) return false;
 
     float invDivisor = 1.0 / divisor;
     
@@ -221,9 +223,9 @@ void main( uint3 DTid : SV_DispatchThreadID )
             for (int index = gObjectData[i].allocation.indexStart; index < gObjectData[i].allocation.indexStart + gObjectData[i].allocation.indexCount; index += 3)
             {
                 TriangleVertex vertexes;
-                vertexes.v[0] = gVertices[gObjectData[i].allocation.vertexStart + gIndices[index]].position;
-                vertexes.v[1] = gVertices[gObjectData[i].allocation.vertexStart + gIndices[index + 1]].position;
-                vertexes.v[2] = gVertices[gObjectData[i].allocation.vertexStart + gIndices[index + 2]].position;
+                vertexes.v[0] = gVertices[gObjectData[i].allocation.vertexStart + gIndices[index]].position.xyz;
+                vertexes.v[1] = gVertices[gObjectData[i].allocation.vertexStart + gIndices[index + 1]].position.xyz;
+                vertexes.v[2] = gVertices[gObjectData[i].allocation.vertexStart + gIndices[index + 2]].position.xyz;
     
                 if (RayTriangleIntersect(ray, vertexes, t, bary))
                 {
@@ -278,9 +280,9 @@ void main( uint3 DTid : SV_DispatchThreadID )
                     for (int index = gObjectData[i].allocation.indexStart; index < gObjectData[i].allocation.indexStart + gObjectData[i].allocation.indexCount; index += 3)
                     {
                         TriangleVertex vertexes;
-                        vertexes.v[0] = gVertices[gObjectData[i].allocation.vertexStart + gIndices[index]].position;
-                        vertexes.v[1] = gVertices[gObjectData[i].allocation.vertexStart + gIndices[index + 1]].position;
-                        vertexes.v[2] = gVertices[gObjectData[i].allocation.vertexStart + gIndices[index + 2]].position;
+                        vertexes.v[0] = gVertices[gObjectData[i].allocation.vertexStart + gIndices[index]].position.xyz;
+                        vertexes.v[1] = gVertices[gObjectData[i].allocation.vertexStart + gIndices[index + 1]].position.xyz;
+                        vertexes.v[2] = gVertices[gObjectData[i].allocation.vertexStart + gIndices[index + 2]].position.xyz;
     
                         if (RayTriangleIntersect(directionalShadowRay, vertexes, t, bary))
                         {

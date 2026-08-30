@@ -33,7 +33,6 @@ struct InputObjectData
 {
     OffsetAllocation allocation;
     float4x4 worldMatrix;
-    int objectNumber;
 };
 ConstantBuffer<InputObjectData> gInputObjectData : register(b0);
 
@@ -79,5 +78,6 @@ void main( uint3 DTid : SV_DispatchThreadID )
             skinned.normal = normalize(input.normal);
         }
         gOutputVertices[gInputObjectData.allocation.vertexStart + vertexIndex] = skinned;
+
     }
 }

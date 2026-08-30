@@ -141,8 +141,12 @@ public:
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> Screen_RadialBlur_RootSignatureInitialvalue();
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> Screen_Dissolve_RootSignatureInitialvalue();
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> Cubemap_RootSignatureInitialvalue();
+
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> Compute_Skinning_RootSignatureInitialvalue();
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> Compute_ObjectAABB_RootSignatureInitialvalue();
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> Compute_RayTracing_RootSignatureInitialvalue();
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> Compute_ObjectDataCounterInitialize_RootSignatureInitialvalue();
+
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> Compute_Initialize_Particle_RootSignatureInitialvalue();
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> Compute_Emit_Particle_RootSignatureInitialvalue();
 

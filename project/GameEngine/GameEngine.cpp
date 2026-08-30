@@ -145,6 +145,8 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	cubemap_RootSignature_ = dxCommon_->Cubemap_RootSignatureInitialvalue();
 	compute_Skinning_RootSignature_ = dxCommon_->Compute_Skinning_RootSignatureInitialvalue();
 	compute_ObjectAABB_RootSignature_ = dxCommon_->Compute_ObjectAABB_RootSignatureInitialvalue();
+	compute_RayTracing_RootSignature_ = dxCommon_->Compute_RayTracing_RootSignatureInitialvalue();
+	compute_ObjectDataCounterInitialize_RootSignature_ = dxCommon_->Compute_ObjectDataCounterInitialize_RootSignatureInitialvalue();
 	compute_Initialize_Particle_RootSignature_ = dxCommon_->Compute_Initialize_Particle_RootSignatureInitialvalue();
 	compute_Emit_Particle_RootSignature_ = dxCommon_->Compute_Emit_Particle_RootSignatureInitialvalue();
 
@@ -197,6 +199,10 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	assert(SkinningCSBlob != nullptr);
 	Microsoft::WRL::ComPtr<IDxcBlob> ObjectAABBCSBlob = dxCommon_->CompileShader(L"./resources/Shader/MakeObjectAABB.CS.hlsl", L"cs_6_0");
 	assert(ObjectAABBCSBlob != nullptr);
+	Microsoft::WRL::ComPtr<IDxcBlob> RayTracingCSBlob = dxCommon_->CompileShader(L"./resources/Shader/RayTracing.CS.hlsl", L"cs_6_0");
+	assert(RayTracingCSBlob != nullptr);
+	Microsoft::WRL::ComPtr<IDxcBlob> ObjectDataCounterInitializeCSBlob = dxCommon_->CompileShader(L"./resources/Shader/ObjectDataCounterInitialize.CS.hlsl", L"cs_6_0");
+	assert(ObjectDataCounterInitializeCSBlob != nullptr);
 	Microsoft::WRL::ComPtr<IDxcBlob> InitializePartilceCSBlob = dxCommon_->CompileShader(L"./resources/Shader/InitializeParticle.CS.hlsl", L"cs_6_0");
 	assert(InitializePartilceCSBlob != nullptr);
 	Microsoft::WRL::ComPtr<IDxcBlob> EmitPartilceCSBlob = dxCommon_->CompileShader(L"./resources/Shader/EmitParticle.CS.hlsl", L"cs_6_0");
@@ -224,6 +230,8 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	cubemap_PipelineState_ = Cubemap_PipelineStateInitialvalue(device_, cubemap_RootSignature_, CubemapVSBlob.Get(), CubemapPSBlob.Get());
 	compute_Skinning_PipelineState_ = Compute_PipelineStateInitialvalue(device_, compute_Skinning_RootSignature_, SkinningCSBlob.Get());
 	compute_ObjectAABB_PipelineState_ = Compute_PipelineStateInitialvalue(device_, compute_ObjectAABB_RootSignature_, ObjectAABBCSBlob.Get());
+	compute_RayTracing_PipelineState_ = Compute_PipelineStateInitialvalue(device_, compute_RayTracing_RootSignature_, RayTracingCSBlob.Get());
+	compute_ObjectDataCounterInitialize_PipelineState_ = Compute_PipelineStateInitialvalue(device_, compute_ObjectDataCounterInitialize_RootSignature_, ObjectDataCounterInitializeCSBlob.Get());
 	compute_Initialize_Particle_PipelineState_ = Compute_PipelineStateInitialvalue(device_, compute_Initialize_Particle_RootSignature_, InitializePartilceCSBlob.Get());
 	compute_Emit_Particle_PipelineState_ = Compute_PipelineStateInitialvalue(device_, compute_Emit_Particle_RootSignature_, EmitPartilceCSBlob.Get());
 	//XAudioエンジンのインスタンスを生成
@@ -313,6 +321,11 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 		if (i == 0)startOutputVertexIndex_ = index;
 	}
 
+	//オブジェクトAABBのカウントは1つだけ(RWStructuredBufferでしか入出力できないので仕方ない)
+	outputObjectDataCountIndex_ = srvManager_->Allocate();
+	outputObjectDataCountResource_ = dxCommon_->CreateOutputResources(sizeof(uint32_t));
+	srvManager_->CreateUAVforStructuredBuffer(outputObjectDataCountIndex_, outputObjectDataCountResource_.Get(), 1, sizeof(uint32_t));
+
 	for (int i = 0; i < kMaxIndex; i++) {
 		objectSkinningInformationResource_[i] = dxCommon_->CreateBufferResources(sizeof(SkinningInformation));
 	}
@@ -393,6 +406,15 @@ bool GameEngine::WindowState_() {
 }
 
 void GameEngine::PreDraw_() {
+
+	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
+	commandList_->SetComputeRootSignature(compute_ObjectDataCounterInitialize_RootSignature_.Get());
+	commandList_->SetPipelineState(compute_ObjectDataCounterInitialize_PipelineState_.Get());	//PSOを設定
+
+	//レイトレーイングのAABB
+	commandList_->SetComputeRootDescriptorTable(0, srvManager_->GetGPUDescriptorHandle(outputObjectDataCountIndex_));
+
+	commandList_->Dispatch(1, 1, 1);
 
 #ifdef USE_IMGUI
 	srvManager_->RenderPreDraw("ImGui");
@@ -1884,12 +1906,14 @@ void GameEngine::ComputeSkinning_(Object* object) {
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList_->SetComputeRootSignature(compute_ObjectAABB_RootSignature_.Get());
 	commandList_->SetPipelineState(compute_ObjectAABB_PipelineState_.Get());	//PSOを設定
-
+	//頂点をまとめた物
 	commandList_->SetComputeRootDescriptorTable(0, srvManager_->GetGPUDescriptorHandle(ObjectManager::GetInstance()->GetVerticesBufferSRVindex()));
-
-	commandList_->SetComputeRootDescriptorTable(1, srvManager_->GetGPUDescriptorHandle(ObjectManager::GetInstance()->GetObjectDataBufferUAVindex()));
-
-	commandList_->SetComputeRootConstantBufferView(2, object->GetObjectResource()->GetGPUVirtualAddress());
+	//オブジェクトのオフセット
+	commandList_->SetComputeRootConstantBufferView(1, object->GetObjectResource()->GetGPUVirtualAddress());
+	//レイトレーイングのAABB
+	commandList_->SetComputeRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(ObjectManager::GetInstance()->GetObjectDataBufferUAVindex()));
+	//レイトレーイングのAABB
+	commandList_->SetComputeRootDescriptorTable(3, srvManager_->GetGPUDescriptorHandle(outputObjectDataCountIndex_));
 
 	commandList_->Dispatch(1, 1, 1);
 

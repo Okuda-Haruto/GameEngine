@@ -93,6 +93,8 @@ private:
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> cubemap_RootSignature_;
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> compute_Skinning_RootSignature_;
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> compute_ObjectAABB_RootSignature_;
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> compute_RayTracing_RootSignature_;
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> compute_ObjectDataCounterInitialize_RootSignature_;
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> compute_Initialize_Particle_RootSignature_;
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> compute_Emit_Particle_RootSignature_;
 
@@ -121,6 +123,8 @@ private:
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> cubemap_PipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> compute_Skinning_PipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> compute_ObjectAABB_PipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> compute_RayTracing_PipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> compute_ObjectDataCounterInitialize_PipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> compute_Initialize_Particle_PipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> compute_Emit_Particle_PipelineState_ = nullptr;
 
@@ -246,6 +250,10 @@ private:
 	std::array <Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxIndex > objectSkinningInformationResource_;
 	//スキニング情報データ
 	std::array <SkinningInformation*, kMaxIndex> objectSkinningInformationData_;
+
+	//オブジェクトAABBのカウント
+	Microsoft::WRL::ComPtr<ID3D12Resource> outputObjectDataCountResource_;
+	uint32_t outputObjectDataCountIndex_;
 
 #pragma endregion
 

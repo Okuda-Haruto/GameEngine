@@ -24,7 +24,6 @@ struct InputObjectData
 {
     OffsetAllocation allocation;
     float4x4 worldMatrix;
-    int objectNumber;
 };
 ConstantBuffer<InputObjectData> gInputObjectData : register(b0);
 
@@ -55,7 +54,8 @@ void main( uint3 DTid : SV_DispatchThreadID )
         aabb.max = max(aabb.max, gVertices[gInputObjectData.allocation.vertexStart + i].position);
     }
 
-    gOutPutObjectData[gInputObjectData.objectNumber].allocation = gInputObjectData.allocation;
-    gOutPutObjectData[gInputObjectData.objectNumber].rayTracingAABB = aabb;
+    gOutPutObjectData[gObjectDataCounter[0]].allocation = gInputObjectData.allocation;
+    gOutPutObjectData[gObjectDataCounter[0]].rayTracingAABB = aabb;
 
+    gObjectDataCounter[0]++;
 }
