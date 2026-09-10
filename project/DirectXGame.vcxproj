@@ -102,6 +102,7 @@
     <ClCompile Include="GameEngine\LoadFile\LoadMaterialTemplateFile.cpp" />
     <ClCompile Include="GameEngine\LoadFile\LoadObjFile.cpp" />
     <ClCompile Include="GameEngine\Math\Collision.cpp" />
+    <ClCompile Include="GameEngine\Modules\LightingManager\LightingManager.cpp" />
     <ClCompile Include="GameEngine\Modules\ModelManager\ModelManager.cpp" />
     <ClCompile Include="GameEngine\Modules\ObjectManager\ObejctManager.cpp" />
     <ClCompile Include="GameEngine\Modules\PrimitiveManager\Primitive3DManager.cpp" />
@@ -192,6 +193,7 @@
     <ClInclude Include="GameEngine\Data\PerFrame.h" />
     <ClInclude Include="GameEngine\Data\PointLightElement.h" />
     <ClInclude Include="GameEngine\Data\RadialBlurData.h" />
+    <ClInclude Include="GameEngine\Data\RayTracingState.h" />
     <ClInclude Include="GameEngine\Data\SkinningInformation.h" />
     <ClInclude Include="GameEngine\Data\SpotLightElement.h" />
     <ClInclude Include="GameEngine\Data\TransformationMatrix.h" />
@@ -241,6 +243,7 @@
     <ClInclude Include="GameEngine\Math\Vector2.h" />
     <ClInclude Include="GameEngine\Math\Vector3.h" />
     <ClInclude Include="GameEngine\Math\Vector4.h" />
+    <ClInclude Include="GameEngine\Modules\LightingManager\LightingManager.h" />
     <ClInclude Include="GameEngine\Modules\ModelManager\ModelManager.h" />
     <ClInclude Include="GameEngine\Modules\ObjectManager\ObejctManager.h" />
     <ClInclude Include="GameEngine\Modules\PrimitiveManager\Primitive3DManager.h" />

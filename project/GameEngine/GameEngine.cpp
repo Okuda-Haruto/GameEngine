@@ -339,6 +339,13 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	perFrameResource_->Map(0, nullptr, reinterpret_cast<void**>(&perFrameData_));
 	perFrameData_->time = 0;
 	perFrameResource_->Unmap(0, nullptr);
+
+	rayTracingStateResource_ = dxCommon_->CreateBufferResources(sizeof(RayTracingState));
+
+	rayTracingStateResource_->Map(0, nullptr, reinterpret_cast<void**>(&rayTracingState_));
+	rayTracingState_->windowHeight = kWindowHeight;
+	rayTracingState_->windowWidth = kWindowWidth;
+	rayTracingStateResource_->Unmap(0, nullptr);
 }
 
 
@@ -1806,7 +1813,7 @@ void GameEngine::DrawPrimitiveCylinder_Billboard_(PrimitiveCylinder* primitiveCy
 	objectIndex_++;
 }
 
-void GameEngine::ComputeSkinning_(Object* object) {
+void GameEngine::ComputeSkinning_(Object* object, std::shared_ptr<Camera> camera) {
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList_->SetComputeRootSignature(compute_Skinning_RootSignature_.Get());
@@ -1912,8 +1919,39 @@ void GameEngine::ComputeSkinning_(Object* object) {
 	commandList_->SetComputeRootConstantBufferView(1, object->GetObjectResource()->GetGPUVirtualAddress());
 	//レイトレーイングのAABB
 	commandList_->SetComputeRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(ObjectManager::GetInstance()->GetObjectDataBufferUAVindex()));
-	//レイトレーイングのAABB
+	//レイトレーイングのAABBのカウント
 	commandList_->SetComputeRootDescriptorTable(3, srvManager_->GetGPUDescriptorHandle(outputObjectDataCountIndex_));
+
+	commandList_->Dispatch(1, 1, 1);
+
+	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
+	commandList_->SetComputeRootSignature(compute_RayTracing_RootSignature_.Get());
+	commandList_->SetPipelineState(compute_RayTracing_PipelineState_.Get());	//PSOを設定
+
+	rayTracingStateResource_ = dxCommon_->CreateBufferResources(sizeof(RayTracingState));
+
+	Matrix4x4 inverseViewMatrix = Inverse(camera->GetViewMatrix());
+
+	rayTracingStateResource_->Map(0, nullptr, reinterpret_cast<void**>(&rayTracingState_));
+	rayTracingState_->cameraPosition = Vector3{ inverseViewMatrix.m[3][0], inverseViewMatrix.m[3][1] , inverseViewMatrix.m[3][2] };
+	rayTracingState_->inverseViewMatrix = inverseViewMatrix;
+	rayTracingState_->inverseProjectionMatrix = Inverse(camera->GetProjectionMatrix());
+	rayTracingStateResource_->Unmap(0, nullptr);
+
+	//カメラ行列とウィンドウサイズ
+	commandList_->SetComputeRootConstantBufferView(0, rayTracingStateResource_->GetGPUVirtualAddress());
+
+	commandList_->SetComputeRootDescriptorTable(1, srvManager_->GetGPUDescriptorHandle(ObjectManager::GetInstance()->GetVerticesBufferSRVindex()));
+
+	commandList_->SetComputeRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(ObjectManager::GetInstance()->GetIndicesBufferSRVindex()));
+	//レイトレーイングのAABB
+	commandList_->SetComputeRootDescriptorTable(3, srvManager_->GetGPUDescriptorHandle(ObjectManager::GetInstance()->GetObjectDataBufferUAVindex()));
+	//レイトレーイングのAABBのカウント
+	commandList_->SetComputeRootDescriptorTable(4, srvManager_->GetGPUDescriptorHandle(outputObjectDataCountIndex_));
+	//DirectionalLight
+	commandList_->SetComputeRootDescriptorTable(5, srvManager_->GetGPUDescriptorHandle(ObjectManager::GetInstance()->GetObjectDataBufferUAVindex()));
+	//DirectionalLightのカウント
+	commandList_->SetComputeRootDescriptorTable(6, srvManager_->GetGPUDescriptorHandle(outputObjectDataCountIndex_));
 
 	commandList_->Dispatch(1, 1, 1);
 

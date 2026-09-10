@@ -30,6 +30,7 @@
 #include <SkinningInformation.h>
 #include <PerView.h>
 #include <PerFrame.h>
+#include <RayTracingState.h>
 
 #include <Audio/Audio.h>
 #include "Input/Input.h"
@@ -260,6 +261,9 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> fogResource_;
 	Fog* fogData_;
 
+	Microsoft::WRL::ComPtr<ID3D12Resource> rayTracingStateResource_;
+	RayTracingState* rayTracingState_;
+
 	Microsoft::WRL::ComPtr<ID3D12Resource> colorChangeStateResource_;
 	ColorChange::ColorChangeState* colorChangeStateData_;
 	Microsoft::WRL::ComPtr<ID3D12Resource> vignetteResource_;
@@ -327,7 +331,8 @@ private:
 	void DrawPrimitiveCylinder_(PrimitiveCylinder* primitiveCylinder, SRT transform, Material material);
 	void DrawPrimitiveCylinder_Billboard_(PrimitiveCylinder* primitiveCylinder, SRT transform, Material material);
 
-	void ComputeSkinning_(Object* object);
+	void ComputeSkinning_(Object* object, std::shared_ptr<Camera> camera);
+
 	void Compute_Initialize_Particle_(ParticleGroup particleGroup);
 	void Compute_Emit_Particle_(ParticleGroup particleGroup);
 

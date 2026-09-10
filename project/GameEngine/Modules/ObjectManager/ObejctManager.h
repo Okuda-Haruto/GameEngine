@@ -59,6 +59,9 @@ private:
 	//インデックスデータ
 	uint32_t* mappedIndexData_ = nullptr;
 
+	//インデックスバッファIndex
+	uint32_t indicesBufferSRVindex_;
+
 	//レイトレーシング接触範囲リソース
 	Microsoft::WRL::ComPtr<ID3D12Resource> objectDataResource_;
 	//レイトレーシング接触範囲データ
@@ -84,6 +87,7 @@ public:
 
 	uint32_t GetVerticesBufferUAVindex() { return verticesBufferUAVindex_; }
 	uint32_t GetVerticesBufferSRVindex() { return verticesBufferSRVindex_; }
+	uint32_t GetIndicesBufferSRVindex() { return indicesBufferSRVindex_; }
 	uint32_t GetObjectDataBufferUAVindex() { return objectDataBufferUAVindex_; }
 
 	D3D12_VERTEX_BUFFER_VIEW GetVBV() { return vertexBufferView_; }

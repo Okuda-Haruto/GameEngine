@@ -307,6 +307,9 @@
     <ClCompile Include="GameEngine\Modules\ObjectManager\ObejctManager.cpp">
       <Filter>GameEngine\Modules\ObejctManager</Filter>
     </ClCompile>
+    <ClCompile Include="GameEngine\Modules\LightingManager\LightingManager.cpp">
+      <Filter>GameEngine\Modules\LightingManager</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\BackGround\Ground\Ground.h">
@@ -720,6 +723,12 @@
     <ClInclude Include="GameEngine\Data\LightingState.h">
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
+    <ClInclude Include="GameEngine\Data\RayTracingState.h">
+      <Filter>GameEngine\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Modules\LightingManager\LightingManager.h">
+      <Filter>GameEngine\Modules\LightingManager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -991,6 +1000,9 @@
     </Filter>
     <Filter Include="GameEngine\Modules\ObejctManager">
       <UniqueIdentifier>{b3962803-a6ed-49b8-92ca-142033ddbd03}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\Modules\LightingManager">
+      <UniqueIdentifier>{5ad93afc-75c8-48d8-98d3-13f769bbc3b4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

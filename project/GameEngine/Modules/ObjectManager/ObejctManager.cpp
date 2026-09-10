@@ -26,8 +26,10 @@ void ObjectManager::Initialize(DirectXCommon* dxCommon, SRVManager* srvManager) 
 
 	verticesBufferSRVindex_ = srvManager_->Allocate();
 	verticesBufferUAVindex_ = srvManager_->Allocate();
+	indicesBufferSRVindex_ = srvManager_->Allocate();
 	srvManager_->CreateSRVforStructuredBuffer(verticesBufferSRVindex_, vertexResource_.Get(), maxIndexSize, sizeof(VertexData));
 	srvManager_->CreateUAVforStructuredBuffer(verticesBufferUAVindex_, vertexResource_.Get(), maxIndexSize, sizeof(VertexData));
+	srvManager_->CreateSRVforStructuredBuffer(indicesBufferSRVindex_, indexResource_.Get(), maxIndexSize, sizeof(uint32_t));
 
 	//頂点バッファビューを作成する
 	//リソースの先頭のアドレスから使う
