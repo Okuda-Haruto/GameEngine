@@ -308,17 +308,17 @@ void Stage::Update() {
 		switch (tutorialNum_)
 		{
 		case 0:
-			if (pad.Button[PAD_BUTTON_RT].trigger) {
+			if (pad.Button[PAD_BUTTON_RT].trigger || keyboard.keys[DIK_Z].trigger || keyboard.keys[DIK_X].trigger) {
 				tutorialNum_++;
 			}
 			break;
 		case 1:
-			if (pad.Button[PAD_BUTTON_B].trigger) {
+			if (pad.Button[PAD_BUTTON_B].trigger || keyboard.keys[DIK_C].trigger) {
 				tutorialNum_++;
 			}
 			break;
 		case 2:
-			if (pad.Button[PAD_BUTTON_LT].trigger) {
+			if (pad.Button[PAD_BUTTON_LT].trigger || keyboard.keys[DIK_LSHIFT].trigger || keyboard.keys[DIK_RSHIFT].trigger) {
 				tutorialNum_++;
 			}
 			break;
@@ -327,7 +327,11 @@ void Stage::Update() {
 		}
 	}
 
-	if (isTutorial_ && pad.Button[PAD_BUTTON_RT].hold && pad.Button[PAD_BUTTON_B].hold && tutorialNum_ >= 3) {
+	if (isTutorial_ && 
+		((pad.Button[PAD_BUTTON_RT].hold && pad.Button[PAD_BUTTON_B].hold) ||
+		((keyboard.keys[DIK_Z].trigger || keyboard.keys[DIK_X].trigger) && keyboard.keys[DIK_C].trigger)) && 
+		tutorialNum_ >= 3) {
+
 		isTutorial_ = false;
 
 		gameCamera_->SetTargetSphere(boss_->GetTrackingSphere());

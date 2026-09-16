@@ -22,6 +22,16 @@ Vector3 PushOut(Sphere& sphere, const Vector3& velocity, const OBB& obb) {
 	if (length > 0.0f)
 	{
 		localNormal /= length;
+	} else {
+		//速度から得る
+		Vector3 localVelocity = velocity * obbWorldMatrixInverse;
+
+		if (Length(localVelocity) > 0.0f)
+		{
+			localNormal = -Normalize(localVelocity);
+		} else {
+			return velocity;
+		}
 	}
 
 	//位置情報が入らないようにワールド空間へ
@@ -38,7 +48,17 @@ Vector3 PushOut(Sphere& sphere, const Vector3& velocity, const OBB& obb) {
 	}
 
 	//壁沿いに進む場合のvelocity
-	Vector3 slide = velocity - normal * Dot(velocity, normal);
+	Vector3 slide = velocity;
+	float velocityAlongNormal = Dot(velocity, normal);
+
+	//壁へ向かっている場合だけスライドさせる
+	if (velocityAlongNormal < 0.0f)
+	{
+		slide = velocity - normal * velocityAlongNormal;
+	}
+
+	//埋まったり飛んだりするからYはなし
+	slide.y = 0.0f;
 
 	return slide;
 }
