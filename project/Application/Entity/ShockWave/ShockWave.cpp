@@ -36,7 +36,10 @@ void ShockWave::Update() {
 
 
 	float scale = Easing::EaseOut(1.0f,range_,lifeTime_ / maxLifeTime_);
-	transform_.scale = { scale ,3.0f,scale };
+	float height = Easing::EaseIn(3.0f, 0.0f, lifeTime_ / maxLifeTime_);
+
+	transform_.scale = { scale ,height,scale };
+	transform_.rotate.y += 0.1f;
 
 	BaseEntity::Update();
 }

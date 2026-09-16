@@ -239,8 +239,8 @@ void Boss::Initialize(std::string filepath, Stage* stage, std::shared_ptr<GameCa
 
 	//ReadBossFile(filepath);
 	
-	maxHP_ = 50;
-	HP_ = 50;
+	maxHP_ = 30;
+	HP_ = maxHP_;
 
 	stage_ = stage;
 	gameCamera_ = gameCamera;
@@ -301,14 +301,12 @@ void Boss::Initialize(std::string filepath, Stage* stage, std::shared_ptr<GameCa
 	step_WaitTime = std::make_unique<Step_WaitTime>();
 	step_WaitTime->Initialize(0.25f);
 	steps.push_back(move(step_WaitTime));
-	for (int i = 0; i < 10; i++) {
 		step_ShotBulletToFront = make_unique<Step_ShotBulletToFront>();
 		step_ShotBulletToFront->Initialize(0.05f, 2.0f);
 		steps.push_back(move(step_ShotBulletToFront));
 		step_WaitTime = std::make_unique<Step_WaitTime>();
 		step_WaitTime->Initialize(0.01f);
 		steps.push_back(move(step_WaitTime));
-	}
 	step_WaitTime = std::make_unique<Step_WaitTime>();
 	step_WaitTime->Initialize(1.0f);
 	steps.push_back(move(step_WaitTime));
@@ -319,8 +317,8 @@ void Boss::Initialize(std::string filepath, Stage* stage, std::shared_ptr<GameCa
 	action->SetSteps(move(steps));
 
 	PatternCondition condition{};
-	condition.nearDistance = 30.0f;
-	condition.priority = 5;
+	condition.nearDistance = 40.0f;
+	condition.priority = 6;
 
 	std::unique_ptr<BossPattern> pattern = std::make_unique<BossPattern>();
 	pattern->SetAction(move(action));
@@ -363,9 +361,8 @@ void Boss::Initialize(std::string filepath, Stage* stage, std::shared_ptr<GameCa
 	action->SetSteps(move(steps));
 
 	condition = {};
-	condition.farDistance = 20.0f;
 	condition.ignoreObstacles = true;
-	condition.priority = 4;
+	condition.priority = 5;
 
 	pattern = std::make_unique<BossPattern>();
 	pattern->SetAction(move(action));
@@ -388,11 +385,9 @@ void Boss::Initialize(std::string filepath, Stage* stage, std::shared_ptr<GameCa
 	step_WaitTime->Initialize(0.5f);
 	steps.push_back(move(step_WaitTime));
 	for (int i = 0; i < 3; i++) {
-		for (int j = 0; j < 10; j++) {
 			step_ShotBulletToTarget = make_unique<Step_ShotBulletToTarget>();
 			step_ShotBulletToTarget->Initialize(0.1f, 2.0f);
 			steps.push_back(move(step_ShotBulletToTarget));
-		}
 		step_WaitTime = std::make_unique<Step_WaitTime>();
 		step_WaitTime->Initialize(0.1f);
 		steps.push_back(move(step_WaitTime));
@@ -413,7 +408,7 @@ void Boss::Initialize(std::string filepath, Stage* stage, std::shared_ptr<GameCa
 	action->SetSteps(move(steps));
 
 	condition = {};
-	condition.farDistance = 45.0f;
+	condition.farDistance = 60.0f;
 	condition.ignoreObstacles = true;
 	condition.priority = 5;
 

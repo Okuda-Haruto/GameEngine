@@ -27,10 +27,10 @@ void LockOnCamera::Update() {
 	Pad pad = input_->GetPad();
 
 	//進行方向に合わせる
-	if (pad.LeftStick.magnitude > 0.5f || keyboard.keys[DIK_A].hold || keyboard.keys[DIK_D].hold) {
-		if (pad.LeftStick.vector.x > 0.5f || keyboard.keys[DIK_D].hold) {
+	if (pad.LeftStick.magnitude > 0.5f || keyboard.keys[DIK_A].hold || keyboard.keys[DIK_D].hold || keyboard.keys[DIK_LEFT].hold || keyboard.keys[DIK_RIGHT].hold) {
+		if (pad.LeftStick.vector.x > 0.5f || keyboard.keys[DIK_D].hold || keyboard.keys[DIK_RIGHT].hold) {
 			offsetDirection_ = true;
-		} else if (pad.LeftStick.vector.x < -0.5f || keyboard.keys[DIK_A].hold) {
+		} else if (pad.LeftStick.vector.x < -0.5f || keyboard.keys[DIK_A].hold || keyboard.keys[DIK_LEFT].hold) {
 			offsetDirection_ = false;
 		}
 	}
@@ -81,6 +81,13 @@ void LockOnCamera::Update() {
 					targetAngle_.y += std::numbers::pi_v<float> * 2;
 				}
 			}
+			if (fabsf(targetAngle_.x - cameraAngle_.x) > std::numbers::pi_v<float>) {
+				if (targetAngle_.x - cameraAngle_.x > 0.0f) {
+					targetAngle_.x -= std::numbers::pi_v<float> *2;
+				} else {
+					targetAngle_.x += std::numbers::pi_v<float> *2;
+				}
+			}
 
 			//傾けた分をある程度戻す
 			if (Length(cameraAngle_ - targetAngle_) > 0.01f) {
@@ -99,7 +106,7 @@ void LockOnCamera::Update() {
 			targetAngle_.y = std::atan2(diff.x, diff.z);
 			float length = Length(Vector3{ diff.x, 0.0f, diff.z });
 			// X軸回り回転(θx)
-			targetAngle_.x = 0;
+			targetAngle_.x = std::atan2(-diff.y, length);
 			transform_.rotate = cameraAngle_;
 
 			Matrix4x4 rotateMatrix = MakeRotateXMatrix(transform_.rotate.x) * MakeRotateYMatrix(transform_.rotate.y);

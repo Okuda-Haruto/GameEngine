@@ -385,6 +385,12 @@ void Player::IsCollision(uint8_t targetId) {
 
 			AudioHolder::GetInstance()->GetAudio(AudioIndex::Player_Damage_SE).lock()->SoundPlayWave();
 		}
+	} else if(targetId & CollisionID_Anything_Body){
+		if (dodgeActiveTime < kMaxDodgeActiveTime) {
+			stunTime = kMaxHitFenceStunTime;
+			dodgeActiveTime = kMaxDodgeActiveTime;
+			AudioHolder::GetInstance()->GetAudio(AudioIndex::Fence_Collision_SE).lock()->SoundPlayWave();
+		}
 	}
 }
 
