@@ -74,7 +74,7 @@ void main( uint3 DTid : SV_DispatchThreadID )
         }
         else
         {
-            skinned.position = input.position;
+            skinned.position = mul(input.position, gInputObjectData.worldMatrix);
             skinned.normal = normalize(input.normal);
         }
         gOutputVertices[gInputObjectData.allocation.vertexStart + vertexIndex] = skinned;

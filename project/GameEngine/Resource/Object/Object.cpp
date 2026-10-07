@@ -18,6 +18,7 @@ void Object::Initialize(shared_ptr<Model> model) {
 	objectResource_->Map(0, nullptr, reinterpret_cast<void**>(&objectData_));
 
 	objectData_->allocation = ObjectManager::GetInstance()->MakeNewOffsetAllocation(model_);
+	objectData_->worldMatrix = MakeIdentity4x4();
 
 	objectResource_->Unmap(0, nullptr);
 
@@ -71,6 +72,12 @@ void Object::Update() {
 	materialData_->enableEnviromentMap = materialData_->enviromentCoefficient > 0.0f;
 
 	materialResource_->Unmap(0, nullptr);
+
+	objectResource_->Map(0, nullptr, reinterpret_cast<void**>(&objectData_));
+
+	objectData_->worldMatrix = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
+
+	objectResource_->Unmap(0, nullptr);
 
 	//アニメーションするなら
 	if (isUseAnimation_) {

@@ -29,7 +29,6 @@ void ObjectManager::Initialize(DirectXCommon* dxCommon, SRVManager* srvManager) 
 	indicesBufferSRVindex_ = srvManager_->Allocate();
 	srvManager_->CreateSRVforStructuredBuffer(verticesBufferSRVindex_, vertexResource_.Get(), maxIndexSize, sizeof(VertexData));
 	srvManager_->CreateUAVforStructuredBuffer(verticesBufferUAVindex_, vertexResource_.Get(), maxIndexSize, sizeof(VertexData));
-	srvManager_->CreateSRVforStructuredBuffer(indicesBufferSRVindex_, indexResource_.Get(), maxIndexSize, sizeof(uint32_t));
 
 	//頂点バッファビューを作成する
 	//リソースの先頭のアドレスから使う
@@ -42,6 +41,8 @@ void ObjectManager::Initialize(DirectXCommon* dxCommon, SRVManager* srvManager) 
 	//Object用のインデックスリソースを作る
 	indexResource_ = dxCommon_->CreateBufferResources(sizeof(uint32_t) * maxIndexSize);
 
+	srvManager_->CreateSRVforStructuredBuffer(indicesBufferSRVindex_, indexResource_.Get(), maxIndexSize, sizeof(uint32_t));
+
 	//インデックスバッファビューを作成する
 	//リソースの先頭のアドレスから使う
 	indexBufferView_.BufferLocation = indexResource_->GetGPUVirtualAddress();
@@ -53,7 +54,9 @@ void ObjectManager::Initialize(DirectXCommon* dxCommon, SRVManager* srvManager) 
 	//レイトレーシング接触範囲用リソースを作る
 	objectDataResource_ = dxCommon_->CreateOutputResources(sizeof(OutputObjectData) * maxIndexSize);
 
+	objectDataBufferSRVindex_ = srvManager_->Allocate();
 	objectDataBufferUAVindex_ = srvManager_->Allocate();
+	srvManager_->CreateSRVforStructuredBuffer(objectDataBufferSRVindex_, objectDataResource_.Get(), maxIndexSize, sizeof(OutputObjectData));
 	srvManager_->CreateUAVforStructuredBuffer(objectDataBufferUAVindex_, objectDataResource_.Get(), maxIndexSize, sizeof(OutputObjectData));
 }
 

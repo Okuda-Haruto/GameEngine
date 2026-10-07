@@ -67,6 +67,7 @@ private:
 	//レイトレーシング接触範囲データ
 	OutputObjectData* mappedObjectData_ = nullptr;
 	//レイトレーシング接触範囲バッファIndex
+	uint32_t objectDataBufferSRVindex_;
 	uint32_t objectDataBufferUAVindex_;
 
 public:
@@ -85,14 +86,21 @@ public:
 	//初期化
 	void Initialize(DirectXCommon* dxCommon, SRVManager* srvManager);
 
-	uint32_t GetVerticesBufferUAVindex() { return verticesBufferUAVindex_; }
+	//VertexBuffer
 	uint32_t GetVerticesBufferSRVindex() { return verticesBufferSRVindex_; }
+	uint32_t GetVerticesBufferUAVindex() { return verticesBufferUAVindex_; }
+
+	//IndexBuffer
 	uint32_t GetIndicesBufferSRVindex() { return indicesBufferSRVindex_; }
+
+	//ObjectDataBuffer
+	uint32_t GetObjectDataBufferSRVindex() { return objectDataBufferSRVindex_; }
 	uint32_t GetObjectDataBufferUAVindex() { return objectDataBufferUAVindex_; }
 
 	D3D12_VERTEX_BUFFER_VIEW GetVBV() { return vertexBufferView_; }
 	D3D12_INDEX_BUFFER_VIEW GetIBV() { return indexBufferView_; }
 	ID3D12Resource* GetVertexResource() { return vertexResource_.Get(); }
+	ID3D12Resource* GetIndexResource() { return indexResource_.Get(); }
 	ID3D12Resource* GetObjectDataResource() { return objectDataResource_.Get(); }
 
 

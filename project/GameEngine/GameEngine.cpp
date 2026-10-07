@@ -64,6 +64,7 @@ void GameEngine::Finalize_() {
 	Primitive3DManager::GetInstance()->Finalize();
 	Object::FinalizeDefaultCamera();
 	ParticleManager::GetInstance()->Finalize();
+	LightingManager::GetInstance()->Finalize();
 
 	imguiManager_.reset();
 	srvManager_.reset();
@@ -116,6 +117,7 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	SpriteManager::GetInstance()->Initialize(dxCommon_.get());
 	ObjectManager::GetInstance()->Initialize(dxCommon_.get(), srvManager_.get());
 	Primitive3DManager::GetInstance()->Initialize(dxCommon_.get(), srvManager_.get());
+	LightingManager::GetInstance()->Initialize(dxCommon_.get(),srvManager_.get());
 
 	//カメラ初期値
 	std::shared_ptr<Camera> DefaultCamera = std::make_shared<Camera>();
@@ -322,9 +324,12 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	}
 
 	//オブジェクトAABBのカウントは1つだけ(RWStructuredBufferでしか入出力できないので仕方ない)
-	outputObjectDataCountIndex_ = srvManager_->Allocate();
+	outputObjectDataCountSRVIndex_ = srvManager_->Allocate();
+	outputObjectDataCountUAVIndex_ = srvManager_->Allocate();
 	outputObjectDataCountResource_ = dxCommon_->CreateOutputResources(sizeof(uint32_t));
-	srvManager_->CreateUAVforStructuredBuffer(outputObjectDataCountIndex_, outputObjectDataCountResource_.Get(), 1, sizeof(uint32_t));
+
+	srvManager_->CreateSRVforStructuredBuffer(outputObjectDataCountSRVIndex_, outputObjectDataCountResource_.Get(), 1, sizeof(uint32_t));
+	srvManager_->CreateUAVforStructuredBuffer(outputObjectDataCountUAVIndex_, outputObjectDataCountResource_.Get(), 1, sizeof(uint32_t));
 
 	for (int i = 0; i < kMaxIndex; i++) {
 		objectSkinningInformationResource_[i] = dxCommon_->CreateBufferResources(sizeof(SkinningInformation));
@@ -414,14 +419,8 @@ bool GameEngine::WindowState_() {
 
 void GameEngine::PreDraw_() {
 
-	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-	commandList_->SetComputeRootSignature(compute_ObjectDataCounterInitialize_RootSignature_.Get());
-	commandList_->SetPipelineState(compute_ObjectDataCounterInitialize_PipelineState_.Get());	//PSOを設定
-
-	//レイトレーイングのAABB
-	commandList_->SetComputeRootDescriptorTable(0, srvManager_->GetGPUDescriptorHandle(outputObjectDataCountIndex_));
-
-	commandList_->Dispatch(1, 1, 1);
+	//ライティングの描画前処理
+	LightingManager::GetInstance()->PreDraw();
 
 #ifdef USE_IMGUI
 	srvManager_->RenderPreDraw("ImGui");
@@ -436,6 +435,15 @@ void GameEngine::PreDraw_() {
 void GameEngine::PostDraw_() {
 
 	Primitive3DManager::GetInstance()->Draw();
+
+	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
+	commandList_->SetComputeRootSignature(compute_ObjectDataCounterInitialize_RootSignature_.Get());
+	commandList_->SetPipelineState(compute_ObjectDataCounterInitialize_PipelineState_.Get());	//PSOを設定
+
+	//レイトレーイングのAABB
+	commandList_->SetComputeRootDescriptorTable(0, srvManager_->GetGPUDescriptorHandle(outputObjectDataCountUAVIndex_));
+
+	commandList_->Dispatch(1, 1, 1);
 
 #ifdef USE_IMGUI
 	dxCommon_->RenderPostDraw();
@@ -973,6 +981,43 @@ void GameEngine::DrawScreen_(std::string textureName) {
 	//描画(DrawCall)(頂点は勝手に入るのでIndexedじゃない)
 	commandList_->DrawInstanced(3, 1, 0, 0);
 
+}
+
+void GameEngine::DrawShadow_(std::string textureName) {
+	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
+	commandList_->SetGraphicsRootSignature(screen_RootSignature_.Get());
+	commandList_->SetPipelineState(screen_PipelineState_.Get());	//PSOを設定
+
+	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
+	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	// UAV -> SRV
+	D3D12_RESOURCE_BARRIER barrier{};
+	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	barrier.Transition.pResource = TextureManager::GetInstance()->GetResource(textureName);
+	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+
+	commandList_->ResourceBarrier(1, &barrier);
+
+	//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
+	commandList_->SetGraphicsRootDescriptorTable(1, srvManager_->GetGPUDescriptorHandle(TextureManager::GetInstance()->GetSrvIndex(textureName)));
+
+	//描画(DrawCall)(頂点は勝手に入るのでIndexedじゃない)
+	commandList_->DrawInstanced(3, 1, 0, 0);
+
+	// SRV -> UAV
+	barrier = {};
+	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	barrier.Transition.pResource = TextureManager::GetInstance()->GetResource(textureName);
+	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+
+	commandList_->ResourceBarrier(1, &barrier);
 }
 
 void GameEngine::DrawScreen_(std::string textureName, ColorChange::ColorMode colorMode, float intensity) {
@@ -1813,7 +1858,7 @@ void GameEngine::DrawPrimitiveCylinder_Billboard_(PrimitiveCylinder* primitiveCy
 	objectIndex_++;
 }
 
-void GameEngine::ComputeSkinning_(Object* object, std::shared_ptr<Camera> camera) {
+void GameEngine::ComputeSkinning_(Object* object) {
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList_->SetComputeRootSignature(compute_Skinning_RootSignature_.Get());
@@ -1889,7 +1934,7 @@ void GameEngine::ComputeSkinning_(Object* object, std::shared_ptr<Camera> camera
 
 	commandList_->SetComputeRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(startInfluenceIndex_ + boneIndex_));
 
-	// UAV -> VertexBuffer
+	// VertexBuffer -> UAV
 	D3D12_RESOURCE_BARRIER barrier{};
 	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
@@ -1920,38 +1965,7 @@ void GameEngine::ComputeSkinning_(Object* object, std::shared_ptr<Camera> camera
 	//レイトレーイングのAABB
 	commandList_->SetComputeRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(ObjectManager::GetInstance()->GetObjectDataBufferUAVindex()));
 	//レイトレーイングのAABBのカウント
-	commandList_->SetComputeRootDescriptorTable(3, srvManager_->GetGPUDescriptorHandle(outputObjectDataCountIndex_));
-
-	commandList_->Dispatch(1, 1, 1);
-
-	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-	commandList_->SetComputeRootSignature(compute_RayTracing_RootSignature_.Get());
-	commandList_->SetPipelineState(compute_RayTracing_PipelineState_.Get());	//PSOを設定
-
-	rayTracingStateResource_ = dxCommon_->CreateBufferResources(sizeof(RayTracingState));
-
-	Matrix4x4 inverseViewMatrix = Inverse(camera->GetViewMatrix());
-
-	rayTracingStateResource_->Map(0, nullptr, reinterpret_cast<void**>(&rayTracingState_));
-	rayTracingState_->cameraPosition = Vector3{ inverseViewMatrix.m[3][0], inverseViewMatrix.m[3][1] , inverseViewMatrix.m[3][2] };
-	rayTracingState_->inverseViewMatrix = inverseViewMatrix;
-	rayTracingState_->inverseProjectionMatrix = Inverse(camera->GetProjectionMatrix());
-	rayTracingStateResource_->Unmap(0, nullptr);
-
-	//カメラ行列とウィンドウサイズ
-	commandList_->SetComputeRootConstantBufferView(0, rayTracingStateResource_->GetGPUVirtualAddress());
-
-	commandList_->SetComputeRootDescriptorTable(1, srvManager_->GetGPUDescriptorHandle(ObjectManager::GetInstance()->GetVerticesBufferSRVindex()));
-
-	commandList_->SetComputeRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(ObjectManager::GetInstance()->GetIndicesBufferSRVindex()));
-	//レイトレーイングのAABB
-	commandList_->SetComputeRootDescriptorTable(3, srvManager_->GetGPUDescriptorHandle(ObjectManager::GetInstance()->GetObjectDataBufferUAVindex()));
-	//レイトレーイングのAABBのカウント
-	commandList_->SetComputeRootDescriptorTable(4, srvManager_->GetGPUDescriptorHandle(outputObjectDataCountIndex_));
-	//DirectionalLight
-	commandList_->SetComputeRootDescriptorTable(5, srvManager_->GetGPUDescriptorHandle(ObjectManager::GetInstance()->GetObjectDataBufferUAVindex()));
-	//DirectionalLightのカウント
-	commandList_->SetComputeRootDescriptorTable(6, srvManager_->GetGPUDescriptorHandle(outputObjectDataCountIndex_));
+	commandList_->SetComputeRootDescriptorTable(3, srvManager_->GetGPUDescriptorHandle(outputObjectDataCountUAVIndex_));
 
 	commandList_->Dispatch(1, 1, 1);
 
@@ -1968,6 +1982,119 @@ void GameEngine::ComputeSkinning_(Object* object, std::shared_ptr<Camera> camera
 
 	boneIndex_++;
 
+}
+
+void GameEngine::ComputeShadowRay(std::string textureName, std::shared_ptr<Camera> camera) {
+
+
+	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
+	commandList_->SetComputeRootSignature(compute_RayTracing_RootSignature_.Get());
+	commandList_->SetPipelineState(compute_RayTracing_PipelineState_.Get());	//PSOを設定
+
+	// VertexBuffer -> UAV
+	D3D12_RESOURCE_BARRIER barrier{};
+	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	barrier.Transition.pResource = ObjectManager::GetInstance()->GetVertexResource();
+	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
+	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+
+	commandList_->ResourceBarrier(1, &barrier);
+
+	// UAV -> SRV
+	barrier = {};
+	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	barrier.Transition.pResource = ObjectManager::GetInstance()->GetObjectDataResource();
+	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
+	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+
+	commandList_->ResourceBarrier(1, &barrier);
+
+	// UAV -> SRV
+	barrier = {};
+	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	barrier.Transition.pResource = outputObjectDataCountResource_.Get();
+	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
+	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+
+	commandList_->ResourceBarrier(1, &barrier);
+
+	rayTracingStateResource_ = dxCommon_->CreateBufferResources(sizeof(RayTracingState));
+
+	Matrix4x4 inverseViewMatrix = Inverse(camera->GetViewMatrix());
+
+	rayTracingStateResource_->Map(0, nullptr, reinterpret_cast<void**>(&rayTracingState_));
+	rayTracingState_->windowWidth = 1280;
+	rayTracingState_->windowHeight = 720;
+	rayTracingState_->cameraPosition = Vector3{ inverseViewMatrix.m[3][0], inverseViewMatrix.m[3][1] , inverseViewMatrix.m[3][2] };
+	rayTracingState_->inverseViewMatrix = inverseViewMatrix;
+	rayTracingState_->inverseProjectionMatrix = Inverse(camera->GetProjectionMatrix());
+	rayTracingStateResource_->Unmap(0, nullptr);
+
+	//カメラ行列とウィンドウサイズ
+	commandList_->SetComputeRootConstantBufferView(0, rayTracingStateResource_->GetGPUVirtualAddress());
+	//頂点バッファ
+	commandList_->SetComputeRootDescriptorTable(1, srvManager_->GetGPUDescriptorHandle(ObjectManager::GetInstance()->GetVerticesBufferSRVindex()));
+	//インデックスバッファ
+	commandList_->SetComputeRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(ObjectManager::GetInstance()->GetIndicesBufferSRVindex()));
+	//レイトレーイングのAABB
+	commandList_->SetComputeRootDescriptorTable(3, srvManager_->GetGPUDescriptorHandle(ObjectManager::GetInstance()->GetObjectDataBufferSRVindex()));
+	//レイトレーイングのAABBのカウント
+	commandList_->SetComputeRootDescriptorTable(4, srvManager_->GetGPUDescriptorHandle(outputObjectDataCountSRVIndex_));
+	//DirectionalLight
+	commandList_->SetComputeRootDescriptorTable(5, srvManager_->GetGPUDescriptorHandle(LightingManager::GetInstance()->GetDirectionalLightSRVindex()));
+	//DirectionalLightのカウント
+	commandList_->SetComputeRootConstantBufferView(6, LightingManager::GetInstance()->GetLightingStateResource()->GetGPUVirtualAddress());
+	//出力テクスチャ
+	commandList_->SetComputeRootDescriptorTable(7, srvManager_->GetGPUDescriptorHandle(TextureManager::GetInstance()->GetUavIndex(textureName)));
+
+	commandList_->Dispatch(rayTracingState_->windowWidth / 16 + 1, rayTracingState_->windowHeight / 16 + 1, 1);
+
+	// SRV -> UAV
+	barrier = {};
+	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	barrier.Transition.pResource = outputObjectDataCountResource_.Get();
+	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
+	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+
+	commandList_->ResourceBarrier(1, &barrier);
+
+	// SRV -> UAV
+	barrier = {};
+	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	barrier.Transition.pResource = ObjectManager::GetInstance()->GetObjectDataResource();
+	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
+	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+
+	commandList_->ResourceBarrier(1, &barrier);
+
+	// UAV -> VertexBuffer
+	barrier = {};
+	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	barrier.Transition.pResource = ObjectManager::GetInstance()->GetVertexResource();
+	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
+	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+
+	commandList_->ResourceBarrier(1, &barrier);
+}
+
+void GameEngine::DrawShadowRay_(std::string textureName, std::shared_ptr<Camera> camera) {
+	//シャドーレイ画像を得る
+	ComputeShadowRay(textureName, camera);
+
+	//描画する
+	DrawShadow_(textureName);
 }
 
 void GameEngine::Compute_Initialize_Particle_(ParticleGroup particleGroup) {

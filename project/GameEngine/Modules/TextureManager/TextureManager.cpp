@@ -70,13 +70,52 @@ void TextureManager::LoadTexture(const std::string& filePath) {
 
 	dxCommon_->UploadTextureData(textureData.resource.Get(), mipImages);
 
-	textureData.rtvIndex = -1;
 	textureData.srvIndex = srvManager_->Allocate();
+	//textureData.uavIndex = srvManager_->Allocate();
 	textureData.srvHandleCPU = srvManager_->GetCPUDescriptorHandle(textureData.srvIndex);
 	textureData.srvHandleGPU = srvManager_->GetGPUDescriptorHandle(textureData.srvIndex);
 
 	//SRV生成
 	srvManager_->CreateSRVforTexture2D(textureData.srvIndex, textureData.resource.Get(), textureData.metadata);
+	//UAV生成
+	//srvManager_->CreateUAVforTexture2D(textureData.uavIndex, textureData.resource.Get(), textureData.metadata);
+}
+
+//空のテクスチャの作成
+void TextureManager::MakeBlankTexture(const std::string& textureName){
+
+	//読み込み済みテクスチャを検索
+	if (textureDatas.contains(textureName)) {
+		//読み込み済みなら早期Return
+		return;
+	}
+
+	//テクスチャ上限チェック
+	assert(srvManager_->IsCanAllocate());
+
+	TextureData& textureData = textureDatas[textureName];
+
+	// メタデータを作る
+	textureData.metadata.width = 1280;
+	textureData.metadata.height = 720;
+	textureData.metadata.depth = 1;
+	textureData.metadata.arraySize = 1;
+	textureData.metadata.mipLevels = 1;
+	textureData.metadata.format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	textureData.metadata.dimension = DirectX::TEX_DIMENSION_TEXTURE2D;
+
+	// 空のテクスチャResourceを作成
+	textureData.resource = dxCommon_->CreateUAVTextureResource(textureData.metadata);
+
+	textureData.srvIndex = srvManager_->Allocate();
+	textureData.uavIndex = srvManager_->Allocate();
+	textureData.srvHandleCPU = srvManager_->GetCPUDescriptorHandle(textureData.srvIndex);
+	textureData.srvHandleGPU = srvManager_->GetGPUDescriptorHandle(textureData.srvIndex);
+
+	//SRV生成
+	srvManager_->CreateSRVforTexture2D(textureData.srvIndex, textureData.resource.Get(), textureData.metadata);
+	//UAV生成
+	srvManager_->CreateUAVforTexture2D(textureData.uavIndex, textureData.resource.Get(), textureData.metadata);
 }
 
 //レンダーテクスチャの作成
@@ -129,6 +168,29 @@ uint32_t TextureManager::GetSrvIndex(const std::string& filePath) {
 	assert(0);
 	return 0;
 }
+
+uint32_t TextureManager::GetUavIndex(const std::string& filePath) {
+	//読み込み済みテクスチャを検索
+	if (textureDatas.contains(filePath)) {
+		//読み込み済みなら要素番号を返す
+		uint32_t textureIndex = textureDatas[filePath].uavIndex;
+		return textureIndex;
+	}
+
+	//読み込んでいないテクスチャを指定した場合ここで読み込む
+	MakeBlankTexture(filePath);
+
+	//読み込み済みテクスチャを検索
+	if (textureDatas.contains(filePath)) {
+		//読み込み済みなら要素番号を返す
+		uint32_t textureIndex = textureDatas[filePath].uavIndex;
+		return textureIndex;
+	}
+
+	assert(0);
+	return 0;
+}
+
 
 uint32_t TextureManager::GetRtvIndex(const std::string& filePath) {
 	//読み込み済みテクスチャを検索

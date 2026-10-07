@@ -50,6 +50,7 @@
 #include <PrimitiveManager/PrimitiveCylinder.h>
 #include "AudioManager/AudioManager.h"
 #include "ObjectManager/ObejctManager.h"
+#include <LightingManager/LightingManager.h>
 
 #include <vector>
 #include <array>
@@ -254,7 +255,8 @@ private:
 
 	//オブジェクトAABBのカウント
 	Microsoft::WRL::ComPtr<ID3D12Resource> outputObjectDataCountResource_;
-	uint32_t outputObjectDataCountIndex_;
+	uint32_t outputObjectDataCountSRVIndex_;
+	uint32_t outputObjectDataCountUAVIndex_;
 
 #pragma endregion
 
@@ -263,6 +265,7 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> rayTracingStateResource_;
 	RayTracingState* rayTracingState_;
+	uint32_t shadowRayTextureIndex_;
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> colorChangeStateResource_;
 	ColorChange::ColorChangeState* colorChangeStateData_;
@@ -331,7 +334,10 @@ private:
 	void DrawPrimitiveCylinder_(PrimitiveCylinder* primitiveCylinder, SRT transform, Material material);
 	void DrawPrimitiveCylinder_Billboard_(PrimitiveCylinder* primitiveCylinder, SRT transform, Material material);
 
-	void ComputeSkinning_(Object* object, std::shared_ptr<Camera> camera);
+	void ComputeSkinning_(Object* object);
+	void ComputeShadowRay(std::string textureName, std::shared_ptr<Camera> camera);
+	void DrawShadowRay_(std::string textureName, std::shared_ptr<Camera> camera);
+	void DrawShadow_(std::string textureName);
 
 	void Compute_Initialize_Particle_(ParticleGroup particleGroup);
 	void Compute_Emit_Particle_(ParticleGroup particleGroup);
@@ -437,6 +443,9 @@ public:
 	static void DrawPrimitiveRing_Billboard(PrimitiveRing* primitiveRing, SRT transform, Material material) { return GetInstance()->DrawPrimitiveRing_Billboard_(primitiveRing, transform, material); };
 	static void DrawPrimitiveCylinder(PrimitiveCylinder* primitiveCylinder, SRT transform, Material material) { return GetInstance()->DrawPrimitiveCylinder_(primitiveCylinder, transform, material); };
 	static void DrawPrimitiveCylinder_Billboard(PrimitiveCylinder* primitiveCylinder, SRT transform, Material material) { return GetInstance()->DrawPrimitiveCylinder_Billboard_(primitiveCylinder, transform, material); };
+
+	static void DrawShadowRay(std::string textureName, std::shared_ptr<Camera> camera) { return GetInstance()->DrawShadowRay_(textureName, camera); }
+	static void DrawShadow(std::string textureName) { return GetInstance()->DrawShadow_(textureName); }
 
 	static void Compute_Initialize_Particle(ParticleGroup particleGroup) { return GetInstance()->Compute_Initialize_Particle_(particleGroup); }
 	static void Compute_Emit_Particle(ParticleGroup particleGroup) { return GetInstance()->Compute_Emit_Particle_(particleGroup); }

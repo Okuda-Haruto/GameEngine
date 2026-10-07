@@ -1377,6 +1377,38 @@ ComPtr<ID3D12Resource> DirectXCommon::CreateTextureResource(const DirectX::TexMe
 	return resource;
 }
 
+//テクスチャリソースの生成
+ComPtr<ID3D12Resource> DirectXCommon::CreateUAVTextureResource(const DirectX::TexMetadata& metadata) {
+	//metadataを基にResourceの設定
+	D3D12_RESOURCE_DESC resourceDesc{};
+	resourceDesc.Width = UINT(metadata.width);	//Textureの幅
+	resourceDesc.Height = UINT(metadata.height);	//Textureの高さ
+	resourceDesc.MipLevels = UINT16(metadata.mipLevels);	//mipmapの数
+	resourceDesc.DepthOrArraySize = UINT16(metadata.arraySize);	//奥行き or 配列Textureの配列数
+	resourceDesc.Format = metadata.format;	//TextureのFormat
+	resourceDesc.SampleDesc.Count = 1;	//サンプリングカウント。1固定
+	resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION(metadata.dimension);	//Textureの次元数。普段使っているのは2次元
+	resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+	resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+
+	//利用するHeapの設定。非常に特殊な運用
+	D3D12_HEAP_PROPERTIES heapProperties{};
+	heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;	//細かい設定を行う
+
+	//Resourceの生成
+	ComPtr<ID3D12Resource> resource = nullptr;
+	HRESULT hr = device_->CreateCommittedResource(
+		&heapProperties,	//Heapの設定
+		D3D12_HEAP_FLAG_NONE,	//Heapの特殊な設定
+		&resourceDesc,	//Resourceの設定
+		D3D12_RESOURCE_STATE_UNORDERED_ACCESS,	//初回のResourceState。TextureをUAVでアクセスできる型に
+		nullptr,	//Clear最適値。使わないのでnullptr
+		IID_PPV_ARGS(&resource)	//作成するResourceポインタへのポインタ
+	);
+	assert(SUCCEEDED(hr));
+	return resource;
+}
+
 //レンダーテクスチャリソースの生成
 DirectXCommon::RTVResource DirectXCommon::CreateRenderTextureResource(uint32_t width, uint32_t height, DXGI_FORMAT format, const Vector4 clearColor) {
 
@@ -1903,7 +1935,7 @@ void DirectXCommon::ExecuteCommandQueue() {
 
 	//GPUとOSに画面の交換を行うよう通知する
 	swapChain_->Present(1, 0);
-
+	
 	//Fenceの値を更新
 	fenceValue_++;
 	//GPUがここまでたどり着いたときに、Fenceの値を指定した値に代入するようにSignalを送る

@@ -156,6 +156,7 @@ public:
 	Microsoft::WRL::ComPtr<ID3D12Resource> CreateBufferResources(size_t sizeInBytes);
 	//テクスチャリソースの生成
 	Microsoft::WRL::ComPtr<ID3D12Resource> CreateTextureResource(const DirectX::TexMetadata& metadata);
+	Microsoft::WRL::ComPtr<ID3D12Resource> CreateUAVTextureResource(const DirectX::TexMetadata& metadata);
 	//レンダーテクスチャリソースの生成
 	RTVResource CreateRenderTextureResource(uint32_t width,uint32_t height,DXGI_FORMAT format, const Vector4 clearColor);
 	//Compute出力リソースの生成

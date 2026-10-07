@@ -68,6 +68,22 @@ void SRVManager::CreateSRVforTexture2D(uint32_t srvIndex, ID3D12Resource* pResou
 	dxCommon_->GetDevice()->CreateShaderResourceView(pResource, &srvDesc, GetCPUDescriptorHandle(srvIndex));
 }
 
+// UAV生成（テクスチャ用）
+void SRVManager::CreateUAVforTexture2D(uint32_t uavIndex,ID3D12Resource* pResource, DirectX::TexMetadata metadata){
+	D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc{};
+	uavDesc.Format = metadata.format;
+	uavDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
+
+	uavDesc.Texture2D.MipSlice = 0;
+	uavDesc.Texture2D.PlaneSlice = 0;
+
+	dxCommon_->GetDevice()->CreateUnorderedAccessView(
+		pResource,
+		nullptr,
+		&uavDesc,
+		GetCPUDescriptorHandle(uavIndex));
+}
+
 //SRV生成(Structured Buffer用)
 void SRVManager::CreateSRVforStructuredBuffer(uint32_t srvIndex, ID3D12Resource* pResource, UINT numElement, UINT structureByteStride) {
 	//metaDataを基にSRVの設定

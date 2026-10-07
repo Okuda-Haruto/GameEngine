@@ -190,7 +190,7 @@ void main( uint3 DTid : SV_DispatchThreadID )
     float2 uv;
     uv.x = (DTid.x + 0.5f) / gRayTracingState.windowWidth;
     uv.y = (DTid.y + 0.5f) / gRayTracingState.windowHeight;
-    gTexture[DTid.xy] = float4(0.0f, 0.0f, 0.0f, 0.0f);
+    gTexture[DTid.xy] = float4(1.0f, 1.0f, 1.0f, 0.0f);
     
     float2 ndc;
     ndc.x = uv.x * 2.0f - 1.0f;
@@ -208,7 +208,7 @@ void main( uint3 DTid : SV_DispatchThreadID )
     ray.diff = normalize(world.xyz - gRayTracingState.cameraPosition);
     
     bool isHit = false;
-    float minT = 0.0f;
+    float minT = 1e30f;
     float3 hitNormal;
     float3 collisionPoint;
     

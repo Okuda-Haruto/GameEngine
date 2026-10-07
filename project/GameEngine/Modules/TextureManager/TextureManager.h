@@ -24,6 +24,7 @@ private:
 		DirectX::TexMetadata metadata;
 		Microsoft::WRL::ComPtr<ID3D12Resource> resource;
 		int32_t srvIndex;
+		int32_t uavIndex = -1;
 		int32_t rtvIndex = -1;
 		D3D12_CPU_DESCRIPTOR_HANDLE srvHandleCPU;
 		D3D12_GPU_DESCRIPTOR_HANDLE srvHandleGPU;
@@ -52,6 +53,8 @@ public:
 
 	//テクスチャファイルの読み込み
 	void LoadTexture(const std::string& filePath);
+	//空のテクスチャの作成
+	void MakeBlankTexture(const std::string& textureName);
 	//レンダーテクスチャの作成
 	void MakeRenderTexture(const std::string& renderName);
 
@@ -59,6 +62,8 @@ public:
 	const DirectX::TexMetadata& GetMetaData(const std::string& filePath);
 	//SRVインデックスの取得
 	uint32_t GetSrvIndex(const std::string& filePath);
+	//UAVインデックスの取得
+	uint32_t GetUavIndex(const std::string& filePath);
 	//RTVインデックスの取得
 	uint32_t GetRtvIndex(const std::string& filePath);
 	//リソースの取得

@@ -76,12 +76,13 @@ void SampleScene::Initialize() {
 	//光源
 	directionalLight_ = make_shared<DirectionalLight>();
 	directionalLight_->Initialize(GameEngine::GetDirectXCommon());
-	directionalLightElement_ = {
-		{1.0f,1.0f,1.0f,1.0f},
-		{0.0f,-1.0f,0.0f},
-		1.0f
-	};
-	directionalLight_->SetDirectionalLightElement(directionalLightElement_);
+	directionalLightElement_ = std::make_shared<DirectionalLightElement>();
+	directionalLightElement_->color = { 1.0f,1.0f,1.0f,1.0f };
+	directionalLightElement_->direction = Normalize(Vector3{ 0.0f,-1.0f,-1.0f });
+	directionalLightElement_->intensity = 1.0f;
+	directionalLight_->SetDirectionalLightElement(*directionalLightElement_);
+
+	LightingManager::GetInstance()->SetNewDirectionalLigth(directionalLightElement_);
 
 	pointLight_ = make_shared<PointLight>();
 	pointLight_->Initialize(GameEngine::GetDirectXCommon());
@@ -409,15 +410,6 @@ void SampleScene::Update() {
 		ImGui::SliderInt("gltf index", &gltfIndex_, 0, int(gltfs_.size() - 1));
 	}
 
-	if (ImGui::CollapsingHeader("DirectionalLight")) {
-		ImGui::ColorEdit4("directionalLight Color", &directionalLightElement_.color.x);
-		ImGui::DragFloat3("directionalLight Direction", &directionalLightElement_.direction.x, 0.01f, -1.0f, 1.0f);
-		ImGui::DragFloat("directionalLight Intensity", &directionalLightElement_.intensity, 0.01f, 0.0f, 1.0f);
-		float sqrtNumber = sqrtf(sqrtf(powf(directionalLightElement_.direction.x, 2) + powf(directionalLightElement_.direction.y, 2)) + powf(directionalLightElement_.direction.z, 2));
-		directionalLightElement_.direction.x = directionalLightElement_.direction.x / sqrtNumber;
-		directionalLightElement_.direction.y = directionalLightElement_.direction.y / sqrtNumber;
-		directionalLightElement_.direction.z = directionalLightElement_.direction.z / sqrtNumber;
-	}
 
 	if (ImGui::CollapsingHeader("PointLight")) {
 		ImGui::ColorEdit4("pointLight Color", &pointLightElement_.color.x);
@@ -535,7 +527,6 @@ void SampleScene::Update() {
 
 	ImGui::End();
 
-	directionalLight_->SetDirectionalLightElement(directionalLightElement_);
 	pointLight_->SetPointLightElement(pointLightElement_);
 	spotLight_->SetSpotLightElement(spotLightElement_);
 
@@ -594,5 +585,7 @@ void SampleScene::Draw() {
 	data.vignetteCurve = 6.0f;
 
 	GameEngine::DrawScreen("BoxFilter", data);
+
+	GameEngine::DrawShadowRay("ShadowRay", defaultCamera_);
 
 }
