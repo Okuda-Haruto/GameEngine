@@ -229,6 +229,7 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	screen_Outline_PipelineState_ = Screen_PipelineStateInitialvalue(device_, screen_Outline_RootSignature_, CopyImageVSBlob.Get(), LuminanceBasedOutlinePSBlob.Get());
 	screen_RadialBlur_PipelineState_ = Screen_PipelineStateInitialvalue(device_, screen_RadialBlur_RootSignature_, CopyImageVSBlob.Get(), RadialBlurPSBlob.Get());
 	screen_Dissolve_PipelineState_ = Screen_PipelineStateInitialvalue(device_, screen_Dissolve_RootSignature_, CopyImageVSBlob.Get(), DissolvePSBlob.Get());
+	layer_PipelineState_ = Layer_PipelineStateInitialvalue(device_, screen_RootSignature_, CopyImageVSBlob.Get(), CopyImagePSBlob.Get());
 	cubemap_PipelineState_ = Cubemap_PipelineStateInitialvalue(device_, cubemap_RootSignature_, CubemapVSBlob.Get(), CubemapPSBlob.Get());
 	compute_Skinning_PipelineState_ = Compute_PipelineStateInitialvalue(device_, compute_Skinning_RootSignature_, SkinningCSBlob.Get());
 	compute_ObjectAABB_PipelineState_ = Compute_PipelineStateInitialvalue(device_, compute_ObjectAABB_RootSignature_, ObjectAABBCSBlob.Get());
@@ -511,7 +512,9 @@ void GameEngine::DrawObject_3D_(Object* object, shared_ptr<DirectionalLight> dir
 
 	objectWvpData_[objectIndex_]->World = worldMatrix;
 	objectWvpData_[objectIndex_]->WorldInverseTranspose = Transpose(Inverse(worldMatrix));
-	Matrix4x4 worldViewProjectionMatrix = worldMatrix * object->GetCamera()->GetViewMatrix() * object->GetCamera()->GetProjectionMatrix();
+
+	//一時的にworldMatrixを掛けない
+	Matrix4x4 worldViewProjectionMatrix = object->GetCamera()->GetViewMatrix() * object->GetCamera()->GetProjectionMatrix();
 	objectWvpData_[objectIndex_]->WVP = worldViewProjectionMatrix;
 
 	objectWvpResource_[objectIndex_]->Unmap(0, nullptr);
@@ -986,7 +989,7 @@ void GameEngine::DrawScreen_(std::string textureName) {
 void GameEngine::DrawShadow_(std::string textureName) {
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList_->SetGraphicsRootSignature(screen_RootSignature_.Get());
-	commandList_->SetPipelineState(screen_PipelineState_.Get());	//PSOを設定
+	commandList_->SetPipelineState(layer_PipelineState_.Get());	//PSOを設定
 
 	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
 	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

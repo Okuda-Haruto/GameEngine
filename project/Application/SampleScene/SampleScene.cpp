@@ -78,7 +78,7 @@ void SampleScene::Initialize() {
 	directionalLight_->Initialize(GameEngine::GetDirectXCommon());
 	directionalLightElement_ = std::make_shared<DirectionalLightElement>();
 	directionalLightElement_->color = { 1.0f,1.0f,1.0f,1.0f };
-	directionalLightElement_->direction = Normalize(Vector3{ 0.0f,-1.0f,-1.0f });
+	directionalLightElement_->direction = Normalize(Vector3{ 0.0f,-1.0f,1.0f });
 	directionalLightElement_->intensity = 1.0f;
 	directionalLight_->SetDirectionalLightElement(*directionalLightElement_);
 
@@ -584,7 +584,7 @@ void SampleScene::Draw() {
 	data.vignetteIntensity = 16.0f;
 	data.vignetteCurve = 6.0f;
 
-	GameEngine::DrawScreen("BoxFilter", data);
+	GameEngine::DrawScreen("BoxFilter");
 
 	GameEngine::DrawShadowRay("ShadowRay", defaultCamera_);
 

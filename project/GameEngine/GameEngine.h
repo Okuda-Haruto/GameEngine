@@ -122,6 +122,7 @@ private:
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> screen_Outline_PipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> screen_RadialBlur_PipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> screen_Dissolve_PipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> layer_PipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> cubemap_PipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> compute_Skinning_PipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> compute_ObjectAABB_PipelineState_ = nullptr;
