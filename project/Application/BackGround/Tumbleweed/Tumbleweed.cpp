@@ -6,7 +6,7 @@ Tumbleweed::~Tumbleweed() {
 
 }
 
-void Tumbleweed::Initialize(shared_ptr<Camera> camera, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight) {
+void Tumbleweed::Initialize(weak_ptr<Camera> camera, weak_ptr<DirectionalLight> directionalLight, weak_ptr<PointLight> pointLight) {
 	directionalLight_ = directionalLight;
 	pointLight_ = pointLight;
 

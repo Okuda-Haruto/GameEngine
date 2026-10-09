@@ -6,7 +6,7 @@ weak_ptr<Camera> Bomb::camera_;
 weak_ptr<DirectionalLight> Bomb::directionalLight_;
 weak_ptr<PointLight> Bomb::pointLight_;
 
-void Bomb::Initialize(SRT transform, float range, float maxLifeTime, CollisionID id, std::shared_ptr<Model> model) {
+void Bomb::Initialize(SRT transform, float range, float maxLifeTime, CollisionID id, std::weak_ptr<Model> model) {
 
 	range_ = range;
 	maxLifeTime_ = maxLifeTime;

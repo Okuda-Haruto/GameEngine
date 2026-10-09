@@ -23,7 +23,7 @@ private:
 
 public:
 	//初期化
-	void Initialize(std::shared_ptr<Model> model, std::shared_ptr<DirectionalLight> directionalLight, GameCamera* gameCamera, SRT transform);
+	void Initialize(std::weak_ptr<Model> model, std::weak_ptr<DirectionalLight> directionalLight, GameCamera* gameCamera, SRT transform);
 	//更新処理
 	void Update();
 	//描画処理
@@ -33,5 +33,5 @@ public:
 
 	virtual void IsCollisionGround(OBB obb) override {}
 
-	std::shared_ptr<Colliders> GetCollider() { return colliders_; }
+	const std::weak_ptr<Colliders> GetCollider() { return colliders_; }
 };

@@ -9,7 +9,7 @@ std::weak_ptr<DirectionalLight> BreakObject::directionalLight_;
 std::weak_ptr<PointLight> BreakObject::pointLight_;
 Stage* BreakObject:: stage_;
 
-void BreakObject::Initialize(SRT transform, float maxHP, std::shared_ptr<Model> model, std::unique_ptr<BaseEvent> deadEvent) {
+void BreakObject::Initialize(SRT transform, float maxHP, std::weak_ptr<Model> model, std::unique_ptr<BaseEvent> deadEvent) {
 	
 	maxHP_ = maxHP;
 	HP_ = maxHP_;

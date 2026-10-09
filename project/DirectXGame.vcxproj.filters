@@ -73,6 +73,18 @@
     <FxCompile Include="resources\Shader\Random.PS.hlsl">
       <Filter>GameEngine\Shader</Filter>
     </FxCompile>
+    <FxCompile Include="resources\Shader\PrimitiveBox.VS.hlsl">
+      <Filter>GameEngine\Shader\Primitive</Filter>
+    </FxCompile>
+    <FxCompile Include="resources\Shader\Primitive.PS.hlsl">
+      <Filter>GameEngine\Shader\Primitive</Filter>
+    </FxCompile>
+    <FxCompile Include="resources\Shader\PrimitiveRing.VS.hlsl">
+      <Filter>GameEngine\Shader\Primitive</Filter>
+    </FxCompile>
+    <FxCompile Include="resources\Shader\PrimitiveCylinder.VS.hlsl">
+      <Filter>GameEngine\Shader\Primitive</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -726,6 +738,9 @@
     <None Include="resources\Shader\Random.hlsli">
       <Filter>GameEngine\Shader</Filter>
     </None>
+    <None Include="resources\Shader\Primitive.hlsli">
+      <Filter>GameEngine\Shader\Primitive</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Application">
@@ -976,6 +991,9 @@
     </Filter>
     <Filter Include="Application\Event">
       <UniqueIdentifier>{73f183dd-332d-4161-9735-1c11cd7b4bb1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\Shader\Primitive">
+      <UniqueIdentifier>{ee5aa620-2e3a-4f45-b250-040c0a24e264}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

@@ -43,5 +43,5 @@ public:
 	//初期化
 	void Initialize();
 
-	shared_ptr<Model> GetModel(ModelIndex model);
+	const weak_ptr<Model> GetModel(ModelIndex model);
 };

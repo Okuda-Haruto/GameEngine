@@ -20,7 +20,7 @@ struct ParticleGroup {
 	Emitter emitter;
 	std::vector<AccelerationField> accelerationFields;
 	std::list<Particle> particles;
-	std::shared_ptr<Camera> camera;
+	std::weak_ptr<Camera> camera;
 	uint32_t instancingIndex = 0;
 	Microsoft::WRL::ComPtr<ID3D12Resource> instancingResource;
 	uint32_t numInstance = 0;
@@ -83,8 +83,8 @@ public:
 
 	std::unordered_map<std::string, ParticleGroup> GetParticleGroups() { return particleGroups; }
 
-	D3D12_VERTEX_BUFFER_VIEW& GetVertexBufferView() { return vertexBufferView_; }
-	D3D12_INDEX_BUFFER_VIEW& GetIndexBufferView() { return indexBufferView_; }
+	const D3D12_VERTEX_BUFFER_VIEW& GetVertexBufferView() { return vertexBufferView_; }
+	const D3D12_INDEX_BUFFER_VIEW& GetIndexBufferView() { return indexBufferView_; }
 
 	void Reset();
 };

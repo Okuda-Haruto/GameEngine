@@ -35,5 +35,5 @@ public:
 	void LoadModel(const std::string& directoryPath, const std::string& filename);
 
 	//モデルの入手
-	shared_ptr<Model> GetModel(const std::string& directoryPath, const std::string& filename);
+	const weak_ptr<Model> GetModel(const std::string& directoryPath, const std::string& filename);
 };

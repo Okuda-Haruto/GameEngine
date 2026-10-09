@@ -53,5 +53,5 @@ public:
 
 	bool IsCanAllocate();
 
-	Microsoft::WRL::ComPtr <ID3D12DescriptorHeap> GetDescriptorHeap() { return descriptorHeap_; }
+	const Microsoft::WRL::ComPtr <ID3D12DescriptorHeap> GetDescriptorHeap() { return descriptorHeap_; }
 };

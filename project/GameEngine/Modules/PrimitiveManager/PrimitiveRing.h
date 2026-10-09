@@ -38,27 +38,27 @@ private:
 	//テクスチャ番号
 	uint32_t textureIndex_;
 
-	std::shared_ptr<Camera> camera_;
+	std::weak_ptr<Camera> camera_;
 public:
 	~PrimitiveRing();
 
 	//初期値
-	void Initialize(uint32_t textureIndex, std::shared_ptr<Camera> camera, DirectXCommon* dxCommon);
+	void Initialize(uint32_t textureIndex, std::weak_ptr<Camera> camera, DirectXCommon* dxCommon);
 
 	//描画処理
 	void Draw(SRT transform, Material material);
 	void DrawBillBoard(SRT transform, Material material);
 
 	//頂点バッファビュー
-	D3D12_VERTEX_BUFFER_VIEW& GetVBV() { return vertexBufferView_; }
+	const D3D12_VERTEX_BUFFER_VIEW& GetVBV() { return vertexBufferView_; }
 	//インデックスバッファビュー
-	D3D12_INDEX_BUFFER_VIEW& GetIBV() { return indexBufferView_; }
+	const D3D12_INDEX_BUFFER_VIEW& GetIBV() { return indexBufferView_; }
 	//テクスチャ番号
 	uint32_t GetTextureIndex() { return textureIndex_; }
 
 	//インデックス数
 	uint32_t GetIndexCount() { return indexCount_; }
 
-	std::shared_ptr<Camera> GetCamera() { return camera_; }
+	const std::weak_ptr<Camera> GetCamera() { return camera_; }
 
 };

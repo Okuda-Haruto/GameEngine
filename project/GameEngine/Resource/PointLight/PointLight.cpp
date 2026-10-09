@@ -52,6 +52,6 @@ void PointLight::SetPointLightElement(PointLightElement PointLightElement) {
 }
 
 [[nodiscard]]
-Microsoft::WRL::ComPtr<ID3D12Resource>& PointLight::PointLightElementResource() {
+const Microsoft::WRL::ComPtr<ID3D12Resource>& PointLight::PointLightElementResource() {
 	return PointLightElementResource_;
 }

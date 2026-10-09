@@ -2,7 +2,7 @@
 #include "GameEngine.h"
 #include <numbers>
 
-void BackGround::Initialize(std::string filePath, std::shared_ptr<GameCamera> gameCamera, std::shared_ptr<DirectionalLight> directionalLight, std::shared_ptr<PointLight> pointLight) {
+void BackGround::Initialize(std::string filePath, std::weak_ptr<GameCamera> gameCamera, std::weak_ptr<DirectionalLight> directionalLight, std::weak_ptr<PointLight> pointLight) {
 	directionalLight_ = directionalLight;
 	pointLight_ = pointLight;
 	gameCamera_ = gameCamera;
@@ -10,17 +10,17 @@ void BackGround::Initialize(std::string filePath, std::shared_ptr<GameCamera> ga
 	LoadBackGroundObject(filePath);
 
 	skydome_ = std::make_unique<Skydome>();
-	skydome_->Initialize(gameCamera_->GetCamera());
+	skydome_->Initialize(gameCamera_.lock()->GetCamera());
 	ground_ = std::make_unique<Ground>();
 	ground_->Initialize();
-	ground_->SetCamera(gameCamera_->GetCamera());
+	ground_->SetCamera(gameCamera_.lock()->GetCamera());
 	ground_->SetDirectionalLight(directionalLight_);
 	ground_->SetPointLight(pointLight_);
 	tumbleweed_ = std::make_unique<Tumbleweed>();
-	tumbleweed_->Initialize(gameCamera_->GetCamera(), directionalLight_, pointLight_);
+	tumbleweed_->Initialize(gameCamera_.lock()->GetCamera(), directionalLight_, pointLight_);
 
 	fence_ = std::make_unique<Fence>();
-	fence_->Initialize(gameCamera_->GetCamera(), directionalLight_, pointLight_);
+	fence_->Initialize(gameCamera_.lock()->GetCamera(), directionalLight_, pointLight_);
 }
 
 void BackGround::Update() {

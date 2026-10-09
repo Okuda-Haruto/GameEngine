@@ -11,12 +11,12 @@ private:
 	std::list<unique_ptr<Object>> objects_;
 	const int size = 160;
 	SRT transform_{};
-	shared_ptr<DirectionalLight> directionalLight_;
-	shared_ptr<PointLight> pointLight_;
+	weak_ptr<DirectionalLight> directionalLight_;
+	weak_ptr<PointLight> pointLight_;
 public:
 	~Fence();
 	//初期化
-	void Initialize(shared_ptr<Camera> camera, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight);
+	void Initialize(weak_ptr<Camera> camera, weak_ptr<DirectionalLight> directionalLight, weak_ptr<PointLight> pointLight);
 	//描画
 	void Draw();
 };

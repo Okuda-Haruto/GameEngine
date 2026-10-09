@@ -605,7 +605,7 @@ public:
 	void Initialize(Boss* boss) { boss_ = boss; isEnd_ = false; stepIndex_ = 0; }
 	void Update();
 
-	Boss* GetBoss() { return boss_; }
+	Boss* const GetBoss() { return boss_; }
 
 	bool IsEnd() { return isEnd_; }
 
@@ -692,7 +692,7 @@ public:
 	void SetCondition(PatternCondition condition) { condition_ = condition; }
 
 	//ボス行動
-	BossAction* GetAction() { return action_.get(); }
+	BossAction* GetAction() const { return action_.get(); }
 	void SetAction(std::unique_ptr<BossAction> action) { action_ = move(action); }
 };
 
@@ -765,10 +765,10 @@ public:
 	void IsCollisionGround(OBB obb) override;
 
 	SRT GetTransform() { return  transform_; }
-	SRT* GetPlayerTransform() { return player_->GetTransform(); }
+	const SRT* GetPlayerTransform() { return player_->GetTransform(); }
 	Vector3 GetVelocity() { return velocity_; }
-	Stage* GetStage() { return stage_; }
-	Player* GetPlayer() { return player_; }
+	const Stage* GetStage() { return stage_; }
+	const Player* GetPlayer() { return player_; }
 	std::shared_ptr<Sphere> GetTrackingSphere() { return trackingSphere_; }
 	std::shared_ptr<GameCamera> GetGameCamera() { return gameCamera_; }
 
@@ -777,9 +777,9 @@ public:
 	State GetBossState() { return state_ ; }
 	void SetBossState(State state) { state_ = state; }
 
-	void SetCamera(shared_ptr<Camera> camera) { object_->SetCamera(camera); }
+	void SetCamera(weak_ptr<Camera> camera) { object_->SetCamera(camera); }
 
-	void SetModel(std::shared_ptr<Model> model) { object_->Initialize(model); }
+	void SetModel(std::weak_ptr<Model> model) { object_->Initialize(model); }
 
 	void SetPatterns(std::string name, std::unique_ptr<BossPattern> pattern) { patterns_[name] = move(pattern); }
 

@@ -38,6 +38,6 @@ public:
 
 	//光源用のリソース
 	[[nodiscard]]
-	Microsoft::WRL::ComPtr<ID3D12Resource>& PointLightElementResource();
+	const Microsoft::WRL::ComPtr<ID3D12Resource>& PointLightElementResource();
 
 };

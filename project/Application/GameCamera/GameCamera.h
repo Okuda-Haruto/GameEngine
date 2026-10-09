@@ -111,7 +111,7 @@ private:
 	std::optional<SRT> betweenTransform_;
 
 	//始点Transform
-	SRT* observerTransform_ = nullptr;
+	const SRT* observerTransform_ = nullptr;
 	//終点Sphere
 	std::vector<std::weak_ptr<Sphere>> targetSpheres_;
 
@@ -127,18 +127,18 @@ public:
 	void ChangeCamera(std::unique_ptr<BaseCamera> newCamera, float lerpTime);
 
 	//Transformのゲッター
-	SRT* GetTransform() { return transform_.get(); }
+	const SRT* GetTransform() { return transform_.get(); }
 
-	SRT* GetObserverTransform(){ return observerTransform_; }
-	std::vector<std::weak_ptr<Sphere>> GetTargetSpheres() { return targetSpheres_; }
+	const SRT* GetObserverTransform(){ return observerTransform_; }
+	const std::vector<std::weak_ptr<Sphere>> GetTargetSpheres() { return targetSpheres_; }
 
-	BaseCamera* GetNowCamera() { return nowCamera_.get(); }
-	shared_ptr<Camera> GetCamera() { return camera_; }
+	BaseCamera* const GetNowCamera() { return nowCamera_.get(); }
+	const weak_ptr<Camera> GetCamera() { return camera_; }
 	float GetSepiaTone() { return sepiaTone_; }
 	void SetSepiaTone(float sepiaTone) { sepiaTone_ = sepiaTone; }
 
 	//追従対象を指定
-	void SetObserverTransform(SRT* observerTransform) { observerTransform_ = observerTransform; }
+	void SetObserverTransform(const SRT* observerTransform) { observerTransform_ = observerTransform; }
 	void SetTargetSphere(std::weak_ptr<Sphere> targetSphere) { targetSpheres_.push_back(targetSphere); }
 
 	void SetShakeTime(float shakeTime) { shakeTime_ = shakeTime; }

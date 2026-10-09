@@ -43,9 +43,9 @@ public:
 	void Initialize(const std::string& directoryPath, const std::string& filename, DirectXCommon* dxCommon);
 
 	//頂点バッファビュー
-	D3D12_VERTEX_BUFFER_VIEW& GetVBV() { return vertexBufferView_; }
+	const D3D12_VERTEX_BUFFER_VIEW& GetVBV() { return vertexBufferView_; }
 	//インデックスバッファビュー
-	D3D12_INDEX_BUFFER_VIEW& GetIBV() { return indexBufferView_; }
+	const D3D12_INDEX_BUFFER_VIEW& GetIBV() { return indexBufferView_; }
 	//頂点の数
 	UINT GetVertexIndex() { return vertexIndex_; }
 	//オフセット
@@ -65,7 +65,7 @@ public:
 	AnimationData GetAnimationData(std::string animationName) { return modelData_.animations[animationName]; }
 	std::unordered_map<string, AnimationData> GetAnimationDatas() { return modelData_.animations; }
 
-	DirectXCommon* GetDirectXCommon() { return dxCommon_; }
+	const DirectXCommon* GetDirectXCommon() { return dxCommon_; }
 private:
 
 	//階層構造の行列変換

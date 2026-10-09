@@ -215,8 +215,8 @@ void StageEditor::Update() {
 			Ray cursorRay = GetCursorRay(stage_->GetGameCamera(), input_);
 			if (ImGuiManager::GetIsGameHovered()) {
 				nextTransform_.reset();
-				std::shared_ptr<SRT> nearTransform = GetObjectTransformFromRay(cursorRay);
-				if (nearTransform) {
+				std::weak_ptr<SRT> nearTransform = GetObjectTransformFromRay(cursorRay);
+				if (nearTransform.lock()) {
 					nextTransform_ = nearTransform;
 				}
 			}
@@ -334,7 +334,7 @@ void StageEditor::Update() {
 
 		//選択している場合
 		if (nextTransform_.lock()) {
-			GameEngine::GetImGuiManager()->SetGuizmo(stage_->GetGameCamera()->GetCamera(), nextTransform_.lock().get());
+			GameEngine::GetImGuiManager()->SetGuizmo(stage_->GetGameCamera().lock()->GetCamera().lock(), nextTransform_.lock().get());
 		}
 	}
 #endif
@@ -482,7 +482,7 @@ void StageEditor::AddBreakObject(int32_t index, SRT transform, std::string direc
 
 void StageEditor::ChangeBoss(std::string name) {}
 
-Ray StageEditor::GetCursorRay(std::shared_ptr<GameCamera> gameCamera, std::shared_ptr<Input> input) {
+Ray StageEditor::GetCursorRay(std::weak_ptr<GameCamera> gameCamera, std::shared_ptr<Input> input) {
 	Mouse mouse = input->GetMouse();
 	Ray ray;
 
@@ -498,8 +498,8 @@ Ray StageEditor::GetCursorRay(std::shared_ptr<GameCamera> gameCamera, std::share
 	);
 
 	Matrix4x4 matViewProjectionViewport =
-		gameCamera->GetCamera()->GetViewMatrix() *
-		gameCamera->GetCamera()->GetProjectionMatrix() *
+		gameCamera.lock()->GetCamera().lock()->GetViewMatrix() *
+		gameCamera.lock()->GetCamera().lock()->GetProjectionMatrix() *
 		matViewport;
 
 	Matrix4x4 matInverseVPV = Inverse(matViewProjectionViewport);
@@ -513,7 +513,7 @@ Ray StageEditor::GetCursorRay(std::shared_ptr<GameCamera> gameCamera, std::share
 	Vector3 mouseDirection = posFar - posNear;
 	mouseDirection = Normalize(mouseDirection);
 
-	Matrix4x4 inverseViewMatrix = Inverse(gameCamera->GetCamera()->GetViewMatrix());
+	Matrix4x4 inverseViewMatrix = Inverse(gameCamera.lock()->GetCamera().lock()->GetViewMatrix());
 	Vector3 translate = Vector3{ inverseViewMatrix.m[3][0], inverseViewMatrix.m[3][1], inverseViewMatrix.m[3][2] };
 
 	Vector3 rayDir = posNear + mouseDirection - translate;
@@ -527,7 +527,7 @@ Ray StageEditor::GetCursorRay(std::shared_ptr<GameCamera> gameCamera, std::share
 	return ray;
 }
 
-std::shared_ptr<SRT> StageEditor::GetObjectTransformFromRay(Ray ray) {
+const std::weak_ptr<SRT> StageEditor::GetObjectTransformFromRay(Ray ray) {
 	std::shared_ptr<SRT> result = nullptr;
 
 	//Transformだけではどれを選択してるかわからないのでindexを得る

@@ -401,7 +401,7 @@ void GameEngine::DrawObject_3D_(Object* object, shared_ptr<DirectionalLight> dir
 	commandList_->IASetIndexBuffer(&object->GetIBV());	//IBVを設定
 
 	//カメラのワールド座標をCBufferに送る
-	commandList_->SetGraphicsRootConstantBufferView(4, object->GetCamera()->CameraResource()->GetGPUVirtualAddress());
+	commandList_->SetGraphicsRootConstantBufferView(4, object->GetCamera().lock()->CameraResource()->GetGPUVirtualAddress());
 
 	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
 	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -430,7 +430,7 @@ void GameEngine::DrawObject_3D_(Object* object, shared_ptr<DirectionalLight> dir
 
 		objectWvpData_[objectIndex_]->World = partsMatrix;
 		objectWvpData_[objectIndex_]->WorldInverseTranspose = Transpose(Inverse(partsMatrix));
-		Matrix4x4 worldViewProjectionMatrix = partsMatrix * object->GetCamera()->GetViewMatrix() * object->GetCamera()->GetProjectionMatrix();
+		Matrix4x4 worldViewProjectionMatrix = partsMatrix * object->GetCamera().lock()->GetViewMatrix() * object->GetCamera().lock()->GetProjectionMatrix();
 		objectWvpData_[objectIndex_]->WVP = worldViewProjectionMatrix;
 
 		objectWvpResource_[objectIndex_]->Unmap(0, nullptr);
@@ -509,7 +509,7 @@ void GameEngine::DrawParts_3D_(Object* object, uint32_t partsIndex, shared_ptr<D
 	commandList_->IASetIndexBuffer(&object->GetIBV());	//IBVを設定
 
 	//カメラのワールド座標をCBufferに送る
-	commandList_->SetGraphicsRootConstantBufferView(4, object->GetCamera()->CameraResource()->GetGPUVirtualAddress());
+	commandList_->SetGraphicsRootConstantBufferView(4, object->GetCamera().lock()->CameraResource()->GetGPUVirtualAddress());
 
 	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
 	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -532,7 +532,7 @@ void GameEngine::DrawParts_3D_(Object* object, uint32_t partsIndex, shared_ptr<D
 
 	objectWvpData_[objectIndex_]->World = partsMatrix;
 	objectWvpData_[objectIndex_]->WorldInverseTranspose = Transpose(Inverse(partsMatrix));
-	Matrix4x4 worldViewProjectionMatrix = partsMatrix * object->GetCamera()->GetViewMatrix() * object->GetCamera()->GetProjectionMatrix();
+	Matrix4x4 worldViewProjectionMatrix = partsMatrix * object->GetCamera().lock()->GetViewMatrix() * object->GetCamera().lock()->GetProjectionMatrix();
 	objectWvpData_[objectIndex_]->WVP = worldViewProjectionMatrix;
 
 	objectWvpResource_[objectIndex_]->Unmap(0, nullptr);
@@ -606,7 +606,7 @@ void GameEngine::DrawObject_2D_(Object* object, shared_ptr<DirectionalLight> dir
 	commandList_->IASetIndexBuffer(&object->GetIBV());	//IBVを設定
 
 	//カメラのワールド座標をCBufferに送る
-	commandList_->SetGraphicsRootConstantBufferView(4, object->GetCamera()->CameraResource()->GetGPUVirtualAddress());
+	commandList_->SetGraphicsRootConstantBufferView(4, object->GetCamera().lock()->CameraResource()->GetGPUVirtualAddress());
 
 	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
 	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -704,7 +704,7 @@ void GameEngine::DrawParts_2D_(Object* object, uint32_t partsIndex, shared_ptr<D
 	commandList_->IASetIndexBuffer(&object->GetIBV());	//IBVを設定
 
 	//カメラのワールド座標をCBufferに送る
-	commandList_->SetGraphicsRootConstantBufferView(4, object->GetCamera()->CameraResource()->GetGPUVirtualAddress());
+	commandList_->SetGraphicsRootConstantBufferView(4, object->GetCamera().lock()->CameraResource()->GetGPUVirtualAddress());
 
 	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
 	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -782,7 +782,7 @@ void GameEngine::DrawInstancingObject_3D_(std::list<Object*> objects, shared_ptr
 	if (instancingObjectIndex_ > kMaxInstanceIndex)return;
 
 	std::list<Object*>::iterator objectIterator = objects.begin();
-	Camera* camera = (*objectIterator)->GetCamera().get();
+	Camera* camera = (*objectIterator)->GetCamera().lock().get();
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList_->SetGraphicsRootSignature(object_Instancing_RootSignature_.Get());
@@ -792,7 +792,7 @@ void GameEngine::DrawInstancingObject_3D_(std::list<Object*> objects, shared_ptr
 	commandList_->IASetIndexBuffer(&(*objectIterator)->GetIBV());	//IBVを設定
 
 	//カメラのワールド座標をCBufferに送る
-	commandList_->SetGraphicsRootConstantBufferView(4, (*objectIterator)->GetCamera()->CameraResource()->GetGPUVirtualAddress());
+	commandList_->SetGraphicsRootConstantBufferView(4, (*objectIterator)->GetCamera().lock()->CameraResource()->GetGPUVirtualAddress());
 
 	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
 	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -931,7 +931,7 @@ void GameEngine::DrawParticle_(ParticleGroup particleGroup) {
 	commandList_->IASetVertexBuffers(0, 1, &ParticleManager::GetInstance()->GetVertexBufferView());	//VBVを設定
 	commandList_->IASetIndexBuffer(&ParticleManager::GetInstance()->GetIndexBufferView());	//IBVを設定
 
-	std::shared_ptr<Camera> camera = particleGroup.camera;
+	std::shared_ptr<Camera> camera = particleGroup.camera.lock();
 
 	//WVPデータを更新
 	InstancingTransformationMatrix* mappedBase = nullptr;
@@ -1373,7 +1373,7 @@ void GameEngine::DrawLine_(std::list<PrimitiveManager::PrimitiveLine> lines, Pri
 	commandList_->IASetVertexBuffers(0, 1, &PrimitiveManager::GetInstance()->GetVertexBufferView());	//VBVを設定
 	commandList_->IASetIndexBuffer(&PrimitiveManager::GetInstance()->GetIndexBufferView());	//IBVを設定
 
-	Camera* camera = Object::GetDefaultCamera().get();
+	Camera* camera = Object::GetDefaultCamera().lock().get();
 
 	//カメラのワールド座標をCBufferに送る
 	commandList_->SetGraphicsRootConstantBufferView(4, camera->CameraResource()->GetGPUVirtualAddress());
@@ -1459,7 +1459,7 @@ void GameEngine::DrawPoint_(std::list<PrimitiveManager::PrimitivePoint> points, 
 	commandList_->IASetVertexBuffers(0, 1, &PrimitiveManager::GetInstance()->GetVertexBufferView());	//VBVを設定
 	commandList_->IASetIndexBuffer(&PrimitiveManager::GetInstance()->GetIndexBufferView());	//IBVを設定
 
-	Camera* camera = Object::GetDefaultCamera().get();
+	Camera* camera = Object::GetDefaultCamera().lock().get();
 
 	//カメラのワールド座標をCBufferに送る
 	commandList_->SetGraphicsRootConstantBufferView(4, camera->CameraResource()->GetGPUVirtualAddress());
@@ -1538,7 +1538,7 @@ void GameEngine::DrawOBB_(std::list<PrimitiveManager::PrimitiveOBB> obbs, Primit
 	commandList_->IASetVertexBuffers(0, 1, &PrimitiveManager::GetInstance()->GetVertexBufferView());	//VBVを設定
 	commandList_->IASetIndexBuffer(&PrimitiveManager::GetInstance()->GetIndexBufferView());	//IBVを設定
 
-	Camera* camera = Object::GetDefaultCamera().get();
+	Camera* camera = Object::GetDefaultCamera().lock().get();
 
 	//カメラのワールド座標をCBufferに送る
 	commandList_->SetGraphicsRootConstantBufferView(4, camera->CameraResource()->GetGPUVirtualAddress());
@@ -1621,7 +1621,7 @@ void GameEngine::DrawSphere_(std::list<PrimitiveManager::PrimitiveSphere> sphere
 	commandList_->IASetVertexBuffers(0, 1, &PrimitiveManager::GetInstance()->GetVertexBufferView());	//VBVを設定
 	commandList_->IASetIndexBuffer(&PrimitiveManager::GetInstance()->GetIndexBufferView());	//IBVを設定
 
-	Camera* camera = Object::GetDefaultCamera().get();
+	Camera* camera = Object::GetDefaultCamera().lock().get();
 
 	//カメラのワールド座標をCBufferに送る
 	commandList_->SetGraphicsRootConstantBufferView(4, camera->CameraResource()->GetGPUVirtualAddress());
@@ -1713,7 +1713,7 @@ void GameEngine::DrawPrimitiveBox_(PrimitiveBox* primitiveBox) {
 
 	objectWvpData_[objectIndex_]->World = worldMatrix;
 	objectWvpData_[objectIndex_]->WorldInverseTranspose = Transpose(Inverse(worldMatrix));
-	Matrix4x4 worldViewProjectionMatrix = worldMatrix * primitiveBox->GetCamera()->GetViewMatrix() * primitiveBox->GetCamera()->GetProjectionMatrix();
+	Matrix4x4 worldViewProjectionMatrix = worldMatrix * primitiveBox->GetCamera().lock()->GetViewMatrix() * primitiveBox->GetCamera().lock()->GetProjectionMatrix();
 	objectWvpData_[objectIndex_]->WVP = worldViewProjectionMatrix;
 
 	objectWvpResource_[objectIndex_]->Unmap(0, nullptr);
@@ -1761,7 +1761,7 @@ void GameEngine::DrawPrimitiveRing_(PrimitiveRing* primitiveRing, SRT transform,
 	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	//カメラのワールド座標をCBufferに送る
-	commandList_->SetGraphicsRootConstantBufferView(4, primitiveRing->GetCamera()->CameraResource()->GetGPUVirtualAddress());
+	commandList_->SetGraphicsRootConstantBufferView(4, primitiveRing->GetCamera().lock()->CameraResource()->GetGPUVirtualAddress());
 
 	//WVPデータを更新
 	objectWvpResource_[objectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&objectWvpData_[objectIndex_]));
@@ -1771,7 +1771,7 @@ void GameEngine::DrawPrimitiveRing_(PrimitiveRing* primitiveRing, SRT transform,
 
 	objectWvpData_[objectIndex_]->World = worldMatrix;
 	objectWvpData_[objectIndex_]->WorldInverseTranspose = Transpose(Inverse(worldMatrix));
-	Matrix4x4 worldViewProjectionMatrix = worldMatrix * primitiveRing->GetCamera()->GetViewMatrix() * primitiveRing->GetCamera()->GetProjectionMatrix();
+	Matrix4x4 worldViewProjectionMatrix = worldMatrix * primitiveRing->GetCamera().lock()->GetViewMatrix() * primitiveRing->GetCamera().lock()->GetProjectionMatrix();
 	objectWvpData_[objectIndex_]->WVP = worldViewProjectionMatrix;
 
 	objectWvpResource_[objectIndex_]->Unmap(0, nullptr);
@@ -1818,13 +1818,13 @@ void GameEngine::DrawPrimitiveRing_Billboard_(PrimitiveRing* primitiveRing, SRT 
 	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	//カメラのワールド座標をCBufferに送る
-	commandList_->SetGraphicsRootConstantBufferView(4, primitiveRing->GetCamera()->CameraResource()->GetGPUVirtualAddress());
+	commandList_->SetGraphicsRootConstantBufferView(4, primitiveRing->GetCamera().lock()->CameraResource()->GetGPUVirtualAddress());
 
 	//WVPデータを更新
 	objectWvpResource_[objectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&objectWvpData_[objectIndex_]));
 
 	//オブジェクトのワールド座標
-	Matrix4x4 cameraMatrix = Inverse(primitiveRing->GetCamera()->GetViewMatrix());
+	Matrix4x4 cameraMatrix = Inverse(primitiveRing->GetCamera().lock()->GetViewMatrix());
 
 	Matrix4x4 worldMatrix = cameraMatrix;
 	worldMatrix.m[3][0] = transform.translate.x;
@@ -1850,7 +1850,7 @@ void GameEngine::DrawPrimitiveRing_Billboard_(PrimitiveRing* primitiveRing, SRT 
 
 	objectWvpData_[objectIndex_]->World = worldMatrix;
 	objectWvpData_[objectIndex_]->WorldInverseTranspose = Transpose(Inverse(worldMatrix));
-	Matrix4x4 worldViewProjectionMatrix = worldMatrix * primitiveRing->GetCamera()->GetViewMatrix() * primitiveRing->GetCamera()->GetProjectionMatrix();
+	Matrix4x4 worldViewProjectionMatrix = worldMatrix * primitiveRing->GetCamera().lock()->GetViewMatrix() * primitiveRing->GetCamera().lock()->GetProjectionMatrix();
 	objectWvpData_[objectIndex_]->WVP = worldViewProjectionMatrix;
 
 	objectWvpResource_[objectIndex_]->Unmap(0, nullptr);
@@ -1897,7 +1897,7 @@ void GameEngine::DrawPrimitiveCylinder_(PrimitiveCylinder* primitiveCylinder, SR
 	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	//カメラのワールド座標をCBufferに送る
-	commandList_->SetGraphicsRootConstantBufferView(4, primitiveCylinder->GetCamera()->CameraResource()->GetGPUVirtualAddress());
+	commandList_->SetGraphicsRootConstantBufferView(4, primitiveCylinder->GetCamera().lock()->CameraResource()->GetGPUVirtualAddress());
 
 	//WVPデータを更新
 	objectWvpResource_[objectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&objectWvpData_[objectIndex_]));
@@ -1907,7 +1907,7 @@ void GameEngine::DrawPrimitiveCylinder_(PrimitiveCylinder* primitiveCylinder, SR
 
 	objectWvpData_[objectIndex_]->World = worldMatrix;
 	objectWvpData_[objectIndex_]->WorldInverseTranspose = Transpose(Inverse(worldMatrix));
-	Matrix4x4 worldViewProjectionMatrix = worldMatrix * primitiveCylinder->GetCamera()->GetViewMatrix() * primitiveCylinder->GetCamera()->GetProjectionMatrix();
+	Matrix4x4 worldViewProjectionMatrix = worldMatrix * primitiveCylinder->GetCamera().lock()->GetViewMatrix() * primitiveCylinder->GetCamera().lock()->GetProjectionMatrix();
 	objectWvpData_[objectIndex_]->WVP = worldViewProjectionMatrix;
 
 	objectWvpResource_[objectIndex_]->Unmap(0, nullptr);
@@ -1954,13 +1954,13 @@ void GameEngine::DrawPrimitiveCylinder_Billboard_(PrimitiveCylinder* primitiveCy
 	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	//カメラのワールド座標をCBufferに送る
-	commandList_->SetGraphicsRootConstantBufferView(4, primitiveCylinder->GetCamera()->CameraResource()->GetGPUVirtualAddress());
+	commandList_->SetGraphicsRootConstantBufferView(4, primitiveCylinder->GetCamera().lock()->CameraResource()->GetGPUVirtualAddress());
 
 	//WVPデータを更新
 	objectWvpResource_[objectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&objectWvpData_[objectIndex_]));
 
 	//オブジェクトのワールド座標
-	Matrix4x4 cameraMatrix = Inverse(primitiveCylinder->GetCamera()->GetViewMatrix());
+	Matrix4x4 cameraMatrix = Inverse(primitiveCylinder->GetCamera().lock()->GetViewMatrix());
 
 	Matrix4x4 worldMatrix = cameraMatrix;
 	worldMatrix.m[3][0] = transform.translate.x;
@@ -1986,7 +1986,7 @@ void GameEngine::DrawPrimitiveCylinder_Billboard_(PrimitiveCylinder* primitiveCy
 
 	objectWvpData_[objectIndex_]->World = worldMatrix;
 	objectWvpData_[objectIndex_]->WorldInverseTranspose = Transpose(Inverse(worldMatrix));
-	Matrix4x4 worldViewProjectionMatrix = worldMatrix * primitiveCylinder->GetCamera()->GetViewMatrix() * primitiveCylinder->GetCamera()->GetProjectionMatrix();
+	Matrix4x4 worldViewProjectionMatrix = worldMatrix * primitiveCylinder->GetCamera().lock()->GetViewMatrix() * primitiveCylinder->GetCamera().lock()->GetProjectionMatrix();
 	objectWvpData_[objectIndex_]->WVP = worldViewProjectionMatrix;
 
 	objectWvpResource_[objectIndex_]->Unmap(0, nullptr);

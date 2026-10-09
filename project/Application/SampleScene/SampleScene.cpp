@@ -80,7 +80,9 @@ void SampleScene::Initialize() {
 	debugCamera_->Initialize(input_);
 
 	//カメラ
-	defaultCamera_ = Object::GetDefaultCamera();
+	defaultCamera_ = make_shared<Camera>();
+	defaultCamera_->Initialize(GameEngine::GetDirectXCommon());
+	Object::SetDefaultCamera(defaultCamera_);
 	defaultCamera_->SetDebugCamera(debugCamera_);
 
 	cameraTransform_ = {

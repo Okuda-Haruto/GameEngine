@@ -145,7 +145,7 @@ uint32_t TextureManager::GetRtvIndex(const std::string& filePath) {
 	return 0;
 }
 
-ID3D12Resource* TextureManager::GetResource(const std::string& renderName) {
+ID3D12Resource* const TextureManager::GetResource(const std::string& renderName) {
 	//読み込み済みテクスチャを検索
 	if (textureDatas.contains(renderName)) {
 		//読み込み済みなら要素番号を返す

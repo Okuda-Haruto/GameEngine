@@ -40,6 +40,6 @@ void DirectionalLight::SetDirectionalLightElement(DirectionalLightElement direct
 }
 
 [[nodiscard]]
-Microsoft::WRL::ComPtr<ID3D12Resource>& DirectionalLight::DirectionalLightElementResource() {
+const Microsoft::WRL::ComPtr<ID3D12Resource>& DirectionalLight::DirectionalLightElementResource() {
 	return DirectionalLightElementResource_;
 }

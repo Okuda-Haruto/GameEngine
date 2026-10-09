@@ -61,5 +61,5 @@ public:
 
 	//カメラワールド座標用のリソース
 	[[nodiscard]]
-	Microsoft::WRL::ComPtr<ID3D12Resource>& CameraResource() { return cameraResource_; }
+	const Microsoft::WRL::ComPtr<ID3D12Resource>& CameraResource() { return cameraResource_; }
 };

@@ -375,12 +375,12 @@ public:
 	static void DrawPrimitiveCylinder_Billboard(PrimitiveCylinder* primitiveCylinder, SRT transform, Material material) { return GetInstance()->DrawPrimitiveCylinder_Billboard_(primitiveCylinder, transform, material); };
 
 	[[nodiscard]]
-	static WindowsAPI* GetWindowsAPI() { return GetInstance()->GetWindowsAPI_(); }
+	static WindowsAPI* const GetWindowsAPI() { return GetInstance()->GetWindowsAPI_(); }
 
 	//ImGuiマネージャ
-	static ImGuiManager* GetImGuiManager() { return GetInstance()->imguiManager_.get(); }
+	static ImGuiManager* const GetImGuiManager() { return GetInstance()->imguiManager_.get(); }
 
-	static DirectXCommon* GetDirectXCommon() { return GetInstance()->dxCommon_.get(); }
+	static DirectXCommon* const GetDirectXCommon() { return GetInstance()->dxCommon_.get(); }
 
 	//1fあたりの経過時間
 	static float GetDeltaTime() { return GetInstance()->dxCommon_->GetDeltaTime(); }
