@@ -8,16 +8,16 @@ Object::~Object() {
 
 }
 
-void Object::Initialize(shared_ptr<Model> model) {
+void Object::Initialize(weak_ptr<Model> model) {
 
 	model_ = model;
 
 	//パーツの数をオフセットの数に合わせる
-	parts_.resize(model_->GetOffsets().size());
+	parts_.resize(model_.lock()->GetOffsets().size());
 
 	for (int i = 0; i < parts_.size(); i++) {
 		//初期値としてモデルのテスクチャを得る
-		parts_[i].textureIndex = model_->GetTextureIndex(i);
+		parts_[i].textureIndex = model_.lock()->GetTextureIndex(i);
 
 		parts_[i].material = make_shared<Material>();
 		parts_[i].material->color = { 1.0f,1.0f,1.0f,1.0f };
@@ -47,13 +47,13 @@ void Object::Initialize(shared_ptr<Model> model) {
 	isLoopAnimation_ = false;
 	animationTime_ = 0.0f;
 
-	bones_ = model_->GetBones();
+	bones_ = model_.lock()->GetBones();
 
-	skeleton_ = model_->GetSkeleton();
+	skeleton_ = model_.lock()->GetSkeleton();
 
 	//アニメーションがあるなら得る
-	if (model_->GetAnimationDatas().size() > 0) {
-		animationName_ = model_->GetAnimationDatas().begin()->first;
+	if (model_.lock()->GetAnimationDatas().size() > 0) {
+		animationName_ = model_.lock()->GetAnimationDatas().begin()->first;
 	}
 }
 
@@ -62,10 +62,10 @@ void Object::Update() {
 	if (isUseAnimation_) {
 		animationTime_ += 1.0f / 60.0f;
 		if (isLoopAnimation_) {
-			AnimationData animationData = model_->GetAnimationData(animationName_);
+			AnimationData animationData = model_.lock()->GetAnimationData(animationName_);
 			animationTime_ = std::fmod(animationTime_,animationData.duration);
 		}
-		model_->BoneAnimation(skeleton_, animationTime_, animationName_, interpolation_);
+		model_.lock()->BoneAnimation(skeleton_, animationTime_, animationName_, interpolation_);
 
 		for (int i = 0; i < bones_.size(); i++) {
 			if (i > 128)break;

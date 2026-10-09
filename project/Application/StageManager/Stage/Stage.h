@@ -112,21 +112,21 @@ public:
 	Vector3 MoveWithCollision(SphereCollider& collider, Vector3 velocity);
 
 	//後でクォータニオンにしたい
-	void AddBullet(SRT transform, float speed, CollisionID id, Bullet::BulletMove bulletMove, std::shared_ptr<Model> model, std::unique_ptr<BaseEvent> event = nullptr);
-	void AddBomb(SRT transform, float range, float maxLifeTime, CollisionID id, std::shared_ptr<Model> model);
+	void AddBullet(SRT transform, float speed, CollisionID id, Bullet::BulletMove bulletMove, std::weak_ptr<Model> model, std::unique_ptr<BaseEvent> event = nullptr);
+	void AddBomb(SRT transform, float range, float maxLifeTime, CollisionID id, std::weak_ptr<Model> model);
 	void AddShockWave(SRT transform, float range, float maxLifeTime, CollisionID id, std::unique_ptr<PrimitiveCylinder> cylinder);
 	void AddItem(SRT transform);
-	void AddBreakObject(SRT transform, float maxHP, std::shared_ptr<Model> model, std::unique_ptr<BaseEvent> event);
+	void AddBreakObject(SRT transform, float maxHP, std::weak_ptr<Model> model, std::unique_ptr<BaseEvent> event);
 
 	void Explosion(Vector3 position, float range, float maxLifeTime, CollisionID id, float damage);
 
 	void SetDebugCamera(std::shared_ptr<DebugCamera> debugCamera) { debugCamera_ = debugCamera; gameCamera_->SetDebugCamera(debugCamera_); }
 
-	std::shared_ptr<GameCamera> GetGameCamera() { return gameCamera_; }
-	std::shared_ptr<DirectionalLight> GetDirectionalLight() { return directionalLight_; }
-	std::shared_ptr<PointLight> GetPointLight() { return pointLight_; }
-	Player* GetPlayer() { return player_.get(); }
-	Boss* GetBoss() { return boss_.get(); }
+	const std::weak_ptr<GameCamera> GetGameCamera() { return gameCamera_; }
+	const std::weak_ptr<DirectionalLight> GetDirectionalLight() { return directionalLight_; }
+	const std::weak_ptr<PointLight> GetPointLight() { return pointLight_; }
+	Player* const GetPlayer() { return player_.get(); }
+	Boss* const GetBoss() { return boss_.get(); }
 	bool IsClear() { return isClear_; }
 	bool IsEnd() { return isEnd_; }
 

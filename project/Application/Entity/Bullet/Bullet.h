@@ -28,7 +28,7 @@ private:
 	bool isDead_ = false;
 public:
 	//初期化
-	void Initialize(SRT transform, float speed, CollisionID id, Bullet::BulletMove bulletMove, std::shared_ptr<Model> model, std::unique_ptr<BaseEvent> event);
+	void Initialize(SRT transform, float speed, CollisionID id, Bullet::BulletMove bulletMove, std::weak_ptr<Model> model, std::unique_ptr<BaseEvent> event);
 	//更新処理
 	void Update();
 	//描画処理

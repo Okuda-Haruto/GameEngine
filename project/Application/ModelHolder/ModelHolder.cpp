@@ -63,6 +63,6 @@ void ModelHolder::Initialize() {
 	
 }
 
-shared_ptr<Model> ModelHolder::GetModel(ModelIndex model) {
+const weak_ptr<Model> ModelHolder::GetModel(ModelIndex model) {
 	return ModelManager::GetInstance()->GetModel(filePathes_[int32_t(model)].directoryPath_, filePathes_[int32_t(model)].fileName_);
 }

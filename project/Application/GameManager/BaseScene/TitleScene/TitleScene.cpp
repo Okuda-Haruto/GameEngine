@@ -29,7 +29,7 @@ void TitleScene::Initialize(shared_ptr<Input> input) {
 	ground_->SetDirectionalLight(directionalLight_);
 	ground_->SetCamera(camera_);
 	fence_ = std::make_unique<Fence>();
-	fence_->Initialize(camera_, directionalLight_, nullptr);
+	fence_->Initialize(camera_, directionalLight_, {});
 	player_ = std::make_unique<Object>();
 	player_->Initialize(ModelHolder::GetInstance()->GetModel(ModelIndex::Player));
 	player_->SetDirectionalLight(directionalLight_);

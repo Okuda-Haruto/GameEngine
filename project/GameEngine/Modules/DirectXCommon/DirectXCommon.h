@@ -129,25 +129,25 @@ public:
 	void RenderPostDraw();
 
 	//RootSignature作成
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> Object_RootSignatureInitialvalue();
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> Object_Instancing_RootSignatureInitialvalue();
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> Sprite_RootSignatureInitialvalue();
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> Particle_RootSignatureInitialvalue();
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> Fog_RootSignatureInitialvalue();
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> Screen_RootSignatureInitialvalue();
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> Screen_ColorChange_RootSignatureInitialvalue();
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> Screen_Vignette_RootSignatureInitialvalue();
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> Screen_Outline_RootSignatureInitialvalue();
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> Screen_RadialBlur_RootSignatureInitialvalue();
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> Screen_Dissolve_RootSignatureInitialvalue();
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> Cubemap_RootSignatureInitialvalue();
+	const Microsoft::WRL::ComPtr <ID3D12RootSignature> Object_RootSignatureInitialvalue();
+	const Microsoft::WRL::ComPtr <ID3D12RootSignature> Object_Instancing_RootSignatureInitialvalue();
+	const Microsoft::WRL::ComPtr <ID3D12RootSignature> Sprite_RootSignatureInitialvalue();
+	const Microsoft::WRL::ComPtr <ID3D12RootSignature> Particle_RootSignatureInitialvalue();
+	const Microsoft::WRL::ComPtr <ID3D12RootSignature> Fog_RootSignatureInitialvalue();
+	const Microsoft::WRL::ComPtr <ID3D12RootSignature> Screen_RootSignatureInitialvalue();
+	const Microsoft::WRL::ComPtr <ID3D12RootSignature> Screen_ColorChange_RootSignatureInitialvalue();
+	const Microsoft::WRL::ComPtr <ID3D12RootSignature> Screen_Vignette_RootSignatureInitialvalue();
+	const Microsoft::WRL::ComPtr <ID3D12RootSignature> Screen_Outline_RootSignatureInitialvalue();
+	const Microsoft::WRL::ComPtr <ID3D12RootSignature> Screen_RadialBlur_RootSignatureInitialvalue();
+	const Microsoft::WRL::ComPtr <ID3D12RootSignature> Screen_Dissolve_RootSignatureInitialvalue();
+	const Microsoft::WRL::ComPtr <ID3D12RootSignature> Cubemap_RootSignatureInitialvalue();
 
 	//シェーダーのコンパイル
-	Microsoft::WRL::ComPtr<IDxcBlob> CompileShader(const std::wstring& filePath,const wchar_t* profile);
+	const Microsoft::WRL::ComPtr<IDxcBlob> CompileShader(const std::wstring& filePath,const wchar_t* profile);
 	//バッファリソースの生成
-	Microsoft::WRL::ComPtr<ID3D12Resource> CreateBufferResources(size_t sizeInBytes);
+	const Microsoft::WRL::ComPtr<ID3D12Resource> CreateBufferResources(size_t sizeInBytes);
 	//テクスチャリソースの生成
-	Microsoft::WRL::ComPtr<ID3D12Resource> CreateTextureResource(const DirectX::TexMetadata& metadata);
+	const Microsoft::WRL::ComPtr<ID3D12Resource> CreateTextureResource(const DirectX::TexMetadata& metadata);
 	//レンダーテクスチャリソースの生成
 	RTVResource CreateRenderTextureResource(uint32_t width,uint32_t height,DXGI_FORMAT format, const Vector4 clearColor);
 	//テクスチャデータの転送

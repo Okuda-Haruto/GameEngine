@@ -6,7 +6,7 @@ weak_ptr<Camera> Bullet::camera_;
 weak_ptr<DirectionalLight> Bullet::directionalLight_;
 weak_ptr<PointLight> Bullet::pointLight_;
 
-void Bullet::Initialize(SRT transform, float speed, CollisionID id, Bullet::BulletMove bulletMove, std::shared_ptr<Model> model, std::unique_ptr<BaseEvent> event) {
+void Bullet::Initialize(SRT transform, float speed, CollisionID id, Bullet::BulletMove bulletMove, std::weak_ptr<Model> model, std::unique_ptr<BaseEvent> event) {
 	transform_ = transform;
 	speed_ = speed;
 	bulletMove_ = bulletMove;

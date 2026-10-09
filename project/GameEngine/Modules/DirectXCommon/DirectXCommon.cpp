@@ -174,7 +174,7 @@ void DirectXCommon::RenderPostDraw() {
 }
 
 //RootSignature作成
-ComPtr <ID3D12RootSignature> DirectXCommon::Object_RootSignatureInitialvalue() {
+const ComPtr <ID3D12RootSignature> DirectXCommon::Object_RootSignatureInitialvalue() {
 	D3D12_DESCRIPTOR_RANGE descriptorRange[1] = {};
 	descriptorRange[0].BaseShaderRegister = 0;	//0から始める
 	descriptorRange[0].NumDescriptors = 1;	//数は1つ
@@ -246,7 +246,7 @@ ComPtr <ID3D12RootSignature> DirectXCommon::Object_RootSignatureInitialvalue() {
 		assert(false);
 	}
 	//バイナリをもとに生成
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> rootSignature = nullptr;
+	ComPtr <ID3D12RootSignature> rootSignature = nullptr;
 	hr = device_->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(&rootSignature));
 	assert(SUCCEEDED(hr));
 
@@ -254,7 +254,7 @@ ComPtr <ID3D12RootSignature> DirectXCommon::Object_RootSignatureInitialvalue() {
 }
 
 //RootSignature作成
-ComPtr <ID3D12RootSignature> DirectXCommon::Object_Instancing_RootSignatureInitialvalue() {
+const ComPtr <ID3D12RootSignature> DirectXCommon::Object_Instancing_RootSignatureInitialvalue() {
 	D3D12_DESCRIPTOR_RANGE descriptorRange[1] = {};
 	descriptorRange[0].BaseShaderRegister = 0;	//0から始める
 	descriptorRange[0].NumDescriptors = 1;	//数は1つ
@@ -318,7 +318,7 @@ ComPtr <ID3D12RootSignature> DirectXCommon::Object_Instancing_RootSignatureIniti
 		assert(false);
 	}
 	//バイナリをもとに生成
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> rootSignature = nullptr;
+	ComPtr <ID3D12RootSignature> rootSignature = nullptr;
 	hr = device_->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(&rootSignature));
 	assert(SUCCEEDED(hr));
 
@@ -326,7 +326,7 @@ ComPtr <ID3D12RootSignature> DirectXCommon::Object_Instancing_RootSignatureIniti
 }
 
 //RootSignature作成
-ComPtr <ID3D12RootSignature> DirectXCommon::Sprite_RootSignatureInitialvalue() {
+const ComPtr <ID3D12RootSignature> DirectXCommon::Sprite_RootSignatureInitialvalue() {
 	D3D12_DESCRIPTOR_RANGE descriptorRange[1] = {};
 	descriptorRange[0].BaseShaderRegister = 0;	//0から始める
 	descriptorRange[0].NumDescriptors = 1;	//数は1つ
@@ -374,7 +374,7 @@ ComPtr <ID3D12RootSignature> DirectXCommon::Sprite_RootSignatureInitialvalue() {
 		assert(false);
 	}
 	//バイナリをもとに生成
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> rootSignature = nullptr;
+	ComPtr <ID3D12RootSignature> rootSignature = nullptr;
 	hr = device_->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(&rootSignature));
 	assert(SUCCEEDED(hr));
 
@@ -382,7 +382,7 @@ ComPtr <ID3D12RootSignature> DirectXCommon::Sprite_RootSignatureInitialvalue() {
 }
 
 
-Microsoft::WRL::ComPtr <ID3D12RootSignature> DirectXCommon::Particle_RootSignatureInitialvalue() {
+const ComPtr <ID3D12RootSignature> DirectXCommon::Particle_RootSignatureInitialvalue() {
 	D3D12_DESCRIPTOR_RANGE descriptorRange[1] = {};
 	descriptorRange[0].BaseShaderRegister = 0;	//0から始める
 	descriptorRange[0].NumDescriptors = 1;	//数は1つ
@@ -444,14 +444,14 @@ Microsoft::WRL::ComPtr <ID3D12RootSignature> DirectXCommon::Particle_RootSignatu
 		assert(false);
 	}
 	//バイナリをもとに生成
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> rootSignature = nullptr;
+	ComPtr <ID3D12RootSignature> rootSignature = nullptr;
 	hr = device_->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(&rootSignature));
 	assert(SUCCEEDED(hr));
 
 	return rootSignature;
 }
 
-Microsoft::WRL::ComPtr <ID3D12RootSignature> DirectXCommon::Fog_RootSignatureInitialvalue() {
+const ComPtr <ID3D12RootSignature> DirectXCommon::Fog_RootSignatureInitialvalue() {
 	D3D12_DESCRIPTOR_RANGE descriptorRange[1] = {};
 	descriptorRange[0].BaseShaderRegister = 0;	//0から始める
 	descriptorRange[0].NumDescriptors = 1;	//数は1つ
@@ -509,7 +509,7 @@ Microsoft::WRL::ComPtr <ID3D12RootSignature> DirectXCommon::Fog_RootSignatureIni
 		assert(false);
 	}
 	//バイナリをもとに生成
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> rootSignature = nullptr;
+	ComPtr <ID3D12RootSignature> rootSignature = nullptr;
 	hr = device_->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(&rootSignature));
 	assert(SUCCEEDED(hr));
 
@@ -517,7 +517,7 @@ Microsoft::WRL::ComPtr <ID3D12RootSignature> DirectXCommon::Fog_RootSignatureIni
 }
 
 
-Microsoft::WRL::ComPtr <ID3D12RootSignature> DirectXCommon::Screen_RootSignatureInitialvalue() {
+const ComPtr <ID3D12RootSignature> DirectXCommon::Screen_RootSignatureInitialvalue() {
 	D3D12_DESCRIPTOR_RANGE descriptorRange[1] = {};
 	descriptorRange[0].BaseShaderRegister = 0;	//0から始める
 	descriptorRange[0].NumDescriptors = 1;	//数は1つ
@@ -562,14 +562,14 @@ Microsoft::WRL::ComPtr <ID3D12RootSignature> DirectXCommon::Screen_RootSignature
 		assert(false);
 	}
 	//バイナリをもとに生成
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> rootSignature = nullptr;
+	ComPtr <ID3D12RootSignature> rootSignature = nullptr;
 	hr = device_->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(&rootSignature));
 	assert(SUCCEEDED(hr));
 
 	return rootSignature;
 }
 
-Microsoft::WRL::ComPtr <ID3D12RootSignature> DirectXCommon::Screen_ColorChange_RootSignatureInitialvalue() {
+const ComPtr <ID3D12RootSignature> DirectXCommon::Screen_ColorChange_RootSignatureInitialvalue() {
 	D3D12_DESCRIPTOR_RANGE descriptorRange[1] = {};
 	descriptorRange[0].BaseShaderRegister = 0;	//0から始める
 	descriptorRange[0].NumDescriptors = 1;	//数は1つ
@@ -614,14 +614,14 @@ Microsoft::WRL::ComPtr <ID3D12RootSignature> DirectXCommon::Screen_ColorChange_R
 		assert(false);
 	}
 	//バイナリをもとに生成
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> rootSignature = nullptr;
+	ComPtr <ID3D12RootSignature> rootSignature = nullptr;
 	hr = device_->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(&rootSignature));
 	assert(SUCCEEDED(hr));
 
 	return rootSignature;
 }
 
-Microsoft::WRL::ComPtr <ID3D12RootSignature> DirectXCommon::Screen_Vignette_RootSignatureInitialvalue() {
+const ComPtr <ID3D12RootSignature> DirectXCommon::Screen_Vignette_RootSignatureInitialvalue() {
 	D3D12_DESCRIPTOR_RANGE descriptorRange[1] = {};
 	descriptorRange[0].BaseShaderRegister = 0;	//0から始める
 	descriptorRange[0].NumDescriptors = 1;	//数は1つ
@@ -666,14 +666,14 @@ Microsoft::WRL::ComPtr <ID3D12RootSignature> DirectXCommon::Screen_Vignette_Root
 		assert(false);
 	}
 	//バイナリをもとに生成
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> rootSignature = nullptr;
+	ComPtr <ID3D12RootSignature> rootSignature = nullptr;
 	hr = device_->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(&rootSignature));
 	assert(SUCCEEDED(hr));
 
 	return rootSignature;
 }
 
-Microsoft::WRL::ComPtr <ID3D12RootSignature> DirectXCommon::Screen_Outline_RootSignatureInitialvalue() {
+const ComPtr <ID3D12RootSignature> DirectXCommon::Screen_Outline_RootSignatureInitialvalue() {
 	D3D12_DESCRIPTOR_RANGE descriptorRange[1] = {};
 	descriptorRange[0].BaseShaderRegister = 0;	//0から始める
 	descriptorRange[0].NumDescriptors = 1;	//数は1つ
@@ -737,14 +737,14 @@ Microsoft::WRL::ComPtr <ID3D12RootSignature> DirectXCommon::Screen_Outline_RootS
 		assert(false);
 	}
 	//バイナリをもとに生成
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> rootSignature = nullptr;
+	ComPtr <ID3D12RootSignature> rootSignature = nullptr;
 	hr = device_->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(&rootSignature));
 	assert(SUCCEEDED(hr));
 
 	return rootSignature;
 }
 
-Microsoft::WRL::ComPtr <ID3D12RootSignature> DirectXCommon::Screen_RadialBlur_RootSignatureInitialvalue() {
+const ComPtr <ID3D12RootSignature> DirectXCommon::Screen_RadialBlur_RootSignatureInitialvalue() {
 	D3D12_DESCRIPTOR_RANGE descriptorRange[1] = {};
 	descriptorRange[0].BaseShaderRegister = 0;	//0から始める
 	descriptorRange[0].NumDescriptors = 1;	//数は1つ
@@ -789,14 +789,14 @@ Microsoft::WRL::ComPtr <ID3D12RootSignature> DirectXCommon::Screen_RadialBlur_Ro
 		assert(false);
 	}
 	//バイナリをもとに生成
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> rootSignature = nullptr;
+	ComPtr <ID3D12RootSignature> rootSignature = nullptr;
 	hr = device_->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(&rootSignature));
 	assert(SUCCEEDED(hr));
 
 	return rootSignature;
 }
 
-Microsoft::WRL::ComPtr <ID3D12RootSignature> DirectXCommon::Screen_Dissolve_RootSignatureInitialvalue() {
+const ComPtr <ID3D12RootSignature> DirectXCommon::Screen_Dissolve_RootSignatureInitialvalue() {
 	D3D12_DESCRIPTOR_RANGE descriptorRange[1] = {};
 	descriptorRange[0].BaseShaderRegister = 0;	//0から始める
 	descriptorRange[0].NumDescriptors = 1;	//数は1つ
@@ -851,14 +851,14 @@ Microsoft::WRL::ComPtr <ID3D12RootSignature> DirectXCommon::Screen_Dissolve_Root
 		assert(false);
 	}
 	//バイナリをもとに生成
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> rootSignature = nullptr;
+	ComPtr <ID3D12RootSignature> rootSignature = nullptr;
 	hr = device_->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(&rootSignature));
 	assert(SUCCEEDED(hr));
 
 	return rootSignature;
 }
 
-Microsoft::WRL::ComPtr <ID3D12RootSignature> DirectXCommon::Cubemap_RootSignatureInitialvalue() {
+const ComPtr <ID3D12RootSignature> DirectXCommon::Cubemap_RootSignatureInitialvalue() {
 	D3D12_DESCRIPTOR_RANGE descriptorRange[1] = {};
 	descriptorRange[0].BaseShaderRegister = 0;	//0から始める
 	descriptorRange[0].NumDescriptors = 1;	//数は1つ
@@ -906,7 +906,7 @@ Microsoft::WRL::ComPtr <ID3D12RootSignature> DirectXCommon::Cubemap_RootSignatur
 		assert(false);
 	}
 	//バイナリをもとに生成
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> rootSignature = nullptr;
+	ComPtr <ID3D12RootSignature> rootSignature = nullptr;
 	hr = device_->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(&rootSignature));
 	assert(SUCCEEDED(hr));
 
@@ -914,7 +914,7 @@ Microsoft::WRL::ComPtr <ID3D12RootSignature> DirectXCommon::Cubemap_RootSignatur
 }
 
 //シェーダーのコンパイル
-ComPtr<IDxcBlob> DirectXCommon::CompileShader(const std::wstring& filePath, const wchar_t* profile) {
+const ComPtr<IDxcBlob> DirectXCommon::CompileShader(const std::wstring& filePath, const wchar_t* profile) {
 	//これからシェーダーにコンパイルする旨をログに出す
 	Log(logStream_, ConvertString(std::format(L"Begin CompileShader, path:{}, profile:{}\n", filePath, profile)));
 	//hlslファイルを読む
@@ -970,7 +970,7 @@ ComPtr<IDxcBlob> DirectXCommon::CompileShader(const std::wstring& filePath, cons
 }
 
 //バッファリソースの生成
-ComPtr<ID3D12Resource> DirectXCommon::CreateBufferResources(size_t sizeInBytes) {
+const ComPtr<ID3D12Resource> DirectXCommon::CreateBufferResources(size_t sizeInBytes) {
 	//頂点リソース用のヒープの設定
 	D3D12_HEAP_PROPERTIES uploadHeapProperties{};
 	uploadHeapProperties.Type = D3D12_HEAP_TYPE_UPLOAD;
@@ -987,7 +987,7 @@ ComPtr<ID3D12Resource> DirectXCommon::CreateBufferResources(size_t sizeInBytes) 
 	//バッファの場合はこれにする決まり
 	vertexResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 
-	Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource = nullptr;
+	ComPtr<ID3D12Resource> vertexResource = nullptr;
 	HRESULT hr = device_->CreateCommittedResource(&uploadHeapProperties, D3D12_HEAP_FLAG_NONE, &vertexResourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&vertexResource));
 	assert(SUCCEEDED(hr));
 
@@ -995,7 +995,7 @@ ComPtr<ID3D12Resource> DirectXCommon::CreateBufferResources(size_t sizeInBytes) 
 }
 
 //テクスチャリソースの生成
-ComPtr<ID3D12Resource> DirectXCommon::CreateTextureResource(const DirectX::TexMetadata& metadata) {
+const ComPtr<ID3D12Resource> DirectXCommon::CreateTextureResource(const DirectX::TexMetadata& metadata) {
 	//metadataを基にResourceの設定
 	D3D12_RESOURCE_DESC resourceDesc{};
 	resourceDesc.Width = UINT(metadata.width);	//Textureの幅

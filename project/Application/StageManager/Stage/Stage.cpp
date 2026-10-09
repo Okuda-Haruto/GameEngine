@@ -391,7 +391,7 @@ void Stage::DrawSprite() {
 }
 
 void Stage::Collision() {
-	std::list<Colliders*> colliders;
+	std::list<const Colliders*> colliders;
 	colliders.push_back(player_.get()->GetColliders());
 	if (!isTutorial_) {
 		colliders.push_back(boss_.get()->GetColliders());
@@ -409,19 +409,19 @@ void Stage::Collision() {
 	//障害物コライダー
 	std::vector<OBBCollider> obbCollider;
 	for (auto& colliderObject_ : colliderObjects_) {
-		std::vector<OBBCollider> colliders = colliderObject_->GetCollider()->GetOBBColliders();
+		std::vector<OBBCollider> colliders = colliderObject_->GetCollider().lock()->GetOBBColliders();
 		for (auto& collider : colliders) {
 			obbCollider.push_back(collider);
 		}
 	}
 
-	for (std::list<Colliders*>::iterator iteratorA = colliders.begin();
+	for (std::list<const Colliders*>::iterator iteratorA = colliders.begin();
 		iteratorA != colliders.end(); iteratorA++) {
 
 		//球接触判定
 		std::vector<SphereCollider> sphereColliderA = (*iteratorA)->GetSphereColliders();
 
-		for (std::list<Colliders*>::iterator iteratorB = iteratorA;
+		for (std::list<const Colliders*>::iterator iteratorB = iteratorA;
 			iteratorB != colliders.end(); iteratorB++) {
 
 			if (iteratorA == iteratorB)continue;
@@ -464,7 +464,7 @@ void Stage::Collision() {
 }
 
 bool Stage::BossObstructed(const Capsule& capsule) {
-	std::list<Colliders*> colliders;
+	std::list<const Colliders*> colliders;
 
 	//今回は障害物だけで判定
 	for (auto& object : breakObjects_) {
@@ -474,13 +474,13 @@ bool Stage::BossObstructed(const Capsule& capsule) {
 	//障害物コライダー
 	std::vector<OBBCollider> obbCollider;
 	for (auto& colliderObject_ : colliderObjects_) {
-		std::vector<OBBCollider> colliders = colliderObject_->GetCollider()->GetOBBColliders();
+		std::vector<OBBCollider> colliders = colliderObject_->GetCollider().lock()->GetOBBColliders();
 		for (auto& collider : colliders) {
 			obbCollider.push_back(collider);
 		}
 	}
 
-	for (std::list<Colliders*>::iterator iteratorA = colliders.begin();
+	for (std::list<const Colliders*>::iterator iteratorA = colliders.begin();
 		iteratorA != colliders.end(); iteratorA++) {
 
 		//球接触判定
@@ -510,7 +510,7 @@ bool Stage::BossObstructed(const Capsule& capsule) {
 }
 
 Vector3 Stage::MoveWithCollision(SphereCollider& collider, Vector3 velocity) {
-	std::list<Colliders*> colliders;
+	std::list<const Colliders*> colliders;
 	colliders.push_back(player_.get()->GetColliders());
 	if (!isTutorial_) {
 		colliders.push_back(boss_.get()->GetColliders());
@@ -525,13 +525,13 @@ Vector3 Stage::MoveWithCollision(SphereCollider& collider, Vector3 velocity) {
 	//障害物コライダー
 	std::vector<OBBCollider> obbCollider;
 	for (auto& colliderObject_ : colliderObjects_) {
-		std::vector<OBBCollider> colliders = colliderObject_->GetCollider()->GetOBBColliders();
+		std::vector<OBBCollider> colliders = colliderObject_->GetCollider().lock()->GetOBBColliders();
 		for (auto& collider : colliders) {
 			obbCollider.push_back(collider);
 		}
 	}
 
-	for (std::list<Colliders*>::iterator iteratorA = colliders.begin();
+	for (std::list<const Colliders*>::iterator iteratorA = colliders.begin();
 		iteratorA != colliders.end(); iteratorA++) {
 
 		//接触判定
@@ -556,7 +556,7 @@ Vector3 Stage::MoveWithCollision(SphereCollider& collider, Vector3 velocity) {
 	return velocity;
 }
 
-void Stage::AddBullet(SRT transform, float speed, CollisionID id, Bullet::BulletMove bulletMove, std::shared_ptr<Model> model, std::unique_ptr<BaseEvent> event){
+void Stage::AddBullet(SRT transform, float speed, CollisionID id, Bullet::BulletMove bulletMove, std::weak_ptr<Model> model, std::unique_ptr<BaseEvent> event){
 	unique_ptr<Bullet> newBullet = make_unique<Bullet>();
 	newBullet->Initialize(transform, 2.0f, id, Bullet::BulletMove::NormalBullet, model, move(event));
 	bullets_.push_back(move(newBullet));
@@ -579,7 +579,7 @@ void Stage::AddBullet(SRT transform, float speed, CollisionID id, Bullet::Bullet
 	AudioHolder::GetInstance()->GetAudio(AudioIndex::Shot_SE).lock()->SoundPlayWave();
 }
 
-void Stage::AddBomb(SRT transform, float range, float maxLifeTime, CollisionID id, std::shared_ptr<Model> model) {
+void Stage::AddBomb(SRT transform, float range, float maxLifeTime, CollisionID id, std::weak_ptr<Model> model) {
 	unique_ptr<Bomb> newBomb = make_unique<Bomb>();
 	newBomb->Initialize(transform, range, maxLifeTime, id, model);
 	bombs_.push_back(move(newBomb));
@@ -597,7 +597,7 @@ void Stage::AddItem(SRT transform) {
 	items_.push_back(move(newItem));
 }
 
-void Stage::AddBreakObject(SRT transform, float maxHP, std::shared_ptr<Model> model, std::unique_ptr<BaseEvent> event) {
+void Stage::AddBreakObject(SRT transform, float maxHP, std::weak_ptr<Model> model, std::unique_ptr<BaseEvent> event) {
 	unique_ptr<BreakObject> newObject = make_unique<BreakObject>();
 	newObject->Initialize(transform, maxHP, model, move(event));
 	breakObjects_.push_back(move(newObject));

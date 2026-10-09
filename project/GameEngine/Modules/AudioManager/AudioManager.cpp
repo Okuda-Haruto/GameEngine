@@ -109,7 +109,7 @@ void AudioManager::LoadAudio(std::string path, bool isLoop = false) {
 	MFShutdown();
 }
 
-IXAudio2SourceVoice* AudioManager::CreateSourceVoice(std::string path) {
+IXAudio2SourceVoice* const AudioManager::CreateSourceVoice(std::string path) {
 
 	std::wstring path_ = ConvertString(path);
 

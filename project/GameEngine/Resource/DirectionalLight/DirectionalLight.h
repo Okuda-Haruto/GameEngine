@@ -34,6 +34,6 @@ public:
 
 	//光源用のリソース
 	[[nodiscard]]
-	Microsoft::WRL::ComPtr<ID3D12Resource>& DirectionalLightElementResource();
+	const Microsoft::WRL::ComPtr<ID3D12Resource>& DirectionalLightElementResource();
 
 };

@@ -23,6 +23,4 @@ public:
 
 	//初期化
 	void Initialize(DirectXCommon* dxCommon);
-
-	DirectXCommon* GetDirectXCommon() const { return dxCommon_; }
 };

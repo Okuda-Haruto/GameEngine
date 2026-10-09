@@ -8,7 +8,7 @@ PrimitiveBox::~PrimitiveBox() {
 
 }
 
-void PrimitiveBox::Initialize(uint32_t textureIndex, std::shared_ptr<Camera> camera, DirectXCommon* dxCommon) {
+void PrimitiveBox::Initialize(uint32_t textureIndex, std::weak_ptr<Camera> camera, DirectXCommon* dxCommon) {
 
 	textureIndex_ = textureIndex;
 

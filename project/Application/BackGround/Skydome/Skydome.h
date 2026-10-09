@@ -12,7 +12,7 @@ private:
 
 public:
 	//初期化
-	void Initialize(std::shared_ptr<Camera> camera);
+	void Initialize(std::weak_ptr<Camera> camera);
 	//描画
 	void Draw();
 };

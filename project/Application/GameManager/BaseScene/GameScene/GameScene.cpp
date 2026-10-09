@@ -257,13 +257,13 @@ void GameScene::Update() {
 
 	GameEngine::RenderPreDraw("Outline");
 
-	GameEngine::DrawOutline("render", stage_->GetGameCamera()->GetCamera());
+	GameEngine::DrawOutline("render", stage_->GetGameCamera().lock()->GetCamera().lock());
 
 	GameEngine::RenderPostDraw();
 
 	GameEngine::RenderPreDraw("ColorChange");
 
-	GameEngine::DrawScreen("Outline", ColorChange::COLORMODE_SEPIATONE, stage_->GetGameCamera()->GetSepiaTone());
+	GameEngine::DrawScreen("Outline", ColorChange::COLORMODE_SEPIATONE, stage_->GetGameCamera().lock()->GetSepiaTone());
 
 	stage_->DrawSprite();
 

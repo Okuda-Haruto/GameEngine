@@ -246,10 +246,10 @@ public:
 private:
 
 	//マウスカーソル地点への半直線
-	Ray GetCursorRay(std::shared_ptr<GameCamera> gameCamera, std::shared_ptr<Input> input);
+	Ray GetCursorRay(std::weak_ptr<GameCamera> gameCamera, std::shared_ptr<Input> input);
 
 	//半直線からオブジェト座標を得る
-	std::shared_ptr<SRT> GetObjectTransformFromRay(Ray ray);
+	const std::weak_ptr<SRT> GetObjectTransformFromRay(Ray ray);
 
 	//ファイルを開く
 	void OpenFileWindow();

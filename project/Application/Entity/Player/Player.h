@@ -94,13 +94,13 @@ public:
 
 	void IsCollisionGround(OBB obb) override;
 
-	SRT* GetTransform() { return trackingTransform_.get(); }
+	const SRT* GetTransform() { return trackingTransform_.get(); }
 
 	void SetTransfrom(SRT transfrom) { transform_ = transfrom; *trackingTransform_ = transform_; object_->SetTransform(transform_); }
 
 	void SetCameraTransform(const SRT* transform) { cameraTransform_ = transform; }
 
-	void SetCamera(shared_ptr<Camera> camera) { object_->SetCamera(camera); }
+	void SetCamera(weak_ptr<Camera> camera) { object_->SetCamera(camera); }
 
 	void SetDirectionalLight(shared_ptr<DirectionalLight> directionalLight) { object_->SetDirectionalLight(directionalLight); }
 	void SetPointLight(shared_ptr<PointLight> pointLight) { object_->SetPointLight(pointLight); }

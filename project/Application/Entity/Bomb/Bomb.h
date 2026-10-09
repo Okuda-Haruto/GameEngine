@@ -15,7 +15,7 @@ private:
 	bool isDead = false;
 public:
 	//初期化
-	void Initialize(SRT transform, float range, float maxLifeTime, CollisionID id, std::shared_ptr<Model> model);
+	void Initialize(SRT transform, float range, float maxLifeTime, CollisionID id, std::weak_ptr<Model> model);
 	//更新処理
 	void Update();
 	//描画処理

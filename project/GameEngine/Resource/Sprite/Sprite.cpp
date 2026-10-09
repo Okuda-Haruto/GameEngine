@@ -5,7 +5,7 @@
 
 void Sprite::Initialize(const std::string& textureFilePath) {
 
-	DirectXCommon* dxCommon = SpriteManager::GetInstance()->GetDirectXCommon();
+	DirectXCommon* dxCommon = GameEngine::GetDirectXCommon();
 
 	//頂点リソースを作る
 	vertexResource_ = dxCommon->CreateBufferResources(sizeof(VertexData) * 4);

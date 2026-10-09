@@ -66,5 +66,5 @@ public:
 
 	void LoadAudio(std::string path, bool isLoop);
 
-	IXAudio2SourceVoice* CreateSourceVoice(std::string path);
+	IXAudio2SourceVoice* const CreateSourceVoice(std::string path);
 };

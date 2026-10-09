@@ -26,7 +26,7 @@ public:
 	void Update();
 
 	// 接触された判定
-	void IsCollision(uint8_t sourceId) { collider_->IsCollision(sourceId); }
+	void IsCollision(uint8_t sourceId) const { collider_->IsCollision(sourceId); }
 
 	// 球接触判定の追加
 	void AddSphereCollider(Sphere localSphere, int8_t sourceId, int8_t targetId, std::shared_ptr<Matrix4x4> parentMatrix);
@@ -35,14 +35,14 @@ public:
 	void AddOBBCollider(OBB localOBB, int8_t sourceId, int8_t targetId, std::shared_ptr<Matrix4x4> parentMatrix);
 
 	//対地面接触判定
-	SphereCollider GetGrundCollider() { return grundCollider_; }
+	SphereCollider GetGrundCollider() const { return grundCollider_; }
 	void SetGrundCollider(Sphere localSphere, int8_t sourceId, int8_t targetId, std::shared_ptr<Matrix4x4> parentMatrix);
 
 	//球接触判定の変更
-	std::vector<SphereCollider> GetSphereColliders() { return sphereColliders_; }
+	std::vector<SphereCollider> GetSphereColliders() const { return sphereColliders_; }
 	void SetSphereColliders(int32_t index, SphereCollider sphereCollider) { sphereColliders_[index] = sphereCollider; }
 
 	//OBB接触判定
-	std::vector<OBBCollider> GetOBBColliders() { return obbColliders_; }
+	std::vector<OBBCollider> GetOBBColliders() const { return obbColliders_; }
 	void SetOBBColliders(int32_t index, OBBCollider obbCollider) { obbColliders_[index] = obbCollider; }
 };

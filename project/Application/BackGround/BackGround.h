@@ -19,13 +19,13 @@ private:
 	std::unique_ptr<Skydome> skydome_;
 	std::unique_ptr<Tumbleweed> tumbleweed_;
 
-	std::shared_ptr<DirectionalLight> directionalLight_;
-	std::shared_ptr<PointLight> pointLight_;
-	std::shared_ptr<GameCamera> gameCamera_;
+	std::weak_ptr<DirectionalLight> directionalLight_;
+	std::weak_ptr<PointLight> pointLight_;
+	std::weak_ptr<GameCamera> gameCamera_;
 
 public:
 	//初期化
-	void Initialize(std::string filePath, std::shared_ptr<GameCamera> gameCamera, std::shared_ptr<DirectionalLight> directionalLight, std::shared_ptr<PointLight> pointLight);
+	void Initialize(std::string filePath, std::weak_ptr<GameCamera> gameCamera, std::weak_ptr<DirectionalLight> directionalLight, std::weak_ptr<PointLight> pointLight);
 	//更新処理
 	void Update();
 	//描画

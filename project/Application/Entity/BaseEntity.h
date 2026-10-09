@@ -30,6 +30,6 @@ public:
 
 	virtual void IsCollisionGround(OBB obb) override {}
 
-	Colliders* GetColliders() {	return colliders_.get();}
+	const Colliders* GetColliders() {	return colliders_.get();}
 };
 

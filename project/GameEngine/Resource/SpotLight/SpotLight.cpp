@@ -71,6 +71,6 @@ void SpotLight::SetSpotLightElement(SpotLightElement SpotLightElement) {
 }
 
 [[nodiscard]]
-Microsoft::WRL::ComPtr<ID3D12Resource>& SpotLight::SpotLightElementResource() {
+const Microsoft::WRL::ComPtr<ID3D12Resource>& SpotLight::SpotLightElementResource() {
 	return SpotLightElementResource_;
 }

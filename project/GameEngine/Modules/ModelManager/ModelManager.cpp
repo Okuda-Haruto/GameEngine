@@ -38,7 +38,7 @@ void ModelManager::LoadModel(const std::string& directoryPath, const std::string
 }
 
 //モデルの入手
-shared_ptr<Model> ModelManager::GetModel(const std::string& directoryPath, const std::string& filename) {
+const weak_ptr<Model> ModelManager::GetModel(const std::string& directoryPath, const std::string& filename) {
 	
 	if (modelDatas.contains(directoryPath + "/" + filename)) {
 		return modelDatas[directoryPath + "/" + filename];

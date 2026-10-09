@@ -27,7 +27,7 @@ private:
 public:
 
 	//初期化
-	void Initialize(SRT transform, float maxHP, std::shared_ptr<Model> model, std::unique_ptr<BaseEvent> deadEvent);
+	void Initialize(SRT transform, float maxHP, std::weak_ptr<Model> model, std::unique_ptr<BaseEvent> deadEvent);
 	//更新
 	void Update();
 	//描画
@@ -40,10 +40,10 @@ public:
 	SRT GetTransform() { return transform_; }
 	void SetTransfrom(SRT transfrom) { transform_ = transfrom; object_->SetTransform(transform_); }
 
-	std::shared_ptr<Sphere> GetTrackingSphere() { return trackingSphere_; }
+	const std::weak_ptr<Sphere> GetTrackingSphere() { return trackingSphere_; }
 
 	void SetCamera(shared_ptr<Camera> camera) { object_->SetCamera(camera); }
-	std::weak_ptr<GameCamera> GetGameCamera() { return gameCamera_; }
+	const std::weak_ptr<GameCamera> GetGameCamera() { return gameCamera_; }
 
 	bool IsDead() { return HP_ <= 0; }
 	float GetHP() { return HP_; }
