@@ -73,16 +73,19 @@
     <FxCompile Include="resources\Shader\Random.PS.hlsl">
       <Filter>GameEngine\Shader</Filter>
     </FxCompile>
-    <FxCompile Include="resources\Shader\PrimitiveBox.VS.hlsl">
+    <FxCompile Include="resources\Shader\Primitive3d_Box.VS.hlsl">
       <Filter>GameEngine\Shader\Primitive</Filter>
     </FxCompile>
     <FxCompile Include="resources\Shader\Primitive.PS.hlsl">
       <Filter>GameEngine\Shader\Primitive</Filter>
     </FxCompile>
-    <FxCompile Include="resources\Shader\PrimitiveRing.VS.hlsl">
+    <FxCompile Include="resources\Shader\Primitive3d_Ring.VS.hlsl">
       <Filter>GameEngine\Shader\Primitive</Filter>
     </FxCompile>
-    <FxCompile Include="resources\Shader\PrimitiveCylinder.VS.hlsl">
+    <FxCompile Include="resources\Shader\Primitive3d_Cylinder.VS.hlsl">
+      <Filter>GameEngine\Shader\Primitive</Filter>
+    </FxCompile>
+    <FxCompile Include="resources\Shader\Primitive3d_Plane.hlsl">
       <Filter>GameEngine\Shader\Primitive</Filter>
     </FxCompile>
   </ItemGroup>
@@ -710,6 +713,12 @@
     </ClInclude>
     <ClInclude Include="Application\Event\Event.h">
       <Filter>Application\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Data\RingState.h">
+      <Filter>GameEngine\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Data\CylinderState.h">
+      <Filter>GameEngine\Data</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
