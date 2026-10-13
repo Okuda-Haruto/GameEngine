@@ -148,13 +148,24 @@ static const float3 kNormals[kNumVertex] =
     { 0.0f, -1.0f, 0.0f },
 };
 
+struct TransformationMatrix
+{
+    float4x4 ViewProjection;
+    float4x4 World;
+    float4x4 WorldInverseTranspose;
+};
+
+ConstantBuffer<TransformationMatrix> gTransformationMatrix : register(b0);
+
 VertexShaderOutput main(uint vertexId : SV_VertexID)
 {
     VertexShaderOutput output;
+    
+    float4x4 WVP = mul(gTransformationMatrix.World, gTransformationMatrix.ViewProjection);
 
-    output.position = kPositions[vertexId];
+    output.position = mul(kPositions[vertexId], WVP);
     output.texcoord = kTexcoords[vertexId];
-    output.normal = kNormals[vertexId];
+    output.normal = normalize(mul(kNormals[vertexId], (float3x3) gTransformationMatrix.WorldInverseTranspose));
 
     return output;
 }
