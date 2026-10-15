@@ -310,6 +310,9 @@
     <ClCompile Include="Application\Event\Event.cpp">
       <Filter>Application\Event</Filter>
     </ClCompile>
+    <ClCompile Include="Application\HUD\Target\Target.cpp">
+      <Filter>Application\HUD\Target</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\BackGround\Ground\Ground.h">
@@ -720,6 +723,9 @@
     <ClInclude Include="GameEngine\Data\CylinderState.h">
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
+    <ClInclude Include="Application\HUD\Target\Target.h">
+      <Filter>Application\HUD\Target</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -1003,6 +1009,9 @@
     </Filter>
     <Filter Include="GameEngine\Shader\Primitive">
       <UniqueIdentifier>{ee5aa620-2e3a-4f45-b250-040c0a24e264}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\HUD\Target">
+      <UniqueIdentifier>{1a2f6d56-0af3-4d57-ba47-3b7ecedbfd09}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

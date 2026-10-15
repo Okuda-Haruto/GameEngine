@@ -19,6 +19,7 @@ protected:
 	GameCamera* gameCamera_;
 	std::shared_ptr<Input> input_;
 public:
+	virtual ~BaseCamera() = 0;
 	virtual void Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input) = 0;
 	virtual void Update() = 0;
 	SRT GetTransform() { return transform_; }
@@ -59,6 +60,7 @@ private:
 	//プレイヤーからカメラへのローカル座標
 	Vector3 offset_;
 public:
+	~LockOnCamera() override;
 	void Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input) override;
 	void Update() override;
 	SRT GetTransform() { return transform_; }
@@ -78,6 +80,7 @@ private:
 	//プレイヤーからカメラへのローカル座標
 	Vector3 offset_;
 public:
+	~WideViewCamera() override;
 	void Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input) override;
 	void Update() override;
 	SRT GetTransform() { return transform_; }
@@ -112,8 +115,11 @@ private:
 
 	//始点Transform
 	const SRT* observerTransform_ = nullptr;
-	//終点Sphere
+
+	//注目可能なSphere
 	std::vector<std::weak_ptr<Sphere>> targetSpheres_;
+	//現在注目しているSphere
+	std::weak_ptr<Sphere> targetedSphere_;
 
 	shared_ptr<Input> input_;
 public:
@@ -121,28 +127,43 @@ public:
 
 	//初期化
 	void Initialize(shared_ptr<Input> input);
+
 	//更新
 	void Update();
 
+	//カメラ遷移
 	void ChangeCamera(std::unique_ptr<BaseCamera> newCamera, float lerpTime);
 
 	//Transformのゲッター
 	const SRT* GetTransform() { return transform_.get(); }
 
-	const SRT* GetObserverTransform(){ return observerTransform_; }
+	//現在のカメラ
+	BaseCamera* const GetNowCamera() { return nowCamera_.get(); }
+
+	//視点を得る
+	const weak_ptr<Camera> GetCamera() { return camera_; }
+
+	//カメラ始点Transform
+	void SetObserverTransform(const SRT* observerTransform) { observerTransform_ = observerTransform; }
+	const SRT* GetObserverTransform() { return observerTransform_; }
+
+	//注目対象を指定
+	void SetTargetSphere(std::weak_ptr<Sphere> targetSphere) { targetSpheres_.push_back(targetSphere); }
 	const std::vector<std::weak_ptr<Sphere>> GetTargetSpheres() { return targetSpheres_; }
 
-	BaseCamera* const GetNowCamera() { return nowCamera_.get(); }
-	const weak_ptr<Camera> GetCamera() { return camera_; }
+	//現在の注目対象を指定
+	void SetTargetedSphere(std::weak_ptr<Sphere> targetedSphere) { targetedSphere_ = targetedSphere; }
+	const std::weak_ptr<Sphere> GetTargetedSphere() { return targetedSphere_; }
+	void ResetTargetedSphere() { targetedSphere_.reset(); }
+
+	//シェイク
+	void SetShakeTime(float shakeTime) { shakeTime_ = shakeTime; }
+
+	//セピア調
 	float GetSepiaTone() { return sepiaTone_; }
 	void SetSepiaTone(float sepiaTone) { sepiaTone_ = sepiaTone; }
 
-	//追従対象を指定
-	void SetObserverTransform(const SRT* observerTransform) { observerTransform_ = observerTransform; }
-	void SetTargetSphere(std::weak_ptr<Sphere> targetSphere) { targetSpheres_.push_back(targetSphere); }
+	//デバッグカメラ
+	void SetDebugCamera(std::shared_ptr<DebugCamera> debugCamera) { debugCamera_ = debugCamera; camera_->SetDebugCamera(debugCamera_);}
 
-	void SetShakeTime(float shakeTime) { shakeTime_ = shakeTime; }
-
-	void SetDebugCamera(std::shared_ptr<DebugCamera> debugCamera) { debugCamera_ = debugCamera; camera_->SetDebugCamera(debugCamera_);
-	}
 };
