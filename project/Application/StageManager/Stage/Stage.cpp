@@ -26,6 +26,10 @@ void Stage::Initialize(bool isTutorial, StageData stageData, std::shared_ptr<Inp
 	Bullet::SetCamera(gameCamera_->GetCamera());
 	BreakObject::SetGameCamera(gameCamera_);
 
+	//ロックオン照準
+	target_ = std::make_unique<Target>();
+	target_->Initialize(gameCamera_);
+
 	directionalLight_ = std::make_unique<DirectionalLight>();
 	directionalLight_->Initialize(GameEngine::GetDirectXCommon());
 	directionalLightElement_.color = Vector4{ 1.0f,1.0f,1.0f,1.0f };
@@ -219,6 +223,8 @@ void Stage::Update() {
 
 	gameCamera_->Update();
 
+	target_->Update();
+
 	if (!isClear_) {
 
 		if (boss_->IsDead()) {
@@ -391,7 +397,11 @@ void Stage::Draw() {
 }
 
 void Stage::DrawSprite() {
+
+	target_->Draw();
+
 	hud_->DrawSprite();
+
 }
 
 void Stage::Collision() {

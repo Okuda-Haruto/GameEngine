@@ -6,7 +6,15 @@
 #include <Easing.h>
 #include <Collision.h>
 
+BaseCamera::~BaseCamera() {
+
+}
+
 #pragma region LockOnCamera
+
+LockOnCamera::~LockOnCamera() {
+
+}
 
 void LockOnCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input) {
 	gameCamera_ = gameCamera;
@@ -20,12 +28,19 @@ void LockOnCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> inp
 	} else {
 		cameraAngle_ = {};
 	}
+
+	//ターゲットに視点を移す
+	targetSpehre_ = gameCamera_->GetTargetedSphere();
 }
 
 void LockOnCamera::Update() {
 	Keyboard keyboard = input_->GetKeyboard();
 	Pad pad = input_->GetPad();
 
+	if (gameCamera_->GetTargetedSphere().expired()) {
+		targetSpehre_.reset();
+		gameCamera_->ResetTargetedSphere();
+	}
 	//進行方向に合わせる
 	if (pad.LeftStick.magnitude > 0.5f || keyboard.keys[DIK_A].hold || keyboard.keys[DIK_D].hold || keyboard.keys[DIK_LEFT].hold || keyboard.keys[DIK_RIGHT].hold) {
 		if (pad.LeftStick.vector.x > 0.5f || keyboard.keys[DIK_D].hold || keyboard.keys[DIK_RIGHT].hold) {
@@ -117,6 +132,7 @@ void LockOnCamera::Update() {
 				pushRStickTime_ += 1.0f / 60.0f;
 				if (pushRStickTime_ > kMaxPushRStickTime) {
 					targetSpehre_.reset();
+					gameCamera_->ResetTargetedSphere();
 					pushRStickTime_ = 0.0f;
 				}
 			} else {
@@ -168,6 +184,7 @@ void LockOnCamera::Update() {
 			}
 			if (keepTargetSphere.lock()) {
 				targetSpehre_ = keepTargetSphere;
+				gameCamera_->SetTargetedSphere(targetSpehre_);
 			}
 		}
 	}
@@ -177,6 +194,10 @@ void LockOnCamera::Update() {
 
 
 #pragma region WideViewCamera
+
+WideViewCamera::~WideViewCamera() {
+
+}
 
 void WideViewCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input) {
 	gameCamera_ = gameCamera;
@@ -258,7 +279,7 @@ void GameCamera::Update() {
 		lerpTime_ -= 1.0f / 60.0f;
 		if (lerpTime_ < 0.0f) {
 			lerpTime_ = 0.0f;
-			nowCamera_.release();
+			nowCamera_.reset();
 			nowCamera_ = move(nextCamera_);
 			betweenTransform_.reset();
 		}
@@ -319,6 +340,7 @@ void GameCamera::ChangeCamera(std::unique_ptr<BaseCamera> newCamera, float lerpT
 		nowCamera_->Initialize(this, input_);
 		return;
 	}
+
 	//同じカメラの場合無視
 	if (nextCamera_) {
 		if (typeid(*newCamera) == typeid(*nextCamera_)) {

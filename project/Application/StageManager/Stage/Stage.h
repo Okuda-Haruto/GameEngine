@@ -2,6 +2,7 @@
 #include <string>
 #include <GameCamera/GameCamera.h>
 #include <DebugCamera.h>
+#include <HUD/Target/Target.h>
 #include <BackGround/BackGround.h>
 #include <Entity/Player/Player.h>
 #include <Entity/Boss/Boss.h>
@@ -25,6 +26,9 @@ protected:
 	//メインカメラ
 	std::shared_ptr<GameCamera> gameCamera_;
 	std::shared_ptr<DebugCamera> debugCamera_;
+
+	//ロックオン照準
+	std::unique_ptr<Target> target_;
 
 	//背景
 	std::unique_ptr<BackGround> backGround_;

@@ -83,6 +83,7 @@
     <ClCompile Include="Application\GameManager\GameManager.cpp" />
     <ClCompile Include="Application\GameManager\SceneFactory\SceneFactory.cpp" />
     <ClCompile Include="Application\HUD\HUD.cpp" />
+    <ClCompile Include="Application\HUD\Target\Target.cpp" />
     <ClCompile Include="Application\ModelHolder\ModelHolder.cpp" />
     <ClCompile Include="Application\GameCamera\GameCamera.cpp" />
     <ClCompile Include="Application\GameManager\BaseScene\ClearScene\ClearScene.cpp" />
@@ -165,6 +166,7 @@
     <ClInclude Include="Application\GameManager\GameManager.h" />
     <ClInclude Include="Application\GameManager\SceneFactory\SceneFactory.h" />
     <ClInclude Include="Application\HUD\HUD.h" />
+    <ClInclude Include="Application\HUD\Target\Target.h" />
     <ClInclude Include="Application\ModelHolder\ModelHolder.h" />
     <ClInclude Include="Application\GameCamera\GameCamera.h" />
     <ClInclude Include="Application\GameManager\BaseScene\ClearScene\ClearScene.h" />
