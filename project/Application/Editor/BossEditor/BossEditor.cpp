@@ -140,8 +140,8 @@ void BossEditor::Update() {
 	}
 #endif
 
-
-#ifdef USE_IMGUI
+	//DragDropのテスト
+/*#ifdef USE_IMGUI
 		ImGui::Begin("test");
 
 		if (ImGui::Button("Apple"))
@@ -177,7 +177,7 @@ void BossEditor::Update() {
 		}
 
 		ImGui::End();
-#endif
+#endif*/
 }
 
 void BossEditor::Draw() {

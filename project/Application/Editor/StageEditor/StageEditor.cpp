@@ -111,7 +111,7 @@ void StageEditor::Initialize(std::shared_ptr<Input> input) {
 	*playerStartTransform_ = {
 		{ 1.0f,1.0f,1.0f },
 		{ 0.0f,0.0f,0.0f },
-		{ 0.0f,0.0f,-20.0f },
+		{ 0.0f,0.0f,0.0f },
 	};
 
 	debugCamera_ = std::make_shared<DebugCamera>();

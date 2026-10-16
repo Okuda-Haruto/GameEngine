@@ -1,18 +1,12 @@
 #pragma once
-
-#include <d3d12.h>
-
-#include <wrl.h>
+#include "../Light.h"
 #include "SpotLightElement.h"
-#include "DirectXCommon/DirectXCommon.h"
 
 //光源
-class SpotLight {
+class SpotLight : public Light{
 private:
-	//光源用のリソース
-	Microsoft::WRL::ComPtr<ID3D12Resource> SpotLightElementResource_;
 	//光源データ
-	SpotLightElement* SpotLightElementData_ = nullptr;
+	SpotLightElement* spotLightElementData_ = nullptr;
 public:
 
 	~SpotLight();
@@ -21,7 +15,7 @@ public:
 	/// 初期化
 	/// </summary>
 	/// <param name="device">デバイス</param>
-	void Initialize(DirectXCommon* dxCommon);
+	void Initialize(DirectXCommon* dxCommon) override;
 
 	// Color入力
 	void SetColor(Vector4 color);
@@ -41,9 +35,4 @@ public:
 	void SetCosFalloutStart(float cosFalloutStart);
 	// SpotLightElement入力
 	void SetSpotLightElement(SpotLightElement spotLightElement);
-
-	//光源用のリソース
-	[[nodiscard]]
-	const Microsoft::WRL::ComPtr<ID3D12Resource>& SpotLightElementResource();
-
 };

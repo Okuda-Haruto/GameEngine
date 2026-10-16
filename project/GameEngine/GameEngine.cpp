@@ -474,13 +474,13 @@ void GameEngine::DrawObject_3D_(Object* object, shared_ptr<DirectionalLight> dir
 
 		//ライティングが必要な場合CBufferに送る
 		if (parts[i].material->reflection != 0 && directionalLight != nullptr) {
-			commandList_->SetGraphicsRootConstantBufferView(3, directionalLight->DirectionalLightElementResource()->GetGPUVirtualAddress());	//DirectionalLighting
+			commandList_->SetGraphicsRootConstantBufferView(3, directionalLight->LightElementResource()->GetGPUVirtualAddress());	//DirectionalLighting
 		}
 		if (parts[i].material->reflection != 0 && pointLight != nullptr) {
-			commandList_->SetGraphicsRootConstantBufferView(5, pointLight->PointLightElementResource()->GetGPUVirtualAddress());	//PointLighting
+			commandList_->SetGraphicsRootConstantBufferView(5, pointLight->LightElementResource()->GetGPUVirtualAddress());	//PointLighting
 		}
 		if (parts[i].material->reflection != 0 && spotLight != nullptr) {
-			commandList_->SetGraphicsRootConstantBufferView(6, spotLight->SpotLightElementResource()->GetGPUVirtualAddress());	//SpotLighting
+			commandList_->SetGraphicsRootConstantBufferView(6, spotLight->LightElementResource()->GetGPUVirtualAddress());	//SpotLighting
 		}
 		if (parts[i].material->enviromentCoefficient > 0.0f) {	//環境マップ
 			commandList_->SetGraphicsRootDescriptorTable(8, srvManager_->GetGPUDescriptorHandle(object->GetCubeTextureIndex()));
@@ -574,13 +574,13 @@ void GameEngine::DrawParts_3D_(Object* object, uint32_t partsIndex, shared_ptr<D
 
 	//ライティングが必要な場合CBufferに送る
 	if (parts[partsIndex].material->reflection != 0 && directionalLight != nullptr) {
-		commandList_->SetGraphicsRootConstantBufferView(3, directionalLight->DirectionalLightElementResource()->GetGPUVirtualAddress());	//DirectionalLighting
+		commandList_->SetGraphicsRootConstantBufferView(3, directionalLight->LightElementResource()->GetGPUVirtualAddress());	//DirectionalLighting
 	}
 	if (parts[partsIndex].material->reflection != 0 && pointLight != nullptr) {
-		commandList_->SetGraphicsRootConstantBufferView(5, pointLight->PointLightElementResource()->GetGPUVirtualAddress());	//PointLighting
+		commandList_->SetGraphicsRootConstantBufferView(5, pointLight->LightElementResource()->GetGPUVirtualAddress());	//PointLighting
 	}
 	if (parts[partsIndex].material->reflection != 0 && spotLight != nullptr) {
-		commandList_->SetGraphicsRootConstantBufferView(6, spotLight->SpotLightElementResource()->GetGPUVirtualAddress());	//SpotLighting
+		commandList_->SetGraphicsRootConstantBufferView(6, spotLight->LightElementResource()->GetGPUVirtualAddress());	//SpotLighting
 	}
 
 	//マテリアルCBufferの場所を設定
@@ -671,7 +671,7 @@ void GameEngine::DrawObject_2D_(Object* object, shared_ptr<DirectionalLight> dir
 
 		//ライティングが必要な場合CBufferに送る
 		if (parts[i].material->reflection != 0 && directionalLight != nullptr) {
-			commandList_->SetGraphicsRootConstantBufferView(3, directionalLight->DirectionalLightElementResource()->GetGPUVirtualAddress());	//DirectionalLighting
+			commandList_->SetGraphicsRootConstantBufferView(3, directionalLight->LightElementResource()->GetGPUVirtualAddress());	//DirectionalLighting
 		}
 
 		//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
@@ -766,7 +766,7 @@ void GameEngine::DrawParts_2D_(Object* object, uint32_t partsIndex, shared_ptr<D
 
 	//ライティングが必要な場合CBufferに送る
 	if (parts[partsIndex].material->reflection != 0 && directionalLight != nullptr) {
-		commandList_->SetGraphicsRootConstantBufferView(3, directionalLight->DirectionalLightElementResource()->GetGPUVirtualAddress());	//DirectionalLighting
+		commandList_->SetGraphicsRootConstantBufferView(3, directionalLight->LightElementResource()->GetGPUVirtualAddress());	//DirectionalLighting
 	}
 
 	//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
@@ -901,13 +901,13 @@ void GameEngine::DrawInstancingObject_3D_(std::list<Object*> objects, shared_ptr
 
 		//ライティングが必要な場合CBufferに送る
 		if (parts[0][i].material->reflection != 0 && directionalLight != nullptr) {
-			commandList_->SetGraphicsRootConstantBufferView(3, directionalLight->DirectionalLightElementResource()->GetGPUVirtualAddress());	//DirectionalLighting
+			commandList_->SetGraphicsRootConstantBufferView(3, directionalLight->LightElementResource()->GetGPUVirtualAddress());	//DirectionalLighting
 		}
 		if (parts[0][i].material->reflection != 0 && pointLight != nullptr) {
-			commandList_->SetGraphicsRootConstantBufferView(5, pointLight->PointLightElementResource()->GetGPUVirtualAddress());	//PointLighting
+			commandList_->SetGraphicsRootConstantBufferView(5, pointLight->LightElementResource()->GetGPUVirtualAddress());	//PointLighting
 		}
 		if (parts[0][i].material->reflection != 0 && spotLight != nullptr) {
-			commandList_->SetGraphicsRootConstantBufferView(6, spotLight->SpotLightElementResource()->GetGPUVirtualAddress());	//SpotLighting
+			commandList_->SetGraphicsRootConstantBufferView(6, spotLight->LightElementResource()->GetGPUVirtualAddress());	//SpotLighting
 		}
 
 		//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である

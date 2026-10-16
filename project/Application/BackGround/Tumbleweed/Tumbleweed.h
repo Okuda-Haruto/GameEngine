@@ -16,6 +16,8 @@ private:
 
 	const float kMaxMoveTime = 60.0f;
 	float moveTime_ = 0.0f;
+
+	const Vector3 kBasePosition = { 0.0f,2.0f,128.0f };
 public:
 	~Tumbleweed();
 	//初期化

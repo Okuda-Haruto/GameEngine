@@ -2,6 +2,7 @@
 #include "Operation/Operation.h"
 #include <numbers>
 #include <Easing.h>
+#include <GameEngine.h>
 
 weak_ptr<Camera> ShockWave::camera_;
 weak_ptr<DirectionalLight> ShockWave::directionalLight_;
@@ -28,7 +29,7 @@ void ShockWave::Initialize(SRT transform, float range, float maxLifeTime, Collis
 void ShockWave::Update() {
 
 	if (lifeTime_ < maxLifeTime_) {
-		lifeTime_ += 1.0f / 60.0f;
+		lifeTime_ += GameEngine::GetDeltaTime();
 		if (lifeTime_ >= maxLifeTime_) {
 			isDead = true;
 		}

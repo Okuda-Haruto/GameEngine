@@ -9,15 +9,15 @@ DirectionalLight::~DirectionalLight() {
 void DirectionalLight::Initialize(DirectXCommon* dxCommon) {
 
 	//光源用のリソースを作る
-	DirectionalLightElementResource_ = dxCommon->CreateBufferResources(sizeof(DirectionalLightElement));
+	lightElementResource_ = dxCommon->CreateBufferResources(sizeof(DirectionalLightElement));
 	//書き込むためのアドレスを取得
-	DirectionalLightElementResource_->Map(0, nullptr, reinterpret_cast<void**>(&directionalLightElementData_));
+	lightElementResource_->Map(0, nullptr, reinterpret_cast<void**>(&directionalLightElementData_));
 
 	directionalLightElementData_->color = Vector4{ 1.0f,1.0f,1.0f,1.0f };
 	directionalLightElementData_->direction = { 0.0f,-1.0f,0.0f };
 	directionalLightElementData_->intensity = 1.0f;
 
-	DirectionalLightElementResource_->Unmap(0, nullptr);
+	lightElementResource_->Unmap(0, nullptr);
 
 }
 
@@ -37,9 +37,4 @@ void DirectionalLight::SetDirectionalLightElement(DirectionalLightElement direct
 	SetColor(directionalLightElement.color);
 	SetDirection(directionalLightElement.direction);
 	SetIntensity(directionalLightElement.intensity);
-}
-
-[[nodiscard]]
-const Microsoft::WRL::ComPtr<ID3D12Resource>& DirectionalLight::DirectionalLightElementResource() {
-	return DirectionalLightElementResource_;
 }
