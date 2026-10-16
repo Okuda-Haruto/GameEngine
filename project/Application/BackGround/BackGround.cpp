@@ -26,36 +26,7 @@ void BackGround::Initialize(std::string filePath, std::weak_ptr<GameCamera> game
 void BackGround::Update() {
 
 	tumbleweed_->Update();
-#ifdef USE_IMGUI
-	ImGui::Begin("背景オブジェクト");
-	static int cursor = 0;
-	ImGui::SliderInt("オブジェクト番号", &cursor, 0, int(objects_.size() - 1));
-	SRT transform = { {1,1,1},{0,0,0},{0,0,0} };
-	if (ImGui::Button("追加")) {
 
-		std::unique_ptr<Object> newObject = std::make_unique<Object>();
-		newObject->Initialize(ModelHolder::GetInstance()->GetModel(ModelIndex::BackGround));
-		newObject->SetShininess(20);
-		newObject->SetTransform(transform);
-		newObject->SetDirectionalLight(directionalLight_);
-		newObject->SetPointLight(pointLight_);
-		objects_.push_back(move(newObject));
-
-		cursor = int(objects_.size() - 1);
-	}
-	transform = objects_[cursor]->GetTransform();
-	transform.rotate = transform.rotate / std::numbers::pi_v<float> *180;
-
-	ImGui::SliderInt("使用するモデル番号", &indexes_[cursor], 0, 7);
-	ImGui::DragFloat3("Scale", &transform.scale.x, 0.1f);
-	ImGui::DragFloat3("Rotate", &transform.rotate.x, 1.0f);
-	ImGui::DragFloat3("Translate", &transform.translate.x, 0.1f);
-
-	transform.rotate = transform.rotate * std::numbers::pi_v<float> / 180;
-	objects_[cursor]->SetTransform(transform);
-
-	ImGui::End();
-#endif
 }
 
 void BackGround::Draw() {

@@ -72,6 +72,9 @@ protected:
 	SRT ringTransform_;
 	Material ringMaterial_;
 
+	const Vector3 kCylinderStartScale = { 1.5f,3.0f,1.5f };
+	const Vector3 kCylinderEndScale = { 4.5f,0.0f,4.5f };
+
 	std::unique_ptr<PrimitiveCylinder> cylider_;
 	SRT cylinderTransform_;
 	Material cylinderMaterial_;

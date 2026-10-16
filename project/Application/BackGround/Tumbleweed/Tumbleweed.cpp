@@ -27,24 +27,25 @@ void Tumbleweed::Initialize(weak_ptr<Camera> camera, weak_ptr<DirectionalLight> 
 }
 
 void Tumbleweed::Update() {
-	moveTime_ += 1.0f / 60.0f;
+	moveTime_ += GameEngine::GetDeltaTime();;
 	if (moveTime_ >= kMaxMoveTime) {
 		moveTime_ -= kMaxMoveTime;
 	}
 
 	for (int i = 0; i < objects_.size();i++) {
-		SRT Transform = { {1,1,1},{0,0,0},{0,0,0} };
-		Transform.rotate.z = -std::numbers::pi_v<float> *2 * moveTime_;
-		Transform.rotate.y = std::numbers::pi_v<float> * 2 * (moveTime_ / kMaxMoveTime + float(i) / 3);
+		SRT transform = {
+			{1.0f,1.0f,1.0f},
+			{0.0f,0.0f,0.0f},
+			{0.0f,0.0f,0.0f}
+		};
+		transform.rotate.z = -std::numbers::pi_v<float> * 2 * moveTime_;
+		transform.rotate.y = std::numbers::pi_v<float> * 2 * (moveTime_ / kMaxMoveTime + float(i) / 3);
 
-		Matrix4x4 rotateMatrix = MakeRotateYMatrix(Transform.rotate.y);
+		Matrix4x4 rotateMatrix = MakeRotateYMatrix(transform.rotate.y);
 
-		Transform.translate = Vector3{ 0,2,128 } * rotateMatrix;
+		transform.translate = kBasePosition * rotateMatrix;
 
-		objects_[i]->SetTransform(Transform);
-
-		Transform.translate.y = 0.0f;
-		Transform.scale = { 5,5,5 };
+		objects_[i]->SetTransform(transform);
 	}
 
 }
