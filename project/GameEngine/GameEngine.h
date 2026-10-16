@@ -78,6 +78,8 @@ private:
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> object_RootSignature_;
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> object_Instancing_RootSignature_;
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> sprite_RootSignature_;
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> sprite_Instancing_RootSignature_;
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> line_Instancing_RootSignature_;
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> particle_RootSignature_;
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> screen_RootSignature_;
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> screen_ColorChange_RootSignature_;
@@ -98,6 +100,7 @@ private:
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> particle_PipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> particle_AddBlend_PipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> sprite_PipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> sprite_Instancing_PipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> line_PipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> line_NoDepth_PipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> effect_Cyinder_PipelineState_ = nullptr;

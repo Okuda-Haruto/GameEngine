@@ -5,7 +5,7 @@
 #include "DirectXCommon/DirectXCommon.h"
 #include "SRVManager/SRVManager.h"
 
-#include "VertexData.h"
+#include <LineVertex.h>
 #include "Vector2.h"
 #include "Offset.h"
 
@@ -88,7 +88,7 @@ private:
 	//頂点バッファビュー
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView_{};
 	//頂点リソースデータ
-	VertexData* vertexData_ = nullptr;
+	LineVertex* vertexData_ = nullptr;
 	//インデックスリソース
 	Microsoft::WRL::ComPtr<ID3D12Resource> indexResource_;
 	//インデックスバッファビュー
