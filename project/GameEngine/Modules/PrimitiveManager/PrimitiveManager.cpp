@@ -16,15 +16,15 @@ PrimitiveManager* PrimitiveManager::GetInstance() {
 void PrimitiveManager::Initialize(DirectXCommon* dxCommon, SRVManager* srvManager) {
 
 	//頂点リソースを作る
-	vertexResource_ = dxCommon->CreateBufferResources(sizeof(VertexData) * 4000);
+	vertexResource_ = dxCommon->CreateBufferResources(sizeof(LineVertex) * 4000);
 
 	//頂点バッファビューを作成する
 	//リソースの先頭のアドレスから使う
 	vertexBufferView_.BufferLocation = vertexResource_->GetGPUVirtualAddress();
 	//使用するリソースのサイズは頂点は4つサイズ
-	vertexBufferView_.SizeInBytes = sizeof(VertexData) * 2000;
+	vertexBufferView_.SizeInBytes = sizeof(LineVertex) * 4000;
 	//1頂点あたりのサイズ
-	vertexBufferView_.StrideInBytes = sizeof(VertexData);
+	vertexBufferView_.StrideInBytes = sizeof(LineVertex);
 
 	//Primitive用のインデックスリソースを作る
 	indexResource_ = dxCommon->CreateBufferResources(sizeof(uint32_t) * 4000);
@@ -49,28 +49,16 @@ void PrimitiveManager::Initialize(DirectXCommon* dxCommon, SRVManager* srvManage
 	primitiveResource_[SHAPE_Point].offset.vertexCount = 6;
 	//左
 	vertexData_[primitiveResource_[SHAPE_Point].offset.vertexStart + 0].position = { -0.05f,0.0f,0.0f,1.0f };
-	vertexData_[primitiveResource_[SHAPE_Point].offset.vertexStart + 0].texcoord = { 0.0f,0.0f };
-	vertexData_[primitiveResource_[SHAPE_Point].offset.vertexStart + 0].normal = { 0.0f,0.0f,-1.0f };
 	//右
 	vertexData_[primitiveResource_[SHAPE_Point].offset.vertexStart + 1].position = { 0.05f,0.0f,0.0f,1.0f };
-	vertexData_[primitiveResource_[SHAPE_Point].offset.vertexStart + 1].texcoord = { 1.0f,0.0f };
-	vertexData_[primitiveResource_[SHAPE_Point].offset.vertexStart + 1].normal = { 0.0f,0.0f,-1.0f };
 	//下
 	vertexData_[primitiveResource_[SHAPE_Point].offset.vertexStart + 2].position = { 0.0f,-0.05f,0.0f,1.0f };
-	vertexData_[primitiveResource_[SHAPE_Point].offset.vertexStart + 2].texcoord = { 0.0f,0.0f };
-	vertexData_[primitiveResource_[SHAPE_Point].offset.vertexStart + 2].normal = { 0.0f,0.0f,-1.0f };
 	//上
 	vertexData_[primitiveResource_[SHAPE_Point].offset.vertexStart + 3].position = { 0.0f,0.05f,0.0f,1.0f };
-	vertexData_[primitiveResource_[SHAPE_Point].offset.vertexStart + 3].texcoord = { 0.0f,1.0f };
-	vertexData_[primitiveResource_[SHAPE_Point].offset.vertexStart + 3].normal = { 0.0f,0.0f,-1.0f };
 	//後
 	vertexData_[primitiveResource_[SHAPE_Point].offset.vertexStart + 4].position = { 0.0f,0.0f,-0.05f,1.0f };
-	vertexData_[primitiveResource_[SHAPE_Point].offset.vertexStart + 4].texcoord = { 0.0f,0.0f };
-	vertexData_[primitiveResource_[SHAPE_Point].offset.vertexStart + 4].normal = { 0.0f,0.0f,-1.0f };
 	//前
 	vertexData_[primitiveResource_[SHAPE_Point].offset.vertexStart + 5].position = { 0.0f,0.0f,0.05f,1.0f };
-	vertexData_[primitiveResource_[SHAPE_Point].offset.vertexStart + 5].texcoord = { 1.0f,1.0f };
-	vertexData_[primitiveResource_[SHAPE_Point].offset.vertexStart + 5].normal = { 0.0f,0.0f,-1.0f };
 
 	primitiveResource_[SHAPE_Point].offset.indexStart = 0;
 	primitiveResource_[SHAPE_Point].offset.indexCount = 6;
@@ -90,12 +78,8 @@ void PrimitiveManager::Initialize(DirectXCommon* dxCommon, SRVManager* srvManage
 	primitiveResource_[SHAPE_Line].offset.vertexCount = 2;
 	//左下
 	vertexData_[primitiveResource_[SHAPE_Line].offset.vertexStart + 0].position = { 0.0f,0.0f,0.0f,1.0f };
-	vertexData_[primitiveResource_[SHAPE_Line].offset.vertexStart + 0].texcoord = { 0.0f,1.0f };
-	vertexData_[primitiveResource_[SHAPE_Line].offset.vertexStart + 0].normal = { 0.0f,0.0f,-1.0f };
 	//右下
 	vertexData_[primitiveResource_[SHAPE_Line].offset.vertexStart + 1].position = { 0.0f,0.0f,1.0f,1.0f };
-	vertexData_[primitiveResource_[SHAPE_Line].offset.vertexStart + 1].texcoord = { 1.0f,1.0f };
-	vertexData_[primitiveResource_[SHAPE_Line].offset.vertexStart + 1].normal = { 0.0f,0.0f,-1.0f };
 
 	primitiveResource_[SHAPE_Line].offset.indexStart = primitiveResource_[SHAPE_Point].offset.indexStart + primitiveResource_[SHAPE_Point].offset.indexCount;;
 	primitiveResource_[SHAPE_Line].offset.indexCount = 2;
@@ -145,36 +129,20 @@ void PrimitiveManager::Initialize(DirectXCommon* dxCommon, SRVManager* srvManage
 
 	//左後下
 	vertexData_[primitiveResource_[SHAPE_OBB].offset.vertexStart + 0].position = { -1.0f,1.0f,-1.0f,1.0f };
-	vertexData_[primitiveResource_[SHAPE_OBB].offset.vertexStart + 0].texcoord = { 0.0f,1.0f };
-	vertexData_[primitiveResource_[SHAPE_OBB].offset.vertexStart + 0].normal = { 0.0f,0.0f,-1.0f };
 	//左後上
 	vertexData_[primitiveResource_[SHAPE_OBB].offset.vertexStart + 1].position = { -1.0f,-1.0f,-1.0f,1.0f };
-	vertexData_[primitiveResource_[SHAPE_OBB].offset.vertexStart + 1].texcoord = { 0.0f,0.0f };
-	vertexData_[primitiveResource_[SHAPE_OBB].offset.vertexStart + 1].normal = { 0.0f,0.0f,-1.0f };
 	//右後上
 	vertexData_[primitiveResource_[SHAPE_OBB].offset.vertexStart + 2].position = { 1.0f,-1.0f,-1.0f,1.0f };
-	vertexData_[primitiveResource_[SHAPE_OBB].offset.vertexStart + 2].texcoord = { 1.0f,0.0f };
-	vertexData_[primitiveResource_[SHAPE_OBB].offset.vertexStart + 2].normal = { 0.0f,0.0f,-1.0f };
 	//右後下
 	vertexData_[primitiveResource_[SHAPE_OBB].offset.vertexStart + 3].position = { 1.0f,1.0f,-1.0f,1.0f };
-	vertexData_[primitiveResource_[SHAPE_OBB].offset.vertexStart + 3].texcoord = { 1.0f,1.0f };
-	vertexData_[primitiveResource_[SHAPE_OBB].offset.vertexStart + 3].normal = { 0.0f,0.0f,-1.0f };
 	//左前下
 	vertexData_[primitiveResource_[SHAPE_OBB].offset.vertexStart + 4].position = { -1.0f,1.0f,1.0f,1.0f };
-	vertexData_[primitiveResource_[SHAPE_OBB].offset.vertexStart + 4].texcoord = { 0.0f,1.0f };
-	vertexData_[primitiveResource_[SHAPE_OBB].offset.vertexStart + 4].normal = { 0.0f,0.0f,-1.0f };
 	//左前上
 	vertexData_[primitiveResource_[SHAPE_OBB].offset.vertexStart + 5].position = { -1.0f,-1.0f,1.0f,1.0f };
-	vertexData_[primitiveResource_[SHAPE_OBB].offset.vertexStart + 5].texcoord = { 0.0f,0.0f };
-	vertexData_[primitiveResource_[SHAPE_OBB].offset.vertexStart + 5].normal = { 0.0f,0.0f,-1.0f };
 	//右前上
 	vertexData_[primitiveResource_[SHAPE_OBB].offset.vertexStart + 6].position = { 1.0f,-1.0f,1.0f,1.0f };
-	vertexData_[primitiveResource_[SHAPE_OBB].offset.vertexStart + 6].texcoord = { 1.0f,0.0f };
-	vertexData_[primitiveResource_[SHAPE_OBB].offset.vertexStart + 6].normal = { 0.0f,0.0f,-1.0f };
 	//右前下
 	vertexData_[primitiveResource_[SHAPE_OBB].offset.vertexStart + 7].position = { 1.0f,1.0f,1.0f,1.0f };
-	vertexData_[primitiveResource_[SHAPE_OBB].offset.vertexStart + 7].texcoord = { 1.0f,1.0f };
-	vertexData_[primitiveResource_[SHAPE_OBB].offset.vertexStart + 7].normal = { 0.0f,0.0f,-1.0f };
 
 	primitiveResource_[SHAPE_OBB].offset.indexStart = primitiveResource_[SHAPE_Line].offset.indexStart + primitiveResource_[SHAPE_Line].offset.indexCount;
 	primitiveResource_[SHAPE_OBB].offset.indexCount = 24;
@@ -209,13 +177,9 @@ void PrimitiveManager::Initialize(DirectXCommon* dxCommon, SRVManager* srvManage
 
 	//y = 1の頂点
 	vertexData_[primitiveResource_[SHAPE_Sphere].offset.vertexStart + topVertexNum].position = { 0.0f,1.0f,0.0f,1.0f };
-	vertexData_[primitiveResource_[SHAPE_Sphere].offset.vertexStart + topVertexNum].texcoord = { 0.0f,1.0f };
-	vertexData_[primitiveResource_[SHAPE_Sphere].offset.vertexStart + topVertexNum].normal = { 0.0f,0.0f,-1.0f };
 
 	//y = -1の頂点
 	vertexData_[primitiveResource_[SHAPE_Sphere].offset.vertexStart + bottomVertexNum].position = { 0.0f,-1.0f,0.0f,1.0f };
-	vertexData_[primitiveResource_[SHAPE_Sphere].offset.vertexStart + bottomVertexNum].texcoord = { 0.0f,1.0f };
-	vertexData_[primitiveResource_[SHAPE_Sphere].offset.vertexStart + bottomVertexNum].normal = { 0.0f,0.0f,-1.0f };
 
 	//角度
 	const float ringAngle = std::numbers::pi_v<float> / ringNum;
@@ -229,8 +193,6 @@ void PrimitiveManager::Initialize(DirectXCommon* dxCommon, SRVManager* srvManage
 				cosf(ringAngle * y),
 				sinf(segmentAngle * x)* sinf(ringAngle * y),
 				1.0f };
-			vertexData_[primitiveResource_[SHAPE_Sphere].offset.vertexStart + (y - 1) * segmentNum + x + 2].texcoord = { 0.0f,1.0f };
-			vertexData_[primitiveResource_[SHAPE_Sphere].offset.vertexStart + (y - 1) * segmentNum + x + 2].normal = { 0.0f,0.0f,-1.0f };
 		}
 	}
 

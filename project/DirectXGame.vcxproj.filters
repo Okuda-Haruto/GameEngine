@@ -25,16 +25,7 @@
     <FxCompile Include="resources\Shader\Object2d.PS.hlsl">
       <Filter>GameEngine\Shader</Filter>
     </FxCompile>
-    <FxCompile Include="resources\Shader\Sprite2d.VS.hlsl">
-      <Filter>GameEngine\Shader</Filter>
-    </FxCompile>
-    <FxCompile Include="resources\Shader\Sprite2d.PS.hlsl">
-      <Filter>GameEngine\Shader</Filter>
-    </FxCompile>
     <FxCompile Include="resources\Shader\InstanceObject3d.PS.hlsl">
-      <Filter>GameEngine\Shader</Filter>
-    </FxCompile>
-    <FxCompile Include="resources\Shader\InstanceLine.PS.hlsl">
       <Filter>GameEngine\Shader</Filter>
     </FxCompile>
     <FxCompile Include="resources\Shader\CopyImage.PS.hlsl">
@@ -86,6 +77,24 @@
       <Filter>GameEngine\Shader\Primitive</Filter>
     </FxCompile>
     <FxCompile Include="resources\Shader\Primitive3d_Plane.hlsl">
+      <Filter>GameEngine\Shader\Primitive</Filter>
+    </FxCompile>
+    <FxCompile Include="resources\Shader\Sprite2d.VS.hlsl">
+      <Filter>GameEngine\Shader\Sprite</Filter>
+    </FxCompile>
+    <FxCompile Include="resources\Shader\Sprite2d.PS.hlsl">
+      <Filter>GameEngine\Shader\Sprite</Filter>
+    </FxCompile>
+    <FxCompile Include="resources\Shader\InstanceSprite2d.PS.hlsl">
+      <Filter>GameEngine\Shader\Sprite</Filter>
+    </FxCompile>
+    <FxCompile Include="resources\Shader\InstanceSprite2d.VS.hlsl">
+      <Filter>GameEngine\Shader\Sprite</Filter>
+    </FxCompile>
+    <FxCompile Include="resources\Shader\InstanceLine.PS.hlsl">
+      <Filter>GameEngine\Shader\Primitive</Filter>
+    </FxCompile>
+    <FxCompile Include="resources\Shader\InstanceLine.VS.hlsl">
       <Filter>GameEngine\Shader\Primitive</Filter>
     </FxCompile>
   </ItemGroup>
@@ -726,6 +735,9 @@
     <ClInclude Include="Application\HUD\Target\Target.h">
       <Filter>Application\HUD\Target</Filter>
     </ClInclude>
+    <ClInclude Include="GameEngine\Data\LineVertex.h">
+      <Filter>GameEngine\Data</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -733,9 +745,6 @@
       <Filter>GameEngine\Shader</Filter>
     </None>
     <None Include="resources\Shader\Particle.hlsli">
-      <Filter>GameEngine\Shader</Filter>
-    </None>
-    <None Include="resources\Shader\Sprite2d.hlsli">
       <Filter>GameEngine\Shader</Filter>
     </None>
     <None Include="resources\Shader\InstanceObject3d.hlsli">
@@ -754,6 +763,15 @@
       <Filter>GameEngine\Shader</Filter>
     </None>
     <None Include="resources\Shader\Primitive.hlsli">
+      <Filter>GameEngine\Shader\Primitive</Filter>
+    </None>
+    <None Include="resources\Shader\Sprite2d.hlsli">
+      <Filter>GameEngine\Shader\Sprite</Filter>
+    </None>
+    <None Include="resources\Shader\InstanceSprite2d.hlsli">
+      <Filter>GameEngine\Shader\Sprite</Filter>
+    </None>
+    <None Include="resources\Shader\InstanceLine.hlsli">
       <Filter>GameEngine\Shader\Primitive</Filter>
     </None>
   </ItemGroup>
@@ -1012,6 +1030,9 @@
     </Filter>
     <Filter Include="Application\HUD\Target">
       <UniqueIdentifier>{1a2f6d56-0af3-4d57-ba47-3b7ecedbfd09}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\Shader\Sprite">
+      <UniqueIdentifier>{f1174916-cea0-47d4-a082-e7c837f936bd}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

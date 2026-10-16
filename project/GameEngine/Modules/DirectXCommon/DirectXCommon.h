@@ -132,6 +132,8 @@ public:
 	const Microsoft::WRL::ComPtr <ID3D12RootSignature> Object_RootSignatureInitialvalue();
 	const Microsoft::WRL::ComPtr <ID3D12RootSignature> Object_Instancing_RootSignatureInitialvalue();
 	const Microsoft::WRL::ComPtr <ID3D12RootSignature> Sprite_RootSignatureInitialvalue();
+	const Microsoft::WRL::ComPtr <ID3D12RootSignature> Sprite_Instancing_RootSignatureInitialvalue();
+	const Microsoft::WRL::ComPtr <ID3D12RootSignature> Line_Instancing_RootSignatureInitialvalue();
 	const Microsoft::WRL::ComPtr <ID3D12RootSignature> Particle_RootSignatureInitialvalue();
 	const Microsoft::WRL::ComPtr <ID3D12RootSignature> Fog_RootSignatureInitialvalue();
 	const Microsoft::WRL::ComPtr <ID3D12RootSignature> Screen_RootSignatureInitialvalue();

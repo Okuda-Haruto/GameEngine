@@ -133,6 +133,8 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	object_RootSignature_ = dxCommon_->Object_RootSignatureInitialvalue();
 	object_Instancing_RootSignature_ = dxCommon_->Object_Instancing_RootSignatureInitialvalue();
 	sprite_RootSignature_ = dxCommon_->Sprite_RootSignatureInitialvalue();
+	sprite_Instancing_RootSignature_ = dxCommon_->Sprite_Instancing_RootSignatureInitialvalue();
+	line_Instancing_RootSignature_ = dxCommon_->Line_Instancing_RootSignatureInitialvalue();
 	particle_RootSignature_ = dxCommon_->Particle_RootSignatureInitialvalue();
 	screen_RootSignature_ = dxCommon_->Screen_RootSignatureInitialvalue();
 	screen_ColorChange_RootSignature_ = dxCommon_->Screen_ColorChange_RootSignatureInitialvalue();
@@ -143,28 +145,34 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	cubemap_RootSignature_ = dxCommon_->Cubemap_RootSignatureInitialvalue();
 
 	//Shaderをコンパイルする
-	Microsoft::WRL::ComPtr<IDxcBlob> Object3DVertexShaderBlob = dxCommon_->CompileShader(L"./resources/Shader/Object3D.VS.hlsl", L"vs_6_0");
-	assert(Object3DVertexShaderBlob != nullptr);
-	Microsoft::WRL::ComPtr<IDxcBlob> Object3DPixelShaderBlob = dxCommon_->CompileShader(L"./resources/Shader/Object3D.PS.hlsl", L"ps_6_0");
-	assert(Object3DPixelShaderBlob != nullptr);
-	Microsoft::WRL::ComPtr<IDxcBlob> Object2DVertexShaderBlob = dxCommon_->CompileShader(L"./resources/Shader/Object2D.VS.hlsl", L"vs_6_0");
-	assert(Object2DVertexShaderBlob != nullptr);
-	Microsoft::WRL::ComPtr<IDxcBlob> Object2DPixelShaderBlob = dxCommon_->CompileShader(L"./resources/Shader/Object2D.PS.hlsl", L"ps_6_0");
-	assert(Object2DPixelShaderBlob != nullptr);
-	Microsoft::WRL::ComPtr<IDxcBlob> instancingObjectVertexShaderBlob = dxCommon_->CompileShader(L"./resources/Shader/InstanceObject3D.VS.hlsl", L"vs_6_0");
-	assert(instancingObjectVertexShaderBlob != nullptr);
-	Microsoft::WRL::ComPtr<IDxcBlob> instancingObjectPixelShaderBlob = dxCommon_->CompileShader(L"./resources/Shader/InstanceObject3D.PS.hlsl", L"ps_6_0");
-	assert(instancingObjectPixelShaderBlob != nullptr);
-	Microsoft::WRL::ComPtr<IDxcBlob> instancingLinePixelShaderBlob = dxCommon_->CompileShader(L"./resources/Shader/InstanceLine.PS.hlsl", L"ps_6_0");
-	assert(instancingLinePixelShaderBlob != nullptr);
-	Microsoft::WRL::ComPtr<IDxcBlob> Sprite2DVertexShaderBlob = dxCommon_->CompileShader(L"./resources/Shader/Sprite2D.VS.hlsl", L"vs_6_0");
-	assert(Sprite2DVertexShaderBlob != nullptr);
-	Microsoft::WRL::ComPtr<IDxcBlob> Sprite2DPixelShaderBlob = dxCommon_->CompileShader(L"./resources/Shader/Sprite2D.PS.hlsl", L"ps_6_0");
-	assert(Sprite2DPixelShaderBlob != nullptr);
-	Microsoft::WRL::ComPtr<IDxcBlob> particleVSBlob = dxCommon_->CompileShader(L"./resources/Shader/Particle.VS.hlsl", L"vs_6_0");
-	assert(particleVSBlob != nullptr);
-	Microsoft::WRL::ComPtr<IDxcBlob> particlePSBlob = dxCommon_->CompileShader(L"./resources/Shader/Particle.PS.hlsl", L"ps_6_0");
-	assert(particlePSBlob != nullptr);
+	Microsoft::WRL::ComPtr<IDxcBlob> Object3DVSBlob = dxCommon_->CompileShader(L"./resources/Shader/Object3D.VS.hlsl", L"vs_6_0");
+	assert(Object3DVSBlob != nullptr);
+	Microsoft::WRL::ComPtr<IDxcBlob> Object3DPSBlob = dxCommon_->CompileShader(L"./resources/Shader/Object3D.PS.hlsl", L"ps_6_0");
+	assert(Object3DPSBlob != nullptr);
+	Microsoft::WRL::ComPtr<IDxcBlob> Object2DVSBlob = dxCommon_->CompileShader(L"./resources/Shader/Object2D.VS.hlsl", L"vs_6_0");
+	assert(Object2DVSBlob != nullptr);
+	Microsoft::WRL::ComPtr<IDxcBlob> Object2DPSBlob = dxCommon_->CompileShader(L"./resources/Shader/Object2D.PS.hlsl", L"ps_6_0");
+	assert(Object2DPSBlob != nullptr);
+	Microsoft::WRL::ComPtr<IDxcBlob> InstancingObjectVSBlob = dxCommon_->CompileShader(L"./resources/Shader/InstanceObject3D.VS.hlsl", L"vs_6_0");
+	assert(InstancingObjectVSBlob != nullptr);
+	Microsoft::WRL::ComPtr<IDxcBlob> InstancingObjectPSBlob = dxCommon_->CompileShader(L"./resources/Shader/InstanceObject3D.PS.hlsl", L"ps_6_0");
+	assert(InstancingObjectPSBlob != nullptr);
+	Microsoft::WRL::ComPtr<IDxcBlob> InstancingLineVSBlob = dxCommon_->CompileShader(L"./resources/Shader/InstanceLine.VS.hlsl", L"vs_6_0");
+	assert(InstancingLineVSBlob != nullptr);
+	Microsoft::WRL::ComPtr<IDxcBlob> InstancingLinePSBlob = dxCommon_->CompileShader(L"./resources/Shader/InstanceLine.PS.hlsl", L"ps_6_0");
+	assert(InstancingLinePSBlob != nullptr);
+	Microsoft::WRL::ComPtr<IDxcBlob> Sprite2DVSBlob = dxCommon_->CompileShader(L"./resources/Shader/Sprite2D.VS.hlsl", L"vs_6_0");
+	assert(Sprite2DVSBlob != nullptr);
+	Microsoft::WRL::ComPtr<IDxcBlob> Sprite2DPSBlob = dxCommon_->CompileShader(L"./resources/Shader/Sprite2D.PS.hlsl", L"ps_6_0");
+	assert(Sprite2DPSBlob != nullptr);
+	Microsoft::WRL::ComPtr<IDxcBlob> InstanceSprite2DVSBlob = dxCommon_->CompileShader(L"./resources/Shader/InstanceSprite2D.VS.hlsl", L"vs_6_0");
+	assert(InstanceSprite2DVSBlob != nullptr);
+	Microsoft::WRL::ComPtr<IDxcBlob> InstanceSprite2DPSBlob = dxCommon_->CompileShader(L"./resources/Shader/InstanceSprite2D.PS.hlsl", L"ps_6_0");
+	assert(InstanceSprite2DPSBlob != nullptr);
+	Microsoft::WRL::ComPtr<IDxcBlob> ParticleVSBlob = dxCommon_->CompileShader(L"./resources/Shader/Particle.VS.hlsl", L"vs_6_0");
+	assert(ParticleVSBlob != nullptr);
+	Microsoft::WRL::ComPtr<IDxcBlob> ParticlePSBlob = dxCommon_->CompileShader(L"./resources/Shader/Particle.PS.hlsl", L"ps_6_0");
+	assert(ParticlePSBlob != nullptr);
 	Microsoft::WRL::ComPtr<IDxcBlob> CopyImageVSBlob = dxCommon_->CompileShader(L"./resources/Shader/CopyImage.VS.hlsl", L"vs_6_0");
 	assert(CopyImageVSBlob != nullptr);
 	Microsoft::WRL::ComPtr<IDxcBlob> CopyImagePSBlob = dxCommon_->CompileShader(L"./resources/Shader/CopyImage.PS.hlsl", L"ps_6_0");
@@ -189,16 +197,17 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	assert(CubemapPSBlob != nullptr);
 
 	//PSOを生成
-	object3D_PipelineState_ = Triangle_PipelineStateInitialvalue(device_, object_RootSignature_, Object3DVertexShaderBlob.Get(), Object3DPixelShaderBlob.Get());
-	object2D_PipelineState_ = Triangle_PipelineStateInitialvalue(device_, object_RootSignature_, Object2DVertexShaderBlob.Get(), Object2DPixelShaderBlob.Get());
-	object3D_NoDepth_PipelineState_ = Triangle_NoDepth_PipelineStateInitialvalue(device_, object_RootSignature_, Object3DVertexShaderBlob.Get(), Object3DPixelShaderBlob.Get());
-	object3D_Instancing_PipelineState_ = Triangle_Instancing_PipelineStateInitialvalue(device_, object_Instancing_RootSignature_, instancingObjectVertexShaderBlob.Get(), instancingObjectPixelShaderBlob.Get());
-	particle_PipelineState_ = Particle_PipelineStateInitialvalue(device_, particle_RootSignature_, particleVSBlob.Get(), particlePSBlob.Get());
-	particle_AddBlend_PipelineState_ = Particle_AddBlend_PipelineStateInitialvalue(device_, particle_RootSignature_, particleVSBlob.Get(), particlePSBlob.Get());
-	sprite_PipelineState_ = Sprite_PipelineStateInitialvalue(device_, sprite_RootSignature_, Sprite2DVertexShaderBlob.Get(), Sprite2DPixelShaderBlob.Get());
-	line_PipelineState_ = Line_PipelineStateInitialvalue(device_, object_Instancing_RootSignature_, particleVSBlob.Get(), instancingLinePixelShaderBlob.Get());
-	line_NoDepth_PipelineState_ = Line_NoDepth_PipelineStateInitialvalue(device_, object_Instancing_RootSignature_, particleVSBlob.Get(), instancingLinePixelShaderBlob.Get());
-	effect_Cyinder_PipelineState_ = Effect_Cylinder_PipelineStateInitialvalue(device_, object_RootSignature_, Object3DVertexShaderBlob.Get(), Object3DPixelShaderBlob.Get());
+	object3D_PipelineState_ = Triangle_PipelineStateInitialvalue(device_, object_RootSignature_, Object3DVSBlob.Get(), Object3DPSBlob.Get());
+	object2D_PipelineState_ = Triangle_PipelineStateInitialvalue(device_, object_RootSignature_, Object2DVSBlob.Get(), Object2DPSBlob.Get());
+	object3D_NoDepth_PipelineState_ = Triangle_NoDepth_PipelineStateInitialvalue(device_, object_RootSignature_, Object3DVSBlob.Get(), Object3DPSBlob.Get());
+	object3D_Instancing_PipelineState_ = Triangle_Instancing_PipelineStateInitialvalue(device_, object_Instancing_RootSignature_, InstancingObjectVSBlob.Get(), InstancingObjectPSBlob.Get());
+	particle_PipelineState_ = Particle_PipelineStateInitialvalue(device_, particle_RootSignature_, ParticleVSBlob.Get(), ParticlePSBlob.Get());
+	particle_AddBlend_PipelineState_ = Particle_AddBlend_PipelineStateInitialvalue(device_, particle_RootSignature_, ParticleVSBlob.Get(), ParticlePSBlob.Get());
+	sprite_PipelineState_ = Sprite_PipelineStateInitialvalue(device_, sprite_RootSignature_, Sprite2DVSBlob.Get(), Sprite2DPSBlob.Get());
+	sprite_Instancing_PipelineState_ = Sprite_Instancing_PipelineStateInitialvalue(device_, sprite_Instancing_RootSignature_, InstanceSprite2DVSBlob.Get(), InstanceSprite2DPSBlob.Get());
+	line_PipelineState_ = Line_PipelineStateInitialvalue(device_, line_Instancing_RootSignature_, InstancingLineVSBlob.Get(), InstancingLinePSBlob.Get());
+	line_NoDepth_PipelineState_ = Line_NoDepth_PipelineStateInitialvalue(device_, line_Instancing_RootSignature_, InstancingLineVSBlob.Get(), InstancingLinePSBlob.Get());
+	effect_Cyinder_PipelineState_ = Effect_Cylinder_PipelineStateInitialvalue(device_, object_RootSignature_, Object3DVSBlob.Get(), Object3DPSBlob.Get());
 	screen_PipelineState_ = Screen_PipelineStateInitialvalue(device_, screen_RootSignature_, CopyImageVSBlob.Get(), CopyImagePSBlob.Get());
 	screen_ColorChange_PipelineState_ = Screen_PipelineStateInitialvalue(device_, screen_RootSignature_, CopyImageVSBlob.Get(), ColorChangePSBlob.Get());
 	screen_Vignette_PipelineState_ = Screen_PipelineStateInitialvalue(device_, screen_Vignette_RootSignature_, CopyImageVSBlob.Get(), VignettePSBlob.Get());
@@ -1118,7 +1127,7 @@ void GameEngine::DrawInstancingSprite_2D_(std::list<Sprite*> sprits) {
 
 		if (numInstance >= kMaxNumInstance)break;
 
-		Matrix4x4 worldMatrix = MakeAffineMatrix((*SpriteIterator)->GetTransform().translate, (*SpriteIterator)->GetTransform().rotate, (*SpriteIterator)->GetTransform().translate);
+		Matrix4x4 worldMatrix = MakeAffineMatrix((*SpriteIterator)->GetTransform().scale, (*SpriteIterator)->GetTransform().rotate, (*SpriteIterator)->GetTransform().translate);
 		instancingSpriteData_[instancingSpriteIndex_][numInstance]->World = worldMatrix;
 		instancingSpriteData_[instancingSpriteIndex_][numInstance]->WorldInverseTranspose = Transpose(Inverse(worldMatrix));
 		Matrix4x4 worldViewProjectionMatrix = worldMatrix * viewMatrix * projectionMatrix;
@@ -1364,7 +1373,7 @@ void GameEngine::DrawOutline_(std::string textureName, std::shared_ptr<Camera> c
 
 void GameEngine::DrawLine_(std::list<PrimitiveManager::PrimitiveLine> lines, PrimitiveManager::PrimitiveResource primitiveResource) {
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-	commandList_->SetGraphicsRootSignature(object_Instancing_RootSignature_.Get());
+	commandList_->SetGraphicsRootSignature(line_Instancing_RootSignature_.Get());
 	commandList_->SetPipelineState(line_NoDepth_PipelineState_.Get());	//PSOを設定
 
 	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
@@ -1374,9 +1383,6 @@ void GameEngine::DrawLine_(std::list<PrimitiveManager::PrimitiveLine> lines, Pri
 	commandList_->IASetIndexBuffer(&PrimitiveManager::GetInstance()->GetIndexBufferView());	//IBVを設定
 
 	Camera* camera = Object::GetDefaultCamera().lock().get();
-
-	//カメラのワールド座標をCBufferに送る
-	commandList_->SetGraphicsRootConstantBufferView(4, camera->CameraResource()->GetGPUVirtualAddress());
 
 	//WVPデータを更新
 	InstancingTransformationMatrix* mappedBase = nullptr;
@@ -1420,27 +1426,8 @@ void GameEngine::DrawLine_(std::list<PrimitiveManager::PrimitiveLine> lines, Pri
 
 	primitiveResource_[PrimitiveManager::SHAPE_Line]->Unmap(0, nullptr);
 
-	//マテリアルデータを更新
-	primitiveMaterialResource_[PrimitiveManager::SHAPE_Line]->Map(0, nullptr, reinterpret_cast<void**>(&primitiveMaterialData_[PrimitiveManager::SHAPE_Line]));
-
-	primitiveMaterialData_[PrimitiveManager::SHAPE_Line]->uvTransform = MakeIdentity4x4();
-	primitiveMaterialData_[PrimitiveManager::SHAPE_Line]->enableDirectionalLighting = false;
-	primitiveMaterialData_[PrimitiveManager::SHAPE_Line]->enablePointLighting = false;
-	primitiveMaterialData_[PrimitiveManager::SHAPE_Line]->enableSpotLighting = false;
-	primitiveMaterialData_[PrimitiveManager::SHAPE_Line]->reflection = 0;
-	primitiveMaterialData_[PrimitiveManager::SHAPE_Line]->shininess = 0;
-	primitiveMaterialData_[PrimitiveManager::SHAPE_Line]->color = { 1.0f,1.0f,1.0f,1.0f };
-
-	primitiveMaterialResource_[PrimitiveManager::SHAPE_Line]->Unmap(0, nullptr);
-
-	//マテリアルCBufferの場所を設定
-	commandList_->SetGraphicsRootConstantBufferView(0, primitiveMaterialResource_[PrimitiveManager::SHAPE_Line]->GetGPUVirtualAddress());
-	//wvp用のCBufferの場所を設定
-
-	//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
-	commandList_->SetGraphicsRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(TextureManager::GetInstance()->GetWhite2x2()));
-
-	commandList_->SetGraphicsRootDescriptorTable(1, srvManager_->GetGPUDescriptorHandle(primitiveResource.instancingIndex));
+	//wvp用のBufferの場所を設定
+	commandList_->SetGraphicsRootDescriptorTable(0, srvManager_->GetGPUDescriptorHandle(primitiveResource.instancingIndex));
 
 	// SRV を作成（NumElements と stride は一致させる）
 	srvManager_->CreateSRVforStructuredBuffer(primitiveResource.instancingIndex, primitiveResource_[PrimitiveManager::SHAPE_Line].Get(), PrimitiveManager::kMaxNumPrimitive, sizeof(InstancingTransformationMatrix));
@@ -1450,7 +1437,7 @@ void GameEngine::DrawLine_(std::list<PrimitiveManager::PrimitiveLine> lines, Pri
 
 void GameEngine::DrawPoint_(std::list<PrimitiveManager::PrimitivePoint> points, PrimitiveManager::PrimitiveResource primitiveResource) {
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-	commandList_->SetGraphicsRootSignature(object_Instancing_RootSignature_.Get());
+	commandList_->SetGraphicsRootSignature(line_Instancing_RootSignature_.Get());
 	commandList_->SetPipelineState(line_NoDepth_PipelineState_.Get());	//PSOを設定
 
 	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
@@ -1460,9 +1447,6 @@ void GameEngine::DrawPoint_(std::list<PrimitiveManager::PrimitivePoint> points, 
 	commandList_->IASetIndexBuffer(&PrimitiveManager::GetInstance()->GetIndexBufferView());	//IBVを設定
 
 	Camera* camera = Object::GetDefaultCamera().lock().get();
-
-	//カメラのワールド座標をCBufferに送る
-	commandList_->SetGraphicsRootConstantBufferView(4, camera->CameraResource()->GetGPUVirtualAddress());
 
 	//WVPデータを更新
 	InstancingTransformationMatrix* mappedBase = nullptr;
@@ -1499,27 +1483,8 @@ void GameEngine::DrawPoint_(std::list<PrimitiveManager::PrimitivePoint> points, 
 
 	primitiveResource_[PrimitiveManager::SHAPE_Point]->Unmap(0, nullptr);
 
-	//マテリアルデータを更新
-	primitiveMaterialResource_[PrimitiveManager::SHAPE_Point]->Map(0, nullptr, reinterpret_cast<void**>(&primitiveMaterialData_[PrimitiveManager::SHAPE_Point]));
-
-	primitiveMaterialData_[PrimitiveManager::SHAPE_Point]->uvTransform = MakeIdentity4x4();
-	primitiveMaterialData_[PrimitiveManager::SHAPE_Point]->enableDirectionalLighting = false;
-	primitiveMaterialData_[PrimitiveManager::SHAPE_Point]->enablePointLighting = false;
-	primitiveMaterialData_[PrimitiveManager::SHAPE_Point]->enableSpotLighting = false;
-	primitiveMaterialData_[PrimitiveManager::SHAPE_Point]->reflection = 0;
-	primitiveMaterialData_[PrimitiveManager::SHAPE_Point]->shininess = 0;
-	primitiveMaterialData_[PrimitiveManager::SHAPE_Point]->color = { 1.0f,1.0f,1.0f,1.0f };
-
-	primitiveMaterialResource_[PrimitiveManager::SHAPE_Point]->Unmap(0, nullptr);
-
-	//マテリアルCBufferの場所を設定
-	commandList_->SetGraphicsRootConstantBufferView(0, primitiveMaterialResource_[PrimitiveManager::SHAPE_Point]->GetGPUVirtualAddress());
-	//wvp用のCBufferの場所を設定
-
-	//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
-	commandList_->SetGraphicsRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(TextureManager::GetInstance()->GetWhite2x2()));
-
-	commandList_->SetGraphicsRootDescriptorTable(1, srvManager_->GetGPUDescriptorHandle(primitiveResource.instancingIndex));
+	//wvp用のBufferの場所を設定
+	commandList_->SetGraphicsRootDescriptorTable(0, srvManager_->GetGPUDescriptorHandle(primitiveResource.instancingIndex));
 
 	// SRV を作成（NumElements と stride は一致させる）
 	srvManager_->CreateSRVforStructuredBuffer(primitiveResource.instancingIndex, primitiveResource_[PrimitiveManager::SHAPE_Point].Get(), PrimitiveManager::kMaxNumPrimitive, sizeof(InstancingTransformationMatrix));
@@ -1529,7 +1494,7 @@ void GameEngine::DrawPoint_(std::list<PrimitiveManager::PrimitivePoint> points, 
 
 void GameEngine::DrawOBB_(std::list<PrimitiveManager::PrimitiveOBB> obbs, PrimitiveManager::PrimitiveResource primitiveResource) {
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-	commandList_->SetGraphicsRootSignature(object_Instancing_RootSignature_.Get());
+	commandList_->SetGraphicsRootSignature(line_Instancing_RootSignature_.Get());
 	commandList_->SetPipelineState(line_NoDepth_PipelineState_.Get());	//PSOを設定
 
 	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
@@ -1539,9 +1504,6 @@ void GameEngine::DrawOBB_(std::list<PrimitiveManager::PrimitiveOBB> obbs, Primit
 	commandList_->IASetIndexBuffer(&PrimitiveManager::GetInstance()->GetIndexBufferView());	//IBVを設定
 
 	Camera* camera = Object::GetDefaultCamera().lock().get();
-
-	//カメラのワールド座標をCBufferに送る
-	commandList_->SetGraphicsRootConstantBufferView(4, camera->CameraResource()->GetGPUVirtualAddress());
 
 	//WVPデータを更新
 	InstancingTransformationMatrix* mappedBase = nullptr;
@@ -1582,27 +1544,8 @@ void GameEngine::DrawOBB_(std::list<PrimitiveManager::PrimitiveOBB> obbs, Primit
 
 	primitiveResource_[PrimitiveManager::SHAPE_OBB]->Unmap(0, nullptr);
 
-	//マテリアルデータを更新
-	primitiveMaterialResource_[PrimitiveManager::SHAPE_OBB]->Map(0, nullptr, reinterpret_cast<void**>(&primitiveMaterialData_[PrimitiveManager::SHAPE_OBB]));
-
-	primitiveMaterialData_[PrimitiveManager::SHAPE_OBB]->uvTransform = MakeIdentity4x4();
-	primitiveMaterialData_[PrimitiveManager::SHAPE_OBB]->enableDirectionalLighting = false;
-	primitiveMaterialData_[PrimitiveManager::SHAPE_OBB]->enablePointLighting = false;
-	primitiveMaterialData_[PrimitiveManager::SHAPE_OBB]->enableSpotLighting = false;
-	primitiveMaterialData_[PrimitiveManager::SHAPE_OBB]->reflection = 0;
-	primitiveMaterialData_[PrimitiveManager::SHAPE_OBB]->shininess = 0;
-	primitiveMaterialData_[PrimitiveManager::SHAPE_OBB]->color = { 1.0f,1.0f,1.0f,1.0f };
-
-	primitiveMaterialResource_[PrimitiveManager::SHAPE_OBB]->Unmap(0, nullptr);
-
-	//マテリアルCBufferの場所を設定
-	commandList_->SetGraphicsRootConstantBufferView(0, primitiveMaterialResource_[PrimitiveManager::SHAPE_OBB]->GetGPUVirtualAddress());
-	//wvp用のCBufferの場所を設定
-
-	//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
-	commandList_->SetGraphicsRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(TextureManager::GetInstance()->GetWhite2x2()));
-
-	commandList_->SetGraphicsRootDescriptorTable(1, srvManager_->GetGPUDescriptorHandle(primitiveResource.instancingIndex));
+	//wvp用のBufferの場所を設定
+	commandList_->SetGraphicsRootDescriptorTable(0, srvManager_->GetGPUDescriptorHandle(primitiveResource.instancingIndex));
 
 	// SRV を作成（NumElements と stride は一致させる）
 	srvManager_->CreateSRVforStructuredBuffer(primitiveResource.instancingIndex, primitiveResource_[PrimitiveManager::SHAPE_OBB].Get(), PrimitiveManager::kMaxNumPrimitive, sizeof(InstancingTransformationMatrix));
@@ -1612,7 +1555,7 @@ void GameEngine::DrawOBB_(std::list<PrimitiveManager::PrimitiveOBB> obbs, Primit
 
 void GameEngine::DrawSphere_(std::list<PrimitiveManager::PrimitiveSphere> spheres, PrimitiveManager::PrimitiveResource primitiveResource) {
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-	commandList_->SetGraphicsRootSignature(object_Instancing_RootSignature_.Get());
+	commandList_->SetGraphicsRootSignature(line_Instancing_RootSignature_.Get());
 	commandList_->SetPipelineState(line_NoDepth_PipelineState_.Get());	//PSOを設定
 
 	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
@@ -1622,9 +1565,6 @@ void GameEngine::DrawSphere_(std::list<PrimitiveManager::PrimitiveSphere> sphere
 	commandList_->IASetIndexBuffer(&PrimitiveManager::GetInstance()->GetIndexBufferView());	//IBVを設定
 
 	Camera* camera = Object::GetDefaultCamera().lock().get();
-
-	//カメラのワールド座標をCBufferに送る
-	commandList_->SetGraphicsRootConstantBufferView(4, camera->CameraResource()->GetGPUVirtualAddress());
 
 	//WVPデータを更新
 	InstancingTransformationMatrix* mappedBase = nullptr;
@@ -1662,27 +1602,8 @@ void GameEngine::DrawSphere_(std::list<PrimitiveManager::PrimitiveSphere> sphere
 
 	primitiveResource_[PrimitiveManager::SHAPE_Sphere]->Unmap(0, nullptr);
 
-	//マテリアルデータを更新
-	primitiveMaterialResource_[PrimitiveManager::SHAPE_Sphere]->Map(0, nullptr, reinterpret_cast<void**>(&primitiveMaterialData_[PrimitiveManager::SHAPE_Sphere]));
-
-	primitiveMaterialData_[PrimitiveManager::SHAPE_Sphere]->uvTransform = MakeIdentity4x4();
-	primitiveMaterialData_[PrimitiveManager::SHAPE_Sphere]->enableDirectionalLighting = false;
-	primitiveMaterialData_[PrimitiveManager::SHAPE_Sphere]->enablePointLighting = false;
-	primitiveMaterialData_[PrimitiveManager::SHAPE_Sphere]->enableSpotLighting = false;
-	primitiveMaterialData_[PrimitiveManager::SHAPE_Sphere]->reflection = 0;
-	primitiveMaterialData_[PrimitiveManager::SHAPE_Sphere]->shininess = 0;
-	primitiveMaterialData_[PrimitiveManager::SHAPE_Sphere]->color = { 1.0f,1.0f,1.0f,1.0f };
-
-	primitiveMaterialResource_[PrimitiveManager::SHAPE_Sphere]->Unmap(0, nullptr);
-
-	//マテリアルCBufferの場所を設定
-	commandList_->SetGraphicsRootConstantBufferView(0, primitiveMaterialResource_[PrimitiveManager::SHAPE_Sphere]->GetGPUVirtualAddress());
-	//wvp用のCBufferの場所を設定
-
-	//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
-	commandList_->SetGraphicsRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(TextureManager::GetInstance()->GetWhite2x2()));
-
-	commandList_->SetGraphicsRootDescriptorTable(1, srvManager_->GetGPUDescriptorHandle(primitiveResource.instancingIndex));
+	//wvp用のBufferの場所を設定
+	commandList_->SetGraphicsRootDescriptorTable(0, srvManager_->GetGPUDescriptorHandle(primitiveResource.instancingIndex));
 
 	// SRV を作成（NumElements と stride は一致させる）
 	srvManager_->CreateSRVforStructuredBuffer(primitiveResource.instancingIndex, primitiveResource_[PrimitiveManager::SHAPE_Sphere].Get(), PrimitiveManager::kMaxNumPrimitive, sizeof(InstancingTransformationMatrix));
