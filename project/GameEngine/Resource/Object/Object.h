@@ -8,9 +8,9 @@
 #include "Parts.h"
 #include <AnimationInterpolation.h>
 #include <Camera/Camera.h>
-#include <DirectionalLight/DirectionalLight.h>
-#include <PointLight/PointLight.h>
-#include <SpotLight/SpotLight.h>
+#include <Light/DirectionalLight/DirectionalLight.h>
+#include <Light/PointLight/PointLight.h>
+#include <Light/SpotLight/SpotLight.h>
 #include <Joint.h>
 
 using namespace std;

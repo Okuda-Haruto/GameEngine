@@ -1,18 +1,12 @@
 #pragma once
-
-#include <d3d12.h>
-
-#include <wrl.h>
+#include "../Light.h"
 #include "PointLightElement.h"
-#include "DirectXCommon/DirectXCommon.h"
 
 //光源
-class PointLight {
+class PointLight : public Light {
 private:
-	//光源用のリソース
-	Microsoft::WRL::ComPtr<ID3D12Resource> PointLightElementResource_;
 	//光源データ
-	PointLightElement* PointLightElementData_ = nullptr;
+	PointLightElement* pointLightElementData_ = nullptr;
 public:
 
 	~PointLight();
@@ -21,7 +15,7 @@ public:
 	/// 初期化
 	/// </summary>
 	/// <param name="device">デバイス</param>
-	void Initialize(DirectXCommon* dxCommon);
+	void Initialize(DirectXCommon* dxCommon) override;
 
 	// Color入力
 	void SetColor(Vector4 color);
@@ -35,9 +29,5 @@ public:
 	void SetDecay(float decay);
 	// PointLightElement入力
 	void SetPointLightElement(PointLightElement PointLightElement);
-
-	//光源用のリソース
-	[[nodiscard]]
-	const Microsoft::WRL::ComPtr<ID3D12Resource>& PointLightElementResource();
 
 };

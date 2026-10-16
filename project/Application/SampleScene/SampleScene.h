@@ -3,8 +3,8 @@
 #include <Line.h>
 #include <array>
 #include <Input/Input.h>
-#include <PointLight/PointLight.h>
-#include <SpotLight/SpotLight.h>
+#include <Light/PointLight/PointLight.h>
+#include <Light/SpotLight/SpotLight.h>
 #include <WindowsAPI/WindowsAPI.h>
 
 #include <Object/Object.h>

@@ -226,15 +226,6 @@
     <ClCompile Include="GameEngine\Resource\Audio\Audio.cpp">
       <Filter>GameEngine\Resource\Audio</Filter>
     </ClCompile>
-    <ClCompile Include="GameEngine\Resource\DirectionalLight\DirectionalLight.cpp">
-      <Filter>GameEngine\Resource\DirectiolalLight</Filter>
-    </ClCompile>
-    <ClCompile Include="GameEngine\Resource\PointLight\PointLight.cpp">
-      <Filter>GameEngine\Resource\PointLight</Filter>
-    </ClCompile>
-    <ClCompile Include="GameEngine\Resource\SpotLight\SpotLight.cpp">
-      <Filter>GameEngine\Resource\SpotLight</Filter>
-    </ClCompile>
     <ClCompile Include="Application\GameManager\BaseScene\BaseScene.cpp">
       <Filter>Application\GameManager\BaseScene</Filter>
     </ClCompile>
@@ -321,6 +312,15 @@
     </ClCompile>
     <ClCompile Include="Application\HUD\Target\Target.cpp">
       <Filter>Application\HUD\Target</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEngine\Resource\Light\DirectionalLight\DirectionalLight.cpp">
+      <Filter>GameEngine\Resource\Light\DirectiolalLight</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEngine\Resource\Light\PointLight\PointLight.cpp">
+      <Filter>GameEngine\Resource\Light\PointLight</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEngine\Resource\Light\SpotLight\SpotLight.cpp">
+      <Filter>GameEngine\Resource\Light\SpotLight</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -549,15 +549,6 @@
     <ClInclude Include="GameEngine\Resource\Audio\Audio.h">
       <Filter>GameEngine\Resource\Audio</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine\Resource\DirectionalLight\DirectionalLight.h">
-      <Filter>GameEngine\Resource\DirectiolalLight</Filter>
-    </ClInclude>
-    <ClInclude Include="GameEngine\Resource\PointLight\PointLight.h">
-      <Filter>GameEngine\Resource\PointLight</Filter>
-    </ClInclude>
-    <ClInclude Include="GameEngine\Resource\SpotLight\SpotLight.h">
-      <Filter>GameEngine\Resource\SpotLight</Filter>
-    </ClInclude>
     <ClInclude Include="Application\GameManager\BaseScene\BaseScene.h">
       <Filter>Application\GameManager\BaseScene</Filter>
     </ClInclude>
@@ -738,6 +729,18 @@
     <ClInclude Include="GameEngine\Data\LineVertex.h">
       <Filter>GameEngine\Data</Filter>
     </ClInclude>
+    <ClInclude Include="GameEngine\Resource\Light\Light.h">
+      <Filter>GameEngine\Resource\Light</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Resource\Light\DirectionalLight\DirectionalLight.h">
+      <Filter>GameEngine\Resource\Light\DirectiolalLight</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Resource\Light\PointLight\PointLight.h">
+      <Filter>GameEngine\Resource\Light\PointLight</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Resource\Light\SpotLight\SpotLight.h">
+      <Filter>GameEngine\Resource\Light\SpotLight</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -863,20 +866,11 @@
     <Filter Include="GameEngine\Resource\Sprite">
       <UniqueIdentifier>{7151d3d0-f27c-496f-9bb7-61dedcf4eb53}</UniqueIdentifier>
     </Filter>
-    <Filter Include="GameEngine\Resource\DirectiolalLight">
-      <UniqueIdentifier>{f644596f-1e8e-44d7-b4d2-6b9d7db4580c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GameEngine\Resource\SpotLight">
-      <UniqueIdentifier>{0f4542c9-9313-4579-9311-745af85c5bb7}</UniqueIdentifier>
-    </Filter>
     <Filter Include="GameEngine\Resource\Audio">
       <UniqueIdentifier>{e00d8116-3cb1-4592-9377-5a2369a54343}</UniqueIdentifier>
     </Filter>
     <Filter Include="GameEngine\Resource\Camera">
       <UniqueIdentifier>{7a594879-233b-45db-b425-defdca3ea481}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GameEngine\Resource\PointLight">
-      <UniqueIdentifier>{745e2b4a-9550-4d20-b010-15d973bc4372}</UniqueIdentifier>
     </Filter>
     <Filter Include="Application\Collider">
       <UniqueIdentifier>{f99949b4-9574-4f36-ab7a-53efbffa63e0}</UniqueIdentifier>
@@ -1033,6 +1027,18 @@
     </Filter>
     <Filter Include="GameEngine\Shader\Sprite">
       <UniqueIdentifier>{f1174916-cea0-47d4-a082-e7c837f936bd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\Resource\Light">
+      <UniqueIdentifier>{6689c11d-37c8-4a19-a42e-78491901312f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\Resource\Light\DirectiolalLight">
+      <UniqueIdentifier>{f644596f-1e8e-44d7-b4d2-6b9d7db4580c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\Resource\Light\PointLight">
+      <UniqueIdentifier>{745e2b4a-9550-4d20-b010-15d973bc4372}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\Resource\Light\SpotLight">
+      <UniqueIdentifier>{0f4542c9-9313-4579-9311-745af85c5bb7}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
