@@ -134,6 +134,7 @@
     <ClCompile Include="GameEngine\Resource\Audio\Audio.cpp" />
     <ClCompile Include="Application\GameManager\BaseScene\BaseScene.cpp" />
     <ClCompile Include="GameEngine\Resource\Camera\Camera.cpp" />
+    <ClCompile Include="GameEngine\Resource\InstancingSprite\InstancingSprite.cpp" />
     <ClCompile Include="GameEngine\Resource\Light\DirectionalLight\DirectionalLight.cpp" />
     <ClCompile Include="GameEngine\Resource\Light\PointLight\PointLight.cpp" />
     <ClCompile Include="GameEngine\Resource\Light\SpotLight\SpotLight.cpp" />
@@ -275,6 +276,7 @@
     <ClInclude Include="GameEngine\Resource\Audio\Audio.h" />
     <ClInclude Include="Application\GameManager\BaseScene\BaseScene.h" />
     <ClInclude Include="GameEngine\Resource\Camera\Camera.h" />
+    <ClInclude Include="GameEngine\Resource\InstancingSprite\InstancingSprite.h" />
     <ClInclude Include="GameEngine\Resource\Light\DirectionalLight\DirectionalLight.h" />
     <ClInclude Include="GameEngine\Resource\Light\Light.h" />
     <ClInclude Include="GameEngine\Resource\Light\PointLight\PointLight.h" />

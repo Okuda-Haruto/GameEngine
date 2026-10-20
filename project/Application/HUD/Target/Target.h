@@ -1,6 +1,7 @@
 #pragma once
 #include <GameCamera/GameCamera.h>
 #include <Sprite/Sprite.h>
+#include <InstancingSprite/InstancingSprite.h>
 
 #include <memory>
 
@@ -11,6 +12,8 @@ private:
 
 	//照準スプライト
 	std::pair<bool,std::unique_ptr<Sprite>> sprite_;
+	//照準対象スプライト
+	std::unique_ptr<InstancingSprite> targetSprites_;
 
 public:
 

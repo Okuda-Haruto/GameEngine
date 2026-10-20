@@ -1087,23 +1087,20 @@ void GameEngine::DrawSprite_2D_(Sprite* sprite) {
 	spriteIndex_++;
 }
 
-void GameEngine::DrawInstancingSprite_2D_(std::list<Sprite*> sprits) {
+void GameEngine::DrawInstancingSprite_2D_(InstancingSprite* sprites) {
 
 	//上限に達していたら描画しない
 	if (instancingSpriteIndex_ > kMaxInstanceIndex)return;
-
-	std::list<Sprite*>::iterator SpriteIterator = sprits.begin();
-	Sprite* startSprite = (*SpriteIterator);
 
 	Matrix4x4 viewMatrix = MakeIdentity4x4();
 	Matrix4x4 projectionMatrix = MakeOrthographicMatrix(0.0f, 0.0f, float(kWindowWidth_), float(kWindowHeight_), 0.0f, 100.0f);
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-	commandList_->SetGraphicsRootSignature(object_Instancing_RootSignature_.Get());
-	commandList_->SetPipelineState(object3D_Instancing_PipelineState_.Get());	//PSOを設定
+	commandList_->SetGraphicsRootSignature(sprite_Instancing_RootSignature_.Get());
+	commandList_->SetPipelineState(sprite_Instancing_PipelineState_.Get());	//PSOを設定
 
-	commandList_->IASetVertexBuffers(0, 1, &startSprite->GetVBV());	//VBVを設定
-	commandList_->IASetIndexBuffer(&startSprite->GetIBV());	//IBVを設定
+	commandList_->IASetVertexBuffers(0, 1, &sprites->GetVBV());	//VBVを設定
+	commandList_->IASetIndexBuffer(&sprites->GetIBV());	//IBVを設定
 
 	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
 	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -1120,50 +1117,41 @@ void GameEngine::DrawInstancingSprite_2D_(std::list<Sprite*> sprits) {
 		instancingSpriteData_[instancingSpriteIndex_][j] = mappedBase + j;
 	}
 
+	std::list<std::string> spritwNames = sprites->GetSpriteNames();
+
 	uint32_t numInstance = 0;
 	//それぞれの情報をまとめる
-	for (SpriteIterator = sprits.begin();
-		SpriteIterator != sprits.end();) {
+	for (const auto& name : spritwNames) {
 
 		if (numInstance >= kMaxNumInstance)break;
 
-		Matrix4x4 worldMatrix = MakeAffineMatrix((*SpriteIterator)->GetTransform().scale, (*SpriteIterator)->GetTransform().rotate, (*SpriteIterator)->GetTransform().translate);
+		//描画有効化判定
+		if (!sprites->GetIsDraw(name)) {
+			continue;
+		}
+
+		SRT transform = sprites->GetTransform(name);
+		SRT uvTransform = sprites->GetUVTransform(name);
+		Vector4 color = sprites->GetColor(name);
+
+		Matrix4x4 worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
 		instancingSpriteData_[instancingSpriteIndex_][numInstance]->World = worldMatrix;
 		instancingSpriteData_[instancingSpriteIndex_][numInstance]->WorldInverseTranspose = Transpose(Inverse(worldMatrix));
 		Matrix4x4 worldViewProjectionMatrix = worldMatrix * viewMatrix * projectionMatrix;
 		instancingSpriteData_[instancingSpriteIndex_][numInstance]->WVP = worldViewProjectionMatrix;
-
-		instancingSpriteResource_[instancingSpriteIndex_]->Unmap(0, nullptr);
+		instancingSpriteData_[instancingSpriteIndex_][numInstance]->color = color;
+		Matrix4x4 uvMatrix = MakeAffineMatrix(uvTransform.scale, uvTransform.rotate, uvTransform.translate);
+		instancingSpriteData_[instancingSpriteIndex_][numInstance]->UVTransform = uvMatrix;
 
 		++numInstance;
-		++SpriteIterator;
 	}
 
-	Material material = startSprite->GetMaterial();
-	SRT UVTransform = startSprite->GetUVTransform();
+	instancingSpriteResource_[instancingSpriteIndex_]->Unmap(0, nullptr);
 
-	material.uvTransform = MakeAffineMatrix(UVTransform.scale, UVTransform.rotate, UVTransform.translate);
-	material.reflection = 0;
-	material.enableDirectionalLighting = false;
-	material.enablePointLighting = false;
-	material.enableSpotLighting = false;
-	material.shininess = 0.0f;
-	material.color = Vector4{ 1.0f,1.0f,1.0f,1.0f };
-
-	//マテリアルデータを更新
-	spriteMaterialResource_[instancingSpriteIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&spriteMaterialData_[instancingSpriteIndex_]));
-
-	*spriteMaterialData_[instancingSpriteIndex_] = material;
-
-	spriteMaterialResource_[instancingSpriteIndex_]->Unmap(0, nullptr);
+	commandList_->SetGraphicsRootDescriptorTable(0, srvManager_->GetGPUDescriptorHandle(startInstancingSpriteIndex_ + instancingSpriteIndex_));
 
 	//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
-	commandList_->SetGraphicsRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(startSprite->GetTextureIndex()));
-
-	commandList_->SetGraphicsRootDescriptorTable(1, srvManager_->GetGPUDescriptorHandle(startInstancingSpriteIndex_ + instancingSpriteIndex_));
-
-	//マテリアルCBufferの場所を設定
-	commandList_->SetGraphicsRootConstantBufferView(0, spriteMaterialResource_[instancingSpriteIndex_]->GetGPUVirtualAddress());
+	commandList_->SetGraphicsRootDescriptorTable(1, srvManager_->GetGPUDescriptorHandle(sprites->GetTextureIndex()));
 
 	//描画(DrawCall)
 	commandList_->DrawIndexedInstanced(6, numInstance, 0, 0, 0);

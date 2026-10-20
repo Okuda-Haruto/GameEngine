@@ -9,6 +9,7 @@
 
 #include <Object/Object.h>
 #include <Sprite/Sprite.h>
+#include <InstancingSprite/InstancingSprite.h>
 #include <ParticleEmitter/ParticleEmitter.h>
 #include <PrimitiveManager/PrimitiveBox.h>
 
@@ -44,6 +45,7 @@ private:
 	//2Dモデル
 	std::array<bool, 2> isSpriteDraw_ = { true,false };
 	std::array<std::unique_ptr<Sprite>,2> sprite_;
+	std::unique_ptr<InstancingSprite> instancingSprite_;
 
 	std::unique_ptr<Audio> audio_ = nullptr;
 	

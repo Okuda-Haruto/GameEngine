@@ -1,8 +1,6 @@
 #include "InstanceSprite2d.hlsli"
 #include "Material.hlsli"
 
-ConstantBuffer<Material> gMaterial : register(b0);
-
 struct PixelShaderOutput
 {
     float4 color : SV_TARGET0;
@@ -13,8 +11,7 @@ SamplerState gSampler : register(s0);
 
 PixelShaderOutput main(VertexShaderOutput input)
 {
-    float4 transformedUV = mul(float4(input.texcoord, 0.0f, 1.0f), gMaterial.uvTransform);
-    float4 textureColor = gTexture.Sample(gSampler, transformedUV.xy);
+    float4 textureColor = gTexture.Sample(gSampler, input.UV);
     PixelShaderOutput output;
     output.color = input.color * textureColor;
     

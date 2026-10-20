@@ -322,6 +322,9 @@
     <ClCompile Include="GameEngine\Resource\Light\SpotLight\SpotLight.cpp">
       <Filter>GameEngine\Resource\Light\SpotLight</Filter>
     </ClCompile>
+    <ClCompile Include="GameEngine\Resource\InstancingSprite\InstancingSprite.cpp">
+      <Filter>GameEngine\Resource\InstancingSprite</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\BackGround\Ground\Ground.h">
@@ -741,6 +744,9 @@
     <ClInclude Include="GameEngine\Resource\Light\SpotLight\SpotLight.h">
       <Filter>GameEngine\Resource\Light\SpotLight</Filter>
     </ClInclude>
+    <ClInclude Include="GameEngine\Resource\InstancingSprite\InstancingSprite.h">
+      <Filter>GameEngine\Resource\InstancingSprite</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -1039,6 +1045,9 @@
     </Filter>
     <Filter Include="GameEngine\Resource\Light\SpotLight">
       <UniqueIdentifier>{0f4542c9-9313-4579-9311-745af85c5bb7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\Resource\InstancingSprite">
+      <UniqueIdentifier>{0a51dc56-cdfe-48da-be51-fffae80b670d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

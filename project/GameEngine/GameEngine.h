@@ -16,6 +16,7 @@
 
 #include "Object/Object.h"
 #include "Sprite/Sprite.h"
+#include <InstancingSprite/InstancingSprite.h>
 #include "TransformationMatrix.h"
 #include "InstancingTransformationMatrix.h"
 #include "BoneMatrix.h"
@@ -252,7 +253,7 @@ private:
 	void DrawParticle_(ParticleGroup particleGroup);
 
 	void DrawSprite_2D_(Sprite* sprite);
-	void DrawInstancingSprite_2D_(std::list<Sprite*> sprits);
+	void DrawInstancingSprite_2D_(InstancingSprite* sprites);
 
 	void DrawScreen_(std::string textureName);
 	void DrawScreen_(std::string textureName, ColorChange::ColorMode colorMode, float intensity);
@@ -355,7 +356,7 @@ public:
 	static void DrawParticle(ParticleGroup particleGroup) { return GetInstance()->DrawParticle_(particleGroup); }
 	
 	static void DrawSprite_2D(Sprite* sprite) { return GetInstance()->DrawSprite_2D_(sprite); }
-	static void DrawInstancingSprite_2D(std::list<Sprite*> sprits) { return GetInstance()->DrawInstancingSprite_2D_(sprits); }
+	static void DrawInstancingSprite_2D(InstancingSprite* sprites) { return GetInstance()->DrawInstancingSprite_2D_(sprites); }
 
 	static void DrawScreen(std::string textureName) { return GetInstance()->DrawScreen_(textureName); }
 	static void DrawScreen(std::string textureName, ColorChange::ColorMode colorMode, float intensity) { return GetInstance()->DrawScreen_(textureName, colorMode, intensity); };

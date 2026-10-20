@@ -150,7 +150,6 @@ void GameScene::Initialize(shared_ptr<Input> input) {
 	//ringMaterial_.color = { 1.0f,1.0f,1.0f,0.0f };
 	//ringMaterial_.uvTransform = MakeTranslateMatrix({ 1.0f,1.0f,1.0f });
 
-
 	stage_ = std::make_unique<Stage>();
 	stage_->Initialize(true, StageManager::GetInstance()->ReadStage("resources/Data/Stage/Stage.json"), input_);
 
