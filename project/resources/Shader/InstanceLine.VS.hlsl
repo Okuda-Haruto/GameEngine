@@ -6,6 +6,7 @@ struct InstancingTransformationMatrix
     float4x4 World;
     float4x4 WorldInverseTranspose;
     float4 color;
+    float4x4 UVTransform;
 };
 StructuredBuffer<InstancingTransformationMatrix> gTransformationMatrixes : register(t0);
 

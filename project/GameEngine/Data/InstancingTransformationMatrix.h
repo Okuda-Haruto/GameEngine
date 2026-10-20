@@ -7,4 +7,5 @@ struct InstancingTransformationMatrix {
 	Matrix4x4 World;
 	Matrix4x4 WorldInverseTranspose;
 	Vector4 color;
+	Matrix4x4 UVTransform;
 };
