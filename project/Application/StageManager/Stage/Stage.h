@@ -81,8 +81,10 @@ protected:
 	const float kMaxCyliderTime_ = 0.6f;
 	float cylinderTime_;
 
-	bool isClear_ = false;
+	std::string nextScene_;
+
 	bool isEnd_ = false;
+	bool isClear_ = false;
 	bool isTutorial_ = false;
 
 	int tutorialNum_;
@@ -136,6 +138,7 @@ public:
 	Boss* const GetBoss() { return boss_.get(); }
 	bool IsClear() { return isClear_; }
 	bool IsEnd() { return isEnd_; }
+	std::string GetNextScene() { return nextScene_; }
 
 	void ClearColliderObjects() { colliderObjects_.clear(); }
 	void ClearBreakObjects() { breakObjects_.clear(); }

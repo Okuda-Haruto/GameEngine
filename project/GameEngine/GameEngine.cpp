@@ -1117,11 +1117,11 @@ void GameEngine::DrawInstancingSprite_2D_(InstancingSprite* sprites) {
 		instancingSpriteData_[instancingSpriteIndex_][j] = mappedBase + j;
 	}
 
-	std::list<std::string> spritwNames = sprites->GetSpriteNames();
+	std::list<std::string> spriteNames = sprites->GetSpriteNames();
 
 	uint32_t numInstance = 0;
 	//それぞれの情報をまとめる
-	for (const auto& name : spritwNames) {
+	for (const auto& name : spriteNames) {
 
 		if (numInstance >= kMaxNumInstance)break;
 
@@ -1145,6 +1145,8 @@ void GameEngine::DrawInstancingSprite_2D_(InstancingSprite* sprites) {
 
 		++numInstance;
 	}
+
+	if (numInstance <= 0)return;
 
 	instancingSpriteResource_[instancingSpriteIndex_]->Unmap(0, nullptr);
 
