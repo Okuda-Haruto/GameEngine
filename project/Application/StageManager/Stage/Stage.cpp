@@ -229,12 +229,21 @@ void Stage::Update() {
 
 		if (boss_->IsDead()) {
 			isClear_ = true;
+			nextScene_ = "Clear";
 			isEnd_ = true;
 		}
 		if (player_->IsDead()) {
 			isClear_ = false;
+			nextScene_ = "GameOver";
 			isEnd_ = true;
 		}
+		if (keyboard.keys[DIK_ESCAPE].trigger) {
+
+			nextScene_ = "Title";
+			isEnd_ = true;
+		}
+
+
 		if (pointLightElement_.intensity > 0.0f) {
 			pointLightElement_.intensity -= 0.05f;
 			if (pointLightElement_.intensity < 0.0f)pointLightElement_.intensity = 0.0f;
@@ -375,8 +384,6 @@ void Stage::Draw() {
 		object->Draw();
 	}
 
-#ifndef USE_IMGUI
-
 	ring_->DrawBillBoard(ringTransform_, ringMaterial_);
 
 	for (auto& shockWave : shockWaves_) {
@@ -390,8 +397,6 @@ void Stage::Draw() {
 	particle_2->Draw();
 	particle_3->Draw();
 	particle_4->Draw();
-
-#endif // !USE_IMGUI
 
 	hud_->Draw();
 }

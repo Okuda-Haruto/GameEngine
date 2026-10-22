@@ -268,6 +268,17 @@ void GameCamera::Initialize(shared_ptr<Input> input) {
 void GameCamera::Update() {
 	Pad pad = input_->GetPad(0);
 
+	targetSpheres_.erase(
+		std::remove_if(
+			targetSpheres_.begin(),
+			targetSpheres_.end(),
+			[](const std::weak_ptr<Sphere>& weak) {
+				return weak.expired();
+			}
+		),
+		targetSpheres_.end()
+	);
+
 	if (shakeTime_ > 0.0f) {
 		shakeTime_ -= 1.0f / 60.0f;
 		if (shakeTime_ < 0.0f) {

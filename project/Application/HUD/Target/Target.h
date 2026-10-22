@@ -15,6 +15,9 @@ private:
 	//照準対象スプライト
 	std::unique_ptr<InstancingSprite> targetSprites_;
 
+	uint32_t targetIndex_;
+	uint32_t targetSpriteNum_;
+
 public:
 
 	//初期化
@@ -25,4 +28,8 @@ public:
 
 	//描画処理
 	void Draw();
+private:
+
+	void AddTargetSprite();
+
 };
