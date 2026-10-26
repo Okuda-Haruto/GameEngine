@@ -49,11 +49,11 @@ void ModelHolder::Initialize() {
 	filePath.fileName_ = "Bullet.obj";
 	filePathes_.push_back(filePath);
 	//シリンダー
-	filePath.directoryPath_ = "resources/Cylinder";
+	filePath.directoryPath_ = "resources/HUD/Cylinder";
 	filePath.fileName_ = "Cylinder.obj";
 	filePathes_.push_back(filePath);
 	//ハット(HP)
-	filePath.directoryPath_ = "resources/Hat";
+	filePath.directoryPath_ = "resources/HUD/Hat";
 	filePath.fileName_ = "Hat.obj";
 	filePathes_.push_back(filePath);
 

@@ -10,6 +10,8 @@
 #include <random>
 #include <iostream>
 #include <algorithm>
+#include <thread>
+#include <atomic>
 
 #include "D3DResourceLeakChecker.h"
 #include <Operation/Operation.h>
@@ -231,6 +233,12 @@ private:
 	std::vector<TextureData> textureData_;
 
 	void Initialize_(const wchar_t* WindowName, int32_t kWindowWidth = 1280, int32_t kWindowHeight = 720);
+
+	void LoadShader();
+
+	//スレッド
+	std::thread th_;
+	std::atomic<bool> isThreadFinished_;
 
 	float randomFloat_(float minFloat, float maxFloat);
 	int32_t randomInt_(int32_t minInt,int32_t maxInt);
