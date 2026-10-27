@@ -13,7 +13,7 @@
 #include "Light/SpotLight/SpotLight.h"
 #include "Joint.h"
 
-using namespace std;
+
 
 class Object {
 private:
@@ -25,14 +25,14 @@ private:
 	SRT transform_;
 
 	//カメラ
-	weak_ptr<Camera> camera_;
+	std::weak_ptr<Camera> camera_;
 
-	weak_ptr<DirectionalLight> directionalLight_;
-	weak_ptr<PointLight> pointLight_;
-	weak_ptr<SpotLight> spotLight_;
+	std::weak_ptr<DirectionalLight> directionalLight_;
+	std::weak_ptr<PointLight> pointLight_;
+	std::weak_ptr<SpotLight> spotLight_;
 
 	//デフォルトカメラ
-	static shared_ptr<Camera> DefaultCamera;
+	static std::shared_ptr<Camera> DefaultCamera;
 
 	//アニメーションを使用するか
 	bool isUseAnimation_ = false;
@@ -60,7 +60,7 @@ public:
 	~Object();
 
 	//初期化
-	void Initialize(weak_ptr<Model> model);
+	void Initialize(std::weak_ptr<Model> model);
 
 	//更新処理
 	void Update();
@@ -73,13 +73,13 @@ public:
 
 	void ResetTimer() { animationTime_ = 0.0f; }
 
-	static const weak_ptr<Camera> GetDefaultCamera() { return DefaultCamera; }
-	static void SetDefaultCamera(shared_ptr<Camera> defaultCamera) { DefaultCamera = defaultCamera; }
+	static const std::weak_ptr<Camera> GetDefaultCamera() { return DefaultCamera; }
+	static void SetDefaultCamera(std::shared_ptr<Camera> defaultCamera) { DefaultCamera = defaultCamera; }
 	//デフォルトカメラ消去
 	static void FinalizeDefaultCamera() { DefaultCamera.reset(); }
 
-	const weak_ptr<Camera> GetCamera() { return camera_; }
-	void SetCamera(weak_ptr<Camera> camera) { camera_ = camera; }
+	const std::weak_ptr<Camera> GetCamera() { return camera_; }
+	void SetCamera(std::weak_ptr<Camera> camera) { camera_ = camera; }
 
 	std::vector<Parts> GetParts() { return parts_; }
 	void SetParts(Parts parts, uint32_t index) { parts_[index] = parts; }
@@ -95,9 +95,9 @@ public:
 	//鏡面反射(大きいほどつるつるになる。例:40.0f)
 	void SetShininess(float shininess);
 
-	void SetDirectionalLight(const weak_ptr<DirectionalLight>& directionalLight) { directionalLight_ = directionalLight; }
-	void SetPointLight(const weak_ptr<PointLight>& pointLight) { pointLight_ = pointLight; }
-	void SetSpotLight(const weak_ptr<SpotLight>& spotLight) { spotLight_ = spotLight; }
+	void SetDirectionalLight(const std::weak_ptr<DirectionalLight>& directionalLight) { directionalLight_ = directionalLight; }
+	void SetPointLight(const std::weak_ptr<PointLight>& pointLight) { pointLight_ = pointLight; }
+	void SetSpotLight(const std::weak_ptr<SpotLight>& spotLight) { spotLight_ = spotLight; }
 	void SetCubeTextureIndex(int32_t cubeTextureIndex) { cubeTextureIndex_ = cubeTextureIndex; }
 
 	int32_t GetCubeTextureIndex() { return cubeTextureIndex_; }

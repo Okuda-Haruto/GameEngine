@@ -3,12 +3,12 @@
 #include "Material.h"
 #include "Model/Model.h"
 
-using namespace std;
+
 
 struct Parts {
 	UINT textureIndex;
-	shared_ptr<Material> material = nullptr;
-	shared_ptr<SRT> parent = nullptr;
-	shared_ptr<SRT> transform = nullptr;
+	std::shared_ptr<Material> material = nullptr;
+	std::shared_ptr<SRT> parent = nullptr;
+	std::shared_ptr<SRT> transform = nullptr;
 	SRT UVtransform;
 };

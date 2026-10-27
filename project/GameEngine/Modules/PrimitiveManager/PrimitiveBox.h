@@ -14,7 +14,7 @@
 //モデル
 class PrimitiveBox {
 private:
-	static unique_ptr<PrimitiveBox> instance;
+	static std::unique_ptr<PrimitiveBox> instance;
 
 	DirectXCommon* dxCommon_ = nullptr;
 

@@ -4,11 +4,11 @@
 #include "GameEngine.h"
 #include "Collision.h"
 
-unique_ptr<ParticleManager> ParticleManager::instance;
+std::unique_ptr<ParticleManager> ParticleManager::instance;
 
 ParticleManager* ParticleManager::GetInstance() {
 	if (!instance) {
-		instance = make_unique<ParticleManager>();
+		instance = std::make_unique<ParticleManager>();
 	}
 	return instance.get();
 }

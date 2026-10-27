@@ -4,11 +4,11 @@
 void Target::Initialize(std::weak_ptr<GameCamera> gameCamera) {
 	gameCamera_ = gameCamera;
 
-	sprite_.second = make_unique<Sprite>();
+	sprite_.second = std::make_unique<Sprite>();
 	sprite_.second->Initialize("resources/Sprite/Target_true.png");
 	sprite_.second->SetAnchorPoint(Vector2{ 0.5f,0.5f });
 
-	targetSprites_ = make_unique<InstancingSprite>();
+	targetSprites_ = std::make_unique<InstancingSprite>();
 	targetSprites_->Initialize("resources/Sprite/Target_false.png");
 }
 

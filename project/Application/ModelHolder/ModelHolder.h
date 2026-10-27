@@ -1,7 +1,7 @@
 #pragma once
 #include "Object/Object.h"
 
-using namespace std;
+
 
 enum class ModelIndex {
 	Skydome,
@@ -20,7 +20,7 @@ enum class ModelIndex {
 class ModelHolder {
 private:
 
-	static unique_ptr<ModelHolder> instance;
+	static std::unique_ptr<ModelHolder> instance;
 
 	struct FilePath {
 		std::string directoryPath_;
@@ -43,5 +43,5 @@ public:
 	//初期化
 	void Initialize();
 
-	const weak_ptr<Model> GetModel(ModelIndex model);
+	const std::weak_ptr<Model> GetModel(ModelIndex model);
 };

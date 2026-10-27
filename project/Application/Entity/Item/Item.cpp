@@ -3,9 +3,9 @@
 #include "Operation/Operation.h"
 #include <numbers>
 
-weak_ptr<Camera> Item::camera_;
-weak_ptr<DirectionalLight> Item::directionalLight_;
-weak_ptr<PointLight> Item::pointLight_;
+std::weak_ptr<Camera> Item::camera_;
+std::weak_ptr<DirectionalLight> Item::directionalLight_;
+std::weak_ptr<PointLight> Item::pointLight_;
 
 void Item::Initialize(SRT transform) {
 	object_ = std::make_unique<Object>();

@@ -9,10 +9,10 @@ class Tumbleweed
 {
 private:
 	//タンブルウィードモデル
-	std::vector<unique_ptr<Object>> objects_;
+	std::vector<std::unique_ptr<Object>> objects_;
 	const int size = 3;
-	weak_ptr<DirectionalLight> directionalLight_;
-	weak_ptr<PointLight> pointLight_;
+	std::weak_ptr<DirectionalLight> directionalLight_;
+	std::weak_ptr<PointLight> pointLight_;
 
 	const float kMaxMoveTime = 60.0f;
 	float moveTime_ = 0.0f;
@@ -21,7 +21,7 @@ private:
 public:
 	~Tumbleweed();
 	//初期化
-	void Initialize(weak_ptr<Camera> camera, weak_ptr<DirectionalLight> directionalLight, weak_ptr<PointLight> pointLight);
+	void Initialize(std::weak_ptr<Camera> camera, std::weak_ptr<DirectionalLight> directionalLight, std::weak_ptr<PointLight> pointLight);
 	//更新処理
 	void Update();
 	//描画

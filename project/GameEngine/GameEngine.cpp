@@ -29,11 +29,11 @@
 
 int32_t GameEngine::kWindowWidth_;
 int32_t GameEngine::kWindowHeight_;
-unique_ptr<GameEngine> GameEngine::instance;
+std::unique_ptr<GameEngine> GameEngine::instance;
 
 GameEngine* GameEngine::GetInstance() {
 	if (!instance) {
-		instance = make_unique<GameEngine>();
+		instance = std::make_unique<GameEngine>();
 	}
 	return instance.get();
 }
@@ -98,16 +98,16 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	//メディアファンデーションの初期化
 	MFStartup(MF_VERSION, MFSTARTUP_NOSOCKET);
 
-	winApp_ = make_unique<WindowsAPI>();
+	winApp_ = std::make_unique<WindowsAPI>();
 	winApp_->Initialize(WindowName, kWindowWidth, kWindowHeight);
 
-	dxCommon_ = make_unique<DirectXCommon>();
+	dxCommon_ = std::make_unique<DirectXCommon>();
 	dxCommon_->Initialize(winApp_.get());
 
-	srvManager_ = make_unique<SRVManager>();
+	srvManager_ = std::make_unique<SRVManager>();
 	srvManager_->Initialize(dxCommon_.get());
 
-	imguiManager_ = make_unique<ImGuiManager>();
+	imguiManager_ = std::make_unique<ImGuiManager>();
 	imguiManager_->Initialize(dxCommon_.get(), winApp_.get(), srvManager_.get());
 
 	dxCommon_->DepthBufferInitialize(srvManager_.get());
@@ -403,7 +403,7 @@ void GameEngine::RenderPostDraw_() {
 
 }
 
-void GameEngine::DrawObject_3D_(Object* object, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight, UINT animationIndex, float time) {
+void GameEngine::DrawObject_3D_(Object* object, std::shared_ptr<DirectionalLight> directionalLight, std::shared_ptr<PointLight> pointLight, std::shared_ptr<SpotLight> spotLight, UINT animationIndex, float time) {
 	
 	if (!isThreadFinished_)return;
 
@@ -511,7 +511,7 @@ void GameEngine::DrawObject_3D_(Object* object, shared_ptr<DirectionalLight> dir
 	}
 }
 
-void GameEngine::DrawParts_3D_(Object* object, uint32_t partsIndex, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight) {
+void GameEngine::DrawParts_3D_(Object* object, uint32_t partsIndex, std::shared_ptr<DirectionalLight> directionalLight, std::shared_ptr<PointLight> pointLight, std::shared_ptr<SpotLight> spotLight) {
 
 	if (!isThreadFinished_)return;
 
@@ -610,7 +610,7 @@ void GameEngine::DrawParts_3D_(Object* object, uint32_t partsIndex, shared_ptr<D
 	objectIndex_++;
 }
 
-void GameEngine::DrawObject_2D_(Object* object, shared_ptr<DirectionalLight> directionalLight) {
+void GameEngine::DrawObject_2D_(Object* object, std::shared_ptr<DirectionalLight> directionalLight) {
 
 	if (!isThreadFinished_)return;
 
@@ -707,7 +707,7 @@ void GameEngine::DrawObject_2D_(Object* object, shared_ptr<DirectionalLight> dir
 	}
 }
 
-void GameEngine::DrawParts_2D_(Object* object, uint32_t partsIndex, shared_ptr<DirectionalLight> directionalLight) {
+void GameEngine::DrawParts_2D_(Object* object, uint32_t partsIndex, std::shared_ptr<DirectionalLight> directionalLight) {
 
 	if (!isThreadFinished_)return;
 
@@ -803,7 +803,7 @@ void GameEngine::DrawParts_2D_(Object* object, uint32_t partsIndex, shared_ptr<D
 	objectIndex_++;
 }
 
-void GameEngine::DrawInstancingObject_3D_(std::list<Object*> objects, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight) {
+void GameEngine::DrawInstancingObject_3D_(std::list<Object*> objects, std::shared_ptr<DirectionalLight> directionalLight, std::shared_ptr<PointLight> pointLight, std::shared_ptr<SpotLight> spotLight) {
 	
 	if (!isThreadFinished_)return;
 

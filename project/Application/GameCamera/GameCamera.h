@@ -7,7 +7,7 @@
 #include "Input/Input.h"
 #include "Shape/Sphere.h"
 
-using namespace std;
+
 
 class GameCamera;
 
@@ -94,15 +94,15 @@ class GameCamera
 {
 private:
 	//カメラ
-	shared_ptr<Camera> camera_;
-	shared_ptr<DebugCamera> debugCamera_;
+	std::shared_ptr<Camera> camera_;
+	std::shared_ptr<DebugCamera> debugCamera_;
 
 	float shakeTime_ = 0.0f;
 
 	//セピア調の強さ
 	float sepiaTone_ = 0.0f;
 
-	shared_ptr<SRT> transform_;
+	std::shared_ptr<SRT> transform_;
 
 	//カメラ
 	std::unique_ptr<BaseCamera> nowCamera_;
@@ -121,12 +121,12 @@ private:
 	//現在注目しているSphere
 	std::weak_ptr<Sphere> targetedSphere_;
 
-	shared_ptr<Input> input_;
+	std::shared_ptr<Input> input_;
 public:
 	~GameCamera();
 
 	//初期化
-	void Initialize(shared_ptr<Input> input);
+	void Initialize(std::shared_ptr<Input> input);
 
 	//更新
 	void Update();
@@ -141,7 +141,7 @@ public:
 	BaseCamera* const GetNowCamera() { return nowCamera_.get(); }
 
 	//視点を得る
-	const weak_ptr<Camera> GetCamera() { return camera_; }
+	const std::weak_ptr<Camera> GetCamera() { return camera_; }
 
 	//カメラ始点Transform
 	void SetObserverTransform(const SRT* observerTransform) { observerTransform_ = observerTransform; }

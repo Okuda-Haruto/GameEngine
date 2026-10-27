@@ -576,7 +576,7 @@ Vector3 Stage::MoveWithCollision(SphereCollider& collider, Vector3 velocity) {
 }
 
 void Stage::AddBullet(SRT transform, float speed, CollisionID id, Bullet::BulletMove bulletMove, std::weak_ptr<Model> model, std::unique_ptr<BaseEvent> event){
-	unique_ptr<Bullet> newBullet = make_unique<Bullet>();
+	std::unique_ptr<Bullet> newBullet = std::make_unique<Bullet>();
 	newBullet->Initialize(transform, 2.0f, id, Bullet::BulletMove::NormalBullet, model, move(event));
 	bullets_.push_back(move(newBullet));
 
@@ -599,25 +599,25 @@ void Stage::AddBullet(SRT transform, float speed, CollisionID id, Bullet::Bullet
 }
 
 void Stage::AddBomb(SRT transform, float range, float maxLifeTime, CollisionID id, std::weak_ptr<Model> model) {
-	unique_ptr<Bomb> newBomb = make_unique<Bomb>();
+	std::unique_ptr<Bomb> newBomb = std::make_unique<Bomb>();
 	newBomb->Initialize(transform, range, maxLifeTime, id, model);
 	bombs_.push_back(move(newBomb));
 }
 
 void Stage::AddShockWave(SRT transform, float range, float maxLifeTime, CollisionID id, std::unique_ptr<PrimitiveCylinder> cylinder) {
-	unique_ptr<ShockWave> newShockWave = make_unique<ShockWave>();
+	std::unique_ptr<ShockWave> newShockWave = std::make_unique<ShockWave>();
 	newShockWave->Initialize(transform, range, maxLifeTime, id, move(cylinder));
 	shockWaves_.push_back(move(newShockWave));
 }
 
 void Stage::AddItem(SRT transform) {
-	unique_ptr<Item> newItem = make_unique<Item>();
+	std::unique_ptr<Item> newItem = std::make_unique<Item>();
 	newItem->Initialize(transform);
 	items_.push_back(move(newItem));
 }
 
 void Stage::AddBreakObject(SRT transform, float maxHP, std::weak_ptr<Model> model, std::unique_ptr<BaseEvent> event) {
-	unique_ptr<BreakObject> newObject = make_unique<BreakObject>();
+	std::unique_ptr<BreakObject> newObject = std::make_unique<BreakObject>();
 	newObject->Initialize(transform, maxHP, model, move(event));
 	breakObjects_.push_back(move(newObject));
 }

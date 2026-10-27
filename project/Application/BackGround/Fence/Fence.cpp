@@ -6,7 +6,7 @@ Fence::~Fence() {
 
 }
 
-void Fence::Initialize(weak_ptr<Camera> camera, weak_ptr<DirectionalLight> directionalLight, weak_ptr<PointLight> pointLight){
+void Fence::Initialize(std::weak_ptr<Camera> camera, std::weak_ptr<DirectionalLight> directionalLight, std::weak_ptr<PointLight> pointLight){
 	directionalLight_ = directionalLight;
 	pointLight_ = pointLight;
 
@@ -15,7 +15,7 @@ void Fence::Initialize(weak_ptr<Camera> camera, weak_ptr<DirectionalLight> direc
 	//モデルの生成
 	for (int i = 0; i < size; i++) {
 		
-		unique_ptr<Object> object = make_unique<Object>();
+		std::unique_ptr<Object> object = std::make_unique<Object>();
 		object->Initialize(ModelHolder::GetInstance()->GetModel(ModelIndex::Fence));
 
 		switch (i / (size / 4))
@@ -53,7 +53,7 @@ void Fence::Initialize(weak_ptr<Camera> camera, weak_ptr<DirectionalLight> direc
 }
 
 void Fence::Draw() {
-	for (const unique_ptr<Object>& object : objects_) {
+	for (const std::unique_ptr<Object>& object : objects_) {
 		object->Draw3D();
 	}
 }

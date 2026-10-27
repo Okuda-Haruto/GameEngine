@@ -15,7 +15,7 @@
 //モデル
 class PrimitiveRing {
 private:
-	static unique_ptr<PrimitiveRing> instance;
+	static std::unique_ptr<PrimitiveRing> instance;
 
 	DirectXCommon* dxCommon_ = nullptr;
 

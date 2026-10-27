@@ -2,11 +2,11 @@
 #include <algorithm>
 #include "ConvertString.h"
 
-unique_ptr<ModelManager> ModelManager::instance;
+std::unique_ptr<ModelManager> ModelManager::instance;
 
 ModelManager* ModelManager::GetInstance() {
 	if (!instance) {
-		instance = make_unique<ModelManager>();
+		instance = std::make_unique<ModelManager>();
 	}
 	return instance.get();
 }
@@ -31,14 +31,14 @@ void ModelManager::LoadModel(const std::string& directoryPath, const std::string
 		return;
 	}
 
-	shared_ptr<Model>& model = modelDatas[directoryPath + "/" + filename];
+	std::shared_ptr<Model>& model = modelDatas[directoryPath + "/" + filename];
 
-	model = make_shared<Model>();
+	model = std::make_shared<Model>();
 	model->Initialize(directoryPath, filename, dxCommon_);
 }
 
 //モデルの入手
-const weak_ptr<Model> ModelManager::GetModel(const std::string& directoryPath, const std::string& filename) {
+const std::weak_ptr<Model> ModelManager::GetModel(const std::string& directoryPath, const std::string& filename) {
 	
 	if (modelDatas.contains(directoryPath + "/" + filename)) {
 		return modelDatas[directoryPath + "/" + filename];

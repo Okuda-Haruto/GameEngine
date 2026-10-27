@@ -2,13 +2,13 @@
 #include "GameEngine.h"
 #include "LoadObjFile.h"
 
-shared_ptr<Camera> Object::DefaultCamera;
+std::shared_ptr<Camera> Object::DefaultCamera;
 
 Object::~Object() {
 
 }
 
-void Object::Initialize(weak_ptr<Model> model) {
+void Object::Initialize(std::weak_ptr<Model> model) {
 
 	model_ = model;
 
@@ -19,13 +19,13 @@ void Object::Initialize(weak_ptr<Model> model) {
 		//初期値としてモデルのテスクチャを得る
 		parts_[i].textureIndex = model_.lock()->GetTextureIndex(i);
 
-		parts_[i].material = make_shared<Material>();
+		parts_[i].material = std::make_shared<Material>();
 		parts_[i].material->color = { 1.0f,1.0f,1.0f,1.0f };
 		parts_[i].material->reflection = REFLECTION_HalfLambert;
 		parts_[i].material->shininess = 40.0f;
 		parts_[i].material->enviromentCoefficient = 0.0f;
 
-		parts_[i].transform = make_shared<SRT>();
+		parts_[i].transform = std::make_shared<SRT>();
 		*parts_[i].transform = {};
 		parts_[i].transform->scale = { 1.0f,1.0f,1.0f };
 

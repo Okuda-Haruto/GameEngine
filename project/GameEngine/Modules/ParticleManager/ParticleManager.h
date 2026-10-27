@@ -11,7 +11,7 @@
 #include "InstancingTransformationMatrix.h"
 #include "Camera/Camera.h"
 
-using namespace std;
+
 
 struct ParticleGroup {
 	std::string TextureFilePath;
@@ -29,7 +29,7 @@ struct ParticleGroup {
 class ParticleManager {
 private:
 
-	static unique_ptr<ParticleManager> instance;
+	static std::unique_ptr<ParticleManager> instance;
 
 	DirectXCommon* dxCommon_ = nullptr;
 

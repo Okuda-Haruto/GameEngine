@@ -4,11 +4,11 @@
 
 #include <cassert>
 
-unique_ptr<AudioManager> AudioManager::instance;
+std::unique_ptr<AudioManager> AudioManager::instance;
 
 AudioManager* AudioManager::GetInstance() {
 	if (!instance) {
-		instance = make_unique<AudioManager>();
+		instance = std::make_unique<AudioManager>();
 	}
 	return instance.get();
 }

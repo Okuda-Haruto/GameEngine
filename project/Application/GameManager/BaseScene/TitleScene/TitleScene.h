@@ -7,20 +7,20 @@
 #include "GameCamera/GameCamera.h"
 #include "Light/DirectionalLight/DirectionalLight.h"
 
-using namespace std;
+
 
 class TitleScene : public BaseScene
 {
 private:
 
-	shared_ptr<Input> input_;
+	std::shared_ptr<Input> input_;
 
 	std::unique_ptr<Sprite>fadeSprite_;
 
 	//メインカメラ
-	shared_ptr<Camera> camera_;
+	std::shared_ptr<Camera> camera_;
 
-	shared_ptr<DirectionalLight> directionalLight_;
+	std::shared_ptr<DirectionalLight> directionalLight_;
 	DirectionalLightElement directionalLightElement_;
 
 	std::unique_ptr<Skydome> skydome_;
@@ -39,7 +39,7 @@ public:
 	~TitleScene();
 
 	//初期化
-	void Initialize(shared_ptr<Input> input) override;
+	void Initialize(std::shared_ptr<Input> input) override;
 	//更新
 	void Update() override;
 	//描画

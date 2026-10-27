@@ -2,9 +2,9 @@
 #include "Operation/Operation.h"
 #include <numbers>
 
-weak_ptr<Camera> Bomb::camera_;
-weak_ptr<DirectionalLight> Bomb::directionalLight_;
-weak_ptr<PointLight> Bomb::pointLight_;
+std::weak_ptr<Camera> Bomb::camera_;
+std::weak_ptr<DirectionalLight> Bomb::directionalLight_;
+std::weak_ptr<PointLight> Bomb::pointLight_;
 
 void Bomb::Initialize(SRT transform, float range, float maxLifeTime, CollisionID id, std::weak_ptr<Model> model) {
 

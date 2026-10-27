@@ -7,13 +7,13 @@
 #include "ModelHolder/ModelHolder.h"
 #include "AudioHolder/AudioHolder.h"
 
-using namespace std;
+
 
 class GameManager {
 private:
-	shared_ptr<Input> input_;
+	std::shared_ptr<Input> input_;
 	//シーンファクトリー
-	unique_ptr<AbstractSceneFactory> sceneFactory_;
+	std::unique_ptr<AbstractSceneFactory> sceneFactory_;
 public:
 
 	~GameManager();

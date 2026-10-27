@@ -9,11 +9,11 @@
 #include <memory>
 #include <unordered_map>
 
-using namespace std;
+
 
 class TextureManager {
 private:
-	static unique_ptr<TextureManager> instance;
+	static std::unique_ptr<TextureManager> instance;
 
 	DirectXCommon* dxCommon_ = nullptr;
 	SRVManager* srvManager_ = nullptr;

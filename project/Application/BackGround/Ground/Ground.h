@@ -16,8 +16,8 @@ public:
 	//描画
 	void Draw();
 
-	void SetCamera(weak_ptr<Camera> camera) { object_->SetCamera(camera); }
+	void SetCamera(std::weak_ptr<Camera> camera) { object_->SetCamera(camera); }
 
-	void SetDirectionalLight(weak_ptr<DirectionalLight> directionalLight) { object_->SetDirectionalLight(directionalLight); }
-	void SetPointLight(weak_ptr<PointLight> pointLight) { object_->SetPointLight(pointLight); }
+	void SetDirectionalLight(std::weak_ptr<DirectionalLight> directionalLight) { object_->SetDirectionalLight(directionalLight); }
+	void SetPointLight(std::weak_ptr<PointLight> pointLight) { object_->SetPointLight(pointLight); }
 };

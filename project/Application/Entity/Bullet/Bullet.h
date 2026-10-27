@@ -10,9 +10,9 @@ public:
 		HomingBullet
 	};
 private:
-	static weak_ptr<Camera> camera_;
-	static weak_ptr<DirectionalLight> directionalLight_;
-	static weak_ptr<PointLight> pointLight_;
+	static std::weak_ptr<Camera> camera_;
+	static std::weak_ptr<DirectionalLight> directionalLight_;
+	static std::weak_ptr<PointLight> pointLight_;
 
 	//弾の動かし方
 	BulletMove bulletMove_;
@@ -38,9 +38,9 @@ public:
 
 	void IsCollisionGround(OBB obb) override;
 
-	static void SetCamera(weak_ptr<Camera> camera) { camera_ = camera; }
-	static void SetDirectionalLight(weak_ptr<DirectionalLight> directionalLight) { directionalLight_ = directionalLight; }
-	static void SetPointLight(weak_ptr<PointLight> pointLight) { pointLight_ = pointLight; }
+	static void SetCamera(std::weak_ptr<Camera> camera) { camera_ = camera; }
+	static void SetDirectionalLight(std::weak_ptr<DirectionalLight> directionalLight) { directionalLight_ = directionalLight; }
+	static void SetPointLight(std::weak_ptr<PointLight> pointLight) { pointLight_ = pointLight; }
 
 	bool IsDead() { return isDead_; }
 };
