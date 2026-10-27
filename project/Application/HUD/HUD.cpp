@@ -25,26 +25,26 @@ void HUD::Initialize(bool isTutorial, std::shared_ptr<Input> input, std::shared_
 	hat_->SetTransform(hatTransform_);
 	animationTime_ = 0.0f;
 
-	sprite_[0] = make_unique<Sprite>();
+	sprite_[0] = std::make_unique<Sprite>();
 	sprite_[0]->Initialize("resources/Sprite/LT.png");
 	sprite_[0]->SetPosition(Vector2{ 1280 - 148 * 4,720 - 148 });
 	sprite_[0]->SetSize(Vector2{ 128,128 });
-	sprite_[1] = make_unique<Sprite>();
+	sprite_[1] = std::make_unique<Sprite>();
 	sprite_[1]->Initialize("resources/Sprite/RT.png");
 	sprite_[1]->SetPosition(Vector2{ 1280 - 148 * 3,720 - 148 });
 	sprite_[1]->SetSize(Vector2{ 128,128 });
-	sprite_[2] = make_unique<Sprite>();
+	sprite_[2] = std::make_unique<Sprite>();
 	sprite_[2]->Initialize("resources/Sprite/B.png");
 	sprite_[2]->SetPosition(Vector2{ 1280 - 148 * 2,720 - 148 });
 	sprite_[2]->SetSize(Vector2{ 128,128 });
-	sprite_[3] = make_unique<Sprite>();
+	sprite_[3] = std::make_unique<Sprite>();
 	sprite_[3]->Initialize("resources/Sprite/Reload_UI.png");
 	sprite_[3]->SetPosition(Vector2{ 1280 - 148,720 - 148 });
 	sprite_[3]->SetSize(Vector2{ 128,128 });
 
 	isTutorial_ = isTutorial;
 	tutorialNum_ = 0;
-	tutorialSprite_ = make_unique<Sprite>();
+	tutorialSprite_ = std::make_unique<Sprite>();
 	tutorialSprite_->Initialize("resources/Sprite/tutorial.png");
 	tutorialSprite_->SetAnchorPoint({ 0.5f,0.5f });
 	tutorialSprite_->SetPosition(Vector2{ 1280 / 2,128 + 20 });

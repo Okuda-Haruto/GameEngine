@@ -42,7 +42,7 @@ public:
 
 	const std::weak_ptr<Sphere> GetTrackingSphere() { return trackingSphere_; }
 
-	void SetCamera(shared_ptr<Camera> camera) { object_->SetCamera(camera); }
+	void SetCamera(std::shared_ptr<Camera> camera) { object_->SetCamera(camera); }
 	const std::weak_ptr<GameCamera> GetGameCamera() { return gameCamera_; }
 
 	bool IsDead() { return HP_ <= 0; }

@@ -23,7 +23,7 @@ protected:
 public:
 	virtual ~BaseScene() = default;
 
-	virtual void Initialize(shared_ptr<Input> input) {}
+	virtual void Initialize(std::shared_ptr<Input> input) {}
 	virtual void Finalize() {}
 	virtual void Update() {}
 	virtual void Draw() {}

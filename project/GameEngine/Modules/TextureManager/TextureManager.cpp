@@ -3,11 +3,11 @@
 #include "ConvertString.h"
 
 uint32_t TextureManager::kSRVIndexTop = 1;
-unique_ptr<TextureManager> TextureManager::instance;
+std::unique_ptr<TextureManager> TextureManager::instance;
 
 TextureManager* TextureManager::GetInstance() {
 	if (!instance) {
-		instance = make_unique<TextureManager>();
+		instance = std::make_unique<TextureManager>();
 	}
 	return instance.get();
 }

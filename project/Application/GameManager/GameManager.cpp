@@ -12,10 +12,10 @@ void GameManager::Initialize() {
 	ModelHolder::GetInstance()->Initialize();
 	AudioHolder::GetInstance()->Initialize();
 
-	input_ = make_shared<Input>();
+	input_ = std::make_shared<Input>();
 	input_.get()->Initialize(GameEngine::GetWindowsAPI());
 
-	sceneFactory_ = make_unique<SceneFactory>();
+	sceneFactory_ = std::make_unique<SceneFactory>();
 	SceneManager::GetInstance()->SetInput(input_);
 	SceneManager::GetInstance()->SetSceneFactory(sceneFactory_.get());
 	SceneManager::GetInstance()->ChangeScene("Title");

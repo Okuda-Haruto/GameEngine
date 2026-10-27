@@ -1,11 +1,11 @@
 #include "ModelHolder.h"
 #include "ModelManager/ModelManager.h"
 
-unique_ptr<ModelHolder> ModelHolder::instance;
+std::unique_ptr<ModelHolder> ModelHolder::instance;
 
 ModelHolder* ModelHolder::GetInstance() {
 	if (!instance) {
-		instance = make_unique<ModelHolder>();
+		instance = std::make_unique<ModelHolder>();
 	}
 	return instance.get();
 }
@@ -63,6 +63,6 @@ void ModelHolder::Initialize() {
 	
 }
 
-const weak_ptr<Model> ModelHolder::GetModel(ModelIndex model) {
+const std::weak_ptr<Model> ModelHolder::GetModel(ModelIndex model) {
 	return ModelManager::GetInstance()->GetModel(filePathes_[int32_t(model)].directoryPath_, filePathes_[int32_t(model)].fileName_);
 }

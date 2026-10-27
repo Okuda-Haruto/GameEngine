@@ -1,10 +1,10 @@
 #include "SceneManager.h"
 
-unique_ptr<SceneManager> SceneManager::instance;
+std::unique_ptr<SceneManager> SceneManager::instance;
 
 SceneManager* SceneManager::GetInstance() {
 	if (!instance) {
-		instance = make_unique<SceneManager>();
+		instance = std::make_unique<SceneManager>();
 	}
 	return instance.get();
 }
@@ -45,7 +45,7 @@ void SceneManager::Draw() {
 	scene_->Draw();
 }
 
-void SceneManager::ChangeScene(string sceneName) {
+void SceneManager::ChangeScene(std::string sceneName) {
 	assert(sceneFactory_);
 
 	//次のシーンを生成

@@ -14,7 +14,7 @@ GameScene::~GameScene() {
 
 }
 
-void GameScene::Initialize(shared_ptr<Input> input) {
+void GameScene::Initialize(std::shared_ptr<Input> input) {
 
 	input_ = input;
 

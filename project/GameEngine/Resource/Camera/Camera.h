@@ -9,7 +9,7 @@ class DebugCamera;
 #include <wrl.h>
 #include "DirectXCommon/DirectXCommon.h"
 
-using namespace std;
+
 
 //カメラ
 class Camera {
@@ -28,7 +28,7 @@ private:
 
 	SRT* parentTransform_ = nullptr;
 
-	weak_ptr<DebugCamera> debugCamera_;
+	std::weak_ptr<DebugCamera> debugCamera_;
 
 	//カメラワールド座標用のリソース
 	Microsoft::WRL::ComPtr<ID3D12Resource> cameraResource_;
@@ -57,7 +57,7 @@ public:
 	void SetCenterPoint(Vector3 centerPoint) { centerPoint_ = centerPoint; }
 	Vector3 GetCenterPoint() { return centerPoint_; }
 
-	void SetDebugCamera(const shared_ptr<DebugCamera>& debugCamera) { debugCamera_ = debugCamera; }
+	void SetDebugCamera(const std::shared_ptr<DebugCamera>& debugCamera) { debugCamera_ = debugCamera; }
 
 	//カメラワールド座標用のリソース
 	[[nodiscard]]

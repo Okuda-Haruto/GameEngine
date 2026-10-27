@@ -13,11 +13,11 @@ DebugCamera::DebugCamera() {
 	kWindowHeight_ = GameEngine::GetWindowHeight();
 }
 
-void DebugCamera::Initialize(shared_ptr<Input> input) {
+void DebugCamera::Initialize(std::shared_ptr<Input> input) {
 
 	input_ = input;
 
-	ChangeCameraMode(make_unique<CameraModeSphericalCoordinates>());
+	ChangeCameraMode(std::make_unique<CameraModeSphericalCoordinates>());
 
 	rotateMatrix_ = MakeIdentity4x4();
 	//正面状態
@@ -44,10 +44,10 @@ void DebugCamera::UpdateCamera(Camera* camera) {
 	camera->SetViewMatrix(viewMatrix_);
 };
 
-void BaseCameraMode::Initialize(shared_ptr<Input> input) {}
+void BaseCameraMode::Initialize(std::shared_ptr<Input> input) {}
 void BaseCameraMode::Update(DebugCamera* debugCamera) {}
 
-void CameraModePlayerCamera::Initialize(shared_ptr<Input> input) {
+void CameraModePlayerCamera::Initialize(std::shared_ptr<Input> input) {
 	centerPoint_ = {0,10,-10};
 	input_ = input;
 }
@@ -128,7 +128,7 @@ void CameraModePlayerCamera::Update(DebugCamera* debugCamera) {
 	debugCamera->SetViewMatrix(viewMatrix);
 }
 
-void CameraModeSphericalCoordinates::Initialize(shared_ptr<Input> input) {
+void CameraModeSphericalCoordinates::Initialize(std::shared_ptr<Input> input) {
 	centerPoint_ = { 0,0,0 };
 	input_ = input;
 }
@@ -195,7 +195,7 @@ void CameraModeSphericalCoordinates::Update(DebugCamera* debugCamera) {
 	debugCamera->SetViewMatrix(viewMatrix);
 }
 
-void DebugCamera::ChangeCameraMode(unique_ptr<BaseCameraMode> newCameraMode) {
+void DebugCamera::ChangeCameraMode(std::unique_ptr<BaseCameraMode> newCameraMode) {
 	cameraMode_.reset();
 	cameraMode_ = move(newCameraMode);
 	//正面状態
@@ -207,10 +207,10 @@ void DebugCamera::ChangeCameraMode(DebugCameraMode debugCameraMode) {
 	switch (debugCameraMode)
 	{
 	case DebugCameraMode::PlayerCamera:
-		ChangeCameraMode(make_unique<CameraModePlayerCamera>());
+		ChangeCameraMode(std::make_unique<CameraModePlayerCamera>());
 		break;
 	case DebugCameraMode::SphericalCoordinates:
-		ChangeCameraMode(make_unique<CameraModeSphericalCoordinates>());
+		ChangeCameraMode(std::make_unique<CameraModeSphericalCoordinates>());
 		break;
 	default:
 		break;

@@ -777,14 +777,14 @@ public:
 	State GetBossState() { return state_ ; }
 	void SetBossState(State state) { state_ = state; }
 
-	void SetCamera(weak_ptr<Camera> camera) { object_->SetCamera(camera); }
+	void SetCamera(std::weak_ptr<Camera> camera) { object_->SetCamera(camera); }
 
 	void SetModel(std::weak_ptr<Model> model) { object_->Initialize(model); }
 
 	void SetPatterns(std::string name, std::unique_ptr<BossPattern> pattern) { patterns_[name] = move(pattern); }
 
-	void SetDirectionalLight(shared_ptr<DirectionalLight> directionalLight) { object_->SetDirectionalLight(directionalLight); }
-	void SetPointLight(shared_ptr<PointLight> pointLight) { object_->SetPointLight(pointLight); }
+	void SetDirectionalLight(std::shared_ptr<DirectionalLight> directionalLight) { object_->SetDirectionalLight(directionalLight); }
+	void SetPointLight(std::shared_ptr<PointLight> pointLight) { object_->SetPointLight(pointLight); }
 
 	void Damage(float damage) { HP_ -= damage; }
 

@@ -21,12 +21,12 @@
 #include <vector>
 #include <unordered_map>
 
-using namespace std;
+
 
 //音声
 class AudioManager {
 private:
-	static unique_ptr<AudioManager> instance;
+	static std::unique_ptr<AudioManager> instance;
 
 	//XAudio2インスタンス
 	Microsoft::WRL::ComPtr<IXAudio2> xAudio2_;

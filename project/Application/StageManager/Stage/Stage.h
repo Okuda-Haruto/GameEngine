@@ -58,9 +58,9 @@ protected:
 
 
 	//光源	いつかは外部で管理したい
-	shared_ptr<DirectionalLight> directionalLight_;
+	std::shared_ptr<DirectionalLight> directionalLight_;
 	DirectionalLightElement directionalLightElement_;
-	shared_ptr<PointLight> pointLight_;
+	std::shared_ptr<PointLight> pointLight_;
 	PointLightElement pointLightElement_;
 
 	std::unique_ptr<ParticleEmitter> particle_;

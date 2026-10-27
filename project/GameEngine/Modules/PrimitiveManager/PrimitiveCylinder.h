@@ -15,7 +15,7 @@
 //モデル
 class PrimitiveCylinder {
 private:
-	static unique_ptr<PrimitiveCylinder> instance;
+	static std::unique_ptr<PrimitiveCylinder> instance;
 
 	DirectXCommon* dxCommon_ = nullptr;
 

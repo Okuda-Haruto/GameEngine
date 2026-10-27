@@ -12,7 +12,7 @@
 
 #include "WindowsAPI/WindowsAPI.h"
 
-using namespace std;
+
 
 //ボタン入力	単体では使用しないこと
 struct Trigger {

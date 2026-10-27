@@ -13,13 +13,13 @@
 #include <array>
 #include <fstream>
 
-using namespace std;
+
 
 class GameScene : public BaseScene
 {
 private:
 
-	shared_ptr<Input> input_;
+	std::shared_ptr<Input> input_;
 
 	std::unique_ptr<Stage> stage_;
 
@@ -48,7 +48,7 @@ public:
 	~GameScene();
 
 	//初期化
-	void Initialize(shared_ptr<Input> input) override;
+	void Initialize(std::shared_ptr<Input> input) override;
 	//更新
 	void Update() override;
 	//描画

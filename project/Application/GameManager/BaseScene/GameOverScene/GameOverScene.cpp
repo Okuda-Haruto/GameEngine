@@ -8,7 +8,7 @@ GameOverScene::~GameOverScene() {
 
 }
 
-void GameOverScene::Initialize(shared_ptr<Input> input) {
+void GameOverScene::Initialize(std::shared_ptr<Input> input) {
 	input_ = input;
 
 	directionalLight_ = std::make_unique<DirectionalLight>();

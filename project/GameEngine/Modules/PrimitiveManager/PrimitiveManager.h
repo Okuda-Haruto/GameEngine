@@ -19,7 +19,7 @@
 
 #include "Operation/Operation.h"
 
-using namespace std;
+
 
 class PrimitiveManager {
 public:
@@ -79,7 +79,7 @@ public:
 
 private:
 
-	static unique_ptr<PrimitiveManager> instance;
+	static std::unique_ptr<PrimitiveManager> instance;
 
 	DirectXCommon* dxCommon_ = nullptr;
 

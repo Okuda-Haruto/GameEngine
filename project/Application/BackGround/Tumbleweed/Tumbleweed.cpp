@@ -7,7 +7,7 @@ Tumbleweed::~Tumbleweed() {
 
 }
 
-void Tumbleweed::Initialize(weak_ptr<Camera> camera, weak_ptr<DirectionalLight> directionalLight, weak_ptr<PointLight> pointLight) {
+void Tumbleweed::Initialize(std::weak_ptr<Camera> camera, std::weak_ptr<DirectionalLight> directionalLight, std::weak_ptr<PointLight> pointLight) {
 	directionalLight_ = directionalLight;
 	pointLight_ = pointLight;
 
@@ -16,7 +16,7 @@ void Tumbleweed::Initialize(weak_ptr<Camera> camera, weak_ptr<DirectionalLight> 
 	//モデルの生成
 	for (int i = 0; i < size; i++) {
 
-		unique_ptr<Object> object = make_unique<Object>();
+		std::unique_ptr<Object> object = std::make_unique<Object>();
 		object->Initialize(ModelHolder::GetInstance()->GetModel(ModelIndex::Tumbleweed));
 		object->SetTransform(transform);
 		object->SetCamera(camera);
@@ -52,7 +52,7 @@ void Tumbleweed::Update() {
 }
 
 void Tumbleweed::Draw() {
-	for (const unique_ptr<Object>& object : objects_) {
+	for (const std::unique_ptr<Object>& object : objects_) {
 		object->Draw3D();
 	}
 }

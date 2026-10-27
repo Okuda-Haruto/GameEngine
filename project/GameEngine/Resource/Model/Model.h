@@ -63,7 +63,7 @@ public:
 	bool IsEndAnimation(float time, std::string animationName) { return time  >= modelData_.animations[animationName].duration; }
 	//アニメーションデータ
 	AnimationData GetAnimationData(std::string animationName) { return modelData_.animations[animationName]; }
-	std::unordered_map<string, AnimationData> GetAnimationDatas() { return modelData_.animations; }
+	std::unordered_map<std::string, AnimationData> GetAnimationDatas() { return modelData_.animations; }
 
 	const DirectXCommon* GetDirectXCommon() { return dxCommon_; }
 private:

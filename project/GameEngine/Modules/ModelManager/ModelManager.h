@@ -4,17 +4,17 @@
 #include "DirectXCommon/DirectXCommon.h"
 #include "Model/Model.h"
 
-using namespace std;
+
 
 class ModelManager {
 private:
 
-	static unique_ptr<ModelManager> instance;
+	static std::unique_ptr<ModelManager> instance;
 
 	DirectXCommon* dxCommon_ = nullptr;
 
 	//テクスチャデータ
-	std::unordered_map <std::string,shared_ptr<Model>> modelDatas;
+	std::unordered_map <std::string,std::shared_ptr<Model>> modelDatas;
 public:
 
 	ModelManager() = default;
@@ -35,5 +35,5 @@ public:
 	void LoadModel(const std::string& directoryPath, const std::string& filename);
 
 	//モデルの入手
-	const weak_ptr<Model> GetModel(const std::string& directoryPath, const std::string& filename);
+	const std::weak_ptr<Model> GetModel(const std::string& directoryPath, const std::string& filename);
 };

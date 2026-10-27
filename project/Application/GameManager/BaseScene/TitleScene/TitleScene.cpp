@@ -8,7 +8,7 @@ TitleScene::~TitleScene() {
 
 }
 
-void TitleScene::Initialize(shared_ptr<Input> input) {
+void TitleScene::Initialize(std::shared_ptr<Input> input) {
 	input_ = input;
 
 	directionalLight_ = std::make_unique<DirectionalLight>();

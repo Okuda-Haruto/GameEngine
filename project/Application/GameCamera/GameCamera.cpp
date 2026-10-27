@@ -253,11 +253,11 @@ GameCamera::~GameCamera(){
 
 }
 
-void GameCamera::Initialize(shared_ptr<Input> input) {
-	camera_ = make_shared<Camera>();
+void GameCamera::Initialize(std::shared_ptr<Input> input) {
+	camera_ = std::make_shared<Camera>();
 	camera_->Initialize(GameEngine::GetDirectXCommon());
 	Object::SetDefaultCamera(camera_);
-	transform_ = make_shared<SRT>();
+	transform_ = std::make_shared<SRT>();
 	*transform_ = {};
 	shakeTime_ = 0.0f;
 

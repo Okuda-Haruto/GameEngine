@@ -1,10 +1,10 @@
 #include "SpriteManager.h"
 
-unique_ptr<SpriteManager> SpriteManager::instance;
+std::unique_ptr<SpriteManager> SpriteManager::instance;
 
 SpriteManager* SpriteManager::GetInstance() {
 	if (!instance) {
-		instance = make_unique<SpriteManager>();
+		instance = std::make_unique<SpriteManager>();
 	}
 	return instance.get();
 }

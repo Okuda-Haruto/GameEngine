@@ -4,11 +4,11 @@
 #include "SpriteManager/SpriteManager.h"
 #include <numbers>
 
-unique_ptr<PrimitiveManager> PrimitiveManager::instance;
+std::unique_ptr<PrimitiveManager> PrimitiveManager::instance;
 
 PrimitiveManager* PrimitiveManager::GetInstance() {
 	if (!instance) {
-		instance = make_unique<PrimitiveManager>();
+		instance = std::make_unique<PrimitiveManager>();
 	}
 	return instance.get();
 }

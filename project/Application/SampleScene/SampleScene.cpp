@@ -7,7 +7,7 @@
 #include <numbers>
 #include <cmath>
 
-using namespace std;
+
 
 SampleScene::~SampleScene() {
 
@@ -15,7 +15,7 @@ SampleScene::~SampleScene() {
 
 void SampleScene::Initialize() {
 
-	input_ = make_shared<Input>();
+	input_ = std::make_shared<Input>();
 	input_->Initialize(GameEngine::GetWindowsAPI());
 
 	ModelManager::GetInstance()->LoadModel("resources/DebugResources/plane", "plane.obj");
@@ -27,19 +27,19 @@ void SampleScene::Initialize() {
 	ModelManager::GetInstance()->LoadModel("resources/DebugResources/teapot", "teapot.obj");
 
 	//3Dオブジェクト
-	object_[0] = make_unique<Object>();
+	object_[0] = std::make_unique<Object>();
 	object_[0]->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/plane", "plane.obj"));
-	object_[1] = make_unique<Object>();
+	object_[1] = std::make_unique<Object>();
 	object_[1]->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/sphere", "sphere.obj"));
-	object_[2] = make_unique<Object>();
+	object_[2] = std::make_unique<Object>();
 	object_[2]->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/multiMesh", "multiMesh.obj"));
-	object_[3] = make_unique<Object>();
+	object_[3] = std::make_unique<Object>();
 	object_[3]->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/multiMaterial", "multiMaterial.obj"));
-	object_[4] = make_unique<Object>();
+	object_[4] = std::make_unique<Object>();
 	object_[4]->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/terrain", "terrain.obj"));
-	object_[5] = make_unique<Object>();
+	object_[5] = std::make_unique<Object>();
 	object_[5]->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/suzanne", "suzanne.obj"));
-	object_[6] = make_unique<Object>();
+	object_[6] = std::make_unique<Object>();
 	object_[6]->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/teapot", "teapot.obj"));
 
 	object_[1]->SetCubeTextureIndex(TextureManager::GetInstance()->GetSrvIndex("resources/BackGround/minedump_flats_1k.dds"));
@@ -48,16 +48,16 @@ void SampleScene::Initialize() {
 	object_[1]->SetParts(parts[0], 0);
 
 	//2Dスプライト
-	sprite_[0] = make_unique<Sprite>();
+	sprite_[0] = std::make_unique<Sprite>();
 	sprite_[0]->Initialize("resources/DebugResources/uvChecker.png");
 	sprite_[0]->SetPosition(Vector2{100.0f,100.0f});
-	sprite_[1] = make_unique<Sprite>();
+	sprite_[1] = std::make_unique<Sprite>();
 	sprite_[1]->Initialize("resources/DebugResources/monsterBall.png");
 	sprite_[1]->SetPosition(Vector2{ 50,50 });
 
 	//エフェクト
 	ParticleManager::GetInstance()->CreateParticleGroup("particle", "resources/DebugResources/circle.png");
-	particleEmitter_ = make_unique<ParticleEmitter>("particle");
+	particleEmitter_ = std::make_unique<ParticleEmitter>("particle");
 	emitter_.count = 2;
 	emitter_.beforeColor = { 1.0f,1.0f,1.0f,1.0f };
 	emitter_.afterColor = { 1.0f,1.0f,1.0f,0.0f };
@@ -72,15 +72,15 @@ void SampleScene::Initialize() {
 
 
 	//音源
-	audio_ = make_unique<Audio>();
+	audio_ = std::make_unique<Audio>();
 	audio_->Initialize("resources/DebugResources/TestAudio_koukaonLabo.mp3",false);
 
 	//デバッグカメラ
-	debugCamera_ = make_shared<DebugCamera>();
+	debugCamera_ = std::make_shared<DebugCamera>();
 	debugCamera_->Initialize(input_);
 
 	//カメラ
-	defaultCamera_ = make_shared<Camera>();
+	defaultCamera_ = std::make_shared<Camera>();
 	defaultCamera_->Initialize(GameEngine::GetDirectXCommon());
 	Object::SetDefaultCamera(defaultCamera_);
 	defaultCamera_->SetDebugCamera(debugCamera_);
@@ -93,7 +93,7 @@ void SampleScene::Initialize() {
 
 
 	//光源
-	directionalLight_ = make_shared<DirectionalLight>();
+	directionalLight_ = std::make_shared<DirectionalLight>();
 	directionalLight_->Initialize(GameEngine::GetDirectXCommon());
 	directionalLightElement_ = {
 		{1.0f,1.0f,1.0f,1.0f},
@@ -102,7 +102,7 @@ void SampleScene::Initialize() {
 	};
 	directionalLight_->SetDirectionalLightElement(directionalLightElement_);
 
-	pointLight_ = make_shared<PointLight>();
+	pointLight_ = std::make_shared<PointLight>();
 	pointLight_->Initialize(GameEngine::GetDirectXCommon());
 	pointLightElement_ = {
 		{1.0f,1.0f,1.0f,1.0f},
@@ -113,7 +113,7 @@ void SampleScene::Initialize() {
 	};
 	pointLight_->SetPointLightElement(pointLightElement_);
 
-	spotLight_ = make_shared<SpotLight>();
+	spotLight_ = std::make_shared<SpotLight>();
 	spotLight_->Initialize(GameEngine::GetDirectXCommon());
 	spotLightElement_ = {
 		{ 1.0f,1.0f,1.0f,1.0f },
@@ -127,7 +127,7 @@ void SampleScene::Initialize() {
 	};
 	spotLight_->SetSpotLightElement(spotLightElement_);
 
-	for (unique_ptr<Object>& object : object_) {
+	for (std::unique_ptr<Object>& object : object_) {
 		object->SetDirectionalLight(directionalLight_);
 		object->SetPointLight(pointLight_);
 		object->SetSpotLight(spotLight_);
@@ -140,48 +140,48 @@ void SampleScene::Initialize() {
 	}
 
 	std::unique_ptr<Object> box_;
-	/*box_ = make_unique<Object>();
+	/*box_ = std::make_unique<Object>();
 	box_->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/gltf", "LE2A_02_human.gltf"));
 	box_->SetIsUseAnimation(true);
 	box_->SetIsLoopAnimation(true);
 	box_->SetAnimationInterpolation(AnimationInterpolation::Linear);
 	gltfs_.push_back(move(box_));*/
-	box_ = make_unique<Object>();
+	box_ = std::make_unique<Object>();
 	box_->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/gltf", "box.gltf"));
 	box_->SetAnimationName("アーマチュアアクション");
 	box_->SetIsUseAnimation(true);
 	box_->SetIsLoopAnimation(true);
 	box_->SetAnimationInterpolation(AnimationInterpolation::Linear);
 	gltfs_.push_back(move(box_));
-	box_ = make_unique<Object>();
+	box_ = std::make_unique<Object>();
 	box_->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/gltf", "box_1.gltf"));
 	box_->SetAnimationName("アーマチュアアクション.001");
 	box_->SetIsUseAnimation(true);
 	box_->SetIsLoopAnimation(true);
 	box_->SetAnimationInterpolation(AnimationInterpolation::Linear);
 	gltfs_.push_back(move(box_));
-	box_ = make_unique<Object>();
+	box_ = std::make_unique<Object>();
 	box_->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/gltf", "box_2.gltf"));
 	box_->SetAnimationName("アーマチュアアクション.001");
 	box_->SetIsUseAnimation(true);
 	box_->SetIsLoopAnimation(true);
 	box_->SetAnimationInterpolation(AnimationInterpolation::Linear);
 	gltfs_.push_back(move(box_));
-	box_ = make_unique<Object>();
+	box_ = std::make_unique<Object>();
 	box_->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/gltf", "box_0.gltf"));
 	box_->SetAnimationName("アーマチュアアクション.001");
 	box_->SetIsUseAnimation(true);
 	box_->SetIsLoopAnimation(true);
 	box_->SetAnimationInterpolation(AnimationInterpolation::Step);
 	gltfs_.push_back(move(box_));
-	box_ = make_unique<Object>();
+	box_ = std::make_unique<Object>();
 	box_->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/gltf", "box_0.gltf"));
 	box_->SetAnimationName("アーマチュアアクション.001");
 	box_->SetIsUseAnimation(true);
 	box_->SetIsLoopAnimation(true);
 	box_->SetAnimationInterpolation(AnimationInterpolation::Cubic_Spline);
 	gltfs_.push_back(move(box_));
-	box_ = make_unique<Object>();
+	box_ = std::make_unique<Object>();
 	box_->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/gltf", "box_1.gltf"));
 	box_->SetAnimationName("アーマチュアアクション.001");
 	box_->SetIsUseAnimation(true);
@@ -191,7 +191,7 @@ void SampleScene::Initialize() {
 
 	gltfIndex_ = 0;
 
-	for (unique_ptr<Object>& gltf : gltfs_) {
+	for (std::unique_ptr<Object>& gltf : gltfs_) {
 		gltf->SetDirectionalLight(directionalLight_);
 		gltf->SetPointLight(pointLight_);
 		gltf->SetSpotLight(spotLight_);
@@ -376,7 +376,7 @@ void SampleScene::Update() {
 			bool is_selected = (current_item == items[n]);
 			if (ImGui::Selectable(items[n], is_selected)) {
 				reflection = n;
-				for (unique_ptr<Object>& object : object_) {
+				for (std::unique_ptr<Object>& object : object_) {
 					object->SetReflection(reflection);
 				}
 			}
@@ -398,7 +398,7 @@ void SampleScene::Update() {
 			bool is_selected = (current_Shading == Shadings[n]);
 			if (ImGui::Selectable(Shadings[n], is_selected)) {
 				shadingIndex = n;
-				for (unique_ptr<Object>& object : object_) {
+				for (std::unique_ptr<Object>& object : object_) {
 					object->SetShading(shadingIndex);
 				}
 			}
@@ -407,7 +407,7 @@ void SampleScene::Update() {
 	}
 	ImGui::DragFloat("light Shininess", &shininess_);
 
-	for (unique_ptr<Object>& object : object_) {
+	for (std::unique_ptr<Object>& object : object_) {
 		object->SetShininess(shininess_);
 	}
 

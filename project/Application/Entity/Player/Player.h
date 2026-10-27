@@ -10,7 +10,7 @@ class Stage;
 class Player : public BaseEntity
 {
 private:
-	shared_ptr<Input> input_;
+	std::shared_ptr<Input> input_;
 
 	float angle;
 	Vector3 move_;
@@ -84,7 +84,7 @@ public:
 	~Player();
 
 	//初期化
-	void Initialize(Stage* stage, std::shared_ptr<GameCamera> gameCamera, shared_ptr<Input> input, SRT startTransform);
+	void Initialize(Stage* stage, std::shared_ptr<GameCamera> gameCamera, std::shared_ptr<Input> input, SRT startTransform);
 	//更新
 	void Update();
 	//描画
@@ -100,10 +100,10 @@ public:
 
 	void SetCameraTransform(const SRT* transform) { cameraTransform_ = transform; }
 
-	void SetCamera(weak_ptr<Camera> camera) { object_->SetCamera(camera); }
+	void SetCamera(std::weak_ptr<Camera> camera) { object_->SetCamera(camera); }
 
-	void SetDirectionalLight(shared_ptr<DirectionalLight> directionalLight) { object_->SetDirectionalLight(directionalLight); }
-	void SetPointLight(shared_ptr<PointLight> pointLight) { object_->SetPointLight(pointLight); }
+	void SetDirectionalLight(std::shared_ptr<DirectionalLight> directionalLight) { object_->SetDirectionalLight(directionalLight); }
+	void SetPointLight(std::shared_ptr<PointLight> pointLight) { object_->SetPointLight(pointLight); }
 
 	bool GetIsTargeted() { return isTargeted_; }
 	bool IsDead() { return HP_ <= 0; }

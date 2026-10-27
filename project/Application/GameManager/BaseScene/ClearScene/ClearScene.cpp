@@ -8,7 +8,7 @@ ClearScene::~ClearScene() {
 
 }
 
-void ClearScene::Initialize(shared_ptr<Input> input) {
+void ClearScene::Initialize(std::shared_ptr<Input> input) {
 	input_ = input;
 
 	directionalLight_ = std::make_unique<DirectionalLight>();

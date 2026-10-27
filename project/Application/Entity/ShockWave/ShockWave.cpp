@@ -4,9 +4,9 @@
 #include "Easing.h"
 #include "GameEngine.h"
 
-weak_ptr<Camera> ShockWave::camera_;
-weak_ptr<DirectionalLight> ShockWave::directionalLight_;
-weak_ptr<PointLight> ShockWave::pointLight_;
+std::weak_ptr<Camera> ShockWave::camera_;
+std::weak_ptr<DirectionalLight> ShockWave::directionalLight_;
+std::weak_ptr<PointLight> ShockWave::pointLight_;
 
 void ShockWave::Initialize(SRT transform, float range, float maxLifeTime, CollisionID id, std::unique_ptr<PrimitiveCylinder> cylinder) {
 

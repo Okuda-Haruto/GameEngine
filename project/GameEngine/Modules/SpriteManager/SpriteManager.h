@@ -1,11 +1,11 @@
 #pragma once
 #include "DirectXCommon/DirectXCommon.h"
 
-using namespace std;
+
 
 class SpriteManager {
 private:
-	static unique_ptr<SpriteManager> instance;
+	static std::unique_ptr<SpriteManager> instance;
 
 	DirectXCommon* dxCommon_ = nullptr;
 public:

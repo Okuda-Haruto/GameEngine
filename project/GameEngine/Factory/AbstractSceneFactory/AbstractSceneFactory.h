@@ -7,5 +7,5 @@ class AbstractSceneFactory {
 public:
 	//仮想デストラクタ
 	virtual ~AbstractSceneFactory() = default;
-	virtual unique_ptr<BaseScene> CreateScene(const std::string& sceneName) = 0;
+	virtual std::unique_ptr<BaseScene> CreateScene(const std::string& sceneName) = 0;
 };

@@ -13,7 +13,7 @@ Player::~Player() {
 
 }
 
-void Player::Initialize(Stage* stage, std::shared_ptr<GameCamera> gameCamera, shared_ptr<Input> input, SRT startTransform) {
+void Player::Initialize(Stage* stage, std::shared_ptr<GameCamera> gameCamera, std::shared_ptr<Input> input, SRT startTransform) {
 	stage_ = stage;
 	gameCamera_ = gameCamera;
 	input_ = input;

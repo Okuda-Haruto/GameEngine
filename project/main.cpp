@@ -5,7 +5,7 @@
 #include <fstream>
 #include <nlohmann/json.hpp>
 
-using namespace std;
+
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//ゲームエンジン
@@ -21,8 +21,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	TextureManager::GetInstance()->LoadTexture("resources/DebugResources/noise0.png");
 
-	//unique_ptr<SampleScene> gameManager = make_unique<SampleScene>();
-	unique_ptr<GameManager> gameManager = make_unique<GameManager>();
+	//std::unique_ptr<SampleScene> gameManager = std::make_unique<SampleScene>();
+	std::unique_ptr<GameManager> gameManager = std::make_unique<GameManager>();
 
 	gameManager->Initialize();
 
