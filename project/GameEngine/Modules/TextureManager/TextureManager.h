@@ -4,8 +4,8 @@
 #include "DirectXTex/DirectXTex.h"
 #include <wrl.h>
 #include <d3d12.h>
-#include <DirectXCommon/DirectXCommon.h>
-#include <SRVManager/SRVManager.h>
+#include "DirectXCommon/DirectXCommon.h"
+#include "SRVManager/SRVManager.h"
 #include <memory>
 #include <unordered_map>
 

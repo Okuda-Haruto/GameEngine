@@ -1,12 +1,12 @@
 #include "GameScene.h"
 #include "GameEngine.h"
 #include <numbers>
-#include <SceneManager/SceneManager.h>
+#include "SceneManager/SceneManager.h"
 #include "../TitleScene/TitleScene.h"
 #include <cmath>
-#include <Collision.h>
-#include <RadialBlurData.h>
-#include <TextureManager/TextureManager.h>
+#include "Collision.h"
+#include "RadialBlurData.h"
+#include "TextureManager/TextureManager.h"
 
 GameScene::~GameScene() {
 

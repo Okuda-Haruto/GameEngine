@@ -8,7 +8,7 @@
 #include "Bone.h"
 #include "AnimationData.h"
 #include "MaterialData.h"
-#include <Node.h>
+#include "Node.h"
 
 struct ModelData {
 	std::vector<ObjectVertexData> vertices;

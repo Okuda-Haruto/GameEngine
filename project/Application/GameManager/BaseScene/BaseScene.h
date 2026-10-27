@@ -2,7 +2,7 @@
 #include "ModelHolder/ModelHolder.h"
 #include "SpriteManager/SpriteManager.h"
 #include <memory>
-#include <Input/Input.h>
+#include "Input/Input.h"
 
 class SceneManager;
 

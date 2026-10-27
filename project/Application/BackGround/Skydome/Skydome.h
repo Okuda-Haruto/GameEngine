@@ -1,8 +1,8 @@
 #pragma once
 #include <memory>
-#include <PrimitiveManager/PrimitiveBox.h>
-#include <Camera/Camera.h>
-#include <ModelHolder/ModelHolder.h>
+#include "PrimitiveManager/PrimitiveBox.h"
+#include "Camera/Camera.h"
+#include "ModelHolder/ModelHolder.h"
 
 class Skydome
 {

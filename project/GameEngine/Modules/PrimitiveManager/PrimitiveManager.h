@@ -5,19 +5,19 @@
 #include "DirectXCommon/DirectXCommon.h"
 #include "SRVManager/SRVManager.h"
 
-#include <LineVertex.h>
+#include "LineVertex.h"
 #include "Vector2.h"
 #include "Offset.h"
 
 #include "Line.h"
 #include "Plane.h"
-#include <OBB.h>
+#include "OBB.h"
 #include "AABB.h"
 #include "Triangle.h"
 #include "Circle.h"
 #include "Sphere.h"
 
-#include <Operation/Operation.h>
+#include "Operation/Operation.h"
 
 using namespace std;
 

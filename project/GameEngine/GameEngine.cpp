@@ -70,6 +70,8 @@ void GameEngine::Finalize_() {
 	winApp_.reset();
 
 	textureData_.clear();
+
+	th_.join();
 }
 
 void GameEngine::Finalize() {
@@ -128,7 +130,69 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	TextureManager::GetInstance()->MakeRenderTexture("ImGui");
 #endif
 
+	isThreadFinished_.store(false);
+	th_ = std::thread(&GameEngine::LoadShader, GameEngine::GetInstance());
 
+	//XAudioエンジンのインスタンスを生成
+	hr = XAudio2Create(&xAudio2_, 0, XAUDIO2_DEFAULT_PROCESSOR);
+	assert(SUCCEEDED(hr));
+
+	//マスターボイスを生成
+	hr = xAudio2_->CreateMasteringVoice(&masterVoice_);
+	assert(SUCCEEDED(hr));
+
+	AudioManager::GetInstance()->Initialize(xAudio2_);
+
+	//乱数シード初期化
+	std::random_device seedGenerator;
+	randomEngine_.seed(seedGenerator());
+
+	//初期化
+	for (int i = 0; i < kMaxIndex; i++) {
+		objectMaterialResource_[i] = dxCommon_->CreateBufferResources(sizeof(Material));
+		objectWvpResource_[i] = dxCommon_->CreateBufferResources(sizeof(TransformationMatrix));
+		objectBoneResource_[i] = dxCommon_->CreateBufferResources(sizeof(BoneMatrix));
+		spriteMaterialResource_[i] = dxCommon_->CreateBufferResources(sizeof(Material));
+		spriteWvpResource_[i] = dxCommon_->CreateBufferResources(sizeof(TransformationMatrix));
+	}
+
+	for (int i = 0; i < kMaxInstanceIndex; i++) {
+		instancingObjectMaterialResource_[i] = dxCommon_->CreateBufferResources(sizeof(Material));
+		instancingObjectResource_[i] = dxCommon_->CreateBufferResources(sizeof(InstancingTransformationMatrix) * kMaxNumInstance);
+		instancingObjectBoneResource_[i] = dxCommon_->CreateBufferResources(sizeof(BoneMatrix));
+		uint32_t index = srvManager_->Allocate();
+		//SRVを作成
+		srvManager_->CreateSRVforStructuredBuffer(index, instancingObjectResource_[i].Get(), kMaxNumInstance, sizeof(InstancingTransformationMatrix));
+		if (i == 0)startInstancingObjectIndex_ = index;
+	}
+	for (int i = 0; i < kMaxInstanceIndex; i++) {
+		particleMaterialResource_[i] = dxCommon_->CreateBufferResources(sizeof(Material));
+		particleResource_[i] = dxCommon_->CreateBufferResources(sizeof(InstancingTransformationMatrix) * kMaxNumInstance);
+	}
+	for (int i = 0; i < kMaxInstanceIndex; i++) {
+		instancingSpriteMaterialResource_[i] = dxCommon_->CreateBufferResources(sizeof(Material));
+		instancingSpriteResource_[i] = dxCommon_->CreateBufferResources(sizeof(InstancingTransformationMatrix) * kMaxNumInstance);
+		uint32_t index = srvManager_->Allocate();
+		//SRVを作成
+		srvManager_->CreateSRVforStructuredBuffer(index, instancingSpriteResource_[i].Get(), kMaxNumInstance, sizeof(InstancingTransformationMatrix));
+		if (i == 0)startInstancingSpriteIndex_ = index;
+	}
+
+	for (int i = 0; i < PrimitiveManager::SHAPE_count; i++) {
+		primitiveMaterialResource_[i] = dxCommon_->CreateBufferResources(sizeof(Material));
+		primitiveResource_[i] = dxCommon_->CreateBufferResources(sizeof(InstancingTransformationMatrix) * PrimitiveManager::kMaxNumPrimitive);
+	}
+
+	fogResource_ = dxCommon_->CreateBufferResources(sizeof(Fog));
+	colorChangeStateResource_ = dxCommon_->CreateBufferResources(sizeof(ColorChange::ColorChangeState));
+	vignetteResource_ = dxCommon_->CreateBufferResources(sizeof(VignetteData));
+	boxFilterResource_ = dxCommon_->CreateBufferResources(sizeof(BoxFilterData));
+	outlineMaterialFilterResource_ = dxCommon_->CreateBufferResources(sizeof(Material));
+	radialBlurResource_ = dxCommon_->CreateBufferResources(sizeof(RadialBlurData));
+	dissolveResource_ = dxCommon_->CreateBufferResources(sizeof(DissolveData));
+}
+
+void GameEngine::LoadShader() {
 	//RootSignature作成
 	object_RootSignature_ = dxCommon_->Object_RootSignatureInitialvalue();
 	object_Instancing_RootSignature_ = dxCommon_->Object_Instancing_RootSignatureInitialvalue();
@@ -217,63 +281,8 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	screen_RadialBlur_PipelineState_ = Screen_PipelineStateInitialvalue(device_, screen_RadialBlur_RootSignature_, CopyImageVSBlob.Get(), RadialBlurPSBlob.Get());
 	screen_Dissolve_PipelineState_ = Screen_PipelineStateInitialvalue(device_, screen_Dissolve_RootSignature_, CopyImageVSBlob.Get(), DissolvePSBlob.Get());
 	cubemap_PipelineState_ = Cubemap_PipelineStateInitialvalue(device_, cubemap_RootSignature_, CubemapVSBlob.Get(), CubemapPSBlob.Get());
-	//XAudioエンジンのインスタンスを生成
-	hr = XAudio2Create(&xAudio2_, 0, XAUDIO2_DEFAULT_PROCESSOR);
-	assert(SUCCEEDED(hr));
 
-	//マスターボイスを生成
-	hr = xAudio2_->CreateMasteringVoice(&masterVoice_);
-	assert(SUCCEEDED(hr));
-
-	AudioManager::GetInstance()->Initialize(xAudio2_);
-
-	//乱数シード初期化
-	std::random_device seedGenerator;
-	randomEngine_.seed(seedGenerator());
-
-	//初期化
-	for (int i = 0; i < kMaxIndex; i++) {
-		objectMaterialResource_[i] = dxCommon_->CreateBufferResources(sizeof(Material));
-		objectWvpResource_[i] = dxCommon_->CreateBufferResources(sizeof(TransformationMatrix));
-		objectBoneResource_[i] = dxCommon_->CreateBufferResources(sizeof(BoneMatrix));
-		spriteMaterialResource_[i] = dxCommon_->CreateBufferResources(sizeof(Material));
-		spriteWvpResource_[i] = dxCommon_->CreateBufferResources(sizeof(TransformationMatrix));
-	}
-
-	for (int i = 0; i < kMaxInstanceIndex; i++) {
-		instancingObjectMaterialResource_[i] = dxCommon_->CreateBufferResources(sizeof(Material));
-		instancingObjectResource_[i] = dxCommon_->CreateBufferResources(sizeof(InstancingTransformationMatrix) * kMaxNumInstance);
-		instancingObjectBoneResource_[i] = dxCommon_->CreateBufferResources(sizeof(BoneMatrix));
-		uint32_t index = srvManager_->Allocate();
-		//SRVを作成
-		srvManager_->CreateSRVforStructuredBuffer(index, instancingObjectResource_[i].Get(), kMaxNumInstance, sizeof(InstancingTransformationMatrix));
-		if (i == 0)startInstancingObjectIndex_ = index;
-	}
-	for (int i = 0; i < kMaxInstanceIndex; i++) {
-		particleMaterialResource_[i] = dxCommon_->CreateBufferResources(sizeof(Material));
-		particleResource_[i] = dxCommon_->CreateBufferResources(sizeof(InstancingTransformationMatrix) * kMaxNumInstance);
-	}
-	for (int i = 0; i < kMaxInstanceIndex; i++) {
-		instancingSpriteMaterialResource_[i] = dxCommon_->CreateBufferResources(sizeof(Material));
-		instancingSpriteResource_[i] = dxCommon_->CreateBufferResources(sizeof(InstancingTransformationMatrix) * kMaxNumInstance);
-		uint32_t index = srvManager_->Allocate();
-		//SRVを作成
-		srvManager_->CreateSRVforStructuredBuffer(index, instancingSpriteResource_[i].Get(), kMaxNumInstance, sizeof(InstancingTransformationMatrix));
-		if (i == 0)startInstancingSpriteIndex_ = index;
-	}
-
-	for (int i = 0; i < PrimitiveManager::SHAPE_count; i++) {
-		primitiveMaterialResource_[i] = dxCommon_->CreateBufferResources(sizeof(Material));
-		primitiveResource_[i] = dxCommon_->CreateBufferResources(sizeof(InstancingTransformationMatrix) * PrimitiveManager::kMaxNumPrimitive);
-	}
-
-	fogResource_ = dxCommon_->CreateBufferResources(sizeof(Fog));
-	colorChangeStateResource_ = dxCommon_->CreateBufferResources(sizeof(ColorChange::ColorChangeState));
-	vignetteResource_ = dxCommon_->CreateBufferResources(sizeof(VignetteData));
-	boxFilterResource_ = dxCommon_->CreateBufferResources(sizeof(BoxFilterData));
-	outlineMaterialFilterResource_ = dxCommon_->CreateBufferResources(sizeof(Material));
-	radialBlurResource_ = dxCommon_->CreateBufferResources(sizeof(RadialBlurData));
-	dissolveResource_ = dxCommon_->CreateBufferResources(sizeof(DissolveData));
+	isThreadFinished_.store(true);
 }
 
 
@@ -396,6 +405,8 @@ void GameEngine::RenderPostDraw_() {
 
 void GameEngine::DrawObject_3D_(Object* object, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight, UINT animationIndex, float time) {
 	
+	if (!isThreadFinished_)return;
+
 	//上限に達していたら描画しない
 	if (objectIndex_ >= kMaxIndex)return;
 
@@ -501,6 +512,9 @@ void GameEngine::DrawObject_3D_(Object* object, shared_ptr<DirectionalLight> dir
 }
 
 void GameEngine::DrawParts_3D_(Object* object, uint32_t partsIndex, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight) {
+
+	if (!isThreadFinished_)return;
+
 	//上限に達していたら描画しない
 	if (objectIndex_ >= kMaxIndex)return;
 
@@ -598,6 +612,8 @@ void GameEngine::DrawParts_3D_(Object* object, uint32_t partsIndex, shared_ptr<D
 
 void GameEngine::DrawObject_2D_(Object* object, shared_ptr<DirectionalLight> directionalLight) {
 
+	if (!isThreadFinished_)return;
+
 	//上限に達していたら描画しない
 	if (objectIndex_ >= kMaxIndex)return;
 
@@ -693,6 +709,8 @@ void GameEngine::DrawObject_2D_(Object* object, shared_ptr<DirectionalLight> dir
 
 void GameEngine::DrawParts_2D_(Object* object, uint32_t partsIndex, shared_ptr<DirectionalLight> directionalLight) {
 
+	if (!isThreadFinished_)return;
+
 	//上限に達していたら描画しない
 	if (objectIndex_ >= kMaxIndex)return;
 
@@ -787,6 +805,8 @@ void GameEngine::DrawParts_2D_(Object* object, uint32_t partsIndex, shared_ptr<D
 
 void GameEngine::DrawInstancingObject_3D_(std::list<Object*> objects, shared_ptr<DirectionalLight> directionalLight, shared_ptr<PointLight> pointLight, shared_ptr<SpotLight> spotLight) {
 	
+	if (!isThreadFinished_)return;
+
 	//上限に達していたら描画しない
 	if (instancingObjectIndex_ > kMaxInstanceIndex)return;
 
@@ -927,6 +947,8 @@ void GameEngine::DrawInstancingObject_3D_(std::list<Object*> objects, shared_ptr
 
 void GameEngine::DrawParticle_(ParticleGroup particleGroup) {
 
+	if (!isThreadFinished_)return;
+
 	//上限に達していたら描画しない
 	if (particleIndex_ > kMaxInstanceIndex)return;
 
@@ -1035,6 +1057,8 @@ void GameEngine::DrawParticle_(ParticleGroup particleGroup) {
 
 void GameEngine::DrawSprite_2D_(Sprite* sprite) {
 
+	if (!isThreadFinished_)return;
+
 	//上限に達していたら描画しない
 	if (spriteIndex_ > kMaxIndex)return;
 
@@ -1088,6 +1112,8 @@ void GameEngine::DrawSprite_2D_(Sprite* sprite) {
 }
 
 void GameEngine::DrawInstancingSprite_2D_(InstancingSprite* sprites) {
+
+	if (!isThreadFinished_)return;
 
 	//上限に達していたら描画しない
 	if (instancingSpriteIndex_ > kMaxInstanceIndex)return;
@@ -1163,6 +1189,8 @@ void GameEngine::DrawInstancingSprite_2D_(InstancingSprite* sprites) {
 
 void GameEngine::DrawScreen_(std::string textureName) {
 
+	if (!isThreadFinished_)return;
+
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList_->SetGraphicsRootSignature(screen_RootSignature_.Get());
 	commandList_->SetPipelineState(screen_PipelineState_.Get());	//PSOを設定
@@ -1179,6 +1207,8 @@ void GameEngine::DrawScreen_(std::string textureName) {
 }
 
 void GameEngine::DrawScreen_(std::string textureName, ColorChange::ColorMode colorMode, float intensity) {
+
+	if (!isThreadFinished_)return;
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList_->SetGraphicsRootSignature(screen_RootSignature_.Get());
@@ -1210,6 +1240,8 @@ void GameEngine::DrawScreen_(std::string textureName, ColorChange::ColorMode col
 
 void GameEngine::DrawScreen_(std::string textureName, VignetteData data) {
 
+	if (!isThreadFinished_)return;
+
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList_->SetGraphicsRootSignature(screen_Vignette_RootSignature_.Get());
 	commandList_->SetPipelineState(screen_Vignette_PipelineState_.Get());	//PSOを設定
@@ -1234,6 +1266,8 @@ void GameEngine::DrawScreen_(std::string textureName, VignetteData data) {
 }
 
 void GameEngine::DrawScreen_(std::string textureName, BoxFilterData data) {
+
+	if (!isThreadFinished_)return;
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList_->SetGraphicsRootSignature(screen_RootSignature_.Get());
@@ -1260,6 +1294,8 @@ void GameEngine::DrawScreen_(std::string textureName, BoxFilterData data) {
 
 void GameEngine::DrawScreen_(std::string textureName, RadialBlurData data) {
 
+	if (!isThreadFinished_)return;
+
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList_->SetGraphicsRootSignature(screen_RadialBlur_RootSignature_.Get());
 	commandList_->SetPipelineState(screen_RadialBlur_PipelineState_.Get());	//PSOを設定
@@ -1284,6 +1320,8 @@ void GameEngine::DrawScreen_(std::string textureName, RadialBlurData data) {
 }
 
 void GameEngine::DrawScreen_(std::string textureName, DissolveData data, uint32_t maskTextureIndex) {
+
+	if (!isThreadFinished_)return;
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList_->SetGraphicsRootSignature(screen_Dissolve_RootSignature_.Get());
@@ -1311,6 +1349,8 @@ void GameEngine::DrawScreen_(std::string textureName, DissolveData data, uint32_
 
 void GameEngine::DrawGaussianFillter_(std::string textureName, BoxFilterData data) {
 
+	if (!isThreadFinished_)return;
+
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList_->SetGraphicsRootSignature(screen_RootSignature_.Get());
 	commandList_->SetPipelineState(screen_GaussianFilter_PipelineState_.Get());	//PSOを設定
@@ -1335,6 +1375,8 @@ void GameEngine::DrawGaussianFillter_(std::string textureName, BoxFilterData dat
 }
 
 void GameEngine::DrawOutline_(std::string textureName, std::shared_ptr<Camera> camera) {
+
+	if (!isThreadFinished_)return;
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList_->SetGraphicsRootSignature(screen_Outline_RootSignature_.Get());
@@ -1362,6 +1404,9 @@ void GameEngine::DrawOutline_(std::string textureName, std::shared_ptr<Camera> c
 }
 
 void GameEngine::DrawLine_(std::list<PrimitiveManager::PrimitiveLine> lines, PrimitiveManager::PrimitiveResource primitiveResource) {
+
+	if (!isThreadFinished_)return;
+
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList_->SetGraphicsRootSignature(line_Instancing_RootSignature_.Get());
 	commandList_->SetPipelineState(line_NoDepth_PipelineState_.Get());	//PSOを設定
@@ -1426,6 +1471,9 @@ void GameEngine::DrawLine_(std::list<PrimitiveManager::PrimitiveLine> lines, Pri
 }
 
 void GameEngine::DrawPoint_(std::list<PrimitiveManager::PrimitivePoint> points, PrimitiveManager::PrimitiveResource primitiveResource) {
+
+	if (!isThreadFinished_)return;
+
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList_->SetGraphicsRootSignature(line_Instancing_RootSignature_.Get());
 	commandList_->SetPipelineState(line_NoDepth_PipelineState_.Get());	//PSOを設定
@@ -1483,6 +1531,9 @@ void GameEngine::DrawPoint_(std::list<PrimitiveManager::PrimitivePoint> points, 
 }
 
 void GameEngine::DrawOBB_(std::list<PrimitiveManager::PrimitiveOBB> obbs, PrimitiveManager::PrimitiveResource primitiveResource) {
+
+	if (!isThreadFinished_)return;
+
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList_->SetGraphicsRootSignature(line_Instancing_RootSignature_.Get());
 	commandList_->SetPipelineState(line_NoDepth_PipelineState_.Get());	//PSOを設定
@@ -1544,6 +1595,9 @@ void GameEngine::DrawOBB_(std::list<PrimitiveManager::PrimitiveOBB> obbs, Primit
 }
 
 void GameEngine::DrawSphere_(std::list<PrimitiveManager::PrimitiveSphere> spheres, PrimitiveManager::PrimitiveResource primitiveResource) {
+
+	if (!isThreadFinished_)return;
+
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList_->SetGraphicsRootSignature(line_Instancing_RootSignature_.Get());
 	commandList_->SetPipelineState(line_NoDepth_PipelineState_.Get());	//PSOを設定
@@ -1603,6 +1657,8 @@ void GameEngine::DrawSphere_(std::list<PrimitiveManager::PrimitiveSphere> sphere
 
 void GameEngine::DrawPrimitiveBox_(PrimitiveBox* primitiveBox) {
 
+	if (!isThreadFinished_)return;
+
 	//上限に達していたら描画しない
 	if (objectIndex_ >= kMaxIndex)return;
 
@@ -1657,6 +1713,8 @@ void GameEngine::DrawPrimitiveBox_(PrimitiveBox* primitiveBox) {
 }
 
 void GameEngine::DrawPrimitiveRing_(PrimitiveRing* primitiveRing, SRT transform, Material material) {
+
+	if (!isThreadFinished_)return;
 
 	//上限に達していたら描画しない
 	if (objectIndex_ >= kMaxIndex)return;
@@ -1714,6 +1772,8 @@ void GameEngine::DrawPrimitiveRing_(PrimitiveRing* primitiveRing, SRT transform,
 }
 
 void GameEngine::DrawPrimitiveRing_Billboard_(PrimitiveRing* primitiveRing, SRT transform, Material material) {
+
+	if (!isThreadFinished_)return;
 
 	//上限に達していたら描画しない
 	if (objectIndex_ >= kMaxIndex)return;
@@ -1794,6 +1854,8 @@ void GameEngine::DrawPrimitiveRing_Billboard_(PrimitiveRing* primitiveRing, SRT 
 
 void GameEngine::DrawPrimitiveCylinder_(PrimitiveCylinder* primitiveCylinder, SRT transform, Material material) {
 
+	if (!isThreadFinished_)return;
+
 	//上限に達していたら描画しない
 	if (objectIndex_ >= kMaxIndex)return;
 
@@ -1850,6 +1912,8 @@ void GameEngine::DrawPrimitiveCylinder_(PrimitiveCylinder* primitiveCylinder, SR
 }
 
 void GameEngine::DrawPrimitiveCylinder_Billboard_(PrimitiveCylinder* primitiveCylinder, SRT transform, Material material) {
+
+	if (!isThreadFinished_)return;
 
 	//上限に達していたら描画しない
 	if (objectIndex_ >= kMaxIndex)return;

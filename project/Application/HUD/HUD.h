@@ -1,7 +1,7 @@
 #pragma once
-#include <Object/Object.h>
-#include <Sprite/Sprite.h>
-#include <Input/Input.h>
+#include "Object/Object.h"
+#include "Sprite/Sprite.h"
+#include "Input/Input.h"
 
 class Player;
 

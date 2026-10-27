@@ -1,7 +1,7 @@
 #include "PrimitiveManager.h"
-#include <GameEngine.h>
-#include <LoadObjFile.h>
-#include <SpriteManager/SpriteManager.h>
+#include "GameEngine.h"
+#include "LoadObjFile.h"
+#include "SpriteManager/SpriteManager.h"
 #include <numbers>
 
 unique_ptr<PrimitiveManager> PrimitiveManager::instance;

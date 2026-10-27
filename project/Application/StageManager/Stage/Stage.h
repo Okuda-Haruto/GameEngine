@@ -1,24 +1,24 @@
 #pragma once
 #include <string>
-#include <GameCamera/GameCamera.h>
-#include <DebugCamera.h>
-#include <HUD/Target/Target.h>
-#include <BackGround/BackGround.h>
-#include <Entity/Player/Player.h>
-#include <Entity/Boss/Boss.h>
-#include <Entity/Bullet/Bullet.h>
-#include <Entity/Bomb/Bomb.h>
-#include <Entity/ShockWave/ShockWave.h>
-#include <Entity/Item/Item.h>
-#include <Entity/BreakObject/BreakObject.h>
-#include <Entity/ColliderObject/ColliderObject.h>
-#include <Event/Event.h>
-#include <HUD/HUD.h>
+#include "GameCamera/GameCamera.h"
+#include "DebugCamera.h"
+#include "HUD/Target/Target.h"
+#include "BackGround/BackGround.h"
+#include "Entity/Player/Player.h"
+#include "Entity/Boss/Boss.h"
+#include "Entity/Bullet/Bullet.h"
+#include "Entity/Bomb/Bomb.h"
+#include "Entity/ShockWave/ShockWave.h"
+#include "Entity/Item/Item.h"
+#include "Entity/BreakObject/BreakObject.h"
+#include "Entity/ColliderObject/ColliderObject.h"
+#include "Event/Event.h"
+#include "HUD/HUD.h"
 #include "../StageManager.h"
 
-#include <PrimitiveManager/PrimitiveCylinder.h>
-#include <ParticleEmitter/ParticleEmitter.h>
-#include <PrimitiveManager/PrimitiveRing.h>
+#include "PrimitiveManager/PrimitiveCylinder.h"
+#include "ParticleEmitter/ParticleEmitter.h"
+#include "PrimitiveManager/PrimitiveRing.h"
 
 //ステージ
 class Stage {

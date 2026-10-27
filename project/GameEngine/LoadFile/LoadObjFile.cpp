@@ -5,7 +5,7 @@
 #include <fstream>
 #include <sstream>
 #include <list>
-#include <GameEngine.h>
+#include "GameEngine.h"
 
 //.objファイルからModelDataを構築する
 ModelData LoadObjFile(const std::string& directoryPath, const std::string& filename) {

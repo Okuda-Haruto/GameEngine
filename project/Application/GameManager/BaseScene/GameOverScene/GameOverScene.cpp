@@ -1,7 +1,7 @@
 #include "GameOverScene.h"
 #include "GameEngine.h"
 #include <numbers>
-#include <SceneManager/SceneManager.h>
+#include "SceneManager/SceneManager.h"
 #include "../GameScene/GameScene.h"
 
 GameOverScene::~GameOverScene() {

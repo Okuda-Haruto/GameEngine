@@ -1,11 +1,11 @@
 #pragma once
 #include "../BaseScene.h"
 #include <BoxFilterData.h>
-#include <PrimitiveManager/PrimitiveRing.h>
+#include "PrimitiveManager/PrimitiveRing.h"
 #include <DissolveData.h>
-#include <RadialBlurData.h>
+#include "RadialBlurData.h"
 
-#include <StageManager/Stage/Stage.h>
+#include "StageManager/Stage/Stage.h"
 
 #include "Sprite/Sprite.h"
 #include "Editor/ParticleEditor/ParticleEditor.h"

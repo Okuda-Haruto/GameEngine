@@ -1,7 +1,7 @@
 #include "Sprite.h"
-#include <GameEngine.h>
-#include <LoadObjFile.h>
-#include <SpriteManager/SpriteManager.h>
+#include "GameEngine.h"
+#include "LoadObjFile.h"
+#include "SpriteManager/SpriteManager.h"
 
 void Sprite::Initialize(const std::string& textureFilePath) {
 

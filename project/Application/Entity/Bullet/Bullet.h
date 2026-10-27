@@ -1,6 +1,6 @@
 #pragma once
 #include "../BaseEntity.h"
-#include <Event/Event.h>
+#include "Event/Event.h"
 
 class Bullet : public BaseEntity {
 public:

@@ -1,11 +1,11 @@
 #include "Player.h"
 #include "GameEngine.h"
-#include <Vector3.h>
-#include <Matrix4x4.h>
+#include "Vector3.h"
+#include "Matrix4x4.h"
 #include <numbers>
-#include <Math/Easing.h>
-#include <StageManager/Stage/Stage.h>
-#include <AudioHolder/AudioHolder.h>
+#include "Easing.h"
+#include "StageManager/Stage/Stage.h"
+#include "AudioHolder/AudioHolder.h"
 #include "Input/Input.h"
 
 

@@ -1,6 +1,6 @@
 #pragma once
-#include <Vector3.h>
-#include <Vector4.h>
+#include "Vector3.h"
+#include "Vector4.h"
 
 struct SpotLightElement {
 	Vector4 color;	//ライトの色

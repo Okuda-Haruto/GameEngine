@@ -1,10 +1,10 @@
 #include "Stage.h"
-#include <AudioHolder/AudioHolder.h>
-#include <Math/Collision.h>
-#include <GameEngine.h>
+#include "AudioHolder/AudioHolder.h"
+#include "Math/Collision.h"
+#include "GameEngine.h"
 #include <numbers>
-#include <Math/Easing.h>
-#include <PushOut/PushOut.h>
+#include "Easing.h"
+#include "PushOut/PushOut.h"
 
 Stage::~Stage() {
 	bullets_.clear();

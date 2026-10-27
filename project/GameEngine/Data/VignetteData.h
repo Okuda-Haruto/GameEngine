@@ -1,5 +1,5 @@
 #pragma once
-#include <stdint.h>
+#include <cstdint>
 
 struct VignetteData {
 	//ビネットの強度。高いほど中心部が明るくなる

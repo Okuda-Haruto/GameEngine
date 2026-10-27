@@ -1,6 +1,6 @@
 #include "Object.h"
-#include <GameEngine.h>
-#include <LoadObjFile.h>
+#include "GameEngine.h"
+#include "LoadObjFile.h"
 
 shared_ptr<Camera> Object::DefaultCamera;
 

@@ -92,6 +92,8 @@
     <ClCompile Include="Application\Editor\StageEditor\StageEditor.cpp" />
     <ClCompile Include="Application\GameManager\GameManager.cpp" />
     <ClCompile Include="Application\GameManager\SceneFactory\SceneFactory.cpp" />
+    <ClCompile Include="Application\HUD\Cylinder\Cylinder.cpp" />
+    <ClCompile Include="Application\HUD\Hat\Hat.cpp" />
     <ClCompile Include="Application\HUD\HUD.cpp" />
     <ClCompile Include="Application\HUD\Target\Target.cpp" />
     <ClCompile Include="Application\ModelHolder\ModelHolder.cpp" />
@@ -176,6 +178,8 @@
     <ClInclude Include="Application\Editor\StageEditor\StageEditor.h" />
     <ClInclude Include="Application\GameManager\GameManager.h" />
     <ClInclude Include="Application\GameManager\SceneFactory\SceneFactory.h" />
+    <ClInclude Include="Application\HUD\Cylinder\Cylinder.h" />
+    <ClInclude Include="Application\HUD\Hat\Hat.h" />
     <ClInclude Include="Application\HUD\HUD.h" />
     <ClInclude Include="Application\HUD\Target\Target.h" />
     <ClInclude Include="Application\ModelHolder\ModelHolder.h" />

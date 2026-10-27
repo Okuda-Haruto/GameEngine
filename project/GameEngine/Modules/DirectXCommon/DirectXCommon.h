@@ -11,8 +11,8 @@
 
 #include <Log.h>
 
-#include <WindowsAPI/WindowsAPI.h>
-#include <Vector4.h>
+#include "WindowsAPI/WindowsAPI.h"
+#include "Vector4.h"
 
 class SRVManager;
 

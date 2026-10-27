@@ -1,6 +1,9 @@
 #include "BackGround.h"
-#include "GameEngine.h"
+
 #include <numbers>
+
+#include "GameEngine.h"
+
 
 void BackGround::Initialize(std::string filePath, std::weak_ptr<GameCamera> gameCamera, std::weak_ptr<DirectionalLight> directionalLight, std::weak_ptr<PointLight> pointLight) {
 	directionalLight_ = directionalLight;
