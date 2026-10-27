@@ -1,15 +1,15 @@
 #pragma once
 #include <wrl.h>
 #include <vector>
-#include <ModelData.h>
+#include "ModelData.h"
 #include <d3d12.h>
 #include <string>
-#include <ObjectVertexData.h>
-#include <AnimationInterpolation.h>
-#include <Offset.h>
-#include <DirectXCommon/DirectXCommon.h>
-#include <TextureManager/TextureManager.h>
-#include <Joint.h>
+#include "ObjectVertexData.h"
+#include "AnimationInterpolation.h"
+#include "Offset.h"
+#include "DirectXCommon/DirectXCommon.h"
+#include "TextureManager/TextureManager.h"
+#include "Joint.h"
 
 //モデル
 class Model {

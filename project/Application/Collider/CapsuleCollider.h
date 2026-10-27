@@ -1,8 +1,8 @@
 #pragma once
 #include "CollisionID.h"
-#include <Shape/Capsule.h>
-#include <Matrix4x4.h>
-#include <stdint.h>
+#include "Shape/Capsule.h"
+#include "Matrix4x4.h"
+#include <cstdint>
 #include <memory>
 
 struct CapsuleCollider {

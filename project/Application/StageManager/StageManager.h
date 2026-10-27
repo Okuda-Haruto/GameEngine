@@ -2,9 +2,9 @@
 #include <memory>
 #include <map>
 #include <string>
-#include <Vector3.h>
-#include <Object/Object.h>
-#include <Collider/Colliders.h>
+#include "Vector3.h"
+#include "Object/Object.h"
+#include "Collider/Colliders.h"
 
 //エディター用オブジェクトデータ
 struct ColliderObjectData {

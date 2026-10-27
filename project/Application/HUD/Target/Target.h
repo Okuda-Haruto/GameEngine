@@ -1,7 +1,7 @@
 #pragma once
-#include <GameCamera/GameCamera.h>
-#include <Sprite/Sprite.h>
-#include <InstancingSprite/InstancingSprite.h>
+#include "GameCamera/GameCamera.h"
+#include "Sprite/Sprite.h"
+#include "InstancingSprite/InstancingSprite.h"
 
 #include <memory>
 

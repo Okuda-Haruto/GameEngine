@@ -3,7 +3,7 @@
 #include <dinput.h>
 #include <wrl.h>
 #include <cassert>
-#include <math.h>
+#include <cmath>
 
 #pragma comment(lib,"dinput8.lib")
 

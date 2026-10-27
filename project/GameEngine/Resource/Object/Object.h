@@ -6,12 +6,12 @@
 #include "Model/Model.h"
 #include "Material.h"
 #include "Parts.h"
-#include <AnimationInterpolation.h>
-#include <Camera/Camera.h>
-#include <Light/DirectionalLight/DirectionalLight.h>
-#include <Light/PointLight/PointLight.h>
-#include <Light/SpotLight/SpotLight.h>
-#include <Joint.h>
+#include "AnimationInterpolation.h"
+#include "Camera/Camera.h"
+#include "Light/DirectionalLight/DirectionalLight.h"
+#include "Light/PointLight/PointLight.h"
+#include "Light/SpotLight/SpotLight.h"
+#include "Joint.h"
 
 using namespace std;
 

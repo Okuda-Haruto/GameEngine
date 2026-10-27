@@ -1,6 +1,6 @@
 #pragma once
 #include <ParticleManager/ParticleManager.h>
-#include <ParticleEmitter/ParticleEmitter.h>
+#include "ParticleEmitter/ParticleEmitter.h"
 
 class ParticleEditor {
 private:

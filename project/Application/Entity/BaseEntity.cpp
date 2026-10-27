@@ -1,5 +1,5 @@
 #include "BaseEntity.h"
-#include <Operation/Operation.h>
+#include "Operation/Operation.h"
 
 void BaseEntity::Initialize(float radius, CollisionID id) {
 	colliderParent_ = std::make_shared<Matrix4x4>();

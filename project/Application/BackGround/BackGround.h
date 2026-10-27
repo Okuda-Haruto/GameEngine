@@ -1,8 +1,8 @@
 #pragma once
 #include <memory>
-#include <Object/Object.h>
-#include <GameCamera/GameCamera.h>
-#include <ModelHolder/ModelHolder.h>
+#include "Object/Object.h"
+#include "GameCamera/GameCamera.h"
+#include "ModelHolder/ModelHolder.h"
 #include "Fence/Fence.h"
 #include "Ground/Ground.h"
 #include "Skydome/Skydome.h"

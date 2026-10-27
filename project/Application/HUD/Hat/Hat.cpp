@@ -1,6 +1,6 @@
 #include "Hat.h"
-#include <ModelHolder/ModelHolder.h>
-#include <Entity/Player/Player.h>
+#include "ModelHolder/ModelHolder.h"
+#include "Entity/Player/Player.h"
 #include <numbers>
 
 void Hat::Initialize(std::shared_ptr<DirectionalLight> directionalLight, Player* player) {

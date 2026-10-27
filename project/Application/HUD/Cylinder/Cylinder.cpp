@@ -1,7 +1,7 @@
 #include "Cylinder.h"
-#include <ModelManager/ModelManager.h>
+#include "ModelManager/ModelManager.h"
 
-#include <Entity/Player/Player.h>
+#include "Entity/Player/Player.h"
 
 void Cylinder::Initialize(std::shared_ptr<DirectionalLight> directionalLight, Player* player) {
 	player_ = player;

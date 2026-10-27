@@ -1,10 +1,10 @@
 #include "GameCamera.h"
-#include <Vector3.h>
+#include "Vector3.h"
 #include "GameEngine.h"
-#include <Matrix4x4.h>
+#include "Matrix4x4.h"
 #include <numbers>
-#include <Easing.h>
-#include <Collision.h>
+#include "Easing.h"
+#include "Collision.h"
 
 BaseCamera::~BaseCamera() {
 

@@ -1,11 +1,11 @@
 #pragma once
-#include <Camera/Camera.h>
-#include <DebugCamera.h>
+#include "Camera/Camera.h"
+#include "DebugCamera.h"
 #include <memory>
 #include <optional>
 #include <numbers>
-#include <Input/Input.h>
-#include <Shape/Sphere.h>
+#include "Input/Input.h"
+#include "Shape/Sphere.h"
 
 using namespace std;
 

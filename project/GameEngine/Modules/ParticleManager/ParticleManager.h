@@ -2,15 +2,14 @@
 #include <string>
 #include <wrl.h>
 #include <d3d12.h>
-#include <DirectXCommon/DirectXCommon.h>
-#include <SRVManager/SRVManager.h>
-#include <VertexData.h>
-#include <Material.h>
-#include <Particle.h>
-#include <Emitter.h>
-#include <Field.h>
-#include <InstancingTransformationMatrix.h>
-#include <Camera/Camera.h>
+#include "DirectXCommon/DirectXCommon.h"
+#include "SRVManager/SRVManager.h"
+#include "VertexData.h"
+#include "Particle.h"
+#include "Emitter.h"
+#include "Field.h"
+#include "InstancingTransformationMatrix.h"
+#include "Camera/Camera.h"
 
 using namespace std;
 

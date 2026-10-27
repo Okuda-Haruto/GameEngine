@@ -1,6 +1,7 @@
-#include "Tumbleweed.h"
-#include "GameEngine.h"
 #include <numbers>
+
+#include "GameEngine.h"
+#include "Tumbleweed.h"
 
 Tumbleweed::~Tumbleweed() {
 

@@ -1,7 +1,7 @@
 #pragma once
 #include <memory>
 #include "../BaseEntity.h"
-#include <Event/Event.h>
+#include "Event/Event.h"
 #include "Shape/Sphere.h"
 #include "GameCamera/GameCamera.h"
 #include "ParticleEmitter/ParticleEmitter.h"

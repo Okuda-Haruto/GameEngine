@@ -6,7 +6,7 @@
 #include <memory>
 #include <vector>
 #include <windows.h>
-#include <Joint.h>
+#include "Joint.h"
 
 void ApplyAnimation(Skeleton& skeleton, AnimationData& animationData, AnimationInterpolation interpolation, float time);
 
