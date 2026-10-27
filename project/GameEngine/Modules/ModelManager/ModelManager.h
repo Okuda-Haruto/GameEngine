@@ -1,8 +1,8 @@
 #pragma once
 #include <string>
 #include <wrl.h>
-#include <DirectXCommon/DirectXCommon.h>
-#include <Model/Model.h>
+#include "DirectXCommon/DirectXCommon.h"
+#include "Model/Model.h"
 
 using namespace std;
 

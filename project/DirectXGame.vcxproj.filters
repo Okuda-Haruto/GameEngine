@@ -325,6 +325,12 @@
     <ClCompile Include="GameEngine\Resource\InstancingSprite\InstancingSprite.cpp">
       <Filter>GameEngine\Resource\InstancingSprite</Filter>
     </ClCompile>
+    <ClCompile Include="Application\HUD\Cylinder\Cylinder.cpp">
+      <Filter>Application\HUD\Cylinder</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\HUD\Hat\Hat.cpp">
+      <Filter>Application\HUD\Hat</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\BackGround\Ground\Ground.h">
@@ -747,6 +753,12 @@
     <ClInclude Include="GameEngine\Resource\InstancingSprite\InstancingSprite.h">
       <Filter>GameEngine\Resource\InstancingSprite</Filter>
     </ClInclude>
+    <ClInclude Include="Application\HUD\Cylinder\Cylinder.h">
+      <Filter>Application\HUD\Cylinder</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\HUD\Hat\Hat.h">
+      <Filter>Application\HUD\Hat</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -1048,6 +1060,12 @@
     </Filter>
     <Filter Include="GameEngine\Resource\InstancingSprite">
       <UniqueIdentifier>{0a51dc56-cdfe-48da-be51-fffae80b670d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\HUD\Cylinder">
+      <UniqueIdentifier>{2a66ead8-d8bc-4ec3-88ab-8246cd4f4a48}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\HUD\Hat">
+      <UniqueIdentifier>{52bc04ae-a4cc-41ba-b0ee-7e3358e24f27}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

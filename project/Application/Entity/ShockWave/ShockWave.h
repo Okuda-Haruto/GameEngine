@@ -1,6 +1,6 @@
 #pragma once
 #include "../BaseEntity.h"
-#include <PrimitiveManager/PrimitiveCylinder.h>
+#include "PrimitiveManager/PrimitiveCylinder.h"
 
 class ShockWave : public BaseEntity {
 private:

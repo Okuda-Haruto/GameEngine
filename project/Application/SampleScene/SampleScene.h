@@ -1,17 +1,17 @@
 #pragma once
-#include <GameEngine.h>
-#include <Line.h>
 #include <array>
-#include <Input/Input.h>
-#include <Light/PointLight/PointLight.h>
-#include <Light/SpotLight/SpotLight.h>
-#include <WindowsAPI/WindowsAPI.h>
 
-#include <Object/Object.h>
-#include <Sprite/Sprite.h>
-#include <InstancingSprite/InstancingSprite.h>
-#include <ParticleEmitter/ParticleEmitter.h>
-#include <PrimitiveManager/PrimitiveBox.h>
+#include "GameEngine.h"
+#include "Line.h"
+#include "Input/Input.h"
+#include "Light/PointLight/PointLight.h"
+#include "Light/SpotLight/SpotLight.h"
+#include "WindowsAPI/WindowsAPI.h"
+#include "Object/Object.h"
+#include "Sprite/Sprite.h"
+#include "InstancingSprite/InstancingSprite.h"
+#include "ParticleEmitter/ParticleEmitter.h"
+#include "PrimitiveManager/PrimitiveBox.h"
 
 class SampleScene
 {

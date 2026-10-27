@@ -1,5 +1,5 @@
 #include "ColliderObject.h"
-#include <Operation/Operation.h>
+#include "Operation/Operation.h"
 
 void ColliderObject::Initialize(std::weak_ptr<Model> model, std::weak_ptr<DirectionalLight> directionalLight, GameCamera* gameCamera, SRT transform) {
 	transform_ = transform;

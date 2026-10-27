@@ -10,25 +10,27 @@
 #include <random>
 #include <iostream>
 #include <algorithm>
+#include <thread>
+#include <atomic>
 
 #include "D3DResourceLeakChecker.h"
-#include <Operation/Operation.h>
+#include "Operation/Operation.h"
 
 #include "Object/Object.h"
 #include "Sprite/Sprite.h"
-#include <InstancingSprite/InstancingSprite.h>
+#include "InstancingSprite/InstancingSprite.h"
 #include "TransformationMatrix.h"
 #include "InstancingTransformationMatrix.h"
 #include "BoneMatrix.h"
 #include "Fog.h"
 #include "ColorChange.h"
-#include <VignetteData.h>
-#include <BoxFilterData.h>
-#include <RadialBlurData.h>
-#include <DissolveData.h>
-#include <GPURandomSeed.h>
+#include "VignetteData.h"
+#include "BoxFilterData.h"
+#include "RadialBlurData.h"
+#include "DissolveData.h"
+#include "GPURandomSeed.h"
 
-#include <Audio/Audio.h>
+#include "Audio/Audio.h"
 #include "Input/Input.h"
 #include "DebugCamera.h"
 
@@ -41,9 +43,9 @@
 #include "SRVManager/SRVManager.h"
 #include "ParticleManager/ParticleManager.h"
 #include "PrimitiveManager/PrimitiveManager.h"
-#include <PrimitiveManager/PrimitiveBox.h>
-#include <PrimitiveManager/PrimitiveRing.h>
-#include <PrimitiveManager/PrimitiveCylinder.h>
+#include "PrimitiveManager/PrimitiveBox.h"
+#include "PrimitiveManager/PrimitiveRing.h"
+#include "PrimitiveManager/PrimitiveCylinder.h"
 #include "AudioManager/AudioManager.h"
 
 #include <vector>
@@ -231,6 +233,12 @@ private:
 	std::vector<TextureData> textureData_;
 
 	void Initialize_(const wchar_t* WindowName, int32_t kWindowWidth = 1280, int32_t kWindowHeight = 720);
+
+	void LoadShader();
+
+	//スレッド
+	std::thread th_;
+	std::atomic<bool> isThreadFinished_;
 
 	float randomFloat_(float minFloat, float maxFloat);
 	int32_t randomInt_(int32_t minInt,int32_t maxInt);

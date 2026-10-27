@@ -1,7 +1,7 @@
 #pragma once
-#include <SRT.h>
-#include <stdint.h>
-#include <AABB.h>
+#include "SRT.h"
+#include <cstdint>
+#include "AABB.h"
 
 struct Emitter {
 	AABB spawnRange{};	//出現範囲

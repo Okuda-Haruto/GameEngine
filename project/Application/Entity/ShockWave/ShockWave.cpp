@@ -1,8 +1,8 @@
 #include "ShockWave.h"
 #include "Operation/Operation.h"
 #include <numbers>
-#include <Easing.h>
-#include <GameEngine.h>
+#include "Easing.h"
+#include "GameEngine.h"
 
 weak_ptr<Camera> ShockWave::camera_;
 weak_ptr<DirectionalLight> ShockWave::directionalLight_;

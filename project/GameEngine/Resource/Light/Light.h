@@ -2,7 +2,7 @@
 #include <d3d12.h>
 #include <wrl.h>
 
-#include <DirectXCommon/DirectXCommon.h>
+#include "DirectXCommon/DirectXCommon.h"
 
 //光源
 class Light {

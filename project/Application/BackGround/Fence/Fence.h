@@ -1,8 +1,8 @@
 #pragma once
 #include <memory>
-#include <Object/Object.h>
-#include <Camera/Camera.h>
-#include <ModelHolder/ModelHolder.h>
+#include "Object/Object.h"
+#include "Camera/Camera.h"
+#include "ModelHolder/ModelHolder.h"
 
 class Fence
 {

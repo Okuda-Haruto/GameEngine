@@ -1,5 +1,5 @@
 #include "Target.h"
-#include <Operation/Operation.h>
+#include "Operation/Operation.h"
 
 void Target::Initialize(std::weak_ptr<GameCamera> gameCamera) {
 	gameCamera_ = gameCamera;

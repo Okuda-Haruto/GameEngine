@@ -1,6 +1,6 @@
 #include "GameManager.h"
 #include "GameEngine.h"
-#include <StageManager/StageManager.h>
+#include "StageManager/StageManager.h"
 
 GameManager::~GameManager() {
 	ModelHolder::GetInstance()->Finalize();

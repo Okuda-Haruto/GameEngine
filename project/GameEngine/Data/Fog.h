@@ -1,5 +1,5 @@
 #pragma once
-#include <Vector2.h>
+#include "Vector2.h"
 
 struct Fog {
     Vector2 windowSize;

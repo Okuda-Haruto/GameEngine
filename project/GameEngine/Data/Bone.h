@@ -1,8 +1,8 @@
 #pragma once
-#include <Matrix4x4.h>
+#include "Matrix4x4.h"
 #include <vector>
 #include <string>
-#include <Node.h>
+#include "Node.h"
 
 struct Bone {
 	std::string name;

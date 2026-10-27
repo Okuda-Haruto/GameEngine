@@ -1,9 +1,9 @@
 #define NOMINMAX
 #include "Colliders.h"
-#include <Operation/Operation.h>
-#include <Collision.h>
+#include "Operation/Operation.h"
+#include "Collision.h"
 #include <algorithm>
-#include <PrimitiveManager/PrimitiveManager.h>
+#include "PrimitiveManager/PrimitiveManager.h"
 
 void Colliders::Initialize(Collider* collider) {
 	collider_ = collider;

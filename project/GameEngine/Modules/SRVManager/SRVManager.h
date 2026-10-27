@@ -4,7 +4,7 @@
 #include "DirectXTex/DirectXTex.h"
 #include <wrl.h>
 #include <d3d12.h>
-#include <DirectXCommon/DirectXCommon.h>
+#include "DirectXCommon/DirectXCommon.h"
 
 class SRVManager {
 private:

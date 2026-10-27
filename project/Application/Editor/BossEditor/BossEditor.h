@@ -2,8 +2,8 @@
 #include <memory>
 #include <string>
 
-#include <StageManager/Stage/Stage.h>
-#include <GameManager/BaseScene/BaseScene.h>
+#include "StageManager/Stage/Stage.h"
+#include "GameManager/BaseScene/BaseScene.h"
 
 class BossEditor : public BaseScene {
 private:

@@ -1,9 +1,9 @@
 #pragma once
-#include <Matrix4x4.h>
+#include "Matrix4x4.h"
 #include <string>
 #include <vector>
-#include <KeyFrame.h>
-#include <QuaternionTransform.h>
+#include "KeyFrame.h"
+#include "QuaternionTransform.h"
 #include <memory>
 
 struct Node {

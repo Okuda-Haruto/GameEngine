@@ -1,8 +1,8 @@
 #pragma once
 #include <memory>
-#include <Object/Object.h>
-#include <ModelHolder/ModelHolder.h>
-#include <Collider/Colliders.h>
+#include "Object/Object.h"
+#include "ModelHolder/ModelHolder.h"
+#include "Collider/Colliders.h"
 
 class BaseEntity : public Collider
 {
