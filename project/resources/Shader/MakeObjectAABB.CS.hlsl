@@ -12,6 +12,17 @@ struct AABB
     float4 max;
 };
 
+struct BoundingVolume
+{
+    AABB aabb;
+
+    int leftNodeIndex;
+    int rightNodeIndex;
+
+    int triangleStart;
+    int triangleCount;
+};
+
 struct OffsetAllocation
 {
     int vertexStart;
@@ -25,19 +36,40 @@ struct InputObjectData
     OffsetAllocation allocation;
     float4x4 worldMatrix;
 };
+//入力
 ConstantBuffer<InputObjectData> gInputObjectData : register(b0);
+
+//3角形
+RWStructuredBuffer<uint> gTriangles : register(u0);
+//現在の範囲の最大値を得る用
+RWStructuredBuffer<uint> gTriangleCounter : register(u1);
+//BVH
+RWStructuredBuffer<BoundingVolume> gBoundingVolumes : register(u2);
+//現在のBVH数
+RWStructuredBuffer<uint> gBoundingVolumesCounter : register(u3);
 
 struct OutputObjectData
 {
-    AABB rayTracingAABB;
-    OffsetAllocation allocation;
+    int rootBoundingVolumeIndex;
+    float4x4 worldMatrix;
 };
-RWStructuredBuffer<OutputObjectData> gOutPutObjectData : register(u0);
+//出力。恐らくgBoundingVolumesの位置さえわかってればいい
+RWStructuredBuffer<OutputObjectData> gOutPutObjectData : register(u4);
+//出力数
+RWStructuredBuffer<uint> gObjectDataCounter : register(u5);
 
-RWStructuredBuffer<uint> gObjectDataCounter : register(u1);
+void AddTriangles(out uint minTriangleIndex, out uint maxTriangleIndex)
+{
+    //ここでgInputObjectDataのallocationをworldMatrix分ずらしてからTriangleを構成
+}
+
+int NewBoundingVolume(AABB baseAABB, int triangleStart, int triangleCount)
+{
+    //BVH構成処理。ここでBVH内に三角形があるか、10個以下か等判定
+}
 
 [numthreads(1, 1, 1)]
-void main( uint3 DTid : SV_DispatchThreadID )
+void main(uint3 DTid : SV_DispatchThreadID)
 {
     if (gInputObjectData.allocation.vertexCount == 0)
     {
@@ -53,9 +85,12 @@ void main( uint3 DTid : SV_DispatchThreadID )
         aabb.min = min(aabb.min, gVertices[gInputObjectData.allocation.vertexStart + i].position);
         aabb.max = max(aabb.max, gVertices[gInputObjectData.allocation.vertexStart + i].position);
     }
-
-    gOutPutObjectData[gObjectDataCounter[0]].allocation = gInputObjectData.allocation;
-    gOutPutObjectData[gObjectDataCounter[0]].rayTracingAABB = aabb;
+    
+    uint minTriangleIndex;
+    uint maxTriangleIndex;
+    AddTriangles(minTriangleIndex, maxTriangleIndex);
+    
+    gOutPutObjectData[gObjectDataCounter[0]].rootBoundingVolumeIndex = NewBoundingVolume(aabb, minTriangleIndex, maxTriangleIndex);
 
     gObjectDataCounter[0]++;
 }

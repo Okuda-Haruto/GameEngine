@@ -5,7 +5,15 @@ struct Vertex
     float3 normal;
 };
 
+//入力
 StructuredBuffer<Vertex> gVertices : register(t0);
+StructuredBuffer<uint> gIndices : register(t1);
+
+
+
+//3角形
+RWStructuredBuffer<uint3> gTriangles : register(u0);
+
 struct AABB
 {
     float4 min;
@@ -23,33 +31,53 @@ struct BoundingVolume
     int triangleCount;
 };
 
-struct OffsetAllocation
+//BVH
+RWStructuredBuffer<BoundingVolume> gBoundingVolumes : register(u1);
+
+//ルートノード番号
+RWStructuredBuffer<uint> gRootNodeIndex : register(u2);
+
+struct BVHData
 {
-    int vertexStart;
-    int vertexCount;
-    int indexStart;
-    int indexCount;
+    uint triangleCount;
+    uint boundingVolumesCount;
+    uint rootNodeCount;
 };
 
-struct InputObjectData
+//全体モデルBVHの要素数
+RWStructuredBuffer<BVHData> gBVHData : register(u3);
+
+
+
+struct Input
 {
-    OffsetAllocation allocation;
-    float4x4 worldMatrix;
+    uint rootNodeIndex;
 };
-ConstantBuffer<InputObjectData> gInputObjectData : register(b0);
 
-RWStructuredBuffer<BoundingVolume> gBoundingVolumes : register(u0);
+RWStructuredBuffer<Input> gInput : register(u4);
 
-RWStructuredBuffer<uint> gTriangles : register(u1);
+//次の階層で作成するノード
+RWStructuredBuffer<uint> gBuildNodeQueue : register(u5);
 
-struct OutputObjectData
+//現在の階層のノード数
+RWStructuredBuffer<uint> gCurrentNodeCount : register(u6);
+
+//次の階層のノード数
+RWStructuredBuffer<uint> gNextNodeCount : register(u7);
+
+
+void AddTriangles(out uint minTriangleIndex, out uint maxTriangleIndex)
 {
-    int rootBoundingVolumeIndex;
-    OffsetAllocation allocation;
-};
-RWStructuredBuffer<OutputObjectData> gOutPutObjectData : register(u2);
+    //ここでgInputObjectDataのallocationをworldMatrix分ずらしてからTriangleを構成
+    
+    gTriangles[gBVHData[0].triangleCount].x = 
 
-RWStructuredBuffer<uint> gBoundingVolumesCounter : register(u3);
+}
+
+int NewBoundingVolume(AABB baseAABB, int triangleStart, int triangleCount)
+{
+    //BVH構成処理。ここでBVH内に三角形があるか、10個以下か等判定
+}
 
 [numthreads(1, 1, 1)]
 void main(uint3 DTid : SV_DispatchThreadID)
@@ -68,9 +96,15 @@ void main(uint3 DTid : SV_DispatchThreadID)
         aabb.min = min(aabb.min, gVertices[gInputObjectData.allocation.vertexStart + i].position);
         aabb.max = max(aabb.max, gVertices[gInputObjectData.allocation.vertexStart + i].position);
     }
-
-    gOutPutObjectData[gObjectDataCounter[0]].allocation = gInputObjectData.allocation;
-    gOutPutObjectData[gObjectDataCounter[0]].rayTracingAABB = aabb;
+    
+    uint minTriangleIndex;
+    uint maxTriangleIndex;
+    AddTriangles(minTriangleIndex, maxTriangleIndex);
+    
+    gOutPutObjectData[gObjectDataCounter[0]].rootBoundingVolumeIndex = NewBoundingVolume(aabb, minTriangleIndex, maxTriangleIndex);
 
     gObjectDataCounter[0]++;
+    
+    if (gCurrentNodeCount)
+
 }
