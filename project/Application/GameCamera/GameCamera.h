@@ -92,6 +92,11 @@ public:
 
 class GameCamera
 {
+public:
+	enum CameraType {
+		LockOnCamera,
+		WideViewCamera
+	};
 private:
 	//カメラ
 	std::shared_ptr<Camera> camera_;
