@@ -331,6 +331,12 @@
     <ClCompile Include="Application\HUD\Hat\Hat.cpp">
       <Filter>Application\HUD\Hat</Filter>
     </ClCompile>
+    <ClCompile Include="Application\Effect\VoxelEffect\VoxelEffect.cpp">
+      <Filter>Application\Effect\VoxelEffect</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEngine\Resource\InstancingObject\InstancingObject.cpp">
+      <Filter>GameEngine\Resource\InstancingObject</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\BackGround\Ground\Ground.h">
@@ -759,6 +765,12 @@
     <ClInclude Include="Application\HUD\Hat\Hat.h">
       <Filter>Application\HUD\Hat</Filter>
     </ClInclude>
+    <ClInclude Include="Application\Effect\VoxelEffect\VoxelEffect.h">
+      <Filter>Application\Effect\VoxelEffect</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine\Resource\InstancingObject\InstancingObject.h">
+      <Filter>GameEngine\Resource\InstancingObject</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -1066,6 +1078,15 @@
     </Filter>
     <Filter Include="Application\HUD\Hat">
       <UniqueIdentifier>{52bc04ae-a4cc-41ba-b0ee-7e3358e24f27}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Effect">
+      <UniqueIdentifier>{7c5a9142-02c6-4098-87da-1619c96e7b9c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Effect\VoxelEffect">
+      <UniqueIdentifier>{2d5f49ef-b7a8-4367-a016-904118e53768}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\Resource\InstancingObject">
+      <UniqueIdentifier>{2e29b912-1330-4d76-8ee4-d77e297824d9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

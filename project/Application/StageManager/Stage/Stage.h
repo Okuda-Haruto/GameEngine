@@ -4,6 +4,7 @@
 #include "DebugCamera.h"
 #include "HUD/Target/Target.h"
 #include "BackGround/BackGround.h"
+#include "Effect/VoxelEffect/VoxelEffect.h"
 #include "Entity/Player/Player.h"
 #include "Entity/Boss/Boss.h"
 #include "Entity/Bullet/Bullet.h"
@@ -19,6 +20,10 @@
 #include "PrimitiveManager/PrimitiveCylinder.h"
 #include "ParticleEmitter/ParticleEmitter.h"
 #include "PrimitiveManager/PrimitiveRing.h"
+
+enum TutorialSteps {
+	Steap_Attack
+};
 
 //ステージ
 class Stage {
@@ -49,6 +54,8 @@ protected:
 	std::list<std::unique_ptr<BreakObject>> breakObjects_;
 	//接触判定オブジェクト
 	std::vector<std::unique_ptr<ColliderObject>> colliderObjects_;
+
+	std::unique_ptr<VoxelEffect> voxelEffect_;
 
 	//情報表示
 	std::unique_ptr<HUD> hud_;
@@ -126,6 +133,8 @@ public:
 	void AddShockWave(SRT transform, float range, float maxLifeTime, CollisionID id, std::unique_ptr<PrimitiveCylinder> cylinder);
 	void AddItem(SRT transform);
 	void AddBreakObject(SRT transform, float maxHP, std::weak_ptr<Model> model, std::unique_ptr<BaseEvent> event);
+
+	void AddVoxelEffect(SRT transform, Vector3 velocity);
 
 	void Explosion(Vector3 position, float range, float maxLifeTime, CollisionID id, float damage);
 

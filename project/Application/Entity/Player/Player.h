@@ -7,6 +7,13 @@
 
 class Stage;
 
+enum class PlayerMoveState {
+	Ible,
+	Move,
+	Attack,
+	Dodge
+};
+
 class Player : public BaseEntity
 {
 private:

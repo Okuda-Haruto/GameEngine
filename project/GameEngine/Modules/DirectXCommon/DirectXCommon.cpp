@@ -1359,9 +1359,9 @@ void DirectXCommon::commandQueueInitialvalue() {
 //使用するスワップチェーンの初期値
 void DirectXCommon::swapChainInitialize() {
 	//画面の幅
-	swapChainDesc_.Width = winApp_->kClientWidth_;
+	swapChainDesc_.Width = winApp_->clientWidth_;
 	//画面の高さ
-	swapChainDesc_.Height = winApp_->kClientHeight_;
+	swapChainDesc_.Height = winApp_->clientHeight_;
 	//色の形式
 	swapChainDesc_.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	//マルチサンプルしない
@@ -1382,8 +1382,8 @@ void DirectXCommon::swapChainInitialize() {
 void DirectXCommon::CreateDepthStencilTextureResource() {
 	//生成するResourceの設定
 	D3D12_RESOURCE_DESC resourceDesc{};
-	resourceDesc.Width = winApp_->kClientWidth_;	//Textureの幅
-	resourceDesc.Height = winApp_->kClientHeight_;	//Textureの高さ
+	resourceDesc.Width = winApp_->clientWidth_;	//Textureの幅
+	resourceDesc.Height = winApp_->clientHeight_;	//Textureの高さ
 	resourceDesc.MipLevels = 1;	//mipmapの数
 	resourceDesc.DepthOrArraySize = 1;	//奥行き or 配列Textureの配列数
 	//resourceDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;	//DepthStencilとして利用可能なフォーマット
@@ -1418,8 +1418,8 @@ void DirectXCommon::CreateDepthStencilTextureResource() {
 void DirectXCommon::CreateDepthWriteTextureResource() {
 	//生成するResourceの設定
 	D3D12_RESOURCE_DESC resourceDesc{};
-	resourceDesc.Width = winApp_->kClientWidth_;	//Textureの幅
-	resourceDesc.Height = winApp_->kClientHeight_;	//Textureの高さ
+	resourceDesc.Width = winApp_->clientWidth_;	//Textureの幅
+	resourceDesc.Height = winApp_->clientHeight_;	//Textureの高さ
 	resourceDesc.MipLevels = 1;	//mipmapの数
 	resourceDesc.DepthOrArraySize = 1;	//奥行き or 配列Textureの配列数
 	//resourceDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;	//DepthStencilとして利用可能なフォーマット
@@ -1540,8 +1540,8 @@ void DirectXCommon::fenceInitialize() {
 void DirectXCommon::viewportInitilaize() {
 	//ビューポート
 	//クライアント領域のサイズと一緒にして画面全体に表示
-	viewport_.Width = FLOAT(winApp_->kClientWidth_);
-	viewport_.Height = FLOAT(winApp_->kClientHeight_);
+	viewport_.Width = FLOAT(winApp_->clientWidth_);
+	viewport_.Height = FLOAT(winApp_->clientHeight_);
 	viewport_.TopLeftX = 0;
 	viewport_.TopLeftY = 0;
 	viewport_.MinDepth = 0.0f;
@@ -1553,9 +1553,9 @@ void DirectXCommon::scissorRectInitialize() {
 	//シザー矩形
 	//基本的にビューポートと同じ矩形が構成されるようにする
 	scissorRect_.left = 0;
-	scissorRect_.right = winApp_->kClientWidth_;
+	scissorRect_.right = winApp_->clientWidth_;
 	scissorRect_.top = 0;
-	scissorRect_.bottom = winApp_->kClientHeight_;
+	scissorRect_.bottom = winApp_->clientHeight_;
 }
 
 //DXCコンパイラの生成
