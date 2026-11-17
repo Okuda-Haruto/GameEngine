@@ -6,10 +6,10 @@
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 #endif
 
-int32_t WindowsAPI::kClientWidth_ = 1280;
-int32_t WindowsAPI::kClientHeight_ = 720;
+int32_t WindowsAPI::clientWidth_ = 1280;
+int32_t WindowsAPI::clientHeight_ = 720;
 
-void WindowsAPI::Initialize(const wchar_t* WindowName, int32_t kWindowWidth = 1280, int32_t kWindowHeight = 720) {
+void WindowsAPI::Initialize(const wchar_t* windowName, int32_t windowWidth = 1280, int32_t windowHeight = 720) {
 
 	//COMの初期化
 	HRESULT hr = CoInitializeEx(0, COINIT_MULTITHREADED);
@@ -18,7 +18,7 @@ void WindowsAPI::Initialize(const wchar_t* WindowName, int32_t kWindowWidth = 12
 	w_ = WindowClass();
 
 	//ウィンドウの生成
-	hwnd_ = WindowInitialvalue(WindowName, kWindowWidth, kWindowHeight, w_);
+	hwnd_ = WindowInitialvalue(windowName, windowWidth, windowHeight, w_);
 }
 
 void WindowsAPI::Update() {
@@ -72,13 +72,13 @@ WNDCLASS WindowsAPI::WindowClass() {
 }
 
 // ウィンドウサイズ
-RECT WindowsAPI::WindowSize(const int32_t ClientWidth, const int32_t ClientHeight) {
+RECT WindowsAPI::WindowSize(const int32_t clientWidth, const int32_t clientHeight) {
 
-	kClientWidth_ = ClientWidth;
-	kClientHeight_ = ClientHeight;
+	clientWidth_ = clientWidth;
+	clientHeight_ = clientHeight;
 
 	//ウィンドウサイズを表す構造体にクライアント領域を入れる
-	RECT wrc = { 0,0,kClientWidth_,kClientHeight_ };
+	RECT wrc = { 0,0,clientWidth_,clientHeight_ };
 
 	//クライアント領域を元に実際のサイズにwrcを変更してもらう
 	AdjustWindowRect(&wrc, WS_OVERLAPPEDWINDOW, false);
@@ -87,18 +87,18 @@ RECT WindowsAPI::WindowSize(const int32_t ClientWidth, const int32_t ClientHeigh
 }
 
 // ウィンドウの生成
-HWND WindowsAPI::WindowInitialvalue(const wchar_t* WindowName, const int32_t ClientWidth, const int32_t ClientHeight, WNDCLASS wc) {
+HWND WindowsAPI::WindowInitialvalue(const wchar_t* windowName, const int32_t clientWidth, const int32_t clientHeight, WNDCLASS wc) {
 
 	//ウィンドウクラスの生成
 	wc = WindowClass();
 
 	//クライアント領域の指定
-	RECT wrc = WindowSize(ClientWidth, ClientHeight);
+	RECT wrc = WindowSize(clientWidth, clientHeight);
 
 	//ウィンドウの生成
 	HWND hwnd = CreateWindow(
 		wc.lpszClassName,
-		WindowName,
+		windowName,
 		WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT,
 		CW_USEDEFAULT,

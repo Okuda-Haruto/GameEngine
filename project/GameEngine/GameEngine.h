@@ -17,6 +17,7 @@
 #include "Operation/Operation.h"
 
 #include "Object/Object.h"
+#include "InstancingObject/InstancingObject.h"
 #include "Sprite/Sprite.h"
 #include "InstancingSprite/InstancingSprite.h"
 #include "TransformationMatrix.h"
@@ -58,9 +59,9 @@ class GameEngine {
 private:
 
 	//ウィンドウの幅
-	static int32_t kWindowWidth_;
+	static int32_t windowWidth_;
 	//ウィンドウの高さ
-	static int32_t kWindowHeight_;
+	static int32_t windowHeight_;
 
 #ifdef _DEBUG
 	//リソースチェック
@@ -232,7 +233,7 @@ private:
 	//テクスチャデータ
 	std::vector<TextureData> textureData_;
 
-	void Initialize_(const wchar_t* WindowName, int32_t kWindowWidth = 1280, int32_t kWindowHeight = 720);
+	void Initialize_(const wchar_t* windowName, int32_t windowWidth = 1280, int32_t windowHeight = 720);
 
 	void LoadShader();
 
@@ -257,7 +258,7 @@ private:
 	void DrawParts_3D_(Object* object, uint32_t partsIndex, std::shared_ptr<DirectionalLight> directionalLight, std::shared_ptr<PointLight> pointLight, std::shared_ptr<SpotLight> spotLight);
 	void DrawObject_2D_(Object* object, std::shared_ptr<DirectionalLight> directionalLight);
 	void DrawParts_2D_(Object* object, uint32_t partsIndex, std::shared_ptr<DirectionalLight> directionalLight);
-	void DrawInstancingObject_3D_(std::list<Object*> objects, std::shared_ptr<DirectionalLight> directionalLight, std::shared_ptr<PointLight> pointLight, std::shared_ptr<SpotLight> spotLight);
+	void DrawInstancingObject_3D_(InstancingObject* objects, std::shared_ptr<DirectionalLight> directionalLight, std::shared_ptr<PointLight> pointLight, std::shared_ptr<SpotLight> spotLight);
 	void DrawParticle_(ParticleGroup particleGroup);
 
 	void DrawSprite_2D_(Sprite* sprite);
@@ -345,11 +346,11 @@ public:
 
 	//ウィンドウ幅
 	[[nodiscard]]
-	static int32_t GetWindowWidth() { return kWindowWidth_; }
+	static int32_t GetWindowWidth() { return windowWidth_; }
 
 	//ウィンドウ高さ
 	[[nodiscard]]
-	static int32_t GetWindowHeight() { return kWindowHeight_; }
+	static int32_t GetWindowHeight() { return windowHeight_; }
 
 	//デバイス
 	[[nodiscard]]
@@ -360,7 +361,7 @@ public:
 	static void DrawParts_3D(Object* object, uint32_t partsIndex, std::shared_ptr<DirectionalLight> directionalLight, std::shared_ptr<PointLight> pointLight, std::shared_ptr<SpotLight> spotLight) { return GetInstance()->DrawParts_3D_(object, partsIndex, directionalLight, pointLight, spotLight); }
 	static void DrawObject_2D(Object* object, std::shared_ptr<DirectionalLight> directionalLight) { return GetInstance()->DrawObject_2D_(object, directionalLight); }
 	static void DrawParts_2D(Object* object, uint32_t partsIndex, std::shared_ptr<DirectionalLight> directionalLight) { return GetInstance()->DrawParts_2D_(object, partsIndex, directionalLight); }
-	static void DrawInstancingObject_3D(std::list<Object*> objects, std::shared_ptr<DirectionalLight> directionalLight, std::shared_ptr<PointLight> pointLight, std::shared_ptr<SpotLight> spotLight) { return GetInstance()->DrawInstancingObject_3D_(objects, directionalLight, pointLight, spotLight); }
+	static void DrawInstancingObject_3D(InstancingObject* objects, std::shared_ptr<DirectionalLight> directionalLight, std::shared_ptr<PointLight> pointLight, std::shared_ptr<SpotLight> spotLight) { return GetInstance()->DrawInstancingObject_3D_(objects, directionalLight, pointLight, spotLight); }
 	static void DrawParticle(ParticleGroup particleGroup) { return GetInstance()->DrawParticle_(particleGroup); }
 	
 	static void DrawSprite_2D(Sprite* sprite) { return GetInstance()->DrawSprite_2D_(sprite); }

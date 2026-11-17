@@ -27,8 +27,8 @@
 
 #include <numbers>
 
-int32_t GameEngine::kWindowWidth_;
-int32_t GameEngine::kWindowHeight_;
+int32_t GameEngine::windowWidth_;
+int32_t GameEngine::windowHeight_;
 std::unique_ptr<GameEngine> GameEngine::instance;
 
 GameEngine* GameEngine::GetInstance() {
@@ -81,13 +81,13 @@ void GameEngine::Finalize() {
 	}
 }
 
-void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, int32_t kWindowHeight) {
+void GameEngine::Initialize_(const wchar_t* windowName, int32_t windowWidth, int32_t windowHeight) {
 
 	HRESULT hr;
 
 	//画面サイズを入力
-	kWindowWidth_ = winApp_->kClientWidth_;
-	kWindowHeight_ = winApp_->kClientHeight_;
+	windowWidth_ = winApp_->clientWidth_;
+	windowHeight_ = winApp_->clientHeight_;
 
 	//誰も捕捉しなかった場合に(Unhandled),捕捉する関数を登録
 	SetUnhandledExceptionFilter(ExportDump);
@@ -99,7 +99,7 @@ void GameEngine::Initialize_(const wchar_t* WindowName, int32_t kWindowWidth, in
 	MFStartup(MF_VERSION, MFSTARTUP_NOSOCKET);
 
 	winApp_ = std::make_unique<WindowsAPI>();
-	winApp_->Initialize(WindowName, kWindowWidth, kWindowHeight);
+	winApp_->Initialize(windowName, windowWidth, windowHeight);
 
 	dxCommon_ = std::make_unique<DirectXCommon>();
 	dxCommon_->Initialize(winApp_.get());
@@ -621,7 +621,7 @@ void GameEngine::DrawObject_2D_(Object* object, std::shared_ptr<DirectionalLight
 	std::vector<Offset> offsets = object->GetOffsets();
 
 	Matrix4x4 viewMatrix = MakeIdentity4x4();
-	Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(kWindowWidth_) / float(kWindowHeight_), 0.01f, 1.0f);
+	Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(windowWidth_) / float(windowHeight_), 0.01f, 1.0f);
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList_->SetGraphicsRootSignature(object_RootSignature_.Get());
@@ -721,7 +721,7 @@ void GameEngine::DrawParts_2D_(Object* object, uint32_t partsIndex, std::shared_
 	assert(partsIndex < parts.size());
 
 	Matrix4x4 viewMatrix = MakeIdentity4x4();
-	Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(kWindowWidth_) / float(kWindowHeight_), 0.01f, 1.0f);
+	Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(windowWidth_) / float(windowHeight_), 0.01f, 1.0f);
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList_->SetGraphicsRootSignature(object_RootSignature_.Get());
@@ -803,145 +803,142 @@ void GameEngine::DrawParts_2D_(Object* object, uint32_t partsIndex, std::shared_
 	objectIndex_++;
 }
 
-void GameEngine::DrawInstancingObject_3D_(std::list<Object*> objects, std::shared_ptr<DirectionalLight> directionalLight, std::shared_ptr<PointLight> pointLight, std::shared_ptr<SpotLight> spotLight) {
+void GameEngine::DrawInstancingObject_3D_(InstancingObject* objects, std::shared_ptr<DirectionalLight> directionalLight, std::shared_ptr<PointLight> pointLight, std::shared_ptr<SpotLight> spotLight) {
 	
 	if (!isThreadFinished_)return;
 
 	//上限に達していたら描画しない
-	if (instancingObjectIndex_ > kMaxInstanceIndex)return;
+	if (instancingObjectIndex_ >= kMaxInstanceIndex)return;
 
-	std::list<Object*>::iterator objectIterator = objects.begin();
-	Camera* camera = (*objectIterator)->GetCamera().lock().get();
+	std::list<std::string> names = objects->GetObjectNames();
+	if (names.size() <= 0)return;
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList_->SetGraphicsRootSignature(object_Instancing_RootSignature_.Get());
 	commandList_->SetPipelineState(object3D_Instancing_PipelineState_.Get());	//PSOを設定
 
-	commandList_->IASetVertexBuffers(0, 1, &(*objectIterator)->GetVBV());	//VBVを設定
-	commandList_->IASetIndexBuffer(&(*objectIterator)->GetIBV());	//IBVを設定
+	commandList_->IASetVertexBuffers(0, 1, &objects->GetVBV());	//VBVを設定
+	commandList_->IASetIndexBuffer(&objects->GetIBV());	//IBVを設定
 
 	//カメラのワールド座標をCBufferに送る
-	commandList_->SetGraphicsRootConstantBufferView(4, (*objectIterator)->GetCamera().lock()->CameraResource()->GetGPUVirtualAddress());
+	commandList_->SetGraphicsRootConstantBufferView(4, objects->GetCamera().lock()->CameraResource()->GetGPUVirtualAddress());
 
 	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
 	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	//パーツの数。共通なので無駄に参照しないように
-	size_t numParts = (*objectIterator)->GetParts().size();
+	std::vector<Parts> parts = objects->GetParts();
 
 	uint32_t numInstance = 0;
-	std::vector<Matrix4x4> worldMatries;
-	std::vector<std::vector<Parts>> parts;
-	std::vector<Offset> offsets = (*objectIterator)->GetOffsets();
+	std::vector<Offset> offsets = objects->GetOffsets();
 
-	//それぞれの情報をまとめる
-	for (objectIterator = objects.begin();
-		objectIterator != objects.end();) {
+	// パーツごとにインスタンシング描画
+	for (uint32_t i = 0; i < parts.size(); i++) {
 
-		if (numInstance >= kMaxNumInstance)break;
+		//上限に達していたら描画しない
+		if (instancingObjectIndex_ >= kMaxInstanceIndex)return;
 
-		parts.push_back((*objectIterator)->GetParts());
-
-		//オブジェクトのワールド座標
-		Matrix4x4 worldMatrix = MakeAffineMatrix((*objectIterator)->GetTransform().scale, (*objectIterator)->GetTransform().rotate, (*objectIterator)->GetTransform().translate);
-
-		worldMatries.push_back(worldMatrix);
-
-		++numInstance;
-		++objectIterator;
-	}
-
-	//インスタシング描画とボーンアニメーションの両立は構造体の大きさ故に難しい
-	instancingObjectBoneResource_[instancingObjectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&instancingObjectBoneData_));
-	Skeleton skeleton = (*objectIterator)->GetSleleton();
-	for (int i = 0; i < skeleton.joints.size(); i++) {
-		if (i > 128)break;
-		objectBoneData_[objectIndex_]->matrix[i] = skeleton.joints[i].skeltonSpaceMatrix;
-	}
-	instancingObjectBoneResource_[instancingObjectIndex_]->Unmap(0, nullptr);
-	commandList_->SetGraphicsRootConstantBufferView(7, instancingObjectBoneResource_[instancingObjectIndex_]->GetGPUVirtualAddress());
-	
-	//パーツごとにインスタシング描画
-	for (uint32_t i = 0; i < numParts; i++) {
-
-		//WVPデータを更新
+		// インスタンスバッファをMap
 		InstancingTransformationMatrix* mappedBase = nullptr;
+
 		instancingObjectResource_[instancingObjectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&mappedBase));
-		// mappedBase が nullptr でないかチェック
-		if (mappedBase == nullptr) {
-			assert(0);
-		}
-		// 各要素ポインタを mappedBase に初期化
+
+		assert(mappedBase != nullptr);
+
+		// 各インスタンスのポインタを設定
 		for (uint32_t j = 0; j < kMaxNumInstance; ++j) {
 			instancingObjectData_[instancingObjectIndex_][j] = mappedBase + j;
 		}
 
 		numInstance = 0;
-		for (objectIterator = objects.begin();
-			objectIterator != objects.end(); ++objectIterator) {
 
-			if (numInstance >= kMaxNumInstance)break;
+		// オブジェクトごとにインスタンスデータを作成
+		for (const auto& name : names) {
 
-			//ワールド座標を親に持つPartsのローカル座標
-			Matrix4x4 partsMatrix = MakeAffineMatrix(parts[numInstance][i].transform->scale, parts[numInstance][i].transform->rotate, parts[numInstance][i].transform->translate);
-
-			if (parts[numInstance][i].parent) {
-				//親を持つPartsのローカル座標
-				Matrix4x4 parentMatrix = MakeAffineMatrix(parts[numInstance][i].parent->scale, parts[numInstance][i].parent->rotate, parts[numInstance][i].parent->translate);
-				partsMatrix = partsMatrix * parentMatrix;
-			} else {
-				//ワールド座標を親に持つPartsのローカル座標
-				partsMatrix = partsMatrix * worldMatries[numInstance];
+			if (numInstance >= kMaxNumInstance) {
+				break;
 			}
 
-			instancingObjectData_[instancingObjectIndex_][numInstance]->World = partsMatrix;
-			instancingObjectData_[instancingObjectIndex_][numInstance]->WorldInverseTranspose = Transpose(Inverse(partsMatrix));
-			Matrix4x4 worldViewProjectionMatrix = partsMatrix * camera->GetViewMatrix() * camera->GetProjectionMatrix();
-			instancingObjectData_[instancingObjectIndex_][numInstance]->WVP = worldViewProjectionMatrix;
-			instancingObjectData_[instancingObjectIndex_][numInstance]->color = parts[numInstance][i].material->color;
+			// オブジェクトのワールド行列
+			SRT transform = objects->GetTransform(name);
+			SRT uvTransform = objects->GetUVTransform(name);
+
+			Matrix4x4 worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
+
+			// 対象パーツのローカル行列
+			Matrix4x4 partsMatrix = MakeAffineMatrix(parts[i].transform->scale, parts[i].transform->rotate, parts[i].transform->translate);
+
+			// 親行列を適用
+			if (parts[i].parent) {
+
+				Matrix4x4 parentMatrix = MakeAffineMatrix(parts[i].parent->scale, parts[i].parent->rotate, parts[i].parent->translate);
+
+				partsMatrix = partsMatrix * parentMatrix * worldMatrix;
+
+			} else {
+
+				partsMatrix = partsMatrix * worldMatrix;
+			}
+
+			// インスタンスデータ
+			auto* instance = instancingObjectData_[instancingObjectIndex_][numInstance];
+
+			instance->World = partsMatrix;
+			instance->WorldInverseTranspose = Transpose(Inverse(partsMatrix));
+
+			Matrix4x4 worldViewProjectionMatrix = partsMatrix * objects->GetCamera().lock()->GetViewMatrix() * objects->GetCamera().lock()->GetProjectionMatrix();
+
+			instance->WVP = worldViewProjectionMatrix;
+			instance->color = objects->GetColor(name);
+			instance->UVTransform = MakeAffineMatrix(uvTransform.scale, uvTransform.rotate, uvTransform.translate);
 
 			++numInstance;
 		}
 
+		// インスタンスバッファのMap終了
 		instancingObjectResource_[instancingObjectIndex_]->Unmap(0, nullptr);
 
-		//インスタシング描画の都合上マテリアルは先頭のもの全てに適応
-		parts[0][i].material->uvTransform = MakeAffineMatrix(parts[0][i].UVtransform.scale, parts[0][i].UVtransform.rotate, parts[0][i].UVtransform.translate);
-		parts[0][i].material->enableDirectionalLighting = directionalLight != nullptr;
-		parts[0][i].material->enablePointLighting = pointLight != nullptr;
-		parts[0][i].material->enableSpotLighting = spotLight != nullptr;
-		parts[0][i].material->color = Vector4{ 1.0f,1.0f,1.0f,1.0f };
+		// マテリアルデータを更新
+		objectMaterialResource_[instancingObjectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&objectMaterialData_[instancingObjectIndex_])
+		);
 
-		//マテリアルデータを更新
-		objectMaterialResource_[instancingObjectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&objectMaterialData_[instancingObjectIndex_]));
-
-		*objectMaterialData_[instancingObjectIndex_] = *parts[0][i].material;
+		*objectMaterialData_[instancingObjectIndex_] = *parts[i].material;
+		objectMaterialData_[instancingObjectIndex_]->uvTransform = MakeIdentity4x4();
+		objectMaterialData_[instancingObjectIndex_]->enableDirectionalLighting = directionalLight != nullptr;
+		objectMaterialData_[instancingObjectIndex_]->enablePointLighting = pointLight != nullptr;
+		objectMaterialData_[instancingObjectIndex_]->enableSpotLighting = spotLight != nullptr;
 
 		objectMaterialResource_[instancingObjectIndex_]->Unmap(0, nullptr);
 
-		//ライティングが必要な場合CBufferに送る
-		if (parts[0][i].material->reflection != 0 && directionalLight != nullptr) {
-			commandList_->SetGraphicsRootConstantBufferView(3, directionalLight->LightElementResource()->GetGPUVirtualAddress());	//DirectionalLighting
-		}
-		if (parts[0][i].material->reflection != 0 && pointLight != nullptr) {
-			commandList_->SetGraphicsRootConstantBufferView(5, pointLight->LightElementResource()->GetGPUVirtualAddress());	//PointLighting
-		}
-		if (parts[0][i].material->reflection != 0 && spotLight != nullptr) {
-			commandList_->SetGraphicsRootConstantBufferView(6, spotLight->LightElementResource()->GetGPUVirtualAddress());	//SpotLighting
+		// ライティング
+		if (parts[i].material->reflection != 0) {
+
+			if (directionalLight != nullptr) {
+				commandList_->SetGraphicsRootConstantBufferView(3, directionalLight->LightElementResource()->GetGPUVirtualAddress());
+			}
+
+			if (pointLight != nullptr) {
+				commandList_->SetGraphicsRootConstantBufferView(5, pointLight->LightElementResource()->GetGPUVirtualAddress());
+			}
+
+			if (spotLight != nullptr) {
+				commandList_->SetGraphicsRootConstantBufferView(6, spotLight->LightElementResource()->GetGPUVirtualAddress());
+			}
 		}
 
-		//SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
-		commandList_->SetGraphicsRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(parts[0][i].textureIndex));
+		// テクスチャ
+		commandList_->SetGraphicsRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(parts[i].textureIndex));
 
+		// インスタンスバッファ
 		commandList_->SetGraphicsRootDescriptorTable(1, srvManager_->GetGPUDescriptorHandle(startInstancingObjectIndex_ + instancingObjectIndex_));
 
-		//マテリアルCBufferの場所を設定
+		// マテリアル
 		commandList_->SetGraphicsRootConstantBufferView(0, objectMaterialResource_[instancingObjectIndex_]->GetGPUVirtualAddress());
-		
-		//描画(DrawCall)
+
+		// 描画
 		commandList_->DrawIndexedInstanced(offsets[i].indexCount, numInstance, offsets[i].indexStart, 0, 0);
 
-		instancingObjectIndex_++;
+		++instancingObjectIndex_;
 	}
 }
 
@@ -1032,7 +1029,7 @@ void GameEngine::DrawParticle_(ParticleGroup particleGroup) {
 
 	fogResource_->Map(0, nullptr, reinterpret_cast<void**>(&fogData_));
 
-	fogData_->windowSize = { float(winApp_->kClientWidth_),float(winApp_->kClientHeight_) };
+	fogData_->windowSize = { float(winApp_->clientWidth_),float(winApp_->clientHeight_) };
 
 	fogResource_->Unmap(0, nullptr);
 
@@ -1073,7 +1070,7 @@ void GameEngine::DrawSprite_2D_(Sprite* sprite) {
 	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	Matrix4x4 viewMatrix = MakeIdentity4x4();
-	Matrix4x4 projectionMatrix = MakeOrthographicMatrix(0.0f, 0.0f, float(kWindowWidth_), float(kWindowHeight_), 0.0f, 100.0f);
+	Matrix4x4 projectionMatrix = MakeOrthographicMatrix(0.0f, 0.0f, float(windowWidth_), float(windowHeight_), 0.0f, 100.0f);
 
 	//WVPデータを更新
 	spriteWvpResource_[spriteIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&spriteWvpData_[spriteIndex_]));
@@ -1119,7 +1116,7 @@ void GameEngine::DrawInstancingSprite_2D_(InstancingSprite* sprites) {
 	if (instancingSpriteIndex_ > kMaxInstanceIndex)return;
 
 	Matrix4x4 viewMatrix = MakeIdentity4x4();
-	Matrix4x4 projectionMatrix = MakeOrthographicMatrix(0.0f, 0.0f, float(kWindowWidth_), float(kWindowHeight_), 0.0f, 100.0f);
+	Matrix4x4 projectionMatrix = MakeOrthographicMatrix(0.0f, 0.0f, float(windowWidth_), float(windowHeight_), 0.0f, 100.0f);
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList_->SetGraphicsRootSignature(sprite_Instancing_RootSignature_.Get());

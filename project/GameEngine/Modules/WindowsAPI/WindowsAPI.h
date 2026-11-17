@@ -8,9 +8,9 @@
 class WindowsAPI {
 public:
 	//ウィンドウの幅
-	static int32_t kClientWidth_;
+	static int32_t clientWidth_;
 	//ウィンドウの高さ
-	static int32_t kClientHeight_;
+	static int32_t clientHeight_;
 private:
 	//ウィンドウクラス
 	WNDCLASS w_;
@@ -21,13 +21,13 @@ private:
 	// ウィンドウクラス
 	WNDCLASS WindowClass();
 	// ウィンドウサイズ
-	RECT WindowSize(const int32_t ClientWidth, const int32_t ClientHeight);
+	RECT WindowSize(const int32_t clientWidth, const int32_t clientHeight);
 	// ウィンドウの生成
-	HWND WindowInitialvalue(const wchar_t* WindowName, const int32_t ClientWidth, const int32_t ClientHeight, WNDCLASS wc);
+	HWND WindowInitialvalue(const wchar_t* windowName, const int32_t clientWidth, const int32_t clientHeight, WNDCLASS wc);
 public:
 
 	//初期化
-	void Initialize(const wchar_t* WindowName, int32_t kWindowWidth, int32_t kWindowHeight);
+	void Initialize(const wchar_t* windowName, int32_t windowWidth, int32_t windowHeight);
 	//更新
 	void Update();
 	//終了

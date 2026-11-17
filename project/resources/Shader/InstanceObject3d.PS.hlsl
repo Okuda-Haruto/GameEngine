@@ -35,6 +35,8 @@ struct Camera
     float3 WorldPosition;
     float nearDist;
     float farDist;
+    float nearTransparentDist;
+    float farTransparentDist;
 };
 
 ConstantBuffer<Material> gMaterial : register(b0);
@@ -50,6 +52,7 @@ struct PixelShaderOutput
 
 Texture2D<float4> gTexture : register(t0);
 SamplerState gSampler : register(s0);
+
 
 PixelShaderOutput PhangReflectionModel(VertexShaderOutput input, float4 textureColor)
 {
@@ -163,6 +166,7 @@ PixelShaderOutput PhangReflectionModel(VertexShaderOutput input, float4 textureC
     {
         output.color.rgb = diffuseDirectionalLighting + diffusePointLighting + diffuseSpotLighting;
     }
+    
     return output;
 }
 
@@ -281,6 +285,7 @@ PixelShaderOutput BlinnPhangReflectionModel(VertexShaderOutput input, float4 tex
     {
         output.color.rgb = diffuseDirectionalLighting + diffusePointLighting + diffuseSpotLighting;
     }
+    
     return output;
 }
 
@@ -293,17 +298,15 @@ PixelShaderOutput main(VertexShaderOutput input)
     PixelShaderOutput output;
     output.color = input.color * textureColor;
     
-    if (output.color.a == 0.0)
-    {
-        discard;
-    }
-    
     float3 diff = input.worldPosition - gCamera.WorldPosition;
 
     float dist = length(diff);
+    
+    float near = saturate((gCamera.nearDist - dist) / gCamera.nearTransparentDist);
+    float far = saturate((dist - gCamera.farDist) / gCamera.farTransparentDist);
 
-    output.color.a = 1.0f - saturate((dist - gCamera.nearDist) / (gCamera.farDist - gCamera.nearDist));
-
+    output.color.a *= 1.0f - max(near, far);
+    
     if (gMaterial.reflection <= 0 || gMaterial.reflection > 2)
         return output;
         

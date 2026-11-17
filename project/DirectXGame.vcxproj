@@ -77,6 +77,7 @@
     <ClCompile Include="Application\BackGround\BackGround.cpp" />
     <ClCompile Include="Application\BackGround\Fence\Fence.cpp" />
     <ClCompile Include="Application\BackGround\Tumbleweed\Tumbleweed.cpp" />
+    <ClCompile Include="Application\Effect\VoxelEffect\VoxelEffect.cpp" />
     <ClCompile Include="Application\Entity\Bomb\Bomb.cpp" />
     <ClCompile Include="Application\Entity\Bullet\Bullet.cpp" />
     <ClCompile Include="Application\Event\Event.cpp" />
@@ -136,6 +137,7 @@
     <ClCompile Include="GameEngine\Resource\Audio\Audio.cpp" />
     <ClCompile Include="Application\GameManager\BaseScene\BaseScene.cpp" />
     <ClCompile Include="GameEngine\Resource\Camera\Camera.cpp" />
+    <ClCompile Include="GameEngine\Resource\InstancingObject\InstancingObject.cpp" />
     <ClCompile Include="GameEngine\Resource\InstancingSprite\InstancingSprite.cpp" />
     <ClCompile Include="GameEngine\Resource\Light\DirectionalLight\DirectionalLight.cpp" />
     <ClCompile Include="GameEngine\Resource\Light\PointLight\PointLight.cpp" />
@@ -159,6 +161,7 @@
     <ClInclude Include="Application\BackGround\BackGround.h" />
     <ClInclude Include="Application\BackGround\Fence\Fence.h" />
     <ClInclude Include="Application\BackGround\Tumbleweed\Tumbleweed.h" />
+    <ClInclude Include="Application\Effect\VoxelEffect\VoxelEffect.h" />
     <ClInclude Include="Application\Entity\Bomb\Bomb.h" />
     <ClInclude Include="Application\Entity\Bullet\Bullet.h" />
     <ClInclude Include="Application\Event\Event.h" />
@@ -280,6 +283,7 @@
     <ClInclude Include="GameEngine\Resource\Audio\Audio.h" />
     <ClInclude Include="Application\GameManager\BaseScene\BaseScene.h" />
     <ClInclude Include="GameEngine\Resource\Camera\Camera.h" />
+    <ClInclude Include="GameEngine\Resource\InstancingObject\InstancingObject.h" />
     <ClInclude Include="GameEngine\Resource\InstancingSprite\InstancingSprite.h" />
     <ClInclude Include="GameEngine\Resource\Light\DirectionalLight\DirectionalLight.h" />
     <ClInclude Include="GameEngine\Resource\Light\Light.h" />

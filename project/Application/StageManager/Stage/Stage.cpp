@@ -171,7 +171,7 @@ void Stage::Initialize(bool isTutorial, StageData stageData, std::shared_ptr<Inp
 		colliderObjects_.push_back(move(colliderObject));
 	}
 
-	//接触可能オブジェクト
+	//破壊可能オブジェクト
 	for (auto& object : stageData.breakObjects) {
 		std::unique_ptr<BreakObject> breakObject = std::make_unique<BreakObject>();
 		std::unique_ptr<Event_Explosion> exprotion = std::make_unique<Event_Explosion>();
@@ -179,6 +179,8 @@ void Stage::Initialize(bool isTutorial, StageData stageData, std::shared_ptr<Inp
 		breakObject->Initialize(object.startTransform, 2, ModelManager::GetInstance()->GetModel(object.directoryPath, object.filename), move(exprotion));
 		breakObjects_.push_back(move(breakObject));
 	}
+	voxelEffect_ = std::make_unique<VoxelEffect>();
+	voxelEffect_->Initialize(ModelManager::GetInstance()->GetModel("resources/Object", "Box.obj"), gameCamera_->GetCamera(), directionalLight_, pointLight_);
 
 	//情報表示
 	hud_ = std::make_unique<HUD>();
@@ -285,7 +287,8 @@ void Stage::Update() {
 	}
 
 
-
+	voxelEffect_->Update();
+	voxelEffect_->Collision(boss_->GetColliders());
 
 	particle_->Update();
 	particle_2->Update();
@@ -392,6 +395,8 @@ void Stage::Draw() {
 	if(cylinderTime_ < kMaxCyliderTime_) {
 		cylider_->Draw(cylinderTransform_, cylinderMaterial_);
 	}
+
+	voxelEffect_->Draw();
 
 	particle_->Draw();
 	particle_2->Draw();
@@ -622,6 +627,78 @@ void Stage::AddBreakObject(SRT transform, float maxHP, std::weak_ptr<Model> mode
 	breakObjects_.push_back(move(newObject));
 }
 
+void Stage::AddVoxelEffect(SRT transform, Vector3 velocity) {
+	voxelEffect_->AddNewEffect(transform,velocity);
+}
+
 void Stage::Explosion(Vector3 position, float range, float maxLifeTime, CollisionID id, float damage) {
 
+	//大きめのエフェクトを頂点方向に飛ばす
+	for (int x = 0; x < 2; x++) {
+		for (int y = 0; y < 2; y++) {
+			for (int z = 0; z < 2; z++) {
+				SRT transform{};
+				transform.scale = { 1.0f,1.0f,1.0f };
+				transform.translate = position;
+				transform.translate += Vector3{
+					-1.0f + 2.0f * x,
+					-1.0f + 2.0f * y,
+					-1.0f + 2.0f * z,
+				};
+
+				Vector3 diff = transform.translate - position;
+				Vector3 rotate;
+
+				//  Y軸回り回転(θy)
+				rotate.y = std::atan2(diff.x, diff.z);
+				float length = Length(Vector3{ diff.x, 0.0f, diff.z });
+				// X軸回り回転(θx)
+				rotate.x = std::atan2(-diff.y, length);
+
+				Matrix4x4 rotateMatrix = MakeRotateXMatrix(rotate.x) * MakeRotateYMatrix(rotate.y);
+				Vector3 velocity = { 0.0f,0.0f,2.0f };
+				AddVoxelEffect(transform, velocity * rotateMatrix);
+			}
+		}
+	}
+
+	//小さめのエフェクトをランダムな方向に飛ばす
+	for (int x = 0; x < 16; x++) {
+		float size = GameEngine::randomFloat(0.25f, 0.5f);
+
+		SRT transform{};
+		transform.scale = { size,size,size };
+		transform.translate = position;
+
+		Vector3 rotate = {
+			GameEngine::randomFloat(-1.0f,1.0f) * std::numbers::pi_v<float>,
+			GameEngine::randomFloat(-1.0f,1.0f) * std::numbers::pi_v<float> / 2,
+			0.0f
+		};
+		Matrix4x4 rotateMatrix = MakeRotateXMatrix(rotate.x) * MakeRotateYMatrix(rotate.y);
+		Vector3 velocity = { 0.0f,0.0f,GameEngine::randomFloat(1.5f, 2.5f) };
+		AddVoxelEffect(transform, velocity * rotateMatrix);
+	}
+
+	//小さめのエフェクトをボスのいる方向に飛ばす
+	for (int x = 0; x < 2; x++) {
+		float size = GameEngine::randomFloat(0.25f, 0.5f);
+
+		SRT transform{};
+		transform.scale = { size,size,size };
+		transform.translate = position;
+
+		Vector3 diff = boss_->GetTransform().translate - position;
+		Vector3 rotate;
+
+		//  Y軸回り回転(θy)
+		rotate.y = std::atan2(diff.x, diff.z) + GameEngine::randomFloat(-0.01f, 0.01f);
+		float length = Length(Vector3{ diff.x, 0.0f, diff.z });
+		// X軸回り回転(θx)
+		rotate.x = std::atan2(-diff.y, length) + GameEngine::randomFloat(-0.01f, 0.01f);
+
+		Matrix4x4 rotateMatrix = MakeRotateXMatrix(rotate.x) * MakeRotateYMatrix(rotate.y);
+		Vector3 velocity = { 0.0f,0.0f,GameEngine::randomFloat(2.5f, 3.0f) };
+		AddVoxelEffect(transform, velocity * rotateMatrix);
+	}
 }
