@@ -1,4 +1,5 @@
 #include "Item.h"
+#include "Entity/Player/Player.h"
 #include "ModelManager/ModelManager.h"
 #include "Operation/Operation.h"
 #include <numbers>
@@ -7,16 +8,15 @@ std::weak_ptr<Camera> Item::camera_;
 std::weak_ptr<DirectionalLight> Item::directionalLight_;
 std::weak_ptr<PointLight> Item::pointLight_;
 
-void Item::Initialize(SRT transform) {
+void Item::Initialize(SRT transform, Player* player) {
+	player_ = player;
+
 	object_ = std::make_unique<Object>();
-	object_->Initialize(ModelManager::GetInstance()->GetModel("resources/DebugResources/sphere","sphere.obj"));
+	object_->Initialize(ModelManager::GetInstance()->GetModel("resources/Item","Item_HotDog.obj"));
 	object_->SetCamera(camera_.lock());
 	object_->SetDirectionalLight(directionalLight_.lock());
 	object_->SetPointLight(pointLight_.lock());
 	object_->SetCubeTextureIndex(TextureManager::GetInstance()->GetSrvIndex("resources/BackGround/minedump_flats_1k.dds"));
-	std::vector<Parts> parts = object_->GetParts();
-	parts[0].material->enviromentCoefficient = 1.0f;
-	object_->SetParts(parts[0], 0);
 	transform_ = transform;
 
 	Matrix4x4 rotateMatrix = MakeRotateMatrix(transform_.rotate);
@@ -25,22 +25,17 @@ void Item::Initialize(SRT transform) {
 	lifeTime_ = 0.0f;
 	isDead = false;
 
-	BaseEntity::Initialize(1.0f, CollisionID_Item_Attack);
+	BaseEntity::Initialize(transform.scale.x, CollisionID_Item_Attack);
 }
 
 void Item::Update() {
 
-	if (lifeTime_ < kMaxLifeTime_) {
-		lifeTime_ += 1.0f / 60.0f;
-		if (lifeTime_ >= kMaxLifeTime_) {
-			isDead = true;
-		}
-	}
 	if (!isDead) {
+		transform_.rotate.y += std::numbers::pi_v<float> / 90;
+
 		if (transform_.rotate.x > std::numbers::pi_v<float> *2)transform_.rotate.x -= std::numbers::pi_v<float> *2;
 		if (transform_.rotate.y > std::numbers::pi_v<float> *2)transform_.rotate.y -= std::numbers::pi_v<float> *2;
 		if (transform_.rotate.z > std::numbers::pi_v<float> *2)transform_.rotate.z -= std::numbers::pi_v<float> *2;
-		transform_.translate += velocity_;
 	}
 
 	object_->SetTransform(transform_);
@@ -60,5 +55,6 @@ void Item::IsCollision(uint8_t targetId) {
 			targetId & CollisionID_Player_Attack)) {	//プレイヤー攻撃
 
 		isDead = true;
+		player_->AddHP(1);
 	}
 }

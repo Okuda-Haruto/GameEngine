@@ -103,6 +103,7 @@
     <ClCompile Include="Application\GameManager\BaseScene\GameOverScene\GameOverScene.cpp" />
     <ClCompile Include="Application\GameManager\BaseScene\TitleScene\TitleScene.cpp" />
     <ClCompile Include="Application\Entity\ColliderObject\ColliderObject.cpp" />
+    <ClCompile Include="Application\Option\Option.cpp" />
     <ClCompile Include="Application\StageManager\StageManager.cpp" />
     <ClCompile Include="Application\StageManager\Stage\Stage.cpp" />
     <ClCompile Include="GameEngine\DebugTool\D3DResourceLeakChecker.cpp" />
@@ -192,6 +193,7 @@
     <ClInclude Include="Application\GameManager\BaseScene\TitleScene\TitleScene.h" />
     <ClInclude Include="Application\Entity\ColliderObject\ColliderObject.h" />
     <ClInclude Include="Application\Collider\CollisionID.h" />
+    <ClInclude Include="Application\Option\Option.h" />
     <ClInclude Include="Application\StageManager\StageManager.h" />
     <ClInclude Include="Application\StageManager\Stage\Stage.h" />
     <ClInclude Include="GameEngine\Data\AnimationData.h" />

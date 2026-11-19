@@ -25,6 +25,7 @@ void Stage::Initialize(bool isTutorial, StageData stageData, std::shared_ptr<Inp
 	gameCamera_->ChangeCamera(std::make_unique<LockOnCamera>(), 0.0f);
 	Bullet::SetCamera(gameCamera_->GetCamera());
 	BreakObject::SetGameCamera(gameCamera_);
+	Item::SetCamera(gameCamera_->GetCamera());
 
 	//ロックオン照準
 	target_ = std::make_unique<Target>();
@@ -38,6 +39,7 @@ void Stage::Initialize(bool isTutorial, StageData stageData, std::shared_ptr<Inp
 	directionalLight_->SetDirectionalLightElement(directionalLightElement_);
 	Bullet::SetDirectionalLight(directionalLight_);
 	BreakObject::SetDirectionalLight(directionalLight_);
+	Item::SetDirectionalLight(directionalLight_);
 
 	pointLight_ = std::make_unique<PointLight>();
 	pointLight_->Initialize(GameEngine::GetDirectXCommon());
@@ -49,6 +51,7 @@ void Stage::Initialize(bool isTutorial, StageData stageData, std::shared_ptr<Inp
 	pointLight_->SetPointLightElement(pointLightElement_);
 	Bullet::SetPointLight(pointLight_);
 	BreakObject::SetPointLight(pointLight_);
+	Item::SetPointLight(pointLight_);
 
 	ParticleManager::GetInstance()->CreateParticleGroup("Particle_Sandstorm", "resources/Particle/sand.png");
 	particle_ = std::make_unique<ParticleEmitter>("Particle_Sandstorm");
@@ -227,6 +230,8 @@ void Stage::Update() {
 
 	target_->Update();
 
+	voxelEffect_->Update();
+
 	if (!isClear_) {
 
 		if (boss_->IsDead()) {
@@ -266,10 +271,15 @@ void Stage::Update() {
 		for (auto& object : colliderObjects_) {
 			object->Update();
 		}
+		for (auto& item : items_) {
+			item->Update();
+		}
 
 		if (!isTutorial_) {
 			if (!debugCamera_) {
 				boss_->Update();
+
+				voxelEffect_->Collision(boss_->GetColliders());
 			}
 		}
 
@@ -284,11 +294,10 @@ void Stage::Update() {
 		std::erase_if(breakObjects_, [](const auto& object) {
 			return object->IsDead();
 			});
+		std::erase_if(items_, [](const auto& item) {
+			return item->IsDead();
+			});
 	}
-
-
-	voxelEffect_->Update();
-	voxelEffect_->Collision(boss_->GetColliders());
 
 	particle_->Update();
 	particle_2->Update();
@@ -387,6 +396,10 @@ void Stage::Draw() {
 		object->Draw();
 	}
 
+	for (auto& item : items_) {
+		item->Draw();
+	}
+
 	ring_->DrawBillBoard(ringTransform_, ringMaterial_);
 
 	for (auto& shockWave : shockWaves_) {
@@ -428,6 +441,9 @@ void Stage::Collision() {
 	}
 	for (auto& object : breakObjects_) {
 		colliders.push_back(object.get()->GetColliders());
+	}
+	for (auto& item : items_) {
+		colliders.push_back(item.get()->GetColliders());
 	}
 
 	//障害物コライダー
@@ -617,7 +633,7 @@ void Stage::AddShockWave(SRT transform, float range, float maxLifeTime, Collisio
 
 void Stage::AddItem(SRT transform) {
 	std::unique_ptr<Item> newItem = std::make_unique<Item>();
-	newItem->Initialize(transform);
+	newItem->Initialize(transform,player_.get());
 	items_.push_back(move(newItem));
 }
 
@@ -633,11 +649,12 @@ void Stage::AddVoxelEffect(SRT transform, Vector3 velocity) {
 
 void Stage::Explosion(Vector3 position, float range, float maxLifeTime, CollisionID id, float damage) {
 
+	SRT transform{};
+
 	//大きめのエフェクトを頂点方向に飛ばす
 	for (int x = 0; x < 2; x++) {
 		for (int y = 0; y < 2; y++) {
 			for (int z = 0; z < 2; z++) {
-				SRT transform{};
 				transform.scale = { 1.0f,1.0f,1.0f };
 				transform.translate = position;
 				transform.translate += Vector3{
@@ -666,7 +683,6 @@ void Stage::Explosion(Vector3 position, float range, float maxLifeTime, Collisio
 	for (int x = 0; x < 16; x++) {
 		float size = GameEngine::randomFloat(0.25f, 0.5f);
 
-		SRT transform{};
 		transform.scale = { size,size,size };
 		transform.translate = position;
 
@@ -684,7 +700,6 @@ void Stage::Explosion(Vector3 position, float range, float maxLifeTime, Collisio
 	for (int x = 0; x < 2; x++) {
 		float size = GameEngine::randomFloat(0.25f, 0.5f);
 
-		SRT transform{};
 		transform.scale = { size,size,size };
 		transform.translate = position;
 
@@ -701,4 +716,12 @@ void Stage::Explosion(Vector3 position, float range, float maxLifeTime, Collisio
 		Vector3 velocity = { 0.0f,0.0f,GameEngine::randomFloat(2.5f, 3.0f) };
 		AddVoxelEffect(transform, velocity * rotateMatrix);
 	}
+
+	transform = {
+		{ 2.0f,2.0f,2.0f },
+		{ 0.0f,0.0f,0.0f },
+		position,
+	};
+
+	AddItem(transform);
 }

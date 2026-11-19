@@ -337,6 +337,9 @@
     <ClCompile Include="GameEngine\Resource\InstancingObject\InstancingObject.cpp">
       <Filter>GameEngine\Resource\InstancingObject</Filter>
     </ClCompile>
+    <ClCompile Include="Application\Option\Option.cpp">
+      <Filter>Application\Option</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\BackGround\Ground\Ground.h">
@@ -771,6 +774,9 @@
     <ClInclude Include="GameEngine\Resource\InstancingObject\InstancingObject.h">
       <Filter>GameEngine\Resource\InstancingObject</Filter>
     </ClInclude>
+    <ClInclude Include="Application\Option\Option.h">
+      <Filter>Application\Option</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -1087,6 +1093,9 @@
     </Filter>
     <Filter Include="GameEngine\Resource\InstancingObject">
       <UniqueIdentifier>{2e29b912-1330-4d76-8ee4-d77e297824d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Option">
+      <UniqueIdentifier>{4a92d26d-c0dd-444b-8ed0-cb57af174af0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
