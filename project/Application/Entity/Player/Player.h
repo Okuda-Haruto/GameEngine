@@ -116,6 +116,7 @@ public:
 	bool IsDead() { return HP_ <= 0; }
 
 	int32_t GetHP() { return HP_; }
+	void AddHP(int32_t hp) { HP_ += hp; if (HP_ > kMaxHP) HP_ = kMaxHP; }
 	int32_t GetRemainingRounds() { return remainingRounds_; }
 
 	Vector3 GetMove() { return move_; }

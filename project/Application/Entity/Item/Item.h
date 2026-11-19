@@ -1,6 +1,8 @@
 #pragma once
 #include "../BaseEntity.h"
 
+class Player;
+
 class Item : public BaseEntity {
 private:
 	static std::weak_ptr<Camera> camera_;
@@ -12,9 +14,11 @@ private:
 	float lifeTime_ = 0.0f;
 
 	bool isDead = false;
+
+	Player* player_;
 public:
 	//初期化
-	void Initialize(SRT transform);
+	void Initialize(SRT transform, Player* player);
 	//更新処理
 	void Update();
 	//描画処理

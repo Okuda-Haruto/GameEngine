@@ -10,7 +10,7 @@ const float VoxelEffect::kDampingCoefficient = 0.8f;
 const float VoxelEffect::kGravitationalAcceleration = -0.1f;
 const int VoxelEffect::kMaxNameIndex = 1024;
 const float VoxelEffect::kMaxHitEffectScale = 5.0f;
-const int VoxelEffect::kHitDamage = 6;
+const int VoxelEffect::kHitDamage = 3 ;
 
 VoxelEffect::~VoxelEffect() {
 
