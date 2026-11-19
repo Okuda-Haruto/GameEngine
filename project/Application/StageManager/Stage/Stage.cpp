@@ -177,9 +177,9 @@ void Stage::Initialize(bool isTutorial, StageData stageData, std::shared_ptr<Inp
 	//破壊可能オブジェクト
 	for (auto& object : stageData.breakObjects) {
 		std::unique_ptr<BreakObject> breakObject = std::make_unique<BreakObject>();
-		std::unique_ptr<Event_Explosion> exprotion = std::make_unique<Event_Explosion>();
-		exprotion->Initialize(this, 12.0f, 0.5f, CollisionID_Player_Attack, 15.0f);
-		breakObject->Initialize(object.startTransform, 2, ModelManager::GetInstance()->GetModel(object.directoryPath, object.filename), move(exprotion));
+		std::unique_ptr<Event_AddItem> addItem = std::make_unique<Event_AddItem>();
+		addItem->Initialize(this);
+		breakObject->Initialize(object.startTransform, 2, ModelManager::GetInstance()->GetModel(object.directoryPath, object.filename), move(addItem));
 		breakObjects_.push_back(move(breakObject));
 	}
 	voxelEffect_ = std::make_unique<VoxelEffect>();
@@ -649,6 +649,9 @@ void Stage::AddVoxelEffect(SRT transform, Vector3 velocity) {
 
 void Stage::Explosion(Vector3 position, float range, float maxLifeTime, CollisionID id, float damage) {
 
+}
+
+void Stage::BoxBreakEffect(Vector3 position) {
 	SRT transform{};
 
 	//大きめのエフェクトを頂点方向に飛ばす
@@ -716,12 +719,4 @@ void Stage::Explosion(Vector3 position, float range, float maxLifeTime, Collisio
 		Vector3 velocity = { 0.0f,0.0f,GameEngine::randomFloat(2.5f, 3.0f) };
 		AddVoxelEffect(transform, velocity * rotateMatrix);
 	}
-
-	transform = {
-		{ 2.0f,2.0f,2.0f },
-		{ 0.0f,0.0f,0.0f },
-		position,
-	};
-
-	AddItem(transform);
 }

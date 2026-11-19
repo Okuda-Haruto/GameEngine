@@ -65,6 +65,7 @@ void BreakObject::IsCollision(uint8_t targetId) {
 
 
 		if (IsDead() && deadEvent_) {
+			stage_->BoxBreakEffect(transform_.translate);
 			deadEvent_->Play(transform_);
 		}
 	}

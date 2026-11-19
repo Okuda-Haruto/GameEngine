@@ -138,6 +138,8 @@ public:
 
 	void Explosion(Vector3 position, float range, float maxLifeTime, CollisionID id, float damage);
 
+	void BoxBreakEffect(Vector3 position);
+
 	void SetDebugCamera(std::shared_ptr<DebugCamera> debugCamera) { debugCamera_ = debugCamera; gameCamera_->SetDebugCamera(debugCamera_); }
 
 	const std::weak_ptr<GameCamera> GetGameCamera() { return gameCamera_; }
