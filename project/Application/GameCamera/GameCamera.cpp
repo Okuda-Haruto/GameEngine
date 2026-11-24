@@ -113,6 +113,7 @@ void LockOnCamera::Update() {
 
 			//注目対象に向ける
 			TargetAngleUpdate();
+			transform_.rotate = cameraAngle_;
 
 			Matrix4x4 rotateMatrix = MakeRotateXMatrix(transform_.rotate.x) * MakeRotateYMatrix(transform_.rotate.y);
 			transform_.translate = gameCamera_->GetObserverTransform()->translate + rotateMatrix * Vector3{ cameraOffsetX_,kCameraOffsetY,kCameraOffsetZ };

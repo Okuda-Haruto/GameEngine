@@ -50,7 +50,7 @@ void PlayerNormalState::Update() {
 
 	//回避
 	if (keyboard.keys[DIK_C].trigger || keyboard.keys[DIK_SPACE].trigger || pad.Button[PAD_BUTTON_B].trigger) {
-		player_->SetNextState(std::unique_ptr<PlayerDodgeState>());
+		player_->SetNextState(std::make_unique<PlayerDodgeState>());
 	}
 
 	if (keyboard.keys[DIK_LSHIFT].hold || keyboard.keys[DIK_RSHIFT].hold || pad.Button[PAD_BUTTON_LT].hold) {
@@ -66,8 +66,10 @@ void PlayerNormalState::Update() {
 
 	//攻撃
 	if (keyboard.keys[DIK_Z].hold || keyboard.keys[DIK_X].hold || pad.Button[PAD_BUTTON_RT].hold) {
-		player_->Shot();
-		shotCooltime_ = 0.0f;
+		if (shotCooltime_ >= kMaxShotCooltime) {
+			player_->Shot();
+			shotCooltime_ = 0.0f;
+		}
 	}
 
 	//動いていない場合
@@ -89,10 +91,6 @@ void PlayerNormalState::Update() {
 		}
 	} else {
 		stopTime_ = 0.0f;
-	}
-
-	if (shotCooltime_ < kMaxShotCooltime) {
-		shotCooltime_ += 1.0f / 60.0f;
 	}
 }
 
@@ -157,14 +155,14 @@ void PlayerStunState::Update() {
 
 	SRT transform = *player_->GetTransform();
 
-	if (stunTime_ > 0.0f) {
-		transform.rotate.x = std::numbers::pi_v<float> / 2;
-		transform.rotate.z = 0.0f;
-		transform.translate.y = 0.5f;
-	} else {
+	if (stunTime_ >= kMaxStunTime) {
 		transform.rotate.x = 0.0f;
 		transform.rotate.z = 0.0f;
 		transform.translate.y = 1.0f;
+	} else {
+		transform.rotate.x = std::numbers::pi_v<float> / 2;
+		transform.rotate.z = 0.0f;
+		transform.translate.y = 0.5f;
 	}
 
 	player_->SetTransfrom(transform);
@@ -193,6 +191,7 @@ void Player::Initialize(Stage* stage, std::shared_ptr<GameCamera> gameCamera, st
 	*trackingTransform_ = transform_;
 
 	velocity_ = {};
+	dodgeVelocity_ = {};
 
 	HP_ = kMaxHP;
 	remainingRounds_ = kMaxRemainingRounds;
@@ -220,6 +219,7 @@ void Player::Update() {
 	//入力で変動する値の初期化
 	movementInput_ = {};
 	acceleration_ = {};
+	dodgeVelocity_ = {};
 
 	//行動ステート
 	state_->Update();
@@ -288,6 +288,16 @@ void Player::Update() {
 		if (isTargeted_ && Length(velocity_) > kMaxSpeed / 2) {
 			velocity_ = Normalize(velocity_) * kMaxSpeed / 2;
 		}
+	}
+
+	if (Length(dodgeVelocity_) > 0.0f) {
+		velocity_ = dodgeVelocity_;
+
+		//回避ブラー
+		gameCamera_->SetBlurWidth(0.01f * Length(dodgeVelocity_));
+	} else {
+		//回避ブラー
+		gameCamera_->SetBlurWidth(0.0f);
 	}
 
 	//オブジェクトに沿って移動
@@ -369,30 +379,27 @@ void Player::Dodge(PlayerDodgeState::DODGE_ANGLE angle, float easingRate) {
 	{
 	case PlayerDodgeState::DODGE_ANGLE::FRONT:
 		//前転
-		velocity_ = Vector3{ 0.0f,0.0f,1.0f } * Easing::Lerp(0.2f, dodgeSpeed, easingRate) * MakeRotateYMatrix(transform_.rotate.y);
+		dodgeVelocity_ = Vector3{ 0.0f,0.0f,1.0f } * Easing::Lerp(0.2f, dodgeSpeed, easingRate) * MakeRotateYMatrix(transform_.rotate.y);
 		transform_.rotate.x = Easing::Lerp(0.0f, std::numbers::pi_v<float> *2, 1.0f - easingRate);
 		break;
 	case PlayerDodgeState::DODGE_ANGLE::BACK:
 		//後転
-		velocity_ = Vector3{ 0.0f,0.0f,-1.0f } * Easing::Lerp(0.2f, dodgeSpeed, easingRate) * MakeRotateYMatrix(transform_.rotate.y);
+		dodgeVelocity_ = Vector3{ 0.0f,0.0f,-1.0f } * Easing::Lerp(0.2f, dodgeSpeed, easingRate) * MakeRotateYMatrix(transform_.rotate.y);
 		transform_.rotate.x = -Easing::Lerp(0.0f, std::numbers::pi_v<float> *2, 1.0f - easingRate);
 		break;
 	case PlayerDodgeState::DODGE_ANGLE::RIGHT:
 		//右側転
-		velocity_ = Vector3{ 1.0f,0.0f,0.0f } * Easing::Lerp(0.2f, dodgeSpeed, easingRate) * MakeRotateYMatrix(transform_.rotate.y);
+		dodgeVelocity_ = Vector3{ 1.0f,0.0f,0.0f } * Easing::Lerp(0.2f, dodgeSpeed, easingRate) * MakeRotateYMatrix(transform_.rotate.y);
 		transform_.rotate.z = -Easing::Lerp(0.0f, std::numbers::pi_v<float> *2, 1.0f - easingRate);
 		break;
 	case PlayerDodgeState::DODGE_ANGLE::LEFT:
 		//左側転
-		velocity_ = Vector3{ -1.0f,0.0f,0.0f } * Easing::Lerp(0.2f, dodgeSpeed, easingRate) * MakeRotateYMatrix(transform_.rotate.y);
+		dodgeVelocity_ = Vector3{ -1.0f,0.0f,0.0f } * Easing::Lerp(0.2f, dodgeSpeed, easingRate) * MakeRotateYMatrix(transform_.rotate.y);
 		transform_.rotate.z = Easing::Lerp(0.0f, std::numbers::pi_v<float> *2, 1.0f - easingRate);
 		break;
 	default:
 		break;
 	}
-
-	//回避ブラー
-	gameCamera_->SetBlurWidth(0.01f * (easingRate));
 }
 
 void Player::Shot() {
@@ -408,6 +415,7 @@ void Player::Reload() {
 }
 
 void Player::Stun() {
+	velocity_ = {};
 	SetNextState(std::make_unique<PlayerStunState>());
 	AudioHolder::GetInstance()->GetAudio(AudioIndex::Fence_Collision_SE).lock()->SoundPlayWave();
 }

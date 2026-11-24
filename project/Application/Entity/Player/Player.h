@@ -90,6 +90,9 @@ private:
 	//プレイヤーの移動方向入力
 	Vector3 movementInput_;
 
+	//回避移動
+	Vector3 dodgeVelocity_;
+
 	std::shared_ptr<Input> input_;
 
 	const float kMaxSpeed = 0.6f;
