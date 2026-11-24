@@ -71,7 +71,7 @@ void GameScene::Update() {
 	dissolveData_.threshold = a;
 	fadeSprite_->Update();
 
-	//セピア調にする範囲
+	//描画
 	GameEngine::RenderPreDraw("render");
 
 	stage_->Draw();
@@ -83,12 +83,14 @@ void GameScene::Update() {
 
 	GameEngine::RenderPostDraw();
 
+	//アウトライン
 	GameEngine::RenderPreDraw("Outline");
 
 	GameEngine::DrawOutline("render", stage_->GetGameCamera().lock()->GetCamera().lock());
 
 	GameEngine::RenderPostDraw();
 
+	//セピアトーン
 	GameEngine::RenderPreDraw("ColorChange");
 
 	GameEngine::DrawScreen("Outline", ColorChange::COLORMODE_SEPIATONE, stage_->GetGameCamera().lock()->GetSepiaTone());
@@ -97,12 +99,14 @@ void GameScene::Update() {
 
 	GameEngine::RenderPostDraw();
 
+	//ぼかし
 	GameEngine::RenderPreDraw("BoxFilter");
 
 	GameEngine::DrawScreen("ColorChange", boxFilterData_);
 
 	GameEngine::RenderPostDraw();
 
+	//ビネット
 	GameEngine::RenderPreDraw("Vignette");
 
 	VignetteData vignettedata;
@@ -115,13 +119,10 @@ void GameScene::Update() {
 
 	GameEngine::RenderPostDraw();
 
+	//ブラー
 	GameEngine::RenderPreDraw("RadialBlur");
 
-	RadialBlurData radialBlurdata;
-	radialBlurdata.center = { 0.5,0.5f };
-	radialBlurdata.blurWidth = 0.01f * (1.0f - stage_->GetPlayer()->GetDodgeActiveTimeRate());
-
-	GameEngine::DrawScreen("Vignette", radialBlurdata);
+	GameEngine::DrawScreen("Vignette", stage_->GetGameCamera().lock()->GetRadialBlurData());
 
 	GameEngine::RenderPostDraw();
 }

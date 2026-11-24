@@ -7,8 +7,10 @@ class Option {
 private:
 	//設定内容
 	struct OptionState {
-		//注目視点カメラオフセット
-		Vector3 lockOnCameraBaseOffset;
+		//注目視点カメラオフセットY
+		float lockOnCameraBaseOffsetY;
+		//注目視点カメラオフセットZ
+		float lockOnCameraBaseOffsetZ;
 		//注目視点肩越しずらし
 		float lockOnCameraSideOffset;
 		//カメラ切り替えを長押ししている間だけにする
@@ -31,7 +33,8 @@ private:
 
 	//設定項目
 	enum class OptionItem {
-		LockOnCameraBaseOffset,
+		lockOnCameraBaseOffsetY,
+		lockOnCameraBaseOffsetZ,
 		LockOnCameraSideOffset,
 		IsChangeCameraButtonHold,
 		MainCameraType,
@@ -40,6 +43,7 @@ private:
 	OptionItem selectedOptionItem_;
 
 	std::weak_ptr<Input> input_;
+	int16_t keyHoldTime_;
 
 public:
 	//初期化
@@ -57,4 +61,13 @@ public:
 	void Default();
 	//カーソル移動
 	void MoveCursor();
+
+private:
+	//左右移動で移動する設定項目
+	template <typename T>
+	void OptionItemSlider(T& optionItem, T value, Pad pad, Keyboard keyboard);
+	//ボタンで移動する設定項目
+	void OptionItemButton(int& optionItem, Pad pad, Keyboard keyboard);
+	//カメラを選択する設定項目
+	void CameraTypeSlider(GameCamera::CameraType optionItem, Pad pad, Keyboard keyboard);
 };

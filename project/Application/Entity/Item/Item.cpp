@@ -16,7 +16,6 @@ void Item::Initialize(SRT transform, Player* player) {
 	object_->SetCamera(camera_.lock());
 	object_->SetDirectionalLight(directionalLight_.lock());
 	object_->SetPointLight(pointLight_.lock());
-	object_->SetCubeTextureIndex(TextureManager::GetInstance()->GetSrvIndex("resources/BackGround/minedump_flats_1k.dds"));
 	transform_ = transform;
 
 	Matrix4x4 rotateMatrix = MakeRotateMatrix(transform_.rotate);
