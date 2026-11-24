@@ -218,11 +218,11 @@ void Stage::Update() {
 
 		if ((keyboard.keys[DIK_LSHIFT].hold || keyboard.keys[DIK_RSHIFT].hold) ||
 			(pad.isConnected && pad.Button[PAD_BUTTON_LT].hold)) {
-			gameCamera_->ChangeCamera(std::make_unique<WideViewCamera>(), 0.1f);
+			gameCamera_->ChangeCamera(std::make_unique<LockOnCamera>(), 0.1f);
 		}
 		if ((keyboard.keys[DIK_LSHIFT].idle && keyboard.keys[DIK_RSHIFT].idle) &&
 			!(pad.isConnected && pad.Button[PAD_BUTTON_LT].hold)) {
-			gameCamera_->ChangeCamera(std::make_unique<LockOnCamera>(), 0.1f);
+			gameCamera_->ChangeCamera(std::make_unique<WideViewCamera>(), 0.1f);
 		}
 	}
 

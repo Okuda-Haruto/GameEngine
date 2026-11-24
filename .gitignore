@@ -364,3 +364,4 @@ MigrationBackup/
 
 generated/
 *.ini
+*.zip

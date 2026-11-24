@@ -6,7 +6,7 @@
 #include <numbers>
 #include "Input/Input.h"
 #include "Shape/Sphere.h"
-
+#include "RadialBlurData.h"
 
 
 class GameCamera;
@@ -64,6 +64,9 @@ public:
 	void Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input) override;
 	void Update() override;
 	SRT GetTransform() { return transform_; }
+private:
+	//注目対象方向更新
+	void TargetAngleUpdate();
 };
 
 //広域カメラ
@@ -106,6 +109,9 @@ private:
 
 	//セピア調の強さ
 	float sepiaTone_ = 0.0f;
+
+	//ブラー
+	RadialBlurData radialBlurdata;
 
 	std::shared_ptr<SRT> transform_;
 
@@ -167,6 +173,10 @@ public:
 	//セピア調
 	float GetSepiaTone() { return sepiaTone_; }
 	void SetSepiaTone(float sepiaTone) { sepiaTone_ = sepiaTone; }
+
+	//ブラー
+	void SetBlurWidth(float blurWidth) { radialBlurdata.blurWidth = blurWidth; }
+	RadialBlurData GetRadialBlurData() { return radialBlurdata; }
 
 	//デバッグカメラ
 	void SetDebugCamera(std::shared_ptr<DebugCamera> debugCamera) { debugCamera_ = debugCamera; camera_->SetDebugCamera(debugCamera_);}

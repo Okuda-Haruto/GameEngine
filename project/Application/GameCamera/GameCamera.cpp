@@ -111,17 +111,8 @@ void LockOnCamera::Update() {
 				cameraAngle_ = targetAngle_;
 			}
 
-			Vector3 diff = targetSpehre_.lock()->center - gameCamera_->GetObserverTransform()->translate;
-			//必ずいずれかの向きを向くように
-			if (Length(diff) <= 0.0f) {
-				diff = { 0.0f,0.0f,1.0f };
-			}
-
-			//  Y軸回り回転(θy)
-			targetAngle_.y = std::atan2(diff.x, diff.z);
-			float length = Length(Vector3{ diff.x, 0.0f, diff.z });
-			// X軸回り回転(θx)
-			targetAngle_.x = std::atan2(-diff.y, length);
+			//注目対象に向ける
+			TargetAngleUpdate();
 			transform_.rotate = cameraAngle_;
 
 			Matrix4x4 rotateMatrix = MakeRotateXMatrix(transform_.rotate.x) * MakeRotateYMatrix(transform_.rotate.y);
@@ -185,9 +176,29 @@ void LockOnCamera::Update() {
 			if (keepTargetSphere.lock()) {
 				targetSpehre_ = keepTargetSphere;
 				gameCamera_->SetTargetedSphere(targetSpehre_);
+
+				//注目対象に向ける
+				TargetAngleUpdate();
 			}
 		}
 	}
+}
+
+void LockOnCamera::TargetAngleUpdate() {
+	
+	//ロックオン対象へのベクトル
+	Vector3 diff = targetSpehre_.lock()->center - gameCamera_->GetObserverTransform()->translate;
+	
+	//必ずいずれかの向きを向くように
+	if (Length(diff) <= 0.0f) {
+		diff = { 0.0f,0.0f,1.0f };
+	}
+
+	//  Y軸回り回転(θy)
+	targetAngle_.y = std::atan2(diff.x, diff.z);
+	float length = Length(Vector3{ diff.x, 0.0f, diff.z });
+	// X軸回り回転(θx)
+	targetAngle_.x = std::atan2(-diff.y, length);
 }
 
 #pragma endregion
@@ -260,6 +271,7 @@ void GameCamera::Initialize(std::shared_ptr<Input> input) {
 	transform_ = std::make_shared<SRT>();
 	*transform_ = {};
 	shakeTime_ = 0.0f;
+	radialBlurdata.blurWidth = 0.0f;
 
 	input_ = input;
 
