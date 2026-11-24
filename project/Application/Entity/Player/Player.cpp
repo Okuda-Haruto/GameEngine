@@ -142,7 +142,9 @@ void PlayerDodgeState::Update() {
 }
 
 void PlayerStunState::Initialize(Player* player, std::weak_ptr<Input> input) {
-
+	player_ = player;
+	input_ = input;
+	stunTime_ = 0.0f;
 }
 
 void PlayerStunState::Update() {
