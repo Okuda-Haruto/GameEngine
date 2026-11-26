@@ -71,7 +71,7 @@ private:
 	std::string bossName_;
 	//描画するモデルファイルへのパス
 	std::string directoryPath_;
-	std::string modelname_;
+	std::string modelName_;
 	//最大HP
 	uint32_t maxHP_;
 
@@ -87,7 +87,7 @@ private:
 	//ImGui用
 	char filePathText_[256] = {};
 	char directoryPathText_[256]{};
-	char modelnameText_[256]{};
+	char modelNameText_[256]{};
 
 	std::unique_ptr<Stage> stage_;
 

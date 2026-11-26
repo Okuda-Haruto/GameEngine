@@ -68,7 +68,7 @@ void Sprite::Initialize(const std::string& textureFilePath) {
 	position_ = {};
 	rotation_ = 0.0f;
 
-	textuerLeftTop_ = {};
+	textureLeftTop_ = {};
 	AdjustTextureSize();
 
 	uvTransform_ = {};
@@ -105,10 +105,10 @@ void Sprite::Update() {
 		bottom = -bottom;
 	}
 
-	float tex_left = textuerLeftTop_.x / metadata_.width;
-	float tex_right = (textuerLeftTop_.x + textureSize_.x) / metadata_.width;
-	float tex_top = textuerLeftTop_.y / metadata_.height;
-	float tex_bottom = (textuerLeftTop_.y + textureSize_.y) / metadata_.height;
+	float tex_left = textureLeftTop_.x / metadata_.width;
+	float tex_right = (textureLeftTop_.x + textureSize_.x) / metadata_.width;
+	float tex_top = textureLeftTop_.y / metadata_.height;
+	float tex_bottom = (textureLeftTop_.y + textureSize_.y) / metadata_.height;
 
 	//頂点のローカル座標系を設定
 	vertexResource_->Map(0, nullptr, reinterpret_cast<void**>(&vertexData_));
@@ -132,7 +132,7 @@ void Sprite::Draw2D() {
 	GameEngine::DrawSprite_2D(this);
 }
 
-void Sprite::SetTextue(const std::string& textureFilePath) {
+void Sprite::SetTexture(const std::string& textureFilePath) {
 	textureIndex_ = TextureManager::GetInstance()->GetSrvIndex(textureFilePath);
 }
 

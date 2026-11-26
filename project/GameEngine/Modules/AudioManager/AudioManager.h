@@ -42,7 +42,7 @@ private:
 		//オーディオデータ形式
 		WAVEFORMATEX* waveFormat = nullptr;
 		//オーディオデータ
-		std::vector<BYTE> mediaData;
+		std::vector<BYTE> mediaData_;
 
 		Microsoft::WRL::ComPtr<IMFAttributes> pAttr_ = nullptr;
 	};

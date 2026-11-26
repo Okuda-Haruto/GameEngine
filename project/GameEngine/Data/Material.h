@@ -25,6 +25,6 @@ struct Material {
 	Matrix4x4 projectionInverse;
 	float shininess;				//反射輝度
 	int32_t shading;					//フォンシェーディング
-	float enviromentCoefficient;		//環境マップ映りこみ度合
+	float environmentCoefficient;		//環境マップ映りこみ度合
 	float padding1;
 };

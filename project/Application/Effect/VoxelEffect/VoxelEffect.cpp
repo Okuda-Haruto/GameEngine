@@ -129,7 +129,7 @@ void VoxelEffect::Collision(const Colliders* collider) {
 		for (auto& state : effectStates_) {
 			if (state.isHit)continue;
 
-			Sphere sphere;
+			Sphere sphere{};
 			sphere.center = state.transform.translate;
 			sphere.radius = state.transform.scale.x;
 

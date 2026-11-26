@@ -17,7 +17,7 @@ void Audio::Initialize(std::string path, float volume) {
 void Audio::SetVolume(float volume) {
 
 	volume_ = volume;
-	for (IXAudio2SourceVoice* sourceVoice : sourceVoiceList) {
+	for (IXAudio2SourceVoice* sourceVoice : sourceVoiceList_) {
 		sourceVoice->SetVolume(volume_, XAUDIO2_COMMIT_NOW);
 	}
 
@@ -40,7 +40,7 @@ void Audio::SoundPlayWave() {
 	hr = newSourceVoice->Start();
 	assert(SUCCEEDED(hr));
 
-	sourceVoiceList.push_back(newSourceVoice);
+	sourceVoiceList_.push_back(newSourceVoice);
 
 }
 
@@ -51,7 +51,7 @@ void Audio::SoundStopWave() {
 	//終了しているか判定
 	IsPlaying();
 
-	for (IXAudio2SourceVoice* sourceVoice : sourceVoiceList) {
+	for (IXAudio2SourceVoice* sourceVoice : sourceVoiceList_) {
 		hr = sourceVoice->Stop();
 		assert(SUCCEEDED(hr));
 	}
@@ -60,10 +60,10 @@ void Audio::SoundStopWave() {
 
 void Audio::SoundEndWave() {
 
-	for (IXAudio2SourceVoice* sourceVoice : sourceVoiceList) {
+	for (IXAudio2SourceVoice* sourceVoice : sourceVoiceList_) {
 		DeleteSourceVoice(sourceVoice);
 	}
-	sourceVoiceList.clear();
+	sourceVoiceList_.clear();
 
 }
 
@@ -71,21 +71,21 @@ bool Audio::IsSoundPlayingWave() {
 	//終了しているか判定
 	IsPlaying();
 
-	return !sourceVoiceList.empty();
+	return !sourceVoiceList_.empty();
 }
 
 void Audio::IsPlaying() {
 
 	//再生中じゃない音源は消す
-	for (std::list<IXAudio2SourceVoice*>::iterator sourceVoiceIterator = sourceVoiceList.begin();
-		sourceVoiceIterator != sourceVoiceList.end();) {
+	for (std::list<IXAudio2SourceVoice*>::iterator sourceVoiceIterator = sourceVoiceList_.begin();
+		sourceVoiceIterator != sourceVoiceList_.end();) {
 
 		XAUDIO2_VOICE_STATE state;
 		(*sourceVoiceIterator)->GetState(&state);
 
 		if (state.BuffersQueued == 0) {
 			DeleteSourceVoice((*sourceVoiceIterator));
-			sourceVoiceIterator = sourceVoiceList.erase(sourceVoiceIterator);
+			sourceVoiceIterator = sourceVoiceList_.erase(sourceVoiceIterator);
 			continue;
 		}
 

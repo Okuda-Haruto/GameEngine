@@ -35,9 +35,9 @@ void Colliders::Update() {
 		PrimitiveManager::GetInstance()->AddOBB(obbColliders_[i].colliderOBB);
 #endif // USE_IMGUI
 	}
-	if (grundCollider_.parentMatrix) {
-		grundCollider_.colliderSphere.center = grundCollider_.localSphere.center * *(grundCollider_.parentMatrix.get());
-		grundCollider_.colliderSphere.radius = grundCollider_.localSphere.radius;
+	if (groundCollider_.parentMatrix) {
+		groundCollider_.colliderSphere.center = groundCollider_.localSphere.center * *(groundCollider_.parentMatrix.get());
+		groundCollider_.colliderSphere.radius = groundCollider_.localSphere.radius;
 	}
 }
 
@@ -64,7 +64,7 @@ void Colliders::AddOBBCollider(OBB localOBB, int8_t sourceId, int8_t targetId, s
 }
 
 
-void Colliders::SetGrundCollider(Sphere localSphere, int8_t sourceId, int8_t targetId, std::shared_ptr<Matrix4x4> parentMatrix) {
+void Colliders::SetGroundCollider(Sphere localSphere, int8_t sourceId, int8_t targetId, std::shared_ptr<Matrix4x4> parentMatrix) {
 	SphereCollider collider;
 
 	collider.localSphere = localSphere;
@@ -72,5 +72,5 @@ void Colliders::SetGrundCollider(Sphere localSphere, int8_t sourceId, int8_t tar
 	collider.targetId = targetId;
 	collider.parentMatrix = parentMatrix;
 
-	grundCollider_ = collider;
+	groundCollider_ = collider;
 }

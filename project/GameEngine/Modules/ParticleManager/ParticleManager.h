@@ -48,7 +48,7 @@ private:
 	//インデックスデータ
 	uint32_t* indexData_ = nullptr;
 
-	std::unordered_map<std::string, ParticleGroup> particleGroups;
+	std::unordered_map<std::string, ParticleGroup> particleGroups_;
 
 	//メタデータ
 	DirectX::TexMetadata metadata_;
@@ -80,7 +80,7 @@ public:
 	void SetField(const std::string name, AccelerationField accelerationField);
 	void SetCamera(const std::string name, std::shared_ptr<Camera> camera);
 
-	std::unordered_map<std::string, ParticleGroup> GetParticleGroups() { return particleGroups; }
+	std::unordered_map<std::string, ParticleGroup> GetParticleGroups() { return particleGroups_; }
 
 	const D3D12_VERTEX_BUFFER_VIEW& GetVertexBufferView() { return vertexBufferView_; }
 	const D3D12_INDEX_BUFFER_VIEW& GetIndexBufferView() { return indexBufferView_; }

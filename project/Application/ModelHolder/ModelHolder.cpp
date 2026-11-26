@@ -19,50 +19,50 @@ void ModelHolder::Initialize() {
 	//天球
 	filePath.directoryPath_ = "resources/BackGround/Skydome";
 	filePath.fileName_ = "Skydome.obj";
-	filePathes_.push_back(filePath);
+	filePaths_.push_back(filePath);
 	//地面
 	filePath.directoryPath_ = "resources/BackGround/Ground";
 	filePath.fileName_ = "Ground.obj";
-	filePathes_.push_back(filePath);
+	filePaths_.push_back(filePath);
 	//柵
 	filePath.directoryPath_ = "resources/BackGround/Fence";
 	filePath.fileName_ = "Fence.obj";
-	filePathes_.push_back(filePath);
+	filePaths_.push_back(filePath);
 	//背景オブジェクト
 	filePath.directoryPath_ = "resources/BackGround/BackGround";
 	filePath.fileName_ = "BackGround.obj";
-	filePathes_.push_back(filePath);
+	filePaths_.push_back(filePath);
 	//タンブルウィード
 	filePath.directoryPath_ = "resources/BackGround/Tumbleweed";
 	filePath.fileName_ = "Tumbleweed.obj";
-	filePathes_.push_back(filePath);
+	filePaths_.push_back(filePath);
 	//プレイヤー
 	filePath.directoryPath_ = "resources/Character/Player";
 	filePath.fileName_ = "Player.obj";
-	filePathes_.push_back(filePath);
+	filePaths_.push_back(filePath);
 	//ボス
 	filePath.directoryPath_ = "resources/Character/Boss";
 	filePath.fileName_ = "Boss_1_anm.gltf";
-	filePathes_.push_back(filePath);
+	filePaths_.push_back(filePath);
 	//弾丸
 	filePath.directoryPath_ = "resources/Bullet";
 	filePath.fileName_ = "Bullet.obj";
-	filePathes_.push_back(filePath);
+	filePaths_.push_back(filePath);
 	//シリンダー
 	filePath.directoryPath_ = "resources/HUD/Cylinder";
 	filePath.fileName_ = "Cylinder.obj";
-	filePathes_.push_back(filePath);
+	filePaths_.push_back(filePath);
 	//ハット(HP)
 	filePath.directoryPath_ = "resources/HUD/Hat";
 	filePath.fileName_ = "Hat.obj";
-	filePathes_.push_back(filePath);
+	filePaths_.push_back(filePath);
 
-	for (FilePath filePath : filePathes_) {
+	for (FilePath filePath : filePaths_) {
 		ModelManager::GetInstance()->LoadModel(filePath.directoryPath_, filePath.fileName_);
 	}
 	
 }
 
 const std::weak_ptr<Model> ModelHolder::GetModel(ModelIndex model) {
-	return ModelManager::GetInstance()->GetModel(filePathes_[int32_t(model)].directoryPath_, filePathes_[int32_t(model)].fileName_);
+	return ModelManager::GetInstance()->GetModel(filePaths_[int32_t(model)].directoryPath_, filePaths_[int32_t(model)].fileName_);
 }

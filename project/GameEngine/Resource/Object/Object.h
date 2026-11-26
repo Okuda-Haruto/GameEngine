@@ -32,7 +32,7 @@ private:
 	std::weak_ptr<SpotLight> spotLight_;
 
 	//デフォルトカメラ
-	static std::shared_ptr<Camera> DefaultCamera;
+	static std::shared_ptr<Camera> defaultCamera_;
 
 	//アニメーションを使用するか
 	bool isUseAnimation_ = false;
@@ -73,17 +73,17 @@ public:
 
 	void ResetTimer() { animationTime_ = 0.0f; }
 
-	static const std::weak_ptr<Camera> GetDefaultCamera() { return DefaultCamera; }
-	static void SetDefaultCamera(std::shared_ptr<Camera> defaultCamera) { DefaultCamera = defaultCamera; }
+	static const std::weak_ptr<Camera> GetDefaultCamera() { return defaultCamera_; }
+	static void SetDefaultCamera(std::shared_ptr<Camera> defaultCamera) { defaultCamera_ = defaultCamera; }
 	//デフォルトカメラ消去
-	static void FinalizeDefaultCamera() { DefaultCamera.reset(); }
+	static void FinalizeDefaultCamera() { defaultCamera_.reset(); }
 
 	const std::weak_ptr<Camera> GetCamera() { return camera_; }
 	void SetCamera(std::weak_ptr<Camera> camera) { camera_ = camera; }
 
 	std::vector<Parts> GetParts() { return parts_; }
 	void SetParts(Parts parts, uint32_t index) { parts_[index] = parts; }
-	SRT GetTransform() { return transform_; }
+	SRT GetTransform() const { return transform_; }
 	void SetTransform(SRT transform) { transform_ = transform; }
 
 	void SetColor(Vector4 color) { for (Parts part : parts_) { part.material->color = color; }; }
@@ -100,7 +100,7 @@ public:
 	void SetSpotLight(const std::weak_ptr<SpotLight>& spotLight) { spotLight_ = spotLight; }
 	void SetCubeTextureIndex(int32_t cubeTextureIndex) { cubeTextureIndex_ = cubeTextureIndex; }
 
-	int32_t GetCubeTextureIndex() { return cubeTextureIndex_; }
+	int32_t GetCubeTextureIndex() const { return cubeTextureIndex_; }
 	
 	//頂点バッファビュー
 	const D3D12_VERTEX_BUFFER_VIEW& GetVBV() { return model_.lock()->GetVBV(); }

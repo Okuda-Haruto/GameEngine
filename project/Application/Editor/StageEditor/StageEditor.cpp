@@ -131,8 +131,8 @@ void StageEditor::Update() {
 #ifdef USE_IMGUI
 	if (stage_) {
 		stage_->Update();
-		stage_->GetBoss()->SetTransfrom(*bossData_.startTransform);
-		stage_->GetPlayer()->SetTransfrom(*playerStartTransform_);
+		stage_->GetBoss()->SetTransform(*bossData_.startTransform);
+		stage_->GetPlayer()->SetTransform(*playerStartTransform_);
 		for (auto& colliderObject : colliderObjects_) {
 			colliderObject.object->SetTransform(*colliderObject.startTransform);
 		}
@@ -210,7 +210,7 @@ void StageEditor::Update() {
 
 
 		//オブジェクト取得
-		if (mouse.click[MOUSE_BOTTON_LEFT].trigger) {
+		if (mouse.click[MOUSE_BUTTON_LEFT].trigger) {
 			//マウスカーソルの半直線を取得
 			Ray cursorRay = GetCursorRay(stage_->GetGameCamera(), input_);
 			if (ImGuiManager::GetIsGameHovered()) {
@@ -223,7 +223,7 @@ void StageEditor::Update() {
 			if (nextTransform_.lock()) {
 				beforeTransform_ = *nextTransform_.lock();
 			}
-		} else if(mouse.click[MOUSE_BOTTON_LEFT].release) {
+		} else if(mouse.click[MOUSE_BUTTON_LEFT].release) {
 			//変化がないならスキップ
 			if (nextTransform_.lock()) {
 				if (std::abs(Length(beforeTransform_.scale - nextTransform_.lock()->scale)) > 1e-6f ||
@@ -299,7 +299,7 @@ void StageEditor::Update() {
 			}
 		}
 
-		AABB collisionAABB;
+		AABB collisionAABB{};
 		//プレイヤー初期位置
 		collisionAABB.min = { playerStartTransform_->translate - playerStartTransform_->scale };
 		collisionAABB.max = { playerStartTransform_->translate + playerStartTransform_->scale };
@@ -534,7 +534,7 @@ const std::weak_ptr<SRT> StageEditor::GetObjectTransformFromRay(Ray ray) {
 	cursorObjectIndex_ = -1;
 	indexType_ = IndexType::None;
 
-	AABB collisionAABB;
+	AABB collisionAABB{};
 	//プレイヤー初期位置
 	collisionAABB.min = { playerStartTransform_->translate - playerStartTransform_->scale };
 	collisionAABB.max = { playerStartTransform_->translate + playerStartTransform_->scale };

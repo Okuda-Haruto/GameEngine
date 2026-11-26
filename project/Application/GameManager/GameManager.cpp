@@ -20,7 +20,7 @@ void GameManager::Initialize() {
 	SceneManager::GetInstance()->SetSceneFactory(sceneFactory_.get());
 	SceneManager::GetInstance()->ChangeScene("Title");
 
-	StageManager::GetInstance()->ReadStage("reosurces/CSV/Stage.json");
+	StageManager::GetInstance()->ReadStage("resources/CSV/Stage.json");
 }
 
 void GameManager::Update() {

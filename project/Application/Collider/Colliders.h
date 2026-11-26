@@ -14,7 +14,7 @@ private:
 	std::vector<OBBCollider> obbColliders_;
 
 	//対地面接触判定
-	SphereCollider grundCollider_;
+	SphereCollider groundCollider_;
 
 	//接触した判定を伝えるclass
 	Collider* collider_;
@@ -35,8 +35,8 @@ public:
 	void AddOBBCollider(OBB localOBB, int8_t sourceId, int8_t targetId, std::shared_ptr<Matrix4x4> parentMatrix);
 
 	//対地面接触判定
-	SphereCollider GetGrundCollider() const { return grundCollider_; }
-	void SetGrundCollider(Sphere localSphere, int8_t sourceId, int8_t targetId, std::shared_ptr<Matrix4x4> parentMatrix);
+	SphereCollider GetGroundCollider() const { return groundCollider_; }
+	void SetGroundCollider(Sphere localSphere, int8_t sourceId, int8_t targetId, std::shared_ptr<Matrix4x4> parentMatrix);
 
 	//球接触判定の変更
 	std::vector<SphereCollider> GetSphereColliders() const { return sphereColliders_; }

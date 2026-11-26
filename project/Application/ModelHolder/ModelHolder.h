@@ -27,7 +27,7 @@ private:
 		std::string fileName_;
 	};
 
-	std::vector<FilePath> filePathes_;
+	std::vector<FilePath> filePaths_;
 
 public:
 

@@ -54,7 +54,7 @@ private:
 	SRT transform_;
 
 	//テクスチャ左上座標
-	Vector2 textuerLeftTop_ = { 0.0f,0.0f };
+	Vector2 textureLeftTop_ = { 0.0f,0.0f };
 
 	//テクスチャ切り出しサイズ
 	Vector2 textureSize_ = { 100.0f,100.0f };
@@ -88,7 +88,7 @@ public:
 	const Vector2& GetSize() const { return size_; }
 	void SetSize(const Vector2& size) { size_ = size; }
 
-	void SetTextue(const std::string& textureFilePath);
+	void SetTexture(const std::string& textureFilePath);
 
 	const SRT& GetTransform() const { return transform_; }
 
@@ -106,16 +106,16 @@ public:
 	const bool& GetIsFlipY()const { return isFlipY_; }
 	void SetIsFlipY(const bool& isFlip) { isFlipY_ = isFlip; }
 
-	const Vector2& GetTextureLeftTop()const { return textuerLeftTop_; }
-	void SetTextureLeftTop(const Vector2& textuerLeftTop) { textuerLeftTop_ = textuerLeftTop; }
-	const Vector2& GetTextureSize()const { return textureSize_; }
+	Vector2 GetTextureLeftTop() const { return textureLeftTop_; }
+	void SetTextureLeftTop(const Vector2& textureLeftTop) { textureLeftTop_ = textureLeftTop; }
+	Vector2 GetTextureSize()const { return textureSize_; }
 	void SetTextureSize(const Vector2& textureSize) { textureSize_ = textureSize; }
 
 	const Material& GetMaterial()const { return material_; }
 
 	const D3D12_VERTEX_BUFFER_VIEW& GetVBV() const { return vertexBufferView_; }
 	const D3D12_INDEX_BUFFER_VIEW& GetIBV() const { return indexBufferView_; }
-	UINT GetTextureIndex() { return textureIndex_; }
+	UINT GetTextureIndex() const { return textureIndex_; }
 private:
 	//テクスチャサイズをイメージに合わせる
 	void AdjustTextureSize();

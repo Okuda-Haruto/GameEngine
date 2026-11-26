@@ -1,0 +1,165 @@
+[Window][Debug##Default]
+Pos=60,60
+Size=400,400
+Collapsed=0
+
+[Window][デバッグ]
+Size=290,720
+Collapsed=0
+DockId=0x00000001,0
+
+[Window][particle_1]
+Pos=231,239
+Size=350,173
+Collapsed=1
+
+[Window][particle_2]
+Pos=229,260
+Size=344,161
+Collapsed=1
+
+[Window][particle_3]
+Pos=228,286
+Size=343,32
+Collapsed=0
+
+[Window][particle_4]
+Pos=227,316
+Size=341,169
+Collapsed=1
+
+[Window][操作方法]
+Pos=1002,0
+Size=278,720
+Collapsed=0
+DockId=0x00000007,0
+
+[Window][背景オブジェクト]
+Size=284,720
+Collapsed=0
+DockId=0x0000000D,0
+
+[Window][プレイヤー]
+Pos=0,505
+Size=1280,215
+Collapsed=0
+DockId=0x00000003,0
+
+[Window][render]
+Pos=375,272
+Size=140,86
+Collapsed=0
+
+[Window][p]
+Pos=546,46
+Size=245,121
+Collapsed=0
+
+[Window][WindowOverViewport_11111111]
+Pos=0,0
+Size=1280,720
+Collapsed=0
+
+[Window][Test]
+Pos=288,47
+Size=638,720
+Collapsed=0
+
+[Window][Game]
+Pos=0,0
+Size=1280,503
+Collapsed=0
+DockId=0x00000002,0
+
+[Window][ステージ選択]
+Pos=550,292
+Size=188,131
+Collapsed=0
+
+[Window][オブジェクト配置]
+Pos=181,239
+Size=331,300
+Collapsed=0
+
+[Window][ファイル操作]
+Pos=0,628
+Size=284,92
+Collapsed=0
+DockId=0x00000011,0
+
+[Window][ステージファイルを新規作成]
+Pos=396,116
+Size=392,221
+Collapsed=0
+
+[Window][既存のファイルを読み込む]
+Pos=311,135
+Size=355,150
+Collapsed=0
+
+[Window][transform]
+Pos=904,34
+Size=346,238
+Collapsed=0
+
+[Window][test]
+Pos=260,303
+Size=239,169
+Collapsed=1
+
+[Window][ファイル選択]
+Pos=60,60
+Size=168,112
+Collapsed=0
+
+[Window][ファイルを新規作成]
+Pos=289,90
+Size=401,167
+Collapsed=0
+
+[Window][ボス基本ステータス]
+Pos=67,154
+Size=356,184
+Collapsed=0
+
+[Window][パターン追加]
+Pos=62,64
+Size=243,85
+Collapsed=0
+
+[Window][パターン]
+Pos=980,0
+Size=300,720
+Collapsed=0
+DockId=0x0000000B,0
+
+[Window][地形オブジェクト配置]
+Pos=0,269
+Size=284,151
+Collapsed=0
+DockId=0x0000000E,0
+
+[Window][破壊可能オブジェクト配置]
+Pos=0,422
+Size=284,204
+Collapsed=0
+DockId=0x00000010,0
+
+[Docking][Data]
+DockSpace             ID=0x08BD597D Window=0x1BBC0F80 Pos=0,0 Size=1280,720 Split=X Selected=0xD1EB2482
+  DockNode            ID=0x00000009 Parent=0x08BD597D SizeRef=978,720 Split=X
+    DockNode          ID=0x00000001 Parent=0x00000009 SizeRef=290,720 Selected=0xF0F40857
+    DockNode          ID=0x00000008 Parent=0x00000009 SizeRef=988,720 Split=X
+      DockNode        ID=0x00000006 Parent=0x00000008 SizeRef=1000,720 Split=X
+        DockNode      ID=0x00000004 Parent=0x00000006 SizeRef=284,720 Split=Y Selected=0x728BAFBD
+          DockNode    ID=0x0000000A Parent=0x00000004 SizeRef=284,420 Split=Y Selected=0x728BAFBD
+            DockNode  ID=0x0000000D Parent=0x0000000A SizeRef=284,267 Selected=0x728BAFBD
+            DockNode  ID=0x0000000E Parent=0x0000000A SizeRef=284,151 Selected=0x58F18B2D
+          DockNode    ID=0x0000000C Parent=0x00000004 SizeRef=284,298 Split=Y Selected=0xEDC61D04
+            DockNode  ID=0x00000010 Parent=0x0000000C SizeRef=284,204 Selected=0xEDC61D04
+            DockNode  ID=0x00000011 Parent=0x0000000C SizeRef=284,92 Selected=0x47F9F75E
+        DockNode      ID=0x00000005 Parent=0x00000006 SizeRef=692,720 Split=Y
+          DockNode    ID=0x00000002 Parent=0x00000005 SizeRef=1280,503 CentralNode=1 Selected=0xD1EB2482
+          DockNode    ID=0x00000003 Parent=0x00000005 SizeRef=1280,215 Selected=0x105DBA3A
+      DockNode        ID=0x00000007 Parent=0x00000008 SizeRef=278,720 Selected=0x8396C018
+  DockNode            ID=0x0000000B Parent=0x08BD597D SizeRef=300,720 Selected=0x053B5903

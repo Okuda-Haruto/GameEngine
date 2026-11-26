@@ -45,7 +45,7 @@ void GameOverScene::Initialize(std::shared_ptr<Input> input) {
 
 
 	titleSprite_ = std::make_unique<Sprite>();
-	titleSprite_->Initialize("resources/Title/Faild.png");
+	titleSprite_->Initialize("resources/Title/Failed.png");
 	titleSprite_->SetAnchorPoint(Vector2{ 0.5f,0.5f });
 	titleSprite_->SetPosition(Vector2{ 640.0f,200.0f });
 

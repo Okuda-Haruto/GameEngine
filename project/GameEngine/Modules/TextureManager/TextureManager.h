@@ -31,10 +31,10 @@ private:
 		D3D12_GPU_DESCRIPTOR_HANDLE srvHandleGPU;
 	};
 	//テクスチャデータ
-	std::unordered_map<std::string,TextureData> textureDatas;
+	std::unordered_map<std::string,TextureData> textureDatas_;
 
 	//white2x2のsrvIndex
-	int32_t white2x2;
+	int32_t white2x2_;
 
 public:
 
@@ -68,5 +68,5 @@ public:
 	//GPUハンドルの取得
 	D3D12_GPU_DESCRIPTOR_HANDLE  GetSrvHandleGPU(const std::string& filePath);
 
-	int32_t GetWhite2x2() { return white2x2; }
+	int32_t GetWhite2x2() const { return white2x2_; }
 };

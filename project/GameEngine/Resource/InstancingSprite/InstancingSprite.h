@@ -54,7 +54,7 @@ private:
 		bool isFlipY = false;
 
 		//テクスチャ左上座標
-		Vector2 textuerLeftTop = { 0.0f,0.0f };
+		Vector2 textureLeftTop_ = { 0.0f,0.0f };
 
 		//テクスチャ切り出しサイズ
 		Vector2 textureSize = { 100.0f,100.0f };
@@ -89,9 +89,9 @@ public:
 	void DeleteSprite(const std::string spriteName);
 
 	//テスクチャ変更
-	void SetTextue(const std::string& textureFilePath);
+	void SetTexture(const std::string& textureFilePath);
 	//テクスチャインデックス
-	UINT GetTextureIndex() { return textureIndex_; }
+	UINT GetTextureIndex() const { return textureIndex_; }
 
 	//頂点バッファビュー
 	const D3D12_VERTEX_BUFFER_VIEW& GetVBV() const { return vertexBufferView_; }
@@ -173,9 +173,9 @@ public:
 	void SetIsFlipY(const std::string spriteName, const bool& isFlip) { return SetData(spriteName, isFlip, &SpriteData::isFlipY); }
 
 	//TextureLeftTopGetter
-	const Vector2& GetTextureLeftTop(const std::string spriteName) const { return GetData(spriteName, &SpriteData::textuerLeftTop); }
+	const Vector2& GetTextureLeftTop(const std::string spriteName) const { return GetData(spriteName, &SpriteData::textureLeftTop_); }
 	//TextureLeftTopSetter
-	void SetTextureLeftTop(const std::string spriteName, const Vector2& textuerLeftTop) { return SetData(spriteName, textuerLeftTop, &SpriteData::textuerLeftTop); }
+	void SetTextureLeftTop(const std::string spriteName, const Vector2& textuerLeftTop) { return SetData(spriteName, textuerLeftTop, &SpriteData::textureLeftTop_); }
 	//TextureSizeGetter
 	const Vector2& GetTextureSize(const std::string spriteName) const { return GetData(spriteName, &SpriteData::textureSize); }
 	//TextureSizeSetter

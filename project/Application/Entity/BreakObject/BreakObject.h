@@ -38,15 +38,15 @@ public:
 	void IsCollisionGround(OBB obb) override;
 
 	SRT GetTransform() { return transform_; }
-	void SetTransfrom(SRT transfrom) { transform_ = transfrom; object_->SetTransform(transform_); }
+	void SetTransform(SRT transform) { transform_ = transform; object_->SetTransform(transform_); }
 
 	const std::weak_ptr<Sphere> GetTrackingSphere() { return trackingSphere_; }
 
 	void SetCamera(std::shared_ptr<Camera> camera) { object_->SetCamera(camera); }
 	const std::weak_ptr<GameCamera> GetGameCamera() { return gameCamera_; }
 
-	bool IsDead() { return HP_ <= 0; }
-	float GetHP() { return HP_; }
+	bool IsDead() const { return HP_ <= 0; }
+	float GetHP() const { return HP_; }
 
 	static void SetGameCamera(std::weak_ptr<GameCamera> gameCamera) { gameCamera_ = gameCamera; }
 	static void SetDirectionalLight(std::weak_ptr<DirectionalLight> directionalLight) { directionalLight_ = directionalLight; }
