@@ -67,6 +67,21 @@ void ImGuiManager::Initialize([[maybe_unused]] DirectXCommon* dxCommon, [[maybe_
 	ImGui_ImplDX12_Init(&init_info);
 
 	currentGizmoOperation_ = ImGuizmo::TRANSLATE;
+
+	if (!std::filesystem::exists("imgui.ini"))
+	{
+		std::ifstream file("resources/DebugResources/InitializeImGui.csv");
+
+		if (file.is_open())
+		{
+			std::string iniData(
+				(std::istreambuf_iterator<char>(file)),
+				std::istreambuf_iterator<char>()
+			);
+
+			ImGui::LoadIniSettingsFromMemory(iniData.c_str());
+		}
+	}
 #endif
 }
 

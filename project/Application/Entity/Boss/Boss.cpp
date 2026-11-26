@@ -231,6 +231,151 @@ void BossPattern::Update() {
 	isEnd_ = action_->IsEnd();
 }
 
+void BossMoveState::Initialize(Boss* boss, Stage* stage) {
+	boss_ = boss;
+	stage_ = stage;
+
+}
+
+void BossMoveState::Update() {
+
+	SRT transform = boss_->GetTransform();
+
+	Player* player = stage_->GetPlayer();
+
+	//ボス、プレイヤー間カプセル
+	Capsule capsule;
+	capsule.axis.origin = transform.translate;
+	capsule.axis.diff = player->GetTransform()->translate - transform.translate;
+	capsule.radius = boss_->GetColliders()->GetSphereColliders()[0].colliderSphere.radius;
+	//プレイヤーとの間に邪魔なオブジェクトがあるか
+	if (stage_->BossObstructed(capsule)) {
+		float maxAngle = 0.0f;
+		//ある場合最も角度が緩やかで衝突しない角度にする
+		for (float dir = 10.0f; dir < 180.0f;) {
+
+			//-も含めて精査
+			if (dir > 0.0f) {
+				dir = -dir;
+			} else {
+				dir = -dir + 10.0f;
+			}
+			SRT playerTransform = *player->GetTransform();
+
+			capsule.axis.diff = player->GetTransform()->translate - transform.translate;
+			capsule.axis.diff = capsule.axis.diff * MakeRotateYMatrix(std::numbers::pi_v<float> / 180 * dir);
+			if (!stage_->BossObstructed(capsule)) {
+				//プレイヤー方向からズレた方向を向く
+				boss_->LookAngle(capsule.axis.diff);
+				//前進
+				boss_->Move();
+
+				maxAngle = dir;
+				break;
+			}
+		}
+		//直進ならアクションに移行
+		if (maxAngle == 0.0f) {
+			if (boss_->NextPattern()) {
+				boss_->SetNextState(std::make_unique<BossPatternExecutionState>());
+			}
+		} else {
+			//前進
+			boss_->Move();
+		}
+	} else {
+		//次のパターン抽選
+		if (!boss_->NextPattern()) {
+			//該当するパターンがない場合移動
+			SRT playerTransform = *player->GetTransform();
+
+			//プレイヤー方向を向かせる
+			Vector3 diff = Normalize(Vector3(playerTransform.translate.x, 0.0f, playerTransform.translate.z) - Vector3(transform.translate.x, 0.0f, transform.translate.z));
+			boss_->LookAngle(capsule.axis.diff);
+			//前進
+			boss_->Move();
+
+		} else {
+			//何かしらのパターンに引っかかったならアクションに移行
+			boss_->SetNextState(std::make_unique<BossPatternExecutionState>());
+		}
+	}
+}
+
+void BossPatternExecutionState::Initialize(Boss* boss, Stage* stage) {
+	boss_ = boss;
+	stage_ = stage;
+
+	lerpPositionTime_ = 0;
+	velocityStateTime_ = 0;
+}
+
+void BossPatternExecutionState::Update() {
+
+	SRT transform = boss_->GetTransform();
+
+	Player* player = stage_->GetPlayer();
+
+	//パターン実行
+	if (!boss_->GetPatternName().empty()) {
+		BossPattern* pattern = boss_->GetPattern();
+
+		pattern->Update();
+		BossAction* action = pattern->GetAction();
+		boss_->SetIsAction(false);
+		if (!action->IsEnd()) {
+			//位置線形補完
+			std::optional<LerpPositionState> lerpPosition = action->GetLerpPosition();
+			if (lerpPosition) {
+				Vector3 velocity = Lerp(lerpPosition->startVector, lerpPosition->endVector, lerpPositionTime_) - transform.translate;
+				boss_->PatternMove(velocity);
+
+				lerpPositionTime_ += 1.0f / 60.0f;
+				if (lerpPositionTime_ > lerpPosition->time) {
+					action->ResetLerpPosition();
+					lerpPositionTime_ = 0.0f;
+				}
+				boss_->SetIsAction(true);
+			}
+
+			//速度
+			std::optional<VelocityState> velocityState = action->GetVelocityState();
+			if (velocityState) {
+				Vector3 velocity = velocityState->velocity;
+				boss_->PatternMove(velocity);
+
+				velocityStateTime_ += 1.0f / 60.0f;
+				if (velocityStateTime_ > velocityState->time) {
+					action->ResetVelocityState();
+					velocityStateTime_ = 0.0f;
+				}
+				boss_->SetIsAction(true);
+			}
+
+			if (lerpPosition || velocityState) {
+				boss_->MoveParticle();
+			}
+
+			//ロックオン中か
+			if (action->GetIsLockOnPlayer()) {
+				SRT playerTransform = *player->GetTransform();
+
+				//プレイヤー方向を向かせる
+				Vector3 diff = Normalize(Vector3(playerTransform.translate.x, 0.0f, playerTransform.translate.z) - Vector3(transform.translate.x, 0.0f, transform.translate.z));
+				boss_->LookAngle(diff);
+			}
+		} else {
+			if (!boss_->NextPattern()) {
+				boss_->SetNextState(std::make_unique<BossMoveState>());
+			}
+		}
+	} else {
+		if (!boss_->NextPattern()) {
+			boss_->SetNextState(std::make_unique<BossMoveState>());
+		}
+	}
+}
+
 Boss::~Boss() {
 
 }
@@ -246,11 +391,9 @@ void Boss::Initialize(std::string filepath, Stage* stage, std::shared_ptr<GameCa
 	gameCamera_ = gameCamera;
 	player_ = player;
 
-	//モデルの生成		とりあえずプレイヤーと同じ
+	//モデルの生成
 	object_ = std::make_unique<Object>();
 	object_->Initialize(ModelManager::GetInstance()->GetModel("resources/Character/Boss","Boss.obj"));
-	//object_->SetIsUseAnimation(true);
-	//object_->SetAnimationName("Start");
 	object_->SetAnimationInterpolation(AnimationInterpolation::Cubic_Spline);
 	transform_ = startTransform;
 	object_->SetTransform(transform_);
@@ -419,10 +562,9 @@ void Boss::Initialize(std::string filepath, Stage* stage, std::shared_ptr<GameCa
 	patterns_["JumpShot"] = move(pattern);
 
 	patternName_ = {};
-	lerpPositionTime_ = 0;
-	velocityStateTime_ = 0;
 
-	state_ = State::Move;
+	state_ = std::make_unique<BossMoveState>();
+	state_->Initialize(this, stage_);
 
 	BaseEntity::Initialize(trackingSphere_->radius, CollisionID_Enemy_Body);
 }
@@ -444,210 +586,10 @@ void Boss::Update() {
 			color = { (HP_ / maxHP_), (HP_ / maxHP_), (HP_ / maxHP_), 1.0f };
 			object_->SetColor(color);
 
-			switch (state_)
-			{
-			case Boss::State::None:
-				//何もしない。エディター等動かしたくない場合に
-				break;
-			case Boss::State::Event:
-				//イベントシーンを管理
-
-				break;
-			case Boss::State::Move:
-				//移動
-
-				//ボス、プレイヤー間カプセル
-				Capsule capsule;
-				capsule.axis.origin = transform_.translate;
-				capsule.axis.diff = player_->GetTransform()->translate - transform_.translate;
-				capsule.radius = colliders_->GetSphereColliders()[0].colliderSphere.radius;
-				//プレイヤーとの間に邪魔なオブジェクトがあるか
-				if (stage_->BossObstructed(capsule)) {
-					float maxAngle = 0.0f;
-					//ある場合最も角度が緩やかで衝突しない角度にする
-					for (float dir = 10.0f; dir < 180.0f;){
-
-						//-も含めて精査
-						if (dir > 0.0f) {
-							dir = -dir;
-						} else {
-							dir = -dir + 10.0f;
-						}
-						SRT playerTransform = *player_->GetTransform();
-
-						capsule.axis.diff = player_->GetTransform()->translate - transform_.translate;
-						capsule.axis.diff = capsule.axis.diff * MakeRotateYMatrix(std::numbers::pi_v<float> / 180 * dir);
-						if (!stage_->BossObstructed(capsule)) {
-							SRT playerTransform = *player_->GetTransform();
-							//プレイヤー方向を向かせる
-							float angle = std::atan2(capsule.axis.diff.x, capsule.axis.diff.z);
-
-							//最短角度補完
-							float d = angle - transform_.rotate.y;
-
-							if (d >= std::numbers::pi_v<float>*2) {
-								d = angle - transform_.rotate.y;
-							}
-
-							d = std::fmodf(d, std::numbers::pi_v<float> *2);
-
-							if (d > std::numbers::pi_v<float>) {
-								d -= std::numbers::pi_v<float> *2;
-							} else if (d < -std::numbers::pi_v<float>) {
-								d += std::numbers::pi_v<float> *2;
-							}
-
-							if (d > std::numbers::pi_v<float>) {
-								d -= std::numbers::pi_v<float> *2;
-							} else if (d < -std::numbers::pi_v<float>) {
-								d += std::numbers::pi_v<float> *2;
-							}
-
-							//正直あまりやりたくはない方法だが2πを超えると遠回りで回転してしまうので致し方無い
-							transform_.rotate.y = (transform_.rotate.y + d * 0.2f);
-							transform_.rotate.y = std::fmodf(transform_.rotate.y, std::numbers::pi_v<float> *2);
-
-							velocity_ = Vector3{ 0,0,1 } * MakeRotateYMatrix(transform_.rotate.y) * 0.5f;
-
-							maxAngle = dir;
-							break;
-						}
-					}
-					//直進ならアクションに移行
-					if (maxAngle == 0.0f) {
-						if (NextPattern()) {
-							state_ = State::PatternExecution;
-						}
-					} else {
-						velocity_ = Vector3{ 0,0,1 } * MakeRotateYMatrix(transform_.rotate.y) * 0.5f;
-					}
-				} else {
-					//次のパターン抽選
-					if (!NextPattern()) {
-						//該当するパターンがない場合移動
-
-						SRT playerTransform = *player_->GetTransform();
-						//プレイヤー方向を向かせる
-						Vector3 diff = Normalize(Vector3(playerTransform.translate.x, 0.0f, playerTransform.translate.z) - Vector3(transform_.translate.x, 0.0f, transform_.translate.z));
-						float angle = std::atan2(diff.x, diff.z);
-
-						//最短角度補完
-						float d = angle - transform_.rotate.y;
-
-						if (d >= std::numbers::pi_v<float>*2) {
-							d = angle - transform_.rotate.y;
-						}
-
-						d = std::fmodf(d, std::numbers::pi_v<float> *2);
-
-						if (d > std::numbers::pi_v<float>) {
-							d -= std::numbers::pi_v<float> *2;
-						} else if (d < -std::numbers::pi_v<float>) {
-							d += std::numbers::pi_v<float> *2;
-						}
-
-						if (d > std::numbers::pi_v<float>) {
-							d -= std::numbers::pi_v<float> *2;
-						} else if (d < -std::numbers::pi_v<float>) {
-							d += std::numbers::pi_v<float> *2;
-						}
-
-						//正直あまりやりたくはない方法だが2πを超えると遠回りで回転してしまうので致し方無い
-						transform_.rotate.y = (transform_.rotate.y + d * 0.2f);
-						transform_.rotate.y = std::fmodf(transform_.rotate.y, std::numbers::pi_v<float> *2);
-
-						velocity_ = Vector3{ 0,0,1 } * MakeRotateYMatrix(transform_.rotate.y) * 0.5f;
-
-					} else {
-						//直進ならアクションに移行
-						state_ = State::PatternExecution;
-					}
-				}
-				break;
-			case Boss::State::PatternExecution:
-				//パターン実行
-				if (!patternName_.empty()) {
-					patterns_[patternName_]->Update();
-					BossAction* action = patterns_[patternName_]->GetAction();
-					isAction_ = false;
-					if (!action->IsEnd()) {
-						//位置線形補完
-						lerpPosition_ = action->GetLerpPosition();
-						if (lerpPosition_) {
-							transform_.translate = Lerp(lerpPosition_->startVector, lerpPosition_->endVector, lerpPositionTime_);
-							lerpPositionTime_ += 1.0f / 60.0f;
-							if (lerpPositionTime_ > lerpPosition_->time) {
-								action->ResetLerpPosition();
-								lerpPositionTime_ = 0.0f;
-							}
-							isAction_ = true;
-						}
-
-						//速度
-						velocityState_ = action->GetVelocityState();
-						if (velocityState_) {
-							velocity_ = velocityState_->velocity;
-							velocityStateTime_ += 1.0f / 60.0f;
-							if (velocityStateTime_ > velocityState_->time) {
-								action->ResetVelocityState();
-								velocityStateTime_ = 0.0f;
-							}
-							isAction_ = true;
-						}
-
-						if (lerpPosition_ || velocityState_) {
-							SRT transform{};
-							transform.translate = transform_.translate;
-							transform.translate.y = 0.0f;
-							moveParticle_->SetTransform(transform);
-						}
-
-						//ロックオン中か
-						if (action->GetIsLockOnPlayer()) {
-							SRT playerTransform = *player_->GetTransform();
-
-							//プレイヤー方向を向かせる
-							Vector3 diff = Normalize(Vector3(playerTransform.translate.x, 0.0f, playerTransform.translate.z) - Vector3(transform_.translate.x, 0.0f, transform_.translate.z));
-							float angle = std::atan2(diff.x, diff.z);
-
-							//最短角度補完
-							float d = angle - transform_.rotate.y;
-
-							if (d >= std::numbers::pi_v<float>*2) {
-								d = angle - transform_.rotate.y;
-							}
-
-							d = std::fmodf(d, std::numbers::pi_v<float> *2);
-
-							if (d > std::numbers::pi_v<float>) {
-								d -= std::numbers::pi_v<float> *2;
-							} else if (d < -std::numbers::pi_v<float>) {
-								d += std::numbers::pi_v<float> *2;
-							}
-
-							if (d > std::numbers::pi_v<float>) {
-								d -= std::numbers::pi_v<float> *2;
-							} else if (d < -std::numbers::pi_v<float>) {
-								d += std::numbers::pi_v<float> *2;
-							}
-
-							//正直あまりやりたくはない方法だが2πを超えると遠回りで回転してしまうので致し方無い
-							transform_.rotate.y = (transform_.rotate.y + d * 0.2f);
-							transform_.rotate.y = std::fmodf(transform_.rotate.y, std::numbers::pi_v<float> *2);
-						}
-					} else {
-						if (!NextPattern()) {
-							state_ = State::Move;
-						}
-					}
-				} else {
-					if (!NextPattern()) {
-						state_ = State::Move;
-					}
-				}
-				break;
-			default:
-				break;
+			state_->Update();
+			if (nextState_) {
+				state_ = move(nextState_);
+				state_->Initialize(this,stage_);
 			}
 
 			velocity_ = stage_->MoveWithCollision(colliders_->GetSphereColliders()[0], velocity_);
@@ -693,9 +635,50 @@ void Boss::IsCollision(uint8_t targetId) {
 	}
 }
 
-void Boss::IsCollisionGround(OBB obb) {
+void Boss::LookAngle(Vector3 diff) {
+	float angle = std::atan2(diff.x, diff.z);
 
+	//最短角度補完
+	float d = angle - transform_.rotate.y;
+
+	if (d >= std::numbers::pi_v<float>*2) {
+		d = angle - transform_.rotate.y;
+	}
+
+	d = std::fmodf(d, std::numbers::pi_v<float> *2);
+
+	if (d > std::numbers::pi_v<float>) {
+		d -= std::numbers::pi_v<float> *2;
+	} else if (d < -std::numbers::pi_v<float>) {
+		d += std::numbers::pi_v<float> *2;
+	}
+
+	if (d > std::numbers::pi_v<float>) {
+		d -= std::numbers::pi_v<float> *2;
+	} else if (d < -std::numbers::pi_v<float>) {
+		d += std::numbers::pi_v<float> *2;
+	}
+
+	transform_.rotate.y = (transform_.rotate.y + d * 0.2f);
+	transform_.rotate.y = std::fmodf(transform_.rotate.y, std::numbers::pi_v<float> *2);
 }
+
+void Boss::Move() {
+	velocity_ = Vector3{ 0,0,1 } * MakeRotateYMatrix(transform_.rotate.y) * 0.5f;
+}
+
+void Boss::MoveParticle() {
+	SRT particleTransform{};
+	particleTransform.translate = transform_.translate;
+	particleTransform.translate.y = 0.0f;
+	moveParticle_->SetTransform(particleTransform);
+}
+
+void Boss::PatternMove(Vector3 velocity) {
+	velocity_ = velocity;
+}
+
+
 
 void Boss::ShotBullet(Vector3 startPoint, Vector3 rotate, float speed) {
 	SRT transform = {
@@ -856,4 +839,8 @@ bool Boss::NextPattern() {
 	patterns_[patternName_]->Initialize(this);
 
 	return true;
+}
+
+void Boss::SetNextState(std::unique_ptr<BaseBossState> state) {
+	nextState_ = move(state);
 }

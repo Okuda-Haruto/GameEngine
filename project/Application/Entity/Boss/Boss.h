@@ -698,45 +698,40 @@ public:
 
 class Stage;
 
-class BossBaseState {
+class BaseBossState {
+protected:
+	Boss* boss_;
+	Stage* stage_;
+
 public:
-	virtual void Initialize() = 0;
+	virtual void Initialize(Boss* boss, Stage* stage) = 0;
 	virtual void Update() = 0;
 };
 
-class BossEventState : public BossBaseState {
+class BossMoveState : public BaseBossState {
 public:
-	void Initialize() override;
+	void Initialize(Boss* boss, Stage* stage) override;
 	void Update() override;
 };
 
-class BossMoveState : public BossBaseState {
-public:
-	void Initialize() override;
-	void Update() override;
-};
+class BossPatternExecutionState : public BaseBossState {
+private:
+	float lerpPositionTime_;
+	float velocityStateTime_;
 
-class BossPatternExecutionState : public BossBaseState {
 public:
-	void Initialize() override;
+	void Initialize(Boss* boss, Stage* stage) override;
 	void Update() override;
 };
 
 class Boss : public BaseEntity
 {
-public:
-	//ボス状態
-	enum class State {
-		None,				//無し。初期状態
-		Event,				//イベント。ボスがアニメーションする
-		Move,				//移動。行動が使えなかったりするなら行う
-		PatternExecution	//行動
-	};
-
 private:
 
-	//ボス状態
-	State state_ = State::None;
+	//ボス行動ステート
+	std::unique_ptr<BaseBossState> state_;
+	//次の行動ステート
+	std::unique_ptr<BaseBossState> nextState_;
 
 	float angle;
 
@@ -759,13 +754,6 @@ private:
 	//map用パターン名
 	std::string patternName_;
 
-	//線形補完位置
-	std::optional<LerpPositionState> lerpPosition_{};
-	float lerpPositionTime_;
-	//線形補完移動
-	std::optional<VelocityState> velocityState_{};
-	float velocityStateTime_;
-
 	bool isStartAnimation_ = false;
 
 	//ロックオンする場合の相手の座標
@@ -786,7 +774,14 @@ public:
 
 	void IsCollision(uint8_t targetId) override;
 
-	void IsCollisionGround(OBB obb) override;
+	//指定方向に向かせる
+	void LookAngle(Vector3 diff);
+	//前進移動
+	void Move();
+	//移動パーティクル
+	void MoveParticle();
+
+	void PatternMove(Vector3 velocity);
 
 	SRT GetTransform() { return  transform_; }
 	const SRT* GetPlayerTransform() { return player_->GetTransform(); }
@@ -798,14 +793,13 @@ public:
 
 	void SetTransform(SRT transform) { transform_ = transform; object_->SetTransform(transform_); }
 
-	State GetBossState() const { return state_ ; }
-	void SetBossState(State state) { state_ = state; }
-
 	void SetCamera(std::weak_ptr<Camera> camera) { object_->SetCamera(camera); }
 
 	void SetModel(std::weak_ptr<Model> model) { object_->Initialize(model); }
 
 	void SetPatterns(std::string name, std::unique_ptr<BossPattern> pattern) { patterns_[name] = move(pattern); }
+	std::string GetPatternName() const { return patternName_; }
+	BossPattern* GetPattern() { return patterns_[patternName_].get(); }
 
 	void SetDirectionalLight(std::shared_ptr<DirectionalLight> directionalLight) { object_->SetDirectionalLight(directionalLight); }
 	void SetPointLight(std::shared_ptr<PointLight> pointLight) { object_->SetPointLight(pointLight); }
@@ -816,6 +810,7 @@ public:
 
 	bool IsStartAnimation() const { return isStartAnimation_; }
 
+	void SetIsAction(bool isAction) { isAction_ = isAction; }
 	bool IsAction() const { return isAction_; }
 
 	void ShotBullet(Vector3 startPoint, Vector3 rotate, float speed);
@@ -823,11 +818,14 @@ public:
 
 	void EmitMoveParticle(SRT transform) { moveParticle_->Emit(transform); }
 
+	//次のパターンの選出
+	bool NextPattern();
+
+	//次の行動ステート
+	void SetNextState(std::unique_ptr<BaseBossState> state);
+
 private:
 
 	void ReadBossFile(std::string filePath);
-
-	//次のパターン
-	bool NextPattern();
 };
 
