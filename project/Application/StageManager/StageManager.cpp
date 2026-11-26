@@ -27,15 +27,15 @@ StageData StageManager::ReadStage(std::string filePath) {
 		return stageData;
 	}
 
-	nlohmann::json stagejson;
-	file >> stagejson;
+	nlohmann::json stageJson;
+	file >> stageJson;
 	file.close();
 
 	//基本ステータス
-	stageData.bossData.filepath = stagejson["boss"]["filePath"];
-	stageData.bossData.startTransform = stagejson["boss"]["startTransform"].get<SRT>();
-	stageData.playerStartTransform = stagejson["playerStartTransform"].get<SRT>();
-	nlohmann::json& objectsJson = stagejson["colliderObject"];
+	stageData.bossData.filepath = stageJson["boss"]["filePath"];
+	stageData.bossData.startTransform = stageJson["boss"]["startTransform"].get<SRT>();
+	stageData.playerStartTransform = stageJson["playerStartTransform"].get<SRT>();
+	nlohmann::json& objectsJson = stageJson["colliderObject"];
 
 	//読み込んだオブジェクト
 	for (auto iterator = objectsJson.begin(); iterator != objectsJson.end(); ++iterator)
@@ -50,7 +50,7 @@ StageData StageManager::ReadStage(std::string filePath) {
 		stageData.colliderObjects.push_back(std::move(data));
 	}
 
-	objectsJson = stagejson["breakObject"];
+	objectsJson = stageJson["breakObject"];
 
 	//読み込んだオブジェクト
 	for (auto iterator = objectsJson.begin(); iterator != objectsJson.end(); ++iterator)

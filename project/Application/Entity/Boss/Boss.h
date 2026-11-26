@@ -134,7 +134,7 @@ public:
 
 	nlohmann::json WriteStep() override {
 		return{
-			{"step","Step_MoveFixedPsitionTime"},
+			{"step","Step_MoveFixedPositionTime"},
 			{"position",
 				{
 					{"x",position_.x},
@@ -162,7 +162,7 @@ public:
 #endif
 	}
 	std::string GetName() override {
-		return "Step_MoveFixedPsitionTime";
+		return "Step_MoveFixedPositionTime";
 	}
 };
 //指定速度で指定位置に移動する
@@ -176,7 +176,7 @@ public:
 
 	nlohmann::json WriteStep() override {
 		return{
-			{"step","Step_MoveFixedPsitionSpeed"},
+			{"step","Step_MoveFixedPositionSpeed"},
 			{"speed",speed_},
 			{"position",
 				{
@@ -204,7 +204,7 @@ public:
 #endif
 	}
 	std::string GetName() override {
-		return "Step_MoveFixedPsitionSpeed";
+		return "Step_MoveFixedPositionSpeed";
 	}
 };
 //指定速度で移動する
@@ -607,7 +607,7 @@ public:
 
 	Boss* const GetBoss() { return boss_; }
 
-	bool IsEnd() { return isEnd_; }
+	bool IsEnd() const { return isEnd_; }
 
 	//ステップ
 	std::vector<BaseStep*> GetSteps() {
@@ -622,31 +622,31 @@ public:
 	void PushBackStep(std::unique_ptr<BaseStep> step) { steps_.push_back(move(step)); };
 
 	//待ち時間
-	float GetWaitTime() { return waitTime_; }
+	float GetWaitTime() const { return waitTime_; }
 	void SetWaitTime(float time) { waitTime_ = time; }
 
 	//Step待ち
-	bool GetWaitStep() { return isWaitStep_; }
+	bool GetWaitStep() const { return isWaitStep_; }
 	void SetWaitStep(bool isWaitStep) { isWaitStep_ = isWaitStep; }
 
 	//アニメーション待ち
-	bool GetWaitAnimation() { return isWaitAnimation_; }
+	bool GetWaitAnimation() const { return isWaitAnimation_; }
 	void SetWaitAnimation(bool isWaitAnimation) { isWaitAnimation_ = isWaitAnimation; }
 
 	//待ち状態か
-	bool GetIsStop() { return (waitTime_ > 0.0f || isWaitStep_ || isWaitAnimation_); }
+	bool GetIsStop() const { return (waitTime_ > 0.0f || isWaitStep_ || isWaitAnimation_); }
 
 	//プレイヤーをロックオン中か
-	float GetIsLockOnPlayer() { return isLockOnPlayer_; }
+	bool GetIsLockOnPlayer() const { return isLockOnPlayer_; }
 	void SetIsLockOnPlayer(bool isLockOn) { isLockOnPlayer_ = isLockOn; }
 
 	//線形補完位置
-	std::optional<LerpPositionState> GetLerpPosition() { return lerpPosition_; }
+	std::optional<LerpPositionState> GetLerpPosition() const { return lerpPosition_; }
 	void SetLerpPosition(LerpPositionState lerpPosition) { lerpPosition_ = lerpPosition; }
 	void ResetLerpPosition() { lerpPosition_.reset(); }
 
 	//線形補完移動
-	std::optional<VelocityState> GetVelocityState() { return velocityState_; }
+	std::optional<VelocityState> GetVelocityState() const { return velocityState_; }
 	void SetVelocityState(VelocityState velocityState) { velocityState_ = velocityState; }
 	void ResetVelocityState() { velocityState_.reset(); }
 };
@@ -685,10 +685,10 @@ public:
 	void Initialize(Boss* boss) { boss_ = boss; isEnd_ = false; action_->Initialize(boss); }
 	void Update();
 
-	bool IsEnd() { return isEnd_; }
+	bool IsEnd() const { return isEnd_; }
 
 	//パターン条件
-	PatternCondition GetCondition() { return condition_; }
+	PatternCondition GetCondition() const { return condition_; }
 	void SetCondition(PatternCondition condition) { condition_ = condition; }
 
 	//ボス行動
@@ -697,6 +697,30 @@ public:
 };
 
 class Stage;
+
+class BossBaseState {
+public:
+	virtual void Initialize() = 0;
+	virtual void Update() = 0;
+};
+
+class BossEventState : public BossBaseState {
+public:
+	void Initialize() override;
+	void Update() override;
+};
+
+class BossMoveState : public BossBaseState {
+public:
+	void Initialize() override;
+	void Update() override;
+};
+
+class BossPatternExecutionState : public BossBaseState {
+public:
+	void Initialize() override;
+	void Update() override;
+};
 
 class Boss : public BaseEntity
 {
@@ -772,9 +796,9 @@ public:
 	std::shared_ptr<Sphere> GetTrackingSphere() { return trackingSphere_; }
 	std::shared_ptr<GameCamera> GetGameCamera() { return gameCamera_; }
 
-	void SetTransfrom(SRT transfrom) { transform_ = transfrom; object_->SetTransform(transform_); }
+	void SetTransform(SRT transform) { transform_ = transform; object_->SetTransform(transform_); }
 
-	State GetBossState() { return state_ ; }
+	State GetBossState() const { return state_ ; }
 	void SetBossState(State state) { state_ = state; }
 
 	void SetCamera(std::weak_ptr<Camera> camera) { object_->SetCamera(camera); }
@@ -788,11 +812,11 @@ public:
 
 	void Damage(float damage) { HP_ -= damage; }
 
-	bool IsDead() { return HP_ <= 0; }
+	bool IsDead() const { return HP_ <= 0; }
 
-	bool IsStartAnimation() { return isStartAnimation_; }
+	bool IsStartAnimation() const { return isStartAnimation_; }
 
-	bool IsAction() { return isAction_; }
+	bool IsAction() const { return isAction_; }
 
 	void ShotBullet(Vector3 startPoint, Vector3 rotate, float speed);
 	void ShotShockWave(Vector3 startPoint, float length, float maxLifeTime);

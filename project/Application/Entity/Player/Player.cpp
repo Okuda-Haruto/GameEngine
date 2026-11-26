@@ -48,9 +48,18 @@ void PlayerNormalState::Update() {
 		}
 	}
 
+	//回避間隔
+	if (dodgeCoolTime_ <= kMaxDodgeCoolTime) {
+		dodgeCoolTime_ += 1.0f / 60.0f;
+		if (dodgeCoolTime_ > kMaxDodgeCoolTime) {
+			dodgeCoolTime_ = kMaxDodgeCoolTime;
+		}
+	}
 	//回避
 	if (keyboard.keys[DIK_C].trigger || keyboard.keys[DIK_SPACE].trigger || pad.Button[PAD_BUTTON_B].trigger) {
-		player_->SetNextState(std::make_unique<PlayerDodgeState>());
+		if (dodgeCoolTime_ >= kMaxDodgeCoolTime) {
+			player_->SetNextState(std::make_unique<PlayerDodgeState>());
+		}
 	}
 
 	if (keyboard.keys[DIK_LSHIFT].hold || keyboard.keys[DIK_RSHIFT].hold || pad.Button[PAD_BUTTON_LT].hold) {
@@ -62,6 +71,9 @@ void PlayerNormalState::Update() {
 	//発射間隔
 	if (shotCooltime_ <= kMaxShotCooltime) {
 		shotCooltime_ += 1.0f / 60.0f;
+		if (shotCooltime_ > kMaxShotCooltime) {
+			shotCooltime_ = kMaxShotCooltime;
+		}
 	}
 
 	//攻撃
@@ -74,11 +86,14 @@ void PlayerNormalState::Update() {
 
 	//動いていない場合
 	if (shotCooltime_ != 0.0f && dodgeCoolTime_ != 0.0f) {
-		if (reloadTime_ >= kMaxReloadTime * Easing::Lerp<float>(1.0f, 0.1f, stopTime_ / kMaxStopTime) && player_->IsRemainingRoundsFull()) {
+		if (reloadTime_ >= kMaxReloadTime * Easing::Lerp<float>(1.0f, 0.1f, stopTime_ / kMaxStopTime) && !player_->IsRemainingRoundsFull()) {
 			player_->Reload();
 			reloadTime_ = 0.0f;
 		} else {
 			reloadTime_ += 1.0f / 60.0f;
+			if (reloadTime_ > kMaxReloadTime) {
+				reloadTime_ = kMaxReloadTime;
+			}
 		}
 	} else {
 		reloadTime_ = 0.0f;
@@ -165,7 +180,7 @@ void PlayerStunState::Update() {
 		transform.translate.y = 0.5f;
 	}
 
-	player_->SetTransfrom(transform);
+	player_->SetTransform(transform);
 }
 
 Player::~Player() {
@@ -321,7 +336,7 @@ void Player::Update() {
 	BaseEntity::Update();
 
 	if (Length(velocity_) > 0.0f) {
-		SRT	transform;
+		SRT	transform{};
 		transform.translate = transform_.translate;
 		transform.translate.y = 0.0f;
 		moveParticle_->Emit(transform);

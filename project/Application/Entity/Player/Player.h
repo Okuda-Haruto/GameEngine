@@ -155,10 +155,10 @@ public:
 
 	//座標
 	const SRT* GetTransform() { return trackingTransform_.get(); }
-	void SetTransfrom(SRT transfrom) { transform_ = transfrom; *trackingTransform_ = transform_; object_->SetTransform(transform_); }
+	void SetTransform(SRT transform) { transform_ = transform; *trackingTransform_ = transform_; object_->SetTransform(transform_); }
 
 	//移動方向入力
-	Vector3 GetMovementInput() { return movementInput_; }
+	Vector3 GetMovementInput() const { return movementInput_; }
 
 	//カメラ座標
 	void SetCameraTransform(const SRT* transform) { cameraTransform_ = transform; }
@@ -172,22 +172,22 @@ public:
 
 	//ロックオンしているか
 	void SetIsTargeted(bool isTargeted) { isTargeted_ = isTargeted; }
-	bool IsTargeted() { return isTargeted_; }
+	bool IsTargeted() const { return isTargeted_; }
 
 	//HP
-	int32_t GetHP() { return HP_; }
+	int32_t GetHP() const { return HP_; }
 	//回復
 	void AddHP(int32_t hp) { HP_ += hp; if (HP_ > kMaxHP) HP_ = kMaxHP; }
 	//死亡判定
-	bool IsDead() { return HP_ <= 0; }
+	bool IsDead() const { return HP_ <= 0; }
 
 	//残弾数
-	int32_t GetRemainingRounds() { return remainingRounds_; }
+	int32_t GetRemainingRounds() const { return remainingRounds_; }
 	//残弾数が満タンか
-	bool IsRemainingRoundsFull() { return remainingRounds_ == kMaxRemainingRounds; }
+	bool IsRemainingRoundsFull() const { return remainingRounds_ == kMaxRemainingRounds; }
 
 	//無敵時間割合
-	float GetInvincibleTimeRate() { return invincibleTime_ / kMaxInvincibleTime_; }
+	float GetInvincibleTimeRate() const { return invincibleTime_ / kMaxInvincibleTime_; }
 
 	//次の行動ステート
 	void SetNextState(std::unique_ptr<BasePlayerState> state);

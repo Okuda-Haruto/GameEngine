@@ -14,7 +14,7 @@ private:
 	DirectXCommon* dxCommon_ = nullptr;
 
 	//テクスチャデータ
-	std::unordered_map <std::string,std::shared_ptr<Model>> modelDatas;
+	std::unordered_map <std::string,std::shared_ptr<Model>> modelDatas_;
 public:
 
 	ModelManager() = default;

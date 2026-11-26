@@ -71,9 +71,9 @@ protected:
 	PointLightElement pointLightElement_;
 
 	std::unique_ptr<ParticleEmitter> particle_;
-	std::unique_ptr<ParticleEmitter> particle_2;
-	std::unique_ptr<ParticleEmitter> particle_3;
-	std::unique_ptr<ParticleEmitter> particle_4;
+	std::unique_ptr<ParticleEmitter> particle_2_;
+	std::unique_ptr<ParticleEmitter> particle_3_;
+	std::unique_ptr<ParticleEmitter> particle_4_;
 
 	std::unique_ptr<PrimitiveRing> ring_;
 	SRT ringTransform_;
@@ -82,10 +82,10 @@ protected:
 	const Vector3 kCylinderStartScale = { 1.5f,3.0f,1.5f };
 	const Vector3 kCylinderEndScale = { 4.5f,0.0f,4.5f };
 
-	std::unique_ptr<PrimitiveCylinder> cylider_;
+	std::unique_ptr<PrimitiveCylinder> cylinder_;
 	SRT cylinderTransform_;
 	Material cylinderMaterial_;
-	const float kMaxCyliderTime_ = 0.6f;
+	const float kMaxCylinderTime_ = 0.6f;
 	float cylinderTime_;
 
 	std::string nextScene_;
@@ -147,8 +147,8 @@ public:
 	const std::weak_ptr<PointLight> GetPointLight() { return pointLight_; }
 	Player* const GetPlayer() { return player_.get(); }
 	Boss* const GetBoss() { return boss_.get(); }
-	bool IsClear() { return isClear_; }
-	bool IsEnd() { return isEnd_; }
+	bool IsClear() const { return isClear_; }
+	bool IsEnd() const { return isEnd_; }
 	std::string GetNextScene() { return nextScene_; }
 
 	void ClearColliderObjects() { colliderObjects_.clear(); }

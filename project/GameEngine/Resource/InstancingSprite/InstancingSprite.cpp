@@ -77,8 +77,8 @@ void InstancingSprite::Update() {
 		float scaleX = data.second.textureSize.x / metadata_.width;
 		float scaleY = data.second.textureSize.y / metadata_.height;
 
-		float offsetX = data.second.textuerLeftTop.x / metadata_.width;
-		float offsetY = data.second.textuerLeftTop.y / metadata_.height;
+		float offsetX = data.second.textureLeftTop_.x / metadata_.width;
+		float offsetY = data.second.textureLeftTop_.y / metadata_.height;
 
 		if (data.second.isFlipX) {
 			scaleX = -scaleX;
@@ -122,7 +122,7 @@ void InstancingSprite::DeleteSprite(const std::string spriteName) {
 	dataMap_.erase(spriteName);
 }
 
-void InstancingSprite::SetTextue(const std::string& textureFilePath) {
+void InstancingSprite::SetTexture(const std::string& textureFilePath) {
 	textureIndex_ = TextureManager::GetInstance()->GetSrvIndex(textureFilePath);
 }
 

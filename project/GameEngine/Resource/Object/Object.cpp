@@ -2,7 +2,7 @@
 #include "GameEngine.h"
 #include "LoadObjFile.h"
 
-std::shared_ptr<Camera> Object::DefaultCamera;
+std::shared_ptr<Camera> Object::defaultCamera_;
 
 Object::~Object() {
 
@@ -23,7 +23,7 @@ void Object::Initialize(std::weak_ptr<Model> model) {
 		parts_[i].material->color = { 1.0f,1.0f,1.0f,1.0f };
 		parts_[i].material->reflection = REFLECTION_HalfLambert;
 		parts_[i].material->shininess = 40.0f;
-		parts_[i].material->enviromentCoefficient = 0.0f;
+		parts_[i].material->environmentCoefficient = 0.0f;
 
 		parts_[i].transform = std::make_shared<SRT>();
 		*parts_[i].transform = {};
@@ -38,8 +38,8 @@ void Object::Initialize(std::weak_ptr<Model> model) {
 	transform_ = {};
 	transform_.scale = { 1.0f,1.0f,1.0f };
 
-	if (DefaultCamera != nullptr) {
-		camera_ = DefaultCamera;
+	if (defaultCamera_ != nullptr) {
+		camera_ = defaultCamera_;
 	}
 
 	isUseAnimation_ = false;
@@ -69,7 +69,7 @@ void Object::Update() {
 
 		for (int i = 0; i < bones_.size(); i++) {
 			if (i > 128)break;
-			*bones_[i].finalMatrix = bones_[i].offsetMatrix * skeleton_.joints[skeleton_.jointMap[bones_[i].name]].skeltonSpaceMatrix;
+			*bones_[i].finalMatrix = bones_[i].offsetMatrix * skeleton_.joints[skeleton_.jointMap[bones_[i].name]].skeletonSpaceMatrix;
 		}
 
 	}

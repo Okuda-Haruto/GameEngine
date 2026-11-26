@@ -21,14 +21,14 @@ void TextureManager::Initialize(DirectXCommon* dxCommon, SRVManager* srvManager)
 	srvManager_ = srvManager;
 
 	//テクスチャ初期値としてwhite2x2を読み込む
-	white2x2 = GetSrvIndex("resources/DebugResources/white2x2.png");
+	white2x2_ = GetSrvIndex("resources/DebugResources/white2x2.png");
 }
 
 //テクスチャファイルの読み込み
 void TextureManager::LoadTexture(const std::string& filePath) {
 
 	//読み込み済みテクスチャを検索
-	if (textureDatas.contains(filePath)) {
+	if (textureDatas_.contains(filePath)) {
 		//読み込み済みなら早期Return
 		return;
 	}
@@ -63,7 +63,7 @@ void TextureManager::LoadTexture(const std::string& filePath) {
 	}
 
 	//テクスチャデータを追加して書き込む
-	TextureData& textureData = textureDatas[filePath];
+	TextureData& textureData = textureDatas_[filePath];
 
 	textureData.metadata = mipImages.GetMetadata();
 	textureData.resource = dxCommon_->CreateTextureResource(textureData.metadata);
@@ -83,7 +83,7 @@ void TextureManager::LoadTexture(const std::string& filePath) {
 void TextureManager::MakeRenderTexture(const std::string& renderName) {
 
 	//読み込み済みテクスチャを検索
-	if (textureDatas.contains(renderName)) {
+	if (textureDatas_.contains(renderName)) {
 		//読み込み済みなら早期Return
 		return;
 	}
@@ -92,7 +92,7 @@ void TextureManager::MakeRenderTexture(const std::string& renderName) {
 	assert(srvManager_->IsCanAllocate());
 
 	//テクスチャデータを追加して書き込む
-	TextureData& textureData = textureDatas[renderName];
+	TextureData& textureData = textureDatas_[renderName];
 
 	//textureData.metadata = mipImages.GetMetadata();
 	const Vector4 kRenderTargetClearValue{ 0.0f,0.0f,0.0f,1.0f };
@@ -110,9 +110,9 @@ void TextureManager::MakeRenderTexture(const std::string& renderName) {
 
 uint32_t TextureManager::GetSrvIndex(const std::string& filePath) {
 	//読み込み済みテクスチャを検索
-	if (textureDatas.contains(filePath)) {
+	if (textureDatas_.contains(filePath)) {
 		//読み込み済みなら要素番号を返す
-		uint32_t textureIndex = textureDatas[filePath].srvIndex;
+		uint32_t textureIndex = textureDatas_[filePath].srvIndex;
 		return textureIndex;
 	}
 
@@ -120,9 +120,9 @@ uint32_t TextureManager::GetSrvIndex(const std::string& filePath) {
 	LoadTexture(filePath);
 
 	//読み込み済みテクスチャを検索
-	if (textureDatas.contains(filePath)) {
+	if (textureDatas_.contains(filePath)) {
 		//読み込み済みなら要素番号を返す
-		uint32_t textureIndex = textureDatas[filePath].srvIndex;
+		uint32_t textureIndex = textureDatas_[filePath].srvIndex;
 		return textureIndex;
 	}
 
@@ -132,9 +132,9 @@ uint32_t TextureManager::GetSrvIndex(const std::string& filePath) {
 
 uint32_t TextureManager::GetRtvIndex(const std::string& filePath) {
 	//読み込み済みテクスチャを検索
-	if (textureDatas.contains(filePath)) {
+	if (textureDatas_.contains(filePath)) {
 		//読み込み済みなら要素番号を返す
-		uint32_t textureIndex = textureDatas[filePath].rtvIndex;
+		uint32_t textureIndex = textureDatas_[filePath].rtvIndex;
 		//レンダーテクスチャ以外ははじく
 		assert(textureIndex != -1);
 
@@ -147,18 +147,18 @@ uint32_t TextureManager::GetRtvIndex(const std::string& filePath) {
 
 ID3D12Resource* const TextureManager::GetResource(const std::string& renderName) {
 	//読み込み済みテクスチャを検索
-	if (textureDatas.contains(renderName)) {
+	if (textureDatas_.contains(renderName)) {
 		//読み込み済みなら要素番号を返す
-		return textureDatas[renderName].resource.Get();
+		return textureDatas_[renderName].resource.Get();
 	}
 
 	//読み込んでいないテクスチャを指定した場合ここで読み込む
 	MakeRenderTexture(renderName);
 
 	//読み込み済みテクスチャを検索
-	if (textureDatas.contains(renderName)) {
+	if (textureDatas_.contains(renderName)) {
 		//読み込み済みなら要素番号を返す
-		return textureDatas[renderName].resource.Get();
+		return textureDatas_[renderName].resource.Get();
 	}
 
 	assert(0);
@@ -166,9 +166,9 @@ ID3D12Resource* const TextureManager::GetResource(const std::string& renderName)
 }
 
 D3D12_GPU_DESCRIPTOR_HANDLE TextureManager::GetSrvHandleGPU(const std::string& filePath) {
-	TextureData& textureData = textureDatas[filePath];
+	TextureData& textureData = textureDatas_[filePath];
 	//読み込み済みテクスチャを検索
-	if (textureDatas.contains(filePath)) {
+	if (textureDatas_.contains(filePath)) {
 		return  textureData.srvHandleGPU;
 	}
 	assert(0);
@@ -176,9 +176,9 @@ D3D12_GPU_DESCRIPTOR_HANDLE TextureManager::GetSrvHandleGPU(const std::string& f
 }
 
 const DirectX::TexMetadata& TextureManager::GetMetaData(const std::string& filePath) {
-	TextureData& textureData = textureDatas[filePath];
+	TextureData& textureData = textureDatas_[filePath];
 	//読み込み済みテクスチャを検索
-	if (textureDatas.contains(filePath)) {
+	if (textureDatas_.contains(filePath)) {
 		return  textureData.metadata;
 	}
 	assert(0);

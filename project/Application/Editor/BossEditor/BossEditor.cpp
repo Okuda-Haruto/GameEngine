@@ -64,7 +64,7 @@ void BossEditor::Update() {
 		ImGui::Begin("ボス基本ステータス");
 		ImGui::Text("Model");
 		ImGui::InputText("ディレクトリパス", directoryPathText_, sizeof(directoryPathText_));
-		ImGui::InputText("ファイル名", modelnameText_, sizeof(modelnameText_));
+		ImGui::InputText("ファイル名", modelNameText_, sizeof(modelNameText_));
 
 		ImGui::Text("パターン");
 		for (const auto& [str, pattern] : patterns_) {
@@ -199,7 +199,7 @@ void BossEditor::ReadBossFile(std::string filePath) {
 	//基本ステータス
 	bossName_ = bossJson["name"];
 	directoryPath_ = bossJson["directoryPath"];
-	modelname_ = bossJson["modelname"];
+	modelName_ = bossJson["modelname"];
 	maxHP_ = bossJson["maxHP"];
 
 
@@ -254,7 +254,7 @@ void BossEditor::WriteBossFile() {
 	//基本ステータス
 	bossJson["name"] = bossName_.c_str();
 	bossJson["directoryPath"] = directoryPath_.c_str();
-	bossJson["modelname"] = modelname_.c_str();
+	bossJson["modelname"] = modelName_.c_str();
 	bossJson["maxHP"] = int(maxHP_);
 
 	//パターン出力
@@ -284,10 +284,10 @@ void BossEditor::WriteBossFile() {
 
 void BossEditor::SetBossData(std::string directoryPath, std::string modelname) {
 	directoryPath_ = directoryPath;
-	modelname_ = modelname;
+	modelName_ = modelname;
 
 	//ボスに入れる
-	stage_->GetBoss()->SetModel(ModelManager::GetInstance()->GetModel(directoryPath_, modelname_));
+	stage_->GetBoss()->SetModel(ModelManager::GetInstance()->GetModel(directoryPath_, modelName_));
 }
 
 void BossEditor::OpenFileWindow() {
@@ -411,7 +411,7 @@ bool BossEditor::ImGuiFileTree_obj(std::string& path, std::string name) {
 				{
 					if (ImGui::Button(entry.path().filename().string().c_str())) {
 						commands_.resize(commandIndex_);
-						commands_.push_back(std::make_unique<SetModelCommand>(this, directoryPath_, modelname_, path, entry.path().filename().string()));	//パスとファイル名が必要なのでこうするしかない
+						commands_.push_back(std::make_unique<SetModelCommand>(this, directoryPath_, modelName_, path, entry.path().filename().string()));	//パスとファイル名が必要なのでこうするしかない
 						commandIndex_++;
 
 						return true;

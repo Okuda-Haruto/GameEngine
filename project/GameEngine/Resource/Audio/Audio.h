@@ -24,7 +24,7 @@
 //音声
 class Audio {
 private:
-	std::list<IXAudio2SourceVoice*> sourceVoiceList;
+	std::list<IXAudio2SourceVoice*> sourceVoiceList_;
 
 	//音量
 	float volume_ = 1.0f;

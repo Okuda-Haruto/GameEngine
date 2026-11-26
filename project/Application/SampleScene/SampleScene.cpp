@@ -44,7 +44,7 @@ void SampleScene::Initialize() {
 
 	object_[1]->SetCubeTextureIndex(TextureManager::GetInstance()->GetSrvIndex("resources/BackGround/minedump_flats_1k.dds"));
 	std::vector<Parts> parts = object_[1]->GetParts();
-	parts[0].material->enviromentCoefficient = 0.5f;
+	parts[0].material->environmentCoefficient = 0.5f;
 	object_[1]->SetParts(parts[0], 0);
 
 	//2Dスプライト
@@ -327,15 +327,15 @@ void SampleScene::Update() {
 
 		const char* cameraMode[] = { "PlayerCamera", "SphericalCoordinates" };
 		static int modeNum = 1;
-		static const char* current_Mode = "SphericalCoordinates";
+		static const char* currentMode = "SphericalCoordinates";
 
-		current_Mode = cameraMode[modeNum];
+		currentMode = cameraMode[modeNum];
 
-		if (ImGui::BeginCombo("DebugCameraMode", current_Mode))
+		if (ImGui::BeginCombo("DebugCameraMode", currentMode))
 		{
 			for (int n = 0; n < IM_ARRAYSIZE(cameraMode); n++)
 			{
-				bool is_selected = (current_Mode == cameraMode[n]);
+				bool is_selected = (currentMode == cameraMode[n]);
 				if (ImGui::Selectable(cameraMode[n], is_selected)) {
 					modeNum = n;
 					switch (n)
@@ -387,15 +387,15 @@ void SampleScene::Update() {
 
 	const char* Shadings[] = { "Phong", "Blinn_Phong" };
 	static int shadingIndex = 1;
-	static const char* current_Shading = "Blinn_Phong";
+	static const char* currentShading = "Blinn_Phong";
 
-	current_Shading = Shadings[shadingIndex];
+	currentShading = Shadings[shadingIndex];
 
-	if (ImGui::BeginCombo("Shading", current_Shading))
+	if (ImGui::BeginCombo("Shading", currentShading))
 	{
 		for (int n = 0; n < IM_ARRAYSIZE(Shadings); n++)
 		{
-			bool is_selected = (current_Shading == Shadings[n]);
+			bool is_selected = (currentShading == Shadings[n]);
 			if (ImGui::Selectable(Shadings[n], is_selected)) {
 				shadingIndex = n;
 				for (std::unique_ptr<Object>& object : object_) {
@@ -452,10 +452,10 @@ void SampleScene::Update() {
 	ImGui::DragFloat("パーティクル Scale", &emitterTransform.scale.x, 0.1f);
 	ImGui::SliderAngle("パーティクル RotateX", &emitterTransform.rotate.x);
 	ImGui::SliderAngle("パーティクル RotateY", &emitterTransform.rotate.y);
-	ImGui::SliderAngle("パーティクル Rotatez", &emitterTransform.rotate.z);
+	ImGui::SliderAngle("パーティクル RotateZ", &emitterTransform.rotate.z);
 	ImGui::DragFloat3("パーティクル Translate", &emitterTransform.translate.x, 0.1f);
-	ImGui::ColorPicker4("beforecolor", &emitter_.beforeColor.x);
-	ImGui::ColorPicker4("aftercolor", &emitter_.afterColor.x);
+	ImGui::ColorPicker4("beforeColor", &emitter_.beforeColor.x);
+	ImGui::ColorPicker4("afterColor", &emitter_.afterColor.x);
 	int count = int(emitter_.count);
 	ImGui::DragInt("パーティクル count", &count);
 	emitter_.count = count;
@@ -534,7 +534,7 @@ void SampleScene::Update() {
 				ImGui::SliderAngle(str.c_str(), &parts.transform->rotate.y);
 				str = "Object[" + std::to_string(i) + "]" + "Material " + std::to_string(j) + " RotateZ";
 				ImGui::SliderAngle(str.c_str(), &parts.transform->rotate.z);
-				str = "Object[" + std::to_string(i) + "]" + "Material " + std::to_string(j) + " Transrate";
+				str = "Object[" + std::to_string(i) + "]" + "Material " + std::to_string(j) + " Translate";
 				ImGui::DragFloat3(str.c_str(), &parts.transform->translate.x, 0.1f);
 				str = "Object[" + std::to_string(i) + "]" + "Material " + std::to_string(j) + " UVScale";
 				ImGui::DragFloat3(str.c_str(), &parts.UVtransform.scale.x, 0.1f);
@@ -544,7 +544,7 @@ void SampleScene::Update() {
 				ImGui::SliderAngle(str.c_str(), &parts.UVtransform.rotate.y);
 				str = "Object[" + std::to_string(i) + "]" + "Material " + std::to_string(j) + " UVRotateZ";
 				ImGui::SliderAngle(str.c_str(), &parts.UVtransform.rotate.z);
-				str = "Object[" + std::to_string(i) + "]" + "Material " + std::to_string(j) + " UVTransrate";
+				str = "Object[" + std::to_string(i) + "]" + "Material " + std::to_string(j) + " UVTranslate";
 				ImGui::DragFloat3(str.c_str(), &parts.UVtransform.translate.x, 0.1f);
 				str = "Object[" + std::to_string(i) + "]" + "Material " + std::to_string(j) + " Color";
 				ImGui::ColorEdit4(str.c_str(), &parts.material->color.x);

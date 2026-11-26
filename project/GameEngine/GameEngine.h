@@ -107,7 +107,7 @@ private:
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> sprite_Instancing_PipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> line_PipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> line_NoDepth_PipelineState_ = nullptr;
-	Microsoft::WRL::ComPtr <ID3D12PipelineState> effect_Cyinder_PipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> effect_Cylinder_PipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> screen_PipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> screen_ColorChange_PipelineState_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> screen_Vignette_PipelineState_ = nullptr;
@@ -244,8 +244,8 @@ private:
 	float randomFloat_(float minFloat, float maxFloat);
 	int32_t randomInt_(int32_t minInt,int32_t maxInt);
 
-	bool StartFlame_();
-	bool WindowState_();
+	bool const StartFlame_();
+	bool const WindowState_();
 	void PreDraw_();
 	void PostDraw_();
 

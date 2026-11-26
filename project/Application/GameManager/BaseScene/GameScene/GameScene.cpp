@@ -109,13 +109,13 @@ void GameScene::Update() {
 	//ビネット
 	GameEngine::RenderPreDraw("Vignette");
 
-	VignetteData vignettedata;
-	vignettedata.vignetteIntensity = 16.0f;
-	vignettedata.vignetteCurve = 0.05f;
-	vignettedata.isUseRandom = 1;
-	vignettedata.seed = GameEngine::randomFloat(1.0f,100.0f);
+	VignetteData vignetteData;
+	vignetteData.vignetteIntensity = 16.0f;
+	vignetteData.vignetteCurve = 0.05f;
+	vignetteData.isUseRandom = 1;
+	vignetteData.seed = GameEngine::randomFloat(1.0f,100.0f);
 
-	GameEngine::DrawScreen("BoxFilter", vignettedata);
+	GameEngine::DrawScreen("BoxFilter", vignetteData);
 
 	GameEngine::RenderPostDraw();
 

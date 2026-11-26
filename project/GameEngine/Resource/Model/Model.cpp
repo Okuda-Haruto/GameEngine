@@ -84,10 +84,10 @@ void Model::BoneAnimation(Skeleton& skeleton, float time, std::string animationN
 		for (Joint& joint : skeleton.joints) {
 			joint.localMatrix = MakeQuaternionMatrix(joint.transform.scale, joint.transform.rotate, joint.transform.translate);
 			if (joint.parent) {	//親がいれば親の行列を掛ける
-				joint.skeltonSpaceMatrix = joint.localMatrix * skeleton.joints[*joint.parent].skeltonSpaceMatrix;
+				joint.skeletonSpaceMatrix = joint.localMatrix * skeleton.joints[*joint.parent].skeletonSpaceMatrix;
 			}
 			else {
-				joint.skeltonSpaceMatrix = joint.localMatrix;
+				joint.skeletonSpaceMatrix = joint.localMatrix;
 			}
 		}
 

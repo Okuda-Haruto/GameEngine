@@ -22,7 +22,7 @@ void Step_WaitAnimation::Activate(BossAction* action) {
 }
 
 void Step_MoveFixedPositionTime::Activate(BossAction* action) {
-	LerpPositionState state;
+	LerpPositionState state{};
 	state.startVector = action->GetBoss()->GetTransform().translate;
 	state.endVector = position_;
 	state.time = time_;
@@ -52,7 +52,7 @@ void Step_MoveFixedVelocity::Activate(BossAction* action) {
 }
 
 void Step_MoveFront::Activate(BossAction* action) {
-	VelocityState state;
+	VelocityState state{};
 	state.velocity = Vector3{ 0,0,speed_ } * MakeRotateXMatrix(action->GetBoss()->GetTransform().rotate.x) * MakeRotateYMatrix(action->GetBoss()->GetTransform().rotate.y);
 	state.time = time_;
 	action->SetVelocityState(state);
@@ -95,14 +95,14 @@ void Step_ShotBulletToTarget::Activate(BossAction* action) {
 	Vector3 dir = action->GetBoss()->GetPlayerTransform()->translate - action->GetBoss()->GetTransform().translate;
 	dir = Normalize(dir);
 
-	Vector3 rot;
-	rot.x = atan2(-dir.y, sqrt(dir.x * dir.x + dir.z * dir.z)); // Pitch
-	rot.y = atan2(dir.x, dir.z);                                // Yaw
-	rot.z = 0.0f;                                               // Roll
+	Vector3 rotate{};
+	rotate.x = atan2(-dir.y, sqrt(dir.x * dir.x + dir.z * dir.z)); // Pitch
+	rotate.y = atan2(dir.x, dir.z);                                // Yaw
+	rotate.z = 0.0f;                                               // Roll
 
 	action->GetBoss()->ShotBullet(
 		action->GetBoss()->GetTransform().translate,
-		rot + bulletSpread,
+		rotate + bulletSpread,
 		speed_
 	);
 };
@@ -596,7 +596,7 @@ void Boss::Update() {
 						}
 
 						if (lerpPosition_ || velocityState_) {
-							SRT transform;
+							SRT transform{};
 							transform.translate = transform_.translate;
 							transform.translate.y = 0.0f;
 							moveParticle_->SetTransform(transform);
@@ -714,10 +714,10 @@ void Boss::ShotShockWave(Vector3 startPoint, float length, float maxLifeTime) {
 		startPoint.x,0.0f,startPoint.z,
 	};
 
-	std::unique_ptr<PrimitiveCylinder> cylider = std::make_unique<PrimitiveCylinder>();
-	cylider->Initialize(TextureManager::GetInstance()->GetSrvIndex("resources/DebugResources/gradationLine.png"), gameCamera_->GetCamera(), GameEngine::GetDirectXCommon());
+	std::unique_ptr<PrimitiveCylinder> cylinder = std::make_unique<PrimitiveCylinder>();
+	cylinder->Initialize(TextureManager::GetInstance()->GetSrvIndex("resources/DebugResources/gradationLine.png"), gameCamera_->GetCamera(), GameEngine::GetDirectXCommon());
 
-	stage_->AddShockWave(transform, length, maxLifeTime, CollisionID_Enemy_Attack, move(cylider));
+	stage_->AddShockWave(transform, length, maxLifeTime, CollisionID_Enemy_Attack, move(cylinder));
 }
 
 void Boss::ReadBossFile(std::string filePath) {
@@ -777,7 +777,7 @@ bool Boss::NextPattern() {
 
 	bool isCollisionObjects = false;
 	//ボス、プレイヤー間カプセル
-	Capsule capsule;
+	Capsule capsule{};
 	capsule.axis.origin = transform_.translate;
 	capsule.axis.diff = player_->GetTransform()->translate - transform_.translate;
 	capsule.radius = colliders_->GetSphereColliders()[0].colliderSphere.radius;

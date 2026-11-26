@@ -14,7 +14,7 @@ ParticleManager* ParticleManager::GetInstance() {
 }
 
 void ParticleManager::Finalize() {
-	particleGroups.clear();
+	particleGroups_.clear();
 
 	instance.reset();
 }
@@ -78,21 +78,21 @@ void ParticleManager::Initialize(DirectXCommon* dxCommon, SRVManager* srvManager
 }
 
 void ParticleManager::Update(std::string name) {
-	if (particleGroups.contains(name)) {
+	if (particleGroups_.contains(name)) {
 
-		if (particleGroups[name].particles.empty()) {
+		if (particleGroups_[name].particles.empty()) {
 			return;
 		};
 
-		for (std::list<Particle>::iterator particleIterator = particleGroups[name].particles.begin();
-			particleIterator != particleGroups[name].particles.end();) {
+		for (std::list<Particle>::iterator particleIterator = particleGroups_[name].particles.begin();
+			particleIterator != particleGroups_[name].particles.end();) {
 
-			if ((*particleIterator).lifeTime >= particleGroups[name].emitter.lifeTime) {
-				particleIterator = particleGroups[name].particles.erase(particleIterator);
+			if ((*particleIterator).lifeTime >= particleGroups_[name].emitter.lifeTime) {
+				particleIterator = particleGroups_[name].particles.erase(particleIterator);
 				continue;
 			}
 
-			for (AccelerationField& field : particleGroups[name].accelerationFields) {
+			for (AccelerationField& field : particleGroups_[name].accelerationFields) {
 				if (IsCollision(field.area, (*particleIterator).transform.translate)) {
 					(*particleIterator).velocity.scale += field.acceleration.scale;
 					(*particleIterator).velocity.rotate += field.acceleration.rotate;
@@ -103,10 +103,10 @@ void ParticleManager::Update(std::string name) {
 			(*particleIterator).transform.scale += (*particleIterator).velocity.scale;
 			(*particleIterator).transform.rotate += (*particleIterator).velocity.rotate;
 			(*particleIterator).transform.translate += (*particleIterator).velocity.translate;
-			(*particleIterator).color.x = (*particleIterator).beforeColor.x * (1.0f - (*particleIterator).lifeTime / particleGroups[name].emitter.lifeTime) + (*particleIterator).afterColor.x * ((*particleIterator).lifeTime / particleGroups[name].emitter.lifeTime);
-			(*particleIterator).color.y = (*particleIterator).beforeColor.y * (1.0f - (*particleIterator).lifeTime / particleGroups[name].emitter.lifeTime) + (*particleIterator).afterColor.y * ((*particleIterator).lifeTime / particleGroups[name].emitter.lifeTime);
-			(*particleIterator).color.z = (*particleIterator).beforeColor.z * (1.0f - (*particleIterator).lifeTime / particleGroups[name].emitter.lifeTime) + (*particleIterator).afterColor.z * ((*particleIterator).lifeTime / particleGroups[name].emitter.lifeTime);
-			(*particleIterator).color.w = (*particleIterator).beforeColor.w * (1.0f - (*particleIterator).lifeTime / particleGroups[name].emitter.lifeTime) + (*particleIterator).afterColor.w * ((*particleIterator).lifeTime / particleGroups[name].emitter.lifeTime);
+			(*particleIterator).color.x = (*particleIterator).beforeColor.x * (1.0f - (*particleIterator).lifeTime / particleGroups_[name].emitter.lifeTime) + (*particleIterator).afterColor.x * ((*particleIterator).lifeTime / particleGroups_[name].emitter.lifeTime);
+			(*particleIterator).color.y = (*particleIterator).beforeColor.y * (1.0f - (*particleIterator).lifeTime / particleGroups_[name].emitter.lifeTime) + (*particleIterator).afterColor.y * ((*particleIterator).lifeTime / particleGroups_[name].emitter.lifeTime);
+			(*particleIterator).color.z = (*particleIterator).beforeColor.z * (1.0f - (*particleIterator).lifeTime / particleGroups_[name].emitter.lifeTime) + (*particleIterator).afterColor.z * ((*particleIterator).lifeTime / particleGroups_[name].emitter.lifeTime);
+			(*particleIterator).color.w = (*particleIterator).beforeColor.w * (1.0f - (*particleIterator).lifeTime / particleGroups_[name].emitter.lifeTime) + (*particleIterator).afterColor.w * ((*particleIterator).lifeTime / particleGroups_[name].emitter.lifeTime);
 			
 			(*particleIterator).lifeTime += 1.0f / 60.0f;
 
@@ -117,20 +117,20 @@ void ParticleManager::Update(std::string name) {
 
 void ParticleManager::Draw(std::string name) {
 
-	if (!particleGroups[name].particles.empty()) {
-		GameEngine::DrawParticle(particleGroups[name]);
+	if (!particleGroups_[name].particles.empty()) {
+		GameEngine::DrawParticle(particleGroups_[name]);
 	}
 }
 
 //テクスチャファイルの読み込み
 void ParticleManager::CreateParticleGroup(const std::string name, const std::string textureFilePath) {
 	//読み込み済みテクスチャを検索
-	if (particleGroups.contains(name)) {
+	if (particleGroups_.contains(name)) {
 		return;
 	}
 
 	//テクスチャデータを追加して書き込む
-	ParticleGroup& particleGroup = particleGroups[name];
+	ParticleGroup& particleGroup = particleGroups_[name];
 
 	particleGroup.TextureFilePath = textureFilePath;
 	particleGroup.textureIndex = TextureManager::GetInstance()->GetSrvIndex(textureFilePath);
@@ -151,55 +151,55 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 
 void ParticleManager::Emit(const std::string name, SRT transform, uint32_t count) {
 	//読み込み済みテクスチャを検索
-	if (particleGroups.contains(name)) {
+	if (particleGroups_.contains(name)) {
 		for (uint32_t i = 0; i < count; i++) {
 
 			if (i > GameEngine::kMaxNumInstance) {
 				break;
 			}
-			Particle particle;
+			Particle particle{};
 			particle.lifeTime = 0.0f;
 			particle.transform = transform;
-			particle.transform.translate.x = transform.translate.x + GameEngine::randomFloat(particleGroups[name].emitter.spawnRange.min.x, particleGroups[name].emitter.spawnRange.max.x);
-			particle.transform.translate.y = transform.translate.y + GameEngine::randomFloat(particleGroups[name].emitter.spawnRange.min.y, particleGroups[name].emitter.spawnRange.max.y);
-			particle.transform.translate.z = transform.translate.z + GameEngine::randomFloat(particleGroups[name].emitter.spawnRange.min.z, particleGroups[name].emitter.spawnRange.max.z);
-			particle.transform.rotate.z = transform.rotate.z + GameEngine::randomFloat(0.0f, particleGroups[name].emitter.rotateRate);
+			particle.transform.translate.x = transform.translate.x + GameEngine::randomFloat(particleGroups_[name].emitter.spawnRange.min.x, particleGroups_[name].emitter.spawnRange.max.x);
+			particle.transform.translate.y = transform.translate.y + GameEngine::randomFloat(particleGroups_[name].emitter.spawnRange.min.y, particleGroups_[name].emitter.spawnRange.max.y);
+			particle.transform.translate.z = transform.translate.z + GameEngine::randomFloat(particleGroups_[name].emitter.spawnRange.min.z, particleGroups_[name].emitter.spawnRange.max.z);
+			particle.transform.rotate.z = transform.rotate.z + GameEngine::randomFloat(0.0f, particleGroups_[name].emitter.rotateRate);
 			particle.velocity = {};
 			particle.velocity.translate = Normalize(Vector3{
-				particleGroups[name].emitter.angleBase.x + GameEngine::randomFloat(-particleGroups[name].emitter.angleRange.x, particleGroups[name].emitter.angleRange.x),
-				particleGroups[name].emitter.angleBase.y + GameEngine::randomFloat(-particleGroups[name].emitter.angleRange.y, particleGroups[name].emitter.angleRange.y),
-				particleGroups[name].emitter.angleBase.z + GameEngine::randomFloat(-particleGroups[name].emitter.angleRange.z, particleGroups[name].emitter.angleRange.z)
-				}) * (particleGroups[name].emitter.speedBase + GameEngine::randomFloat(-particleGroups[name].emitter.speedRange, particleGroups[name].emitter.speedRange));
-			particle.velocity.rotate.z = particleGroups[name].emitter.rotateVelocity;
-			particle.beforeColor = particleGroups[name].emitter.beforeColor;
-			particle.afterColor = particleGroups[name].emitter.afterColor;
+				particleGroups_[name].emitter.angleBase.x + GameEngine::randomFloat(-particleGroups_[name].emitter.angleRange.x, particleGroups_[name].emitter.angleRange.x),
+				particleGroups_[name].emitter.angleBase.y + GameEngine::randomFloat(-particleGroups_[name].emitter.angleRange.y, particleGroups_[name].emitter.angleRange.y),
+				particleGroups_[name].emitter.angleBase.z + GameEngine::randomFloat(-particleGroups_[name].emitter.angleRange.z, particleGroups_[name].emitter.angleRange.z)
+				}) * (particleGroups_[name].emitter.speedBase + GameEngine::randomFloat(-particleGroups_[name].emitter.speedRange, particleGroups_[name].emitter.speedRange));
+			particle.velocity.rotate.z = particleGroups_[name].emitter.rotateVelocity;
+			particle.beforeColor = particleGroups_[name].emitter.beforeColor;
+			particle.afterColor = particleGroups_[name].emitter.afterColor;
 			particle.color = particle.beforeColor;
-			particleGroups[name].particles.push_back(particle);
+			particleGroups_[name].particles.push_back(particle);
 		}
 	}
 }
 
 void ParticleManager::SetEmitter(const std::string name, Emitter emitter) {
 	//読み込み済みテクスチャを検索
-	if (particleGroups.contains(name)) {
-		particleGroups[name].emitter = emitter;
+	if (particleGroups_.contains(name)) {
+		particleGroups_[name].emitter = emitter;
 	}
 }
 
 void ParticleManager::SetField(const std::string name, AccelerationField accelerationField) {
 	//読み込み済みテクスチャを検索
-	if (particleGroups.contains(name)) {
-		particleGroups[name].accelerationFields.push_back(accelerationField);
+	if (particleGroups_.contains(name)) {
+		particleGroups_[name].accelerationFields.push_back(accelerationField);
 	}
 }
 
 void ParticleManager::SetCamera(const std::string name, std::shared_ptr<Camera> camera) {
 	//読み込み済みテクスチャを検索
-	if (particleGroups.contains(name)) {
-		particleGroups[name].camera = camera;
+	if (particleGroups_.contains(name)) {
+		particleGroups_[name].camera = camera;
 	}
 }
 
 void ParticleManager::Reset() {
-	particleGroups.clear();
+	particleGroups_.clear();
 }

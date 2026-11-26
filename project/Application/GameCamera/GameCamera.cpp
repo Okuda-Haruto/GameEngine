@@ -30,7 +30,7 @@ void LockOnCamera::Initialize(GameCamera* gameCamera, std::shared_ptr<Input> inp
 	}
 
 	//ターゲットに視点を移す
-	targetSpehre_ = gameCamera_->GetTargetedSphere();
+	targetSphere_ = gameCamera_->GetTargetedSphere();
 }
 
 void LockOnCamera::Update() {
@@ -38,7 +38,7 @@ void LockOnCamera::Update() {
 	Pad pad = input_->GetPad();
 
 	if (gameCamera_->GetTargetedSphere().expired()) {
-		targetSpehre_.reset();
+		targetSphere_.reset();
 		gameCamera_->ResetTargetedSphere();
 	}
 	//進行方向に合わせる
@@ -87,7 +87,7 @@ void LockOnCamera::Update() {
 		}
 
 		//注目対象が存在している場合
-		if (targetSpehre_.lock()) {
+		if (targetSphere_.lock()) {
 			//角度範囲
 			if (fabsf(targetAngle_.y - cameraAngle_.y) > std::numbers::pi_v<float>) {
 				if (targetAngle_.y - cameraAngle_.y > 0.0f) {
@@ -119,10 +119,10 @@ void LockOnCamera::Update() {
 			transform_.translate = gameCamera_->GetObserverTransform()->translate + rotateMatrix * Vector3{ cameraOffsetX_,kCameraOffsetY,kCameraOffsetZ };
 
 			//傾けている時間がある程度を過ぎたらターゲットを外す
-			if (pad.RightStick.magnitude >= 1.0f && targetSpehre_.lock()) {
+			if (pad.RightStick.magnitude >= 1.0f && targetSphere_.lock()) {
 				pushRStickTime_ += 1.0f / 60.0f;
 				if (pushRStickTime_ > kMaxPushRStickTime) {
-					targetSpehre_.reset();
+					targetSphere_.reset();
 					gameCamera_->ResetTargetedSphere();
 					pushRStickTime_ = 0.0f;
 				}
@@ -174,8 +174,8 @@ void LockOnCamera::Update() {
 				}
 			}
 			if (keepTargetSphere.lock()) {
-				targetSpehre_ = keepTargetSphere;
-				gameCamera_->SetTargetedSphere(targetSpehre_);
+				targetSphere_ = keepTargetSphere;
+				gameCamera_->SetTargetedSphere(targetSphere_);
 
 				//注目対象に向ける
 				TargetAngleUpdate();
@@ -187,7 +187,7 @@ void LockOnCamera::Update() {
 void LockOnCamera::TargetAngleUpdate() {
 	
 	//ロックオン対象へのベクトル
-	Vector3 diff = targetSpehre_.lock()->center - gameCamera_->GetObserverTransform()->translate;
+	Vector3 diff = targetSphere_.lock()->center - gameCamera_->GetObserverTransform()->translate;
 	
 	//必ずいずれかの向きを向くように
 	if (Length(diff) <= 0.0f) {
@@ -271,7 +271,7 @@ void GameCamera::Initialize(std::shared_ptr<Input> input) {
 	transform_ = std::make_shared<SRT>();
 	*transform_ = {};
 	shakeTime_ = 0.0f;
-	radialBlurdata.blurWidth = 0.0f;
+	radialBlurData_.blurWidth = 0.0f;
 
 	input_ = input;
 

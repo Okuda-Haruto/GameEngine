@@ -271,7 +271,7 @@ void GameEngine::LoadShader() {
 	sprite_Instancing_PipelineState_ = Sprite_Instancing_PipelineStateInitialvalue(device_, sprite_Instancing_RootSignature_, InstanceSprite2DVSBlob.Get(), InstanceSprite2DPSBlob.Get());
 	line_PipelineState_ = Line_PipelineStateInitialvalue(device_, line_Instancing_RootSignature_, InstancingLineVSBlob.Get(), InstancingLinePSBlob.Get());
 	line_NoDepth_PipelineState_ = Line_NoDepth_PipelineStateInitialvalue(device_, line_Instancing_RootSignature_, InstancingLineVSBlob.Get(), InstancingLinePSBlob.Get());
-	effect_Cyinder_PipelineState_ = Effect_Cylinder_PipelineStateInitialvalue(device_, object_RootSignature_, Object3DVSBlob.Get(), Object3DPSBlob.Get());
+	effect_Cylinder_PipelineState_ = Effect_Cylinder_PipelineStateInitialvalue(device_, object_RootSignature_, Object3DVSBlob.Get(), Object3DPSBlob.Get());
 	screen_PipelineState_ = Screen_PipelineStateInitialvalue(device_, screen_RootSignature_, CopyImageVSBlob.Get(), CopyImagePSBlob.Get());
 	screen_ColorChange_PipelineState_ = Screen_PipelineStateInitialvalue(device_, screen_RootSignature_, CopyImageVSBlob.Get(), ColorChangePSBlob.Get());
 	screen_Vignette_PipelineState_ = Screen_PipelineStateInitialvalue(device_, screen_Vignette_RootSignature_, CopyImageVSBlob.Get(), VignettePSBlob.Get());
@@ -301,7 +301,7 @@ int32_t GameEngine::randomInt_(int32_t minInt, int32_t maxInt) {
 }
 
 [[nodiscard]]
-bool GameEngine::StartFlame_() {
+bool const GameEngine::StartFlame_() {
 	//Windowのメッセージが来てたら最優先で処理させる
 	if (PeekMessage(&msg_, NULL, 0, 0, PM_REMOVE)) {
 		TranslateMessage(&msg_);
@@ -341,7 +341,7 @@ bool GameEngine::StartFlame_() {
 }
 
 [[nodiscard]]
-bool GameEngine::WindowState_() {
+bool const GameEngine::WindowState_() {
 	if (msg_.message != WM_QUIT) {
 
 		return true;
@@ -471,7 +471,7 @@ void GameEngine::DrawObject_3D_(Object* object, std::shared_ptr<DirectionalLight
 		parts[i].material->enableDirectionalLighting = directionalLight != nullptr;
 		parts[i].material->enablePointLighting = pointLight != nullptr;
 		parts[i].material->enableSpotLighting = spotLight != nullptr;
-		parts[i].material->enableEnviromentMap = parts[i].material->enviromentCoefficient > 0.0f;
+		parts[i].material->enableEnviromentMap = parts[i].material->environmentCoefficient > 0.0f;
 
 		//マテリアルデータを更新
 		objectMaterialResource_[objectIndex_]->Map(0, nullptr, reinterpret_cast<void**>(&objectMaterialData_[objectIndex_]));
@@ -493,7 +493,7 @@ void GameEngine::DrawObject_3D_(Object* object, std::shared_ptr<DirectionalLight
 		if (parts[i].material->reflection != 0 && spotLight != nullptr) {
 			commandList_->SetGraphicsRootConstantBufferView(6, spotLight->LightElementResource()->GetGPUVirtualAddress());	//SpotLighting
 		}
-		if (parts[i].material->enviromentCoefficient > 0.0f) {	//環境マップ
+		if (parts[i].material->environmentCoefficient > 0.0f) {	//環境マップ
 			commandList_->SetGraphicsRootDescriptorTable(8, srvManager_->GetGPUDescriptorHandle(object->GetCubeTextureIndex()));
 		}
 
@@ -566,7 +566,7 @@ void GameEngine::DrawParts_3D_(Object* object, uint32_t partsIndex, std::shared_
 	Skeleton skeleton = object->GetSleleton();
 	for (int i = 0; i < skeleton.joints.size(); i++) {
 		if (i > 128)break;
-		objectBoneData_[objectIndex_]->matrix[i] = skeleton.joints[i].skeltonSpaceMatrix;
+		objectBoneData_[objectIndex_]->matrix[i] = skeleton.joints[i].skeletonSpaceMatrix;
 	}
 
 	objectBoneResource_[objectIndex_]->Unmap(0, nullptr);
@@ -668,7 +668,7 @@ void GameEngine::DrawObject_2D_(Object* object, std::shared_ptr<DirectionalLight
 		Skeleton skeleton = object->GetSleleton();
 		for (int i = 0; i < skeleton.joints.size(); i++) {
 			if (i > 128)break;
-			objectBoneData_[objectIndex_]->matrix[i] = skeleton.joints[i].skeltonSpaceMatrix;
+			objectBoneData_[objectIndex_]->matrix[i] = skeleton.joints[i].skeletonSpaceMatrix;
 		}
 
 		objectBoneResource_[objectIndex_]->Unmap(0, nullptr);
@@ -765,7 +765,7 @@ void GameEngine::DrawParts_2D_(Object* object, uint32_t partsIndex, std::shared_
 	Skeleton skeleton = object->GetSleleton();
 	for (int i = 0; i < skeleton.joints.size(); i++) {
 		if (i > 128)break;
-		objectBoneData_[objectIndex_]->matrix[i] = skeleton.joints[i].skeltonSpaceMatrix;
+		objectBoneData_[objectIndex_]->matrix[i] = skeleton.joints[i].skeletonSpaceMatrix;
 	}
 
 	objectBoneResource_[objectIndex_]->Unmap(0, nullptr);
@@ -1718,7 +1718,7 @@ void GameEngine::DrawPrimitiveRing_(PrimitiveRing* primitiveRing, SRT transform,
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList_->SetGraphicsRootSignature(object_RootSignature_.Get());
-	commandList_->SetPipelineState(effect_Cyinder_PipelineState_.Get());	//PSOを設定
+	commandList_->SetPipelineState(effect_Cylinder_PipelineState_.Get());	//PSOを設定
 
 	commandList_->IASetVertexBuffers(0, 1, &primitiveRing->GetVBV());	//VBVを設定
 	commandList_->IASetIndexBuffer(&primitiveRing->GetIBV());	//IBVを設定
@@ -1777,7 +1777,7 @@ void GameEngine::DrawPrimitiveRing_Billboard_(PrimitiveRing* primitiveRing, SRT 
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList_->SetGraphicsRootSignature(object_RootSignature_.Get());
-	commandList_->SetPipelineState(effect_Cyinder_PipelineState_.Get());	//PSOを設定
+	commandList_->SetPipelineState(effect_Cylinder_PipelineState_.Get());	//PSOを設定
 
 	commandList_->IASetVertexBuffers(0, 1, &primitiveRing->GetVBV());	//VBVを設定
 	commandList_->IASetIndexBuffer(&primitiveRing->GetIBV());	//IBVを設定
@@ -1858,7 +1858,7 @@ void GameEngine::DrawPrimitiveCylinder_(PrimitiveCylinder* primitiveCylinder, SR
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList_->SetGraphicsRootSignature(object_RootSignature_.Get());
-	commandList_->SetPipelineState(effect_Cyinder_PipelineState_.Get());	//PSOを設定
+	commandList_->SetPipelineState(effect_Cylinder_PipelineState_.Get());	//PSOを設定
 
 	commandList_->IASetVertexBuffers(0, 1, &primitiveCylinder->GetVBV());	//VBVを設定
 	commandList_->IASetIndexBuffer(&primitiveCylinder->GetIBV());	//IBVを設定
@@ -1917,7 +1917,7 @@ void GameEngine::DrawPrimitiveCylinder_Billboard_(PrimitiveCylinder* primitiveCy
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList_->SetGraphicsRootSignature(object_RootSignature_.Get());
-	commandList_->SetPipelineState(effect_Cyinder_PipelineState_.Get());	//PSOを設定
+	commandList_->SetPipelineState(effect_Cylinder_PipelineState_.Get());	//PSOを設定
 
 	commandList_->IASetVertexBuffers(0, 1, &primitiveCylinder->GetVBV());	//VBVを設定
 	commandList_->IASetIndexBuffer(&primitiveCylinder->GetIBV());	//IBVを設定

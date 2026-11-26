@@ -83,8 +83,8 @@ void AudioManager::LoadAudio(std::string path, bool isLoop = false) {
 		DWORD cbCurrentLength = 0;
 		pMFMediaBuffer->Lock(&pBuffer, nullptr, &cbCurrentLength);
 
-		audioData_[path_].mediaData.resize(audioData_[path_].mediaData.size() + cbCurrentLength);
-		memcpy(audioData_[path_].mediaData.data() + audioData_[path_].mediaData.size() - cbCurrentLength,
+		audioData_[path_].mediaData_.resize(audioData_[path_].mediaData_.size() + cbCurrentLength);
+		memcpy(audioData_[path_].mediaData_.data() + audioData_[path_].mediaData_.size() - cbCurrentLength,
 			pBuffer,
 			cbCurrentLength);
 
@@ -97,8 +97,8 @@ void AudioManager::LoadAudio(std::string path, bool isLoop = false) {
 	XAUDIO2_BUFFER* buf = &audioData_[path_].buffer_;
 
 	//再生する波形データの設定
-	buf->pAudioData = audioData_[path_].mediaData.data();
-	buf->AudioBytes = sizeof(BYTE) * UINT32(audioData_[path_].mediaData.size());
+	buf->pAudioData = audioData_[path_].mediaData_.data();
+	buf->AudioBytes = sizeof(BYTE) * UINT32(audioData_[path_].mediaData_.size());
 	buf->Flags = XAUDIO2_END_OF_STREAM;
 	if (isLoop) {
 		buf->LoopCount = XAUDIO2_LOOP_INFINITE;	//無限ループ

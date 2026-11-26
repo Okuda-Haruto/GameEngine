@@ -22,7 +22,7 @@ public:
 	virtual ~BaseCamera() = 0;
 	virtual void Initialize(GameCamera* gameCamera, std::shared_ptr<Input> input) = 0;
 	virtual void Update() = 0;
-	SRT GetTransform() { return transform_; }
+	SRT GetTransform() const { return transform_; }
 };
 
 //注目カメラ
@@ -39,7 +39,7 @@ private:
 	bool offsetDirection_;
 
 	//注目対象
-	std::weak_ptr<Sphere> targetSpehre_;
+	std::weak_ptr<Sphere> targetSphere_;
 	//注目対象を見る角度
 	Vector3 targetAngle_;
 	//角移動速度
@@ -111,7 +111,7 @@ private:
 	float sepiaTone_ = 0.0f;
 
 	//ブラー
-	RadialBlurData radialBlurdata;
+	RadialBlurData radialBlurData_;
 
 	std::shared_ptr<SRT> transform_;
 
@@ -171,12 +171,12 @@ public:
 	void SetShakeTime(float shakeTime) { shakeTime_ = shakeTime; }
 
 	//セピア調
-	float GetSepiaTone() { return sepiaTone_; }
+	float GetSepiaTone() const { return sepiaTone_; }
 	void SetSepiaTone(float sepiaTone) { sepiaTone_ = sepiaTone; }
 
 	//ブラー
-	void SetBlurWidth(float blurWidth) { radialBlurdata.blurWidth = blurWidth; }
-	RadialBlurData GetRadialBlurData() { return radialBlurdata; }
+	void SetBlurWidth(float blurWidth) { radialBlurData_.blurWidth = blurWidth; }
+	RadialBlurData GetRadialBlurData() const { return radialBlurData_; }
 
 	//デバッグカメラ
 	void SetDebugCamera(std::shared_ptr<DebugCamera> debugCamera) { debugCamera_ = debugCamera; camera_->SetDebugCamera(debugCamera_);}

@@ -21,7 +21,7 @@ int32_t CreateJoint(std::shared_ptr<Node>& node, const std::optional<int32_t>& p
 	Joint joint;
 	joint.name = node->name;
 	joint.localMatrix = node->localMatrix;
-	joint.skeltonSpaceMatrix = MakeIdentity4x4();
+	joint.skeletonSpaceMatrix = MakeIdentity4x4();
 	joint.transform = node->transform;
 	joint.index = int32_t(joints.size());	//現在登録されてる数をIndexに
 	joint.parent = parent;

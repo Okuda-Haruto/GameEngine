@@ -19,7 +19,7 @@ void Bullet::Initialize(SRT transform, float speed, CollisionID id, Bullet::Bull
 	object_->SetPointLight(pointLight_.lock());
 	object_->SetCubeTextureIndex(TextureManager::GetInstance()->GetSrvIndex("resources/BackGround/minedump_flats_1k.dds"));
 	std::vector<Parts> parts = object_->GetParts();
-	parts[0].material->enviromentCoefficient = 1.0f;
+	parts[0].material->environmentCoefficient = 1.0f;
 	object_->SetParts(parts[0], 0);
 
 	Matrix4x4 rotateMatrix = MakeRotateMatrix(transform_.rotate);

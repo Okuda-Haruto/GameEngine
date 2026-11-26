@@ -19,7 +19,6 @@ private:
 
 	//操作説明
 	std::array<std::unique_ptr<Sprite>, 4> sprite_;
-	std::array<SRT, 4> spriteTransform;
 
 	//チュートリアル
 	std::unique_ptr<Sprite> tutorialSprite_;

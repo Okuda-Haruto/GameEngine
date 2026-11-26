@@ -35,7 +35,7 @@ struct Keyboard {
 
 //マウスクリック
 enum MOUSE_BUTTON {
-	MOUSE_BOTTON_LEFT,	//左クリック
+	MOUSE_BUTTON_LEFT,	//左クリック
 	MOUSE_BOTTON_RIGHT,	//右スリック
 	MOUSE_BOTTON_WHEEL	//ホイールクリック
 };
