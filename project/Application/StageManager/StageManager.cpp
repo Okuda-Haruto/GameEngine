@@ -3,18 +3,8 @@
 #include <fstream>
 #include "JsonUtils.h"
 
-std::unique_ptr<StageManager> StageManager::instance;
-
-StageManager* StageManager::GetInstance() {
-	if (!instance) {
-		instance = std::make_unique<StageManager>();
-	}
-	return instance.get();
-}
-
 void StageManager::Finalize() {
 
-	instance.reset();
 }
 
 StageData StageManager::ReadStage(std::string filePath) {

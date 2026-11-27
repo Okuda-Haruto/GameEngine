@@ -6,7 +6,10 @@
 
 class SceneManager {
 private:
-	static std::unique_ptr<SceneManager> instance;
+	SceneManager() = default;
+	~SceneManager() = default;
+	SceneManager(SceneManager&) = delete;
+	SceneManager& operator=(SceneManager&) = delete;
 
 	//今のシーン
 	std::unique_ptr<BaseScene> scene_ = nullptr;
@@ -19,13 +22,12 @@ private:
 	std::shared_ptr<Input> input_;
 public:
 
-	SceneManager() = default;
-	~SceneManager() = default;
-	SceneManager(SceneManager&) = delete;
-	SceneManager& operator=(SceneManager&) = delete;
-
 	//シングルトンインスタンスの取得
-	static SceneManager* GetInstance();
+	static SceneManager* GetInstance()
+	{
+		static SceneManager instance;
+		return &instance;
+	}
 	
 	//解放処理
 	void Finalize();

@@ -28,8 +28,10 @@ struct ParticleGroup {
 
 class ParticleManager {
 private:
-
-	static std::unique_ptr<ParticleManager> instance;
+	ParticleManager() = default;
+	~ParticleManager() = default;
+	ParticleManager(ParticleManager&) = delete;
+	ParticleManager& operator=(ParticleManager&) = delete;
 
 	DirectXCommon* dxCommon_ = nullptr;
 
@@ -54,13 +56,12 @@ private:
 	DirectX::TexMetadata metadata_;
 public:
 
-	ParticleManager() = default;
-	~ParticleManager() = default;
-	ParticleManager(ParticleManager&) = delete;
-	ParticleManager& operator=(ParticleManager&) = delete;
-
 	//シングルトンインスタンスの取得
-	static ParticleManager* GetInstance();
+	static ParticleManager* GetInstance()
+	{
+		static ParticleManager instance;
+		return &instance;
+	}
 
 	//終了
 	void Finalize();

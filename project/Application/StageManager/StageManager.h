@@ -47,16 +47,20 @@ struct StageData {
 //ステージ管理
 class StageManager {
 private:
-	static std::unique_ptr<StageManager> instance;
-public:
 
 	StageManager() = default;
 	~StageManager() = default;
 	StageManager(StageManager&) = delete;
 	StageManager& operator=(StageManager&) = delete;
 
+public:
+
 	//シングルトンインスタンスの取得
-	static StageManager* GetInstance();
+	static StageManager* GetInstance()
+	{
+		static StageManager instance;
+		return &instance;
+	}
 
 	//解放処理
 	void Finalize();

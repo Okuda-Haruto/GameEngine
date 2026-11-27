@@ -78,8 +78,10 @@ public:
 	};
 
 private:
-
-	static std::unique_ptr<PrimitiveManager> instance;
+	PrimitiveManager() = default;
+	~PrimitiveManager() = default;
+	PrimitiveManager(PrimitiveManager&) = delete;
+	PrimitiveManager& operator=(PrimitiveManager&) = delete;
 
 	DirectXCommon* dxCommon_ = nullptr;
 
@@ -119,17 +121,17 @@ private:
 
 public:
 
-	PrimitiveManager() = default;
-	~PrimitiveManager() = default;
-	PrimitiveManager(PrimitiveManager&) = delete;
-	PrimitiveManager& operator=(PrimitiveManager&) = delete;
+	//シングルトンインスタンスの取得
+	static PrimitiveManager* GetInstance()
+	{
+		static PrimitiveManager instance;
+		return &instance;
+	}
 
-	static PrimitiveManager* GetInstance();
+	void Finalize();
 
 	//初期化
 	void Initialize(DirectXCommon* dxCommon, SRVManager* srvManager);
-
-	void Finalize();
 
 	void Draw();
 
