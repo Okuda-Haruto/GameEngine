@@ -7,7 +7,7 @@
 #include <assimp/postprocess.h>
 
 //.gltfファイルからModelDataを構築する
-ModelData LoadGLTFFile(const std::string& directoryPath, const std::string& filename);
+ModelData LoadGLTFFile(const std::string& directoryPath, const std::string& fileName);
 
 std::shared_ptr<Node> ReadNode(aiNode* node, ModelData& modelData);
 

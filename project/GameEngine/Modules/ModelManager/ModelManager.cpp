@@ -14,27 +14,27 @@ void ModelManager::Initialize(DirectXCommon* dxCommon) {
 }
 
 //テクスチャファイルの読み込み
-void ModelManager::LoadModel(const std::string& directoryPath, const std::string& filename) {
+void ModelManager::LoadModel(const std::string& directoryPath, const std::string& fileName) {
 
-	if (modelDatas_.contains(directoryPath + "/" + filename)) {
+	if (modelDatas_.contains(directoryPath + "/" + fileName)) {
 		return;
 	}
 
-	std::shared_ptr<Model>& model = modelDatas_[directoryPath + "/" + filename];
+	std::shared_ptr<Model>& model = modelDatas_[directoryPath + "/" + fileName];
 
 	model = std::make_shared<Model>();
-	model->Initialize(directoryPath, filename, dxCommon_);
+	model->Initialize(directoryPath, fileName, dxCommon_);
 }
 
 //モデルの入手
-const std::weak_ptr<Model> ModelManager::GetModel(const std::string& directoryPath, const std::string& filename) {
+const std::weak_ptr<Model> ModelManager::GetModel(const std::string& directoryPath, const std::string& fileName) {
 	
-	if (modelDatas_.contains(directoryPath + "/" + filename)) {
-		return modelDatas_[directoryPath + "/" + filename];
+	if (modelDatas_.contains(directoryPath + "/" + fileName)) {
+		return modelDatas_[directoryPath + "/" + fileName];
 	}
 
 	//モデルがないならもう一度
-	LoadModel(directoryPath, filename);
+	LoadModel(directoryPath, fileName);
 
-	return modelDatas_[directoryPath + "/" + filename];
+	return modelDatas_[directoryPath + "/" + fileName];
 }

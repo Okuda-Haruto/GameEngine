@@ -23,7 +23,7 @@ void Bomb::Initialize(SRT transform, float range, float maxLifeTime, CollisionID
 	transform_ = transform;
 
 	lifeTime_ = 0.0f;
-	isDead = false;
+	isDead_ = false;
 
 	BaseEntity::Initialize(1.0f, id);
 }
@@ -33,7 +33,7 @@ void Bomb::Update() {
 	if (lifeTime_ < maxLifeTime_) {
 		lifeTime_ += 1.0f / 60.0f;
 		if (lifeTime_ >= maxLifeTime_) {
-			isDead = true;
+			isDead_ = true;
 		}
 	}
 
@@ -42,7 +42,7 @@ void Bomb::Update() {
 }
 
 void Bomb::Draw() {
-	if (!isDead) {
+	if (!isDead_) {
 		object_->Draw3D();
 	}
 }

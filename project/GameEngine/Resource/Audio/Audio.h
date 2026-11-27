@@ -38,7 +38,7 @@ public:
 	/// <summary>
 	/// 初期化
 	/// </summary>
-	/// <param name="filename">.wavファイル名 (例:resources/Audio.wav)</param>
+	/// <param name="fileName">.wavファイル名 (例:resources/Audio.wav)</param>
 	void Initialize(std::string path, float volume);
 
 	/// <summary>

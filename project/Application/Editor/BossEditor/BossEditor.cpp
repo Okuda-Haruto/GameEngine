@@ -239,7 +239,7 @@ void BossEditor::ReadBossFile(std::string filePath) {
 		{0.0f,0.0f,0.0f},
 		{0.0f,0.0f,0.0f},
 	};
-	stageData.bossData.filepath = filePath_;
+	stageData.bossData.filePath = filePath_;
 
 	stage_ = std::make_unique<Stage>();
 	stage_->Initialize(false, stageData, input_);

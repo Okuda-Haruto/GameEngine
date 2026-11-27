@@ -22,7 +22,7 @@ StageData StageManager::ReadStage(std::string filePath) {
 	file.close();
 
 	//基本ステータス
-	stageData.bossData.filepath = stageJson["boss"]["filePath"];
+	stageData.bossData.filePath = stageJson["boss"]["filePath"];
 	stageData.bossData.startTransform = stageJson["boss"]["startTransform"].get<SRT>();
 	stageData.playerStartTransform = stageJson["playerStartTransform"].get<SRT>();
 	nlohmann::json& objectsJson = stageJson["colliderObject"];
@@ -34,7 +34,7 @@ StageData StageManager::ReadStage(std::string filePath) {
 
 		ColliderObjectData data;
 		data.directoryPath = obj["directoryPath"];
-		data.filename = obj["filename"];
+		data.fileName = obj["fileName"];
 		data.startTransform = obj["startTransform"].get<SRT>();
 
 		stageData.colliderObjects.push_back(std::move(data));
@@ -49,7 +49,7 @@ StageData StageManager::ReadStage(std::string filePath) {
 
 		BreakObjectData data;
 		data.directoryPath = obj["directoryPath"];
-		data.filename = obj["filename"];
+		data.fileName = obj["fileName"];
 		data.startTransform = obj["startTransform"].get<SRT>();
 
 		stageData.breakObjects.push_back(std::move(data));
@@ -63,7 +63,7 @@ void StageManager::WriteStage(std::string filePath, StageData stageData) {
 	nlohmann::json stageJson;
 
 	//基本ステータス
-	stageJson["boss"]["filePath"] = stageData.bossData.filepath;
+	stageJson["boss"]["filePath"] = stageData.bossData.filePath;
 	stageJson["boss"]["startTransform"] = stageData.bossData.startTransform;
 	stageJson["playerStartTransform"] = stageData.playerStartTransform;
 
@@ -72,7 +72,7 @@ void StageManager::WriteStage(std::string filePath, StageData stageData) {
 	for (auto& object : stageData.colliderObjects)
 	{
 		stageJson["colliderObject"][std::to_string(index)]["directoryPath"] = object.directoryPath;
-		stageJson["colliderObject"][std::to_string(index)]["filename"] = object.filename;
+		stageJson["colliderObject"][std::to_string(index)]["fileName"] = object.fileName;
 		stageJson["colliderObject"][std::to_string(index)]["startTransform"] = object.startTransform;
 
 		index++;
@@ -80,7 +80,7 @@ void StageManager::WriteStage(std::string filePath, StageData stageData) {
 	for (auto& object : stageData.breakObjects)
 	{
 		stageJson["breakObject"][std::to_string(index)]["directoryPath"] = object.directoryPath;
-		stageJson["breakObject"][std::to_string(index)]["filename"] = object.filename;
+		stageJson["breakObject"][std::to_string(index)]["fileName"] = object.fileName;
 		stageJson["breakObject"][std::to_string(index)]["startTransform"] = object.startTransform;
 
 		index++;

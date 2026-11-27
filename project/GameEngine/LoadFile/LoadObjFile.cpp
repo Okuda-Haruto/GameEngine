@@ -8,7 +8,7 @@
 #include "GameEngine.h"
 
 //.objファイルからModelDataを構築する
-ModelData LoadObjFile(const std::string& directoryPath, const std::string& filename) {
+ModelData LoadObjFile(const std::string& directoryPath, const std::string& fileName) {
 
 	ModelData modelData;	//構築するModelData
 
@@ -19,7 +19,7 @@ ModelData LoadObjFile(const std::string& directoryPath, const std::string& filen
 	std::vector<Vector2> texcoords;	//テクスチャ座標
 
 	std::string line;	//ファイルから読み込んだ1行を格納するもの
-	std::ifstream file(directoryPath + "/" + filename);	//ファイルを開く
+	std::ifstream file(directoryPath + "/" + fileName);	//ファイルを開く
 	assert(file.is_open());	//開けていない場合止める
 
 	//テキストファイルを1行づつ読み込む

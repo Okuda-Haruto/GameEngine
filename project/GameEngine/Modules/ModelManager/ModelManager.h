@@ -33,8 +33,8 @@ public:
 	void Initialize(DirectXCommon* dxCommon);
 
 	//objファイルの読み込み
-	void LoadModel(const std::string& directoryPath, const std::string& filename);
+	void LoadModel(const std::string& directoryPath, const std::string& fileName);
 
 	//モデルの入手
-	const std::weak_ptr<Model> GetModel(const std::string& directoryPath, const std::string& filename);
+	const std::weak_ptr<Model> GetModel(const std::string& directoryPath, const std::string& fileName);
 };

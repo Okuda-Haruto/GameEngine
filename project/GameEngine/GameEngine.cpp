@@ -37,16 +37,16 @@ void GameEngine::Finalize_() {
 	}
 	xAudio2_.Reset();
 
-	object3D_PipelineState_.Reset();
-	object2D_PipelineState_.Reset();
-	object3D_NoDepth_PipelineState_.Reset();
-	object3D_Instancing_PipelineState_.Reset();
-	particle_PipelineState_.Reset();
-	sprite_PipelineState_.Reset();
-	line_PipelineState_.Reset();
-	line_NoDepth_PipelineState_.Reset();
-	screen_PipelineState_.Reset();
-	screen_ColorChange_PipelineState_.Reset();
+	object3DPipelineState_.Reset();
+	object2DPipelineState_.Reset();
+	object3DNoDepthPipelineState_.Reset();
+	object3DInstancingPipelineState_.Reset();
+	particlePipelineState_.Reset();
+	spritePipelineState_.Reset();
+	linePipelineState_.Reset();
+	lineNoDepthPipelineState_.Reset();
+	screenPipelineState_.Reset();
+	screenColorChangePipelineState_.Reset();
 
 	AudioManager::GetInstance()->Finalize();
 	TextureManager::GetInstance()->Finalize();
@@ -185,19 +185,19 @@ void GameEngine::Initialize_(const wchar_t* windowName, int32_t windowWidth, int
 
 void GameEngine::LoadShader() {
 	//RootSignature作成
-	object_RootSignature_ = dxCommon_->Object_RootSignatureInitialvalue();
-	object_Instancing_RootSignature_ = dxCommon_->Object_Instancing_RootSignatureInitialvalue();
-	sprite_RootSignature_ = dxCommon_->Sprite_RootSignatureInitialvalue();
-	sprite_Instancing_RootSignature_ = dxCommon_->Sprite_Instancing_RootSignatureInitialvalue();
-	line_Instancing_RootSignature_ = dxCommon_->Line_Instancing_RootSignatureInitialvalue();
-	particle_RootSignature_ = dxCommon_->Particle_RootSignatureInitialvalue();
-	screen_RootSignature_ = dxCommon_->Screen_RootSignatureInitialvalue();
-	screen_ColorChange_RootSignature_ = dxCommon_->Screen_ColorChange_RootSignatureInitialvalue();
-	screen_Vignette_RootSignature_ = dxCommon_->Screen_Vignette_RootSignatureInitialvalue();
-	screen_Outline_RootSignature_ = dxCommon_->Screen_Outline_RootSignatureInitialvalue();
-	screen_RadialBlur_RootSignature_ = dxCommon_->Screen_RadialBlur_RootSignatureInitialvalue();
-	screen_Dissolve_RootSignature_ = dxCommon_->Screen_Dissolve_RootSignatureInitialvalue();
-	cubemap_RootSignature_ = dxCommon_->Cubemap_RootSignatureInitialvalue();
+	objectRootSignature_ = dxCommon_->Object_RootSignatureInitialvalue();
+	objectInstancingRootSignature_ = dxCommon_->Object_Instancing_RootSignatureInitialvalue();
+	spriteRootSignature_ = dxCommon_->Sprite_RootSignatureInitialvalue();
+	spriteInstancingRootSignature_ = dxCommon_->Sprite_Instancing_RootSignatureInitialvalue();
+	lineInstancingRootSignature_ = dxCommon_->Line_Instancing_RootSignatureInitialvalue();
+	particleRootSignature_ = dxCommon_->Particle_RootSignatureInitialvalue();
+	screenRootSignature_ = dxCommon_->Screen_RootSignatureInitialvalue();
+	screenColorChangeRootSignature_ = dxCommon_->Screen_ColorChange_RootSignatureInitialvalue();
+	screenVignetteRootSignature_ = dxCommon_->Screen_Vignette_RootSignatureInitialvalue();
+	screenOutlineRootSignature_ = dxCommon_->Screen_Outline_RootSignatureInitialvalue();
+	screenRadialBlurRootSignature_ = dxCommon_->Screen_RadialBlur_RootSignatureInitialvalue();
+	screenDissolveRootSignature_ = dxCommon_->Screen_Dissolve_RootSignatureInitialvalue();
+	cubemapRootSignature_ = dxCommon_->Cubemap_RootSignatureInitialvalue();
 
 	//Shaderをコンパイルする
 	Microsoft::WRL::ComPtr<IDxcBlob> Object3DVSBlob = dxCommon_->CompileShader(L"./resources/Shader/Object3D.VS.hlsl", L"vs_6_0");
@@ -252,26 +252,26 @@ void GameEngine::LoadShader() {
 	assert(CubemapPSBlob != nullptr);
 
 	//PSOを生成
-	object3D_PipelineState_ = Triangle_PipelineStateInitialvalue(device_, object_RootSignature_, Object3DVSBlob.Get(), Object3DPSBlob.Get());
-	object2D_PipelineState_ = Triangle_PipelineStateInitialvalue(device_, object_RootSignature_, Object2DVSBlob.Get(), Object2DPSBlob.Get());
-	object3D_NoDepth_PipelineState_ = Triangle_NoDepth_PipelineStateInitialvalue(device_, object_RootSignature_, Object3DVSBlob.Get(), Object3DPSBlob.Get());
-	object3D_Instancing_PipelineState_ = Triangle_Instancing_PipelineStateInitialvalue(device_, object_Instancing_RootSignature_, InstancingObjectVSBlob.Get(), InstancingObjectPSBlob.Get());
-	particle_PipelineState_ = Particle_PipelineStateInitialvalue(device_, particle_RootSignature_, ParticleVSBlob.Get(), ParticlePSBlob.Get());
-	particle_AddBlend_PipelineState_ = Particle_AddBlend_PipelineStateInitialvalue(device_, particle_RootSignature_, ParticleVSBlob.Get(), ParticlePSBlob.Get());
-	sprite_PipelineState_ = Sprite_PipelineStateInitialvalue(device_, sprite_RootSignature_, Sprite2DVSBlob.Get(), Sprite2DPSBlob.Get());
-	sprite_Instancing_PipelineState_ = Sprite_Instancing_PipelineStateInitialvalue(device_, sprite_Instancing_RootSignature_, InstanceSprite2DVSBlob.Get(), InstanceSprite2DPSBlob.Get());
-	line_PipelineState_ = Line_PipelineStateInitialvalue(device_, line_Instancing_RootSignature_, InstancingLineVSBlob.Get(), InstancingLinePSBlob.Get());
-	line_NoDepth_PipelineState_ = Line_NoDepth_PipelineStateInitialvalue(device_, line_Instancing_RootSignature_, InstancingLineVSBlob.Get(), InstancingLinePSBlob.Get());
-	effect_Cylinder_PipelineState_ = Effect_Cylinder_PipelineStateInitialvalue(device_, object_RootSignature_, Object3DVSBlob.Get(), Object3DPSBlob.Get());
-	screen_PipelineState_ = Screen_PipelineStateInitialvalue(device_, screen_RootSignature_, CopyImageVSBlob.Get(), CopyImagePSBlob.Get());
-	screen_ColorChange_PipelineState_ = Screen_PipelineStateInitialvalue(device_, screen_RootSignature_, CopyImageVSBlob.Get(), ColorChangePSBlob.Get());
-	screen_Vignette_PipelineState_ = Screen_PipelineStateInitialvalue(device_, screen_Vignette_RootSignature_, CopyImageVSBlob.Get(), VignettePSBlob.Get());
-	screen_BoxFilter_PipelineState_ = Screen_PipelineStateInitialvalue(device_, screen_RootSignature_, CopyImageVSBlob.Get(), BoxFilterPSBlob.Get());
-	screen_GaussianFilter_PipelineState_ = Screen_PipelineStateInitialvalue(device_, screen_RootSignature_, CopyImageVSBlob.Get(), GaussianFilterPSBlob.Get());
-	screen_Outline_PipelineState_ = Screen_PipelineStateInitialvalue(device_, screen_Outline_RootSignature_, CopyImageVSBlob.Get(), LuminanceBasedOutlinePSBlob.Get());
-	screen_RadialBlur_PipelineState_ = Screen_PipelineStateInitialvalue(device_, screen_RadialBlur_RootSignature_, CopyImageVSBlob.Get(), RadialBlurPSBlob.Get());
-	screen_Dissolve_PipelineState_ = Screen_PipelineStateInitialvalue(device_, screen_Dissolve_RootSignature_, CopyImageVSBlob.Get(), DissolvePSBlob.Get());
-	cubemap_PipelineState_ = Cubemap_PipelineStateInitialvalue(device_, cubemap_RootSignature_, CubemapVSBlob.Get(), CubemapPSBlob.Get());
+	object3DPipelineState_ = Triangle_PipelineStateInitialvalue(device_, objectRootSignature_, Object3DVSBlob.Get(), Object3DPSBlob.Get());
+	object2DPipelineState_ = Triangle_PipelineStateInitialvalue(device_, objectRootSignature_, Object2DVSBlob.Get(), Object2DPSBlob.Get());
+	object3DNoDepthPipelineState_ = Triangle_NoDepth_PipelineStateInitialvalue(device_, objectRootSignature_, Object3DVSBlob.Get(), Object3DPSBlob.Get());
+	object3DInstancingPipelineState_ = Triangle_Instancing_PipelineStateInitialvalue(device_, objectInstancingRootSignature_, InstancingObjectVSBlob.Get(), InstancingObjectPSBlob.Get());
+	particlePipelineState_ = Particle_PipelineStateInitialvalue(device_, particleRootSignature_, ParticleVSBlob.Get(), ParticlePSBlob.Get());
+	particleAddBlendPipelineState_ = Particle_AddBlend_PipelineStateInitialvalue(device_, particleRootSignature_, ParticleVSBlob.Get(), ParticlePSBlob.Get());
+	spritePipelineState_ = Sprite_PipelineStateInitialvalue(device_, spriteRootSignature_, Sprite2DVSBlob.Get(), Sprite2DPSBlob.Get());
+	spriteInstancingPipelineState_ = Sprite_Instancing_PipelineStateInitialvalue(device_, spriteInstancingRootSignature_, InstanceSprite2DVSBlob.Get(), InstanceSprite2DPSBlob.Get());
+	linePipelineState_ = Line_PipelineStateInitialvalue(device_, lineInstancingRootSignature_, InstancingLineVSBlob.Get(), InstancingLinePSBlob.Get());
+	lineNoDepthPipelineState_ = Line_NoDepth_PipelineStateInitialvalue(device_, lineInstancingRootSignature_, InstancingLineVSBlob.Get(), InstancingLinePSBlob.Get());
+	effectCylinderPipelineState_ = Effect_Cylinder_PipelineStateInitialvalue(device_, objectRootSignature_, Object3DVSBlob.Get(), Object3DPSBlob.Get());
+	screenPipelineState_ = Screen_PipelineStateInitialvalue(device_, screenRootSignature_, CopyImageVSBlob.Get(), CopyImagePSBlob.Get());
+	screenColorChangePipelineState_ = Screen_PipelineStateInitialvalue(device_, screenRootSignature_, CopyImageVSBlob.Get(), ColorChangePSBlob.Get());
+	screenVignettePipelineState_ = Screen_PipelineStateInitialvalue(device_, screenVignetteRootSignature_, CopyImageVSBlob.Get(), VignettePSBlob.Get());
+	screenBoxFilterPipelineState_ = Screen_PipelineStateInitialvalue(device_, screenRootSignature_, CopyImageVSBlob.Get(), BoxFilterPSBlob.Get());
+	screenGaussianFilterPipelineState_ = Screen_PipelineStateInitialvalue(device_, screenRootSignature_, CopyImageVSBlob.Get(), GaussianFilterPSBlob.Get());
+	screenOutlinePipelineState_ = Screen_PipelineStateInitialvalue(device_, screenOutlineRootSignature_, CopyImageVSBlob.Get(), LuminanceBasedOutlinePSBlob.Get());
+	screenRadialBlurPipelineState_ = Screen_PipelineStateInitialvalue(device_, screenRadialBlurRootSignature_, CopyImageVSBlob.Get(), RadialBlurPSBlob.Get());
+	screenDissolvePipelineState_ = Screen_PipelineStateInitialvalue(device_, screenDissolveRootSignature_, CopyImageVSBlob.Get(), DissolvePSBlob.Get());
+	cubemapPipelineState_ = Cubemap_PipelineStateInitialvalue(device_, cubemapRootSignature_, CubemapVSBlob.Get(), CubemapPSBlob.Get());
 
 	isThreadFinished_.store(true);
 }
@@ -405,8 +405,8 @@ void GameEngine::DrawObject_3D_(Object* object, std::shared_ptr<DirectionalLight
 	std::vector<Offset> offsets = object->GetOffsets();
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-	commandList_->SetGraphicsRootSignature(object_RootSignature_.Get());
-	commandList_->SetPipelineState(object3D_PipelineState_.Get());	//PSOを設定
+	commandList_->SetGraphicsRootSignature(objectRootSignature_.Get());
+	commandList_->SetPipelineState(object3DPipelineState_.Get());	//PSOを設定
 
 	commandList_->IASetVertexBuffers(0, 1, &object->GetVBV());	//VBVを設定
 	commandList_->IASetIndexBuffer(&object->GetIBV());	//IBVを設定
@@ -516,8 +516,8 @@ void GameEngine::DrawParts_3D_(Object* object, uint32_t partsIndex, std::shared_
 	assert(partsIndex < parts.size());
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-	commandList_->SetGraphicsRootSignature(object_RootSignature_.Get());
-	commandList_->SetPipelineState(object3D_PipelineState_.Get());	//PSOを設定
+	commandList_->SetGraphicsRootSignature(objectRootSignature_.Get());
+	commandList_->SetPipelineState(object3DPipelineState_.Get());	//PSOを設定
 
 	commandList_->IASetVertexBuffers(0, 1, &object->GetVBV());	//VBVを設定
 	commandList_->IASetIndexBuffer(&object->GetIBV());	//IBVを設定
@@ -615,8 +615,8 @@ void GameEngine::DrawObject_2D_(Object* object, std::shared_ptr<DirectionalLight
 	Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(windowWidth_) / float(windowHeight_), 0.01f, 1.0f);
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-	commandList_->SetGraphicsRootSignature(object_RootSignature_.Get());
-	commandList_->SetPipelineState(object2D_PipelineState_.Get());	//PSOを設定
+	commandList_->SetGraphicsRootSignature(objectRootSignature_.Get());
+	commandList_->SetPipelineState(object2DPipelineState_.Get());	//PSOを設定
 
 	commandList_->IASetVertexBuffers(0, 1, &object->GetVBV());	//VBVを設定
 	commandList_->IASetIndexBuffer(&object->GetIBV());	//IBVを設定
@@ -715,8 +715,8 @@ void GameEngine::DrawParts_2D_(Object* object, uint32_t partsIndex, std::shared_
 	Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(windowWidth_) / float(windowHeight_), 0.01f, 1.0f);
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-	commandList_->SetGraphicsRootSignature(object_RootSignature_.Get());
-	commandList_->SetPipelineState(object2D_PipelineState_.Get());	//PSOを設定
+	commandList_->SetGraphicsRootSignature(objectRootSignature_.Get());
+	commandList_->SetPipelineState(object2DPipelineState_.Get());	//PSOを設定
 
 	commandList_->IASetVertexBuffers(0, 1, &object->GetVBV());	//VBVを設定
 	commandList_->IASetIndexBuffer(&object->GetIBV());	//IBVを設定
@@ -805,8 +805,8 @@ void GameEngine::DrawInstancingObject_3D_(InstancingObject* objects, std::shared
 	if (names.size() <= 0)return;
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-	commandList_->SetGraphicsRootSignature(object_Instancing_RootSignature_.Get());
-	commandList_->SetPipelineState(object3D_Instancing_PipelineState_.Get());	//PSOを設定
+	commandList_->SetGraphicsRootSignature(objectInstancingRootSignature_.Get());
+	commandList_->SetPipelineState(object3DInstancingPipelineState_.Get());	//PSOを設定
 
 	commandList_->IASetVertexBuffers(0, 1, &objects->GetVBV());	//VBVを設定
 	commandList_->IASetIndexBuffer(&objects->GetIBV());	//IBVを設定
@@ -941,8 +941,8 @@ void GameEngine::DrawParticle_(ParticleGroup particleGroup) {
 	if (particleIndex_ > kMaxInstanceIndex)return;
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-	commandList_->SetGraphicsRootSignature(particle_RootSignature_.Get());
-	commandList_->SetPipelineState(particle_PipelineState_.Get());	//PSOを設定
+	commandList_->SetGraphicsRootSignature(particleRootSignature_.Get());
+	commandList_->SetPipelineState(particlePipelineState_.Get());	//PSOを設定
 
 	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
 	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -1051,8 +1051,8 @@ void GameEngine::DrawSprite_2D_(Sprite* sprite) {
 	if (spriteIndex_ > kMaxIndex)return;
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-	commandList_->SetGraphicsRootSignature(sprite_RootSignature_.Get());
-	commandList_->SetPipelineState(sprite_PipelineState_.Get());	//PSOを設定
+	commandList_->SetGraphicsRootSignature(spriteRootSignature_.Get());
+	commandList_->SetPipelineState(spritePipelineState_.Get());	//PSOを設定
 
 	commandList_->IASetVertexBuffers(0, 1, &sprite->GetVBV());	//VBVを設定
 	commandList_->IASetIndexBuffer(&sprite->GetIBV());	//IBVを設定
@@ -1110,8 +1110,8 @@ void GameEngine::DrawInstancingSprite_2D_(InstancingSprite* sprites) {
 	Matrix4x4 projectionMatrix = MakeOrthographicMatrix(0.0f, 0.0f, float(windowWidth_), float(windowHeight_), 0.0f, 100.0f);
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-	commandList_->SetGraphicsRootSignature(sprite_Instancing_RootSignature_.Get());
-	commandList_->SetPipelineState(sprite_Instancing_PipelineState_.Get());	//PSOを設定
+	commandList_->SetGraphicsRootSignature(spriteInstancingRootSignature_.Get());
+	commandList_->SetPipelineState(spriteInstancingPipelineState_.Get());	//PSOを設定
 
 	commandList_->IASetVertexBuffers(0, 1, &sprites->GetVBV());	//VBVを設定
 	commandList_->IASetIndexBuffer(&sprites->GetIBV());	//IBVを設定
@@ -1180,8 +1180,8 @@ void GameEngine::DrawScreen_(std::string textureName) {
 	if (!isThreadFinished_)return;
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-	commandList_->SetGraphicsRootSignature(screen_RootSignature_.Get());
-	commandList_->SetPipelineState(screen_PipelineState_.Get());	//PSOを設定
+	commandList_->SetGraphicsRootSignature(screenRootSignature_.Get());
+	commandList_->SetPipelineState(screenPipelineState_.Get());	//PSOを設定
 
 	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
 	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -1199,8 +1199,8 @@ void GameEngine::DrawScreen_(std::string textureName, ColorChange::ColorMode col
 	if (!isThreadFinished_)return;
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-	commandList_->SetGraphicsRootSignature(screen_RootSignature_.Get());
-	commandList_->SetPipelineState(screen_ColorChange_PipelineState_.Get());	//PSOを設定
+	commandList_->SetGraphicsRootSignature(screenRootSignature_.Get());
+	commandList_->SetPipelineState(screenColorChangePipelineState_.Get());	//PSOを設定
 
 	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
 	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -1231,8 +1231,8 @@ void GameEngine::DrawScreen_(std::string textureName, VignetteData data) {
 	if (!isThreadFinished_)return;
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-	commandList_->SetGraphicsRootSignature(screen_Vignette_RootSignature_.Get());
-	commandList_->SetPipelineState(screen_Vignette_PipelineState_.Get());	//PSOを設定
+	commandList_->SetGraphicsRootSignature(screenVignetteRootSignature_.Get());
+	commandList_->SetPipelineState(screenVignettePipelineState_.Get());	//PSOを設定
 
 	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
 	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -1258,8 +1258,8 @@ void GameEngine::DrawScreen_(std::string textureName, BoxFilterData data) {
 	if (!isThreadFinished_)return;
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-	commandList_->SetGraphicsRootSignature(screen_RootSignature_.Get());
-	commandList_->SetPipelineState(screen_BoxFilter_PipelineState_.Get());	//PSOを設定
+	commandList_->SetGraphicsRootSignature(screenRootSignature_.Get());
+	commandList_->SetPipelineState(screenBoxFilterPipelineState_.Get());	//PSOを設定
 
 	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
 	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -1285,8 +1285,8 @@ void GameEngine::DrawScreen_(std::string textureName, RadialBlurData data) {
 	if (!isThreadFinished_)return;
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-	commandList_->SetGraphicsRootSignature(screen_RadialBlur_RootSignature_.Get());
-	commandList_->SetPipelineState(screen_RadialBlur_PipelineState_.Get());	//PSOを設定
+	commandList_->SetGraphicsRootSignature(screenRadialBlurRootSignature_.Get());
+	commandList_->SetPipelineState(screenRadialBlurPipelineState_.Get());	//PSOを設定
 
 	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
 	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -1312,8 +1312,8 @@ void GameEngine::DrawScreen_(std::string textureName, DissolveData data, uint32_
 	if (!isThreadFinished_)return;
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-	commandList_->SetGraphicsRootSignature(screen_Dissolve_RootSignature_.Get());
-	commandList_->SetPipelineState(screen_Dissolve_PipelineState_.Get());	//PSOを設定
+	commandList_->SetGraphicsRootSignature(screenDissolveRootSignature_.Get());
+	commandList_->SetPipelineState(screenDissolvePipelineState_.Get());	//PSOを設定
 
 	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
 	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -1340,8 +1340,8 @@ void GameEngine::DrawGaussianFillter_(std::string textureName, BoxFilterData dat
 	if (!isThreadFinished_)return;
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-	commandList_->SetGraphicsRootSignature(screen_RootSignature_.Get());
-	commandList_->SetPipelineState(screen_GaussianFilter_PipelineState_.Get());	//PSOを設定
+	commandList_->SetGraphicsRootSignature(screenRootSignature_.Get());
+	commandList_->SetPipelineState(screenGaussianFilterPipelineState_.Get());	//PSOを設定
 
 	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
 	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -1367,8 +1367,8 @@ void GameEngine::DrawOutline_(std::string textureName, std::shared_ptr<Camera> c
 	if (!isThreadFinished_)return;
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-	commandList_->SetGraphicsRootSignature(screen_Outline_RootSignature_.Get());
-	commandList_->SetPipelineState(screen_Outline_PipelineState_.Get());	//PSOを設定
+	commandList_->SetGraphicsRootSignature(screenOutlineRootSignature_.Get());
+	commandList_->SetPipelineState(screenOutlinePipelineState_.Get());	//PSOを設定
 
 	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
 	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -1396,8 +1396,8 @@ void GameEngine::DrawLine_(std::list<PrimitiveManager::PrimitiveLine> lines, Pri
 	if (!isThreadFinished_)return;
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-	commandList_->SetGraphicsRootSignature(line_Instancing_RootSignature_.Get());
-	commandList_->SetPipelineState(line_NoDepth_PipelineState_.Get());	//PSOを設定
+	commandList_->SetGraphicsRootSignature(lineInstancingRootSignature_.Get());
+	commandList_->SetPipelineState(lineNoDepthPipelineState_.Get());	//PSOを設定
 
 	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
 	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
@@ -1463,8 +1463,8 @@ void GameEngine::DrawPoint_(std::list<PrimitiveManager::PrimitivePoint> points, 
 	if (!isThreadFinished_)return;
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-	commandList_->SetGraphicsRootSignature(line_Instancing_RootSignature_.Get());
-	commandList_->SetPipelineState(line_NoDepth_PipelineState_.Get());	//PSOを設定
+	commandList_->SetGraphicsRootSignature(lineInstancingRootSignature_.Get());
+	commandList_->SetPipelineState(lineNoDepthPipelineState_.Get());	//PSOを設定
 
 	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
 	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
@@ -1523,8 +1523,8 @@ void GameEngine::DrawOBB_(std::list<PrimitiveManager::PrimitiveOBB> obbs, Primit
 	if (!isThreadFinished_)return;
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-	commandList_->SetGraphicsRootSignature(line_Instancing_RootSignature_.Get());
-	commandList_->SetPipelineState(line_NoDepth_PipelineState_.Get());	//PSOを設定
+	commandList_->SetGraphicsRootSignature(lineInstancingRootSignature_.Get());
+	commandList_->SetPipelineState(lineNoDepthPipelineState_.Get());	//PSOを設定
 
 	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
 	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
@@ -1587,8 +1587,8 @@ void GameEngine::DrawSphere_(std::list<PrimitiveManager::PrimitiveSphere> sphere
 	if (!isThreadFinished_)return;
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-	commandList_->SetGraphicsRootSignature(line_Instancing_RootSignature_.Get());
-	commandList_->SetPipelineState(line_NoDepth_PipelineState_.Get());	//PSOを設定
+	commandList_->SetGraphicsRootSignature(lineInstancingRootSignature_.Get());
+	commandList_->SetPipelineState(lineNoDepthPipelineState_.Get());	//PSOを設定
 
 	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
 	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
@@ -1651,8 +1651,8 @@ void GameEngine::DrawPrimitiveBox_(PrimitiveBox* primitiveBox) {
 	if (objectIndex_ >= kMaxIndex)return;
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-	commandList_->SetGraphicsRootSignature(cubemap_RootSignature_.Get());
-	commandList_->SetPipelineState(cubemap_PipelineState_.Get());	//PSOを設定
+	commandList_->SetGraphicsRootSignature(cubemapRootSignature_.Get());
+	commandList_->SetPipelineState(cubemapPipelineState_.Get());	//PSOを設定
 
 	commandList_->IASetVertexBuffers(0, 1, &primitiveBox->GetVBV());	//VBVを設定
 	commandList_->IASetIndexBuffer(&primitiveBox->GetIBV());	//IBVを設定
@@ -1708,8 +1708,8 @@ void GameEngine::DrawPrimitiveRing_(PrimitiveRing* primitiveRing, SRT transform,
 	if (objectIndex_ >= kMaxIndex)return;
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-	commandList_->SetGraphicsRootSignature(object_RootSignature_.Get());
-	commandList_->SetPipelineState(effect_Cylinder_PipelineState_.Get());	//PSOを設定
+	commandList_->SetGraphicsRootSignature(objectRootSignature_.Get());
+	commandList_->SetPipelineState(effectCylinderPipelineState_.Get());	//PSOを設定
 
 	commandList_->IASetVertexBuffers(0, 1, &primitiveRing->GetVBV());	//VBVを設定
 	commandList_->IASetIndexBuffer(&primitiveRing->GetIBV());	//IBVを設定
@@ -1767,8 +1767,8 @@ void GameEngine::DrawPrimitiveRing_Billboard_(PrimitiveRing* primitiveRing, SRT 
 	if (objectIndex_ >= kMaxIndex)return;
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-	commandList_->SetGraphicsRootSignature(object_RootSignature_.Get());
-	commandList_->SetPipelineState(effect_Cylinder_PipelineState_.Get());	//PSOを設定
+	commandList_->SetGraphicsRootSignature(objectRootSignature_.Get());
+	commandList_->SetPipelineState(effectCylinderPipelineState_.Get());	//PSOを設定
 
 	commandList_->IASetVertexBuffers(0, 1, &primitiveRing->GetVBV());	//VBVを設定
 	commandList_->IASetIndexBuffer(&primitiveRing->GetIBV());	//IBVを設定
@@ -1848,8 +1848,8 @@ void GameEngine::DrawPrimitiveCylinder_(PrimitiveCylinder* primitiveCylinder, SR
 	if (objectIndex_ >= kMaxIndex)return;
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-	commandList_->SetGraphicsRootSignature(object_RootSignature_.Get());
-	commandList_->SetPipelineState(effect_Cylinder_PipelineState_.Get());	//PSOを設定
+	commandList_->SetGraphicsRootSignature(objectRootSignature_.Get());
+	commandList_->SetPipelineState(effectCylinderPipelineState_.Get());	//PSOを設定
 
 	commandList_->IASetVertexBuffers(0, 1, &primitiveCylinder->GetVBV());	//VBVを設定
 	commandList_->IASetIndexBuffer(&primitiveCylinder->GetIBV());	//IBVを設定
@@ -1907,8 +1907,8 @@ void GameEngine::DrawPrimitiveCylinder_Billboard_(PrimitiveCylinder* primitiveCy
 	if (objectIndex_ >= kMaxIndex)return;
 
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-	commandList_->SetGraphicsRootSignature(object_RootSignature_.Get());
-	commandList_->SetPipelineState(effect_Cylinder_PipelineState_.Get());	//PSOを設定
+	commandList_->SetGraphicsRootSignature(objectRootSignature_.Get());
+	commandList_->SetPipelineState(effectCylinderPipelineState_.Get());	//PSOを設定
 
 	commandList_->IASetVertexBuffers(0, 1, &primitiveCylinder->GetVBV());	//VBVを設定
 	commandList_->IASetIndexBuffer(&primitiveCylinder->GetIBV());	//IBVを設定

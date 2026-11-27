@@ -79,44 +79,44 @@ private:
 	ID3D12GraphicsCommandList* commandList_;
 
 	//RootSignature
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> object_RootSignature_;
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> object_Instancing_RootSignature_;
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> sprite_RootSignature_;
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> sprite_Instancing_RootSignature_;
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> line_Instancing_RootSignature_;
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> particle_RootSignature_;
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> screen_RootSignature_;
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> screen_ColorChange_RootSignature_;
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> screen_Vignette_RootSignature_;
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> screen_Outline_RootSignature_;
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> screen_RadialBlur_RootSignature_;
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> screen_Dissolve_RootSignature_;
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> cubemap_RootSignature_;
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> objectRootSignature_;
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> objectInstancingRootSignature_;
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> spriteRootSignature_;
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> spriteInstancingRootSignature_;
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> lineInstancingRootSignature_;
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> particleRootSignature_;
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> screenRootSignature_;
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> screenColorChangeRootSignature_;
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> screenVignetteRootSignature_;
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> screenOutlineRootSignature_;
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> screenRadialBlurRootSignature_;
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> screenDissolveRootSignature_;
+	Microsoft::WRL::ComPtr <ID3D12RootSignature> cubemapRootSignature_;
 
 	//Windowのメッセージ
 	MSG msg_{};
 
 	//PSO
-	Microsoft::WRL::ComPtr <ID3D12PipelineState> object3D_PipelineState_ = nullptr;
-	Microsoft::WRL::ComPtr <ID3D12PipelineState> object2D_PipelineState_ = nullptr;
-	Microsoft::WRL::ComPtr <ID3D12PipelineState> object3D_NoDepth_PipelineState_ = nullptr;
-	Microsoft::WRL::ComPtr <ID3D12PipelineState> object3D_Instancing_PipelineState_ = nullptr;
-	Microsoft::WRL::ComPtr <ID3D12PipelineState> particle_PipelineState_ = nullptr;
-	Microsoft::WRL::ComPtr <ID3D12PipelineState> particle_AddBlend_PipelineState_ = nullptr;
-	Microsoft::WRL::ComPtr <ID3D12PipelineState> sprite_PipelineState_ = nullptr;
-	Microsoft::WRL::ComPtr <ID3D12PipelineState> sprite_Instancing_PipelineState_ = nullptr;
-	Microsoft::WRL::ComPtr <ID3D12PipelineState> line_PipelineState_ = nullptr;
-	Microsoft::WRL::ComPtr <ID3D12PipelineState> line_NoDepth_PipelineState_ = nullptr;
-	Microsoft::WRL::ComPtr <ID3D12PipelineState> effect_Cylinder_PipelineState_ = nullptr;
-	Microsoft::WRL::ComPtr <ID3D12PipelineState> screen_PipelineState_ = nullptr;
-	Microsoft::WRL::ComPtr <ID3D12PipelineState> screen_ColorChange_PipelineState_ = nullptr;
-	Microsoft::WRL::ComPtr <ID3D12PipelineState> screen_Vignette_PipelineState_ = nullptr;
-	Microsoft::WRL::ComPtr <ID3D12PipelineState> screen_BoxFilter_PipelineState_ = nullptr;
-	Microsoft::WRL::ComPtr <ID3D12PipelineState> screen_GaussianFilter_PipelineState_ = nullptr;
-	Microsoft::WRL::ComPtr <ID3D12PipelineState> screen_Outline_PipelineState_ = nullptr;
-	Microsoft::WRL::ComPtr <ID3D12PipelineState> screen_RadialBlur_PipelineState_ = nullptr;
-	Microsoft::WRL::ComPtr <ID3D12PipelineState> screen_Dissolve_PipelineState_ = nullptr;
-	Microsoft::WRL::ComPtr <ID3D12PipelineState> cubemap_PipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> object3DPipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> object2DPipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> object3DNoDepthPipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> object3DInstancingPipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> particlePipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> particleAddBlendPipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> spritePipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> spriteInstancingPipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> linePipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> lineNoDepthPipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> effectCylinderPipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> screenPipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> screenColorChangePipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> screenVignettePipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> screenBoxFilterPipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> screenGaussianFilterPipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> screenOutlinePipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> screenRadialBlurPipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> screenDissolvePipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12PipelineState> cubemapPipelineState_ = nullptr;
 
 public:
 	//描画可能なモデルの数(通常)

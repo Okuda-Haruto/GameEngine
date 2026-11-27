@@ -66,8 +66,8 @@ void ClearScene::Update() {
 		AudioHolder::GetInstance()->GetAudio(AudioIndex::Battle_BGM).lock()->SoundEndWave();
 	}
 
-	animationTime += 1.0f / 60.0f;
-	if (animationTime > 60.0f)animationTime -= 60.0f;
+	animationTime_ += 1.0f / 60.0f;
+	if (animationTime_ > 60.0f)animationTime_ -= 60.0f;
 
 	if (fadeTime_ < kMaxFadeTime) {
 		fadeTime_ += 1.0f / 60.0f;

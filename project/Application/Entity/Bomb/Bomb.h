@@ -12,7 +12,7 @@ private:
 	float maxLifeTime_;
 	float lifeTime_ = 0.0f;
 
-	bool isDead = false;
+	bool isDead_ = false;
 public:
 	//初期化
 	void Initialize(SRT transform, float range, float maxLifeTime, CollisionID id, std::weak_ptr<Model> model);
@@ -27,5 +27,5 @@ public:
 	static void SetDirectionalLight(std::weak_ptr<DirectionalLight> directionalLight) { directionalLight_ = directionalLight; }
 	static void SetPointLight(std::weak_ptr<PointLight> pointLight) { pointLight_ = pointLight; }
 
-	bool IsDead() { return isDead; }
+	bool IsDead() { return isDead_; }
 };

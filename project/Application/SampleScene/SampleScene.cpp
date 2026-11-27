@@ -252,26 +252,26 @@ void SampleScene::Update() {
 		}
 	}
 	if (pad.Button[PAD_BUTTON_START].trigger) {
-		if (isDisplayUI) {
-			isDisplayUI = false;
+		if (isDisplayUI_) {
+			isDisplayUI_ = false;
 		} else {
-			isDisplayUI = true;
+			isDisplayUI_ = true;
 		}
 	}
 	if (keyboard.keys[DIK_P].hold || pad.Button[PAD_BUTTON_RT].trigger) {
 		audio_->SoundPlayWave();
 	}
 	if (keyboard.keys[DIK_L].hold || pad.Button[PAD_BUTTON_LT].trigger) {
-		switch (reflection)
+		switch (reflection_)
 		{
 		case 0:
-			reflection = REFLECTION_None;
+			reflection_ = REFLECTION_None;
 			break;
 		case 1:
-			reflection = REFLECTION_Lambert;
+			reflection_ = REFLECTION_Lambert;
 			break;
 		case 2:
-			reflection = REFLECTION_HalfLambert;
+			reflection_ = REFLECTION_HalfLambert;
 			break;
 		default:
 			break;
@@ -308,7 +308,7 @@ void SampleScene::Update() {
 		defaultCamera_->Update();
 	}
 #ifdef USE_IMGUI
-	if (isDisplayUI) {
+	if (isDisplayUI_) {
 		ImGui::Begin("sprite");
 		ImGui::SetWindowSize("sprite", ImVec2{ 500,100 });
 		Vector2 spritePosition = sprite_[0]->GetPosition();
@@ -367,7 +367,7 @@ void SampleScene::Update() {
 	const char* items[] = { "None", "Lambert", "HalfLambert" };
 	static const char* current_item = "HalfLambert";
 
-	current_item = items[reflection];
+	current_item = items[reflection_];
 
 	if (ImGui::BeginCombo("Lighting", current_item))
 	{
@@ -375,9 +375,9 @@ void SampleScene::Update() {
 		{
 			bool is_selected = (current_item == items[n]);
 			if (ImGui::Selectable(items[n], is_selected)) {
-				reflection = n;
+				reflection_ = n;
 				for (std::unique_ptr<Object>& object : object_) {
-					object->SetReflection(reflection);
+					object->SetReflection(reflection_);
 				}
 			}
 		}
@@ -609,7 +609,7 @@ void SampleScene::Update() {
 
 	particleEmitter_->Draw();
 
-	if (isDisplayUI) {
+	if (isDisplayUI_) {
 		for (INT i = 0; i < sprite_.size(); i++) {
 			if (isSpriteDraw_[i]) {
 				sprite_[i]->Draw2D();

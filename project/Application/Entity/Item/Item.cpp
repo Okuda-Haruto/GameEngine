@@ -22,14 +22,14 @@ void Item::Initialize(SRT transform, Player* player) {
 	velocity_ = Normalize(rotateMatrix * Vector3{ 0.0f,0.0f,1.0f }) * speed_;
 
 	lifeTime_ = 0.0f;
-	isDead = false;
+	isDead_ = false;
 
 	BaseEntity::Initialize(transform.scale.x, CollisionID_Item_Attack);
 }
 
 void Item::Update() {
 
-	if (!isDead) {
+	if (!isDead_) {
 		transform_.rotate.y += std::numbers::pi_v<float> / 90;
 
 		if (transform_.rotate.x > std::numbers::pi_v<float> *2)transform_.rotate.x -= std::numbers::pi_v<float> *2;
@@ -42,7 +42,7 @@ void Item::Update() {
 }
 
 void Item::Draw() {
-	if (!isDead) {
+	if (!isDead_) {
 		object_->Draw3D();
 	}
 }
@@ -53,7 +53,7 @@ void Item::IsCollision(uint8_t targetId) {
 		(targetId & 0b1000 ||	//衝突するもの
 			targetId & CollisionID_Player_Attack)) {	//プレイヤー攻撃
 
-		isDead = true;
+		isDead_ = true;
 		player_->AddHP(1);
 	}
 }

@@ -766,7 +766,7 @@ public:
 	~Boss();
 
 	//初期化
-	void Initialize(std::string filepath, Stage* stage_, std::shared_ptr<GameCamera> gameCamera, Player* player, SRT startTransform);
+	void Initialize(std::string filePath, Stage* stage_, std::shared_ptr<GameCamera> gameCamera, Player* player, SRT startTransform);
 	//更新
 	void Update();
 	//描画

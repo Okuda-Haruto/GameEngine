@@ -27,11 +27,11 @@ void StageEditor::MoveCommand::RedoCommand() {
 	*targetTransform_.lock() = afterTransform_;
 }
 
-StageEditor::AddColliderObjectCommand::AddColliderObjectCommand(StageEditor* editor, int32_t index, SRT transform, std::string directoryPath, std::string filename) {
+StageEditor::AddColliderObjectCommand::AddColliderObjectCommand(StageEditor* editor, int32_t index, SRT transform, std::string directoryPath, std::string fileName) {
 	editor_ = editor;
 	index_ = index;
 
-	editor_->AddColliderObject(index, transform, directoryPath, filename);
+	editor_->AddColliderObject(index, transform, directoryPath, fileName);
 
 	//DoとRedoで行うことは同じ
 	RedoCommand();
@@ -61,11 +61,11 @@ void StageEditor::DeleteColliderObjectCommand::RedoCommand() {
 	editor_->SetEnableColliderObject(index_, false);
 }
 
-StageEditor::AddBreakObjectCommand::AddBreakObjectCommand(StageEditor* editor, int32_t index, SRT transform, std::string directoryPath, std::string filename) {
+StageEditor::AddBreakObjectCommand::AddBreakObjectCommand(StageEditor* editor, int32_t index, SRT transform, std::string directoryPath, std::string fileName) {
 	editor_ = editor;
 	index_ = index;
 
-	editor_->AddBreakObject(index, transform, directoryPath, filename);
+	editor_->AddBreakObject(index, transform, directoryPath, fileName);
 
 	//DoとRedoで行うことは同じ
 	RedoCommand();
@@ -196,12 +196,12 @@ void StageEditor::Update() {
 				keyboard.keys[DIK_V].trigger) {
 				if (copyIndexType_ == IndexType::ColliderObject) {
 					commands_.resize(commandIndex_);
-					commands_.push_back(std::make_unique<AddColliderObjectCommand>(this, currentColliderIndex_, copyTransform_, colliderObjects_[copyObjectIndex_].directoryPath, colliderObjects_[copyObjectIndex_].filename));
+					commands_.push_back(std::make_unique<AddColliderObjectCommand>(this, currentColliderIndex_, copyTransform_, colliderObjects_[copyObjectIndex_].directoryPath, colliderObjects_[copyObjectIndex_].fileName));
 					commandIndex_++;
 					currentColliderIndex_++;
 				} else if (copyIndexType_ == IndexType::BreakObject) {
 					commands_.resize(commandIndex_);
-					commands_.push_back(std::make_unique<AddBreakObjectCommand>(this, currentBreakIndex_, copyTransform_, breakObjects_[copyObjectIndex_].directoryPath, breakObjects_[copyObjectIndex_].filename));
+					commands_.push_back(std::make_unique<AddBreakObjectCommand>(this, currentBreakIndex_, copyTransform_, breakObjects_[copyObjectIndex_].directoryPath, breakObjects_[copyObjectIndex_].fileName));
 					commandIndex_++;
 					currentBreakIndex_++;
 				}
@@ -371,14 +371,14 @@ void StageEditor::ReadStageFile(std::string filePath) {
 	for (auto& data : stageData_.colliderObjects) {
 		EditorObject editorObject;
 		editorObject.object = std::make_shared<Object>();
-		editorObject.object->Initialize(ModelManager::GetInstance()->GetModel(data.directoryPath, data.filename));
+		editorObject.object->Initialize(ModelManager::GetInstance()->GetModel(data.directoryPath, data.fileName));
 		editorObject.object->SetDirectionalLight(stage_->GetDirectionalLight());
 		editorObject.object->SetPointLight(stage_->GetPointLight());
 		editorObject.startTransform = std::make_shared<SRT>();
 		*editorObject.startTransform = data.startTransform;
 
 		editorObject.directoryPath = data.directoryPath;
-		editorObject.filename = data.filename;
+		editorObject.fileName = data.fileName;
 
 		colliderObjects_.push_back(editorObject);
 
@@ -388,14 +388,14 @@ void StageEditor::ReadStageFile(std::string filePath) {
 	for (auto& data : stageData_.breakObjects) {
 		EditorObject editorObject;
 		editorObject.object = std::make_shared<Object>();
-		editorObject.object->Initialize(ModelManager::GetInstance()->GetModel(data.directoryPath, data.filename));
+		editorObject.object->Initialize(ModelManager::GetInstance()->GetModel(data.directoryPath, data.fileName));
 		editorObject.object->SetDirectionalLight(stage_->GetDirectionalLight());
 		editorObject.object->SetPointLight(stage_->GetPointLight());
 		editorObject.startTransform = std::make_shared<SRT>();
 		*editorObject.startTransform = data.startTransform;
 
 		editorObject.directoryPath = data.directoryPath;
-		editorObject.filename = data.filename;
+		editorObject.fileName = data.fileName;
 
 		breakObjects_.push_back(editorObject);
 
@@ -409,7 +409,7 @@ void StageEditor::WriteStageFile() {
 	stageData_ = {};
 
 	//データ入力
-	stageData_.bossData.filepath = bossData_.filePath;
+	stageData_.bossData.filePath = bossData_.filePath;
 	stageData_.bossData.startTransform = *bossData_.startTransform;
 
 	stageData_.playerStartTransform = *playerStartTransform_;
@@ -422,7 +422,7 @@ void StageEditor::WriteStageFile() {
 		//一旦衝突判定無し
 		ColliderObjectData data;
 		data.directoryPath = object.directoryPath;
-		data.filename = object.filename;
+		data.fileName = object.fileName;
 		data.startTransform = *object.startTransform;
 		stageData_.colliderObjects.push_back(data);
 	}
@@ -434,7 +434,7 @@ void StageEditor::WriteStageFile() {
 		//一旦衝突判定無し
 		BreakObjectData data;
 		data.directoryPath = object.directoryPath;
-		data.filename = object.filename;
+		data.fileName = object.fileName;
 		data.startTransform = *object.startTransform;
 		stageData_.breakObjects.push_back(data);
 	}
@@ -442,38 +442,38 @@ void StageEditor::WriteStageFile() {
 	StageManager::GetInstance()->WriteStage(filePath_, stageData_);
 }
 
-void StageEditor::AddColliderObject(int32_t index, SRT transform, std::string directoryPath, std::string filename) {
+void StageEditor::AddColliderObject(int32_t index, SRT transform, std::string directoryPath, std::string fileName) {
 	//新しく作った場合のみobjectを追加
 	if (colliderObjects_.size() <= index) {
 		EditorObject editorObject;
 		editorObject.object = std::make_shared<Object>();
-		editorObject.object->Initialize(ModelManager::GetInstance()->GetModel(directoryPath, filename));
+		editorObject.object->Initialize(ModelManager::GetInstance()->GetModel(directoryPath, fileName));
 		editorObject.object->SetDirectionalLight(stage_->GetDirectionalLight());
 		editorObject.object->SetPointLight(stage_->GetPointLight());
 		editorObject.startTransform = std::make_shared<SRT>();
 		*editorObject.startTransform = transform;
 
 		editorObject.directoryPath = directoryPath;
-		editorObject.filename = filename;
+		editorObject.fileName = fileName;
 
 		colliderObjects_.push_back(std::move(editorObject));
 	}
 
 }
 
-void StageEditor::AddBreakObject(int32_t index, SRT transform, std::string directoryPath, std::string filename) {
+void StageEditor::AddBreakObject(int32_t index, SRT transform, std::string directoryPath, std::string fileName) {
 	//新しく作った場合のみobjectを追加
 	if (breakObjects_.size() <= index) {
 		EditorObject editorObject;
 		editorObject.object = std::make_shared<Object>();
-		editorObject.object->Initialize(ModelManager::GetInstance()->GetModel(directoryPath, filename));
+		editorObject.object->Initialize(ModelManager::GetInstance()->GetModel(directoryPath, fileName));
 		editorObject.object->SetDirectionalLight(stage_->GetDirectionalLight());
 		editorObject.object->SetPointLight(stage_->GetPointLight());
 		editorObject.startTransform = std::make_shared<SRT>();
 		*editorObject.startTransform = transform;
 
 		editorObject.directoryPath = directoryPath;
-		editorObject.filename = filename;
+		editorObject.fileName = fileName;
 
 		breakObjects_.push_back(std::move(editorObject));
 	}

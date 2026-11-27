@@ -3,12 +3,12 @@
 #include <fstream>
 #include <cassert>
 
-std::list<MaterialData> LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename) {
+std::list<MaterialData> LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& fileName) {
 	//変数の宣言
 	std::list<MaterialData> materialData;	//構築するMaterialData
 	MaterialData MaterialData;	//単体のマテリアルデータ
 	std::string line;	//ファイルから読んだ1行を格納するもの
-	std::ifstream file(directoryPath + "/" + filename);	//ファイルを開く
+	std::ifstream file(directoryPath + "/" + fileName);	//ファイルを開く
 	assert(file.is_open());	//開けていない場合止める
 
 	//MaterialDataを構築

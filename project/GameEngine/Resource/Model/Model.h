@@ -40,7 +40,7 @@ public:
 	~Model();
 
 	//初期値
-	void Initialize(const std::string& directoryPath, const std::string& filename, DirectXCommon* dxCommon);
+	void Initialize(const std::string& directoryPath, const std::string& fileName, DirectXCommon* dxCommon);
 
 	//頂点バッファビュー
 	const D3D12_VERTEX_BUFFER_VIEW& GetVBV() { return vertexBufferView_; }

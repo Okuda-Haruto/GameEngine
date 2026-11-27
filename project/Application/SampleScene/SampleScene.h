@@ -61,7 +61,7 @@ private:
 	//光源
 	DirectionalLightElement directionalLightElement_;
 	std::shared_ptr<DirectionalLight> directionalLight_ = nullptr;
-	UINT reflection = REFLECTION_HalfLambert;
+	UINT reflection_ = REFLECTION_HalfLambert;
 	float shininess_ = 40.0f;
 
 	PointLightElement pointLightElement_;
@@ -70,7 +70,7 @@ private:
 	SpotLightElement spotLightElement_;
 	std::shared_ptr<SpotLight> spotLight_ = nullptr;
 
-	bool isDisplayUI = false;
+	bool isDisplayUI_ = false;
 
 	std::unique_ptr<PrimitiveBox> skybox_;
 

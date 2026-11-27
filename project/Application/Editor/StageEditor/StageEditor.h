@@ -18,7 +18,7 @@ struct EditorObject {
 	std::shared_ptr<Object> object;
 	//ファイルパス
 	std::string directoryPath;
-	std::string filename;
+	std::string fileName;
 	//Transform
 	std::shared_ptr<SRT> startTransform;
 	//接触判定
@@ -74,7 +74,7 @@ private:
 		int32_t index_;
 	public:
 		//コマンド実行
-		AddColliderObjectCommand(StageEditor* editor, int32_t index, SRT transform, std::string directoryPath, std::string filename);
+		AddColliderObjectCommand(StageEditor* editor, int32_t index, SRT transform, std::string directoryPath, std::string fileName);
 		//コマンド再実行
 		void RedoCommand() override;
 		//コマンド取消
@@ -100,7 +100,7 @@ private:
 		int32_t index_;
 	public:
 		//コマンド実行
-		AddBreakObjectCommand(StageEditor* editor, int32_t index, SRT transform, std::string directoryPath, std::string filename);
+		AddBreakObjectCommand(StageEditor* editor, int32_t index, SRT transform, std::string directoryPath, std::string fileName);
 		//コマンド再実行
 		void RedoCommand() override;
 		//コマンド取消
@@ -229,11 +229,11 @@ public:
 	/// 接地オブジェクトの追加
 	/// </summary>
 	/// <param name="index">番号</param>
-	void AddColliderObject(int32_t index, SRT transform, std::string directoryPath, std::string filename);
+	void AddColliderObject(int32_t index, SRT transform, std::string directoryPath, std::string fileName);
 
 	void SetEnableColliderObject(int32_t index, bool enableObject) { colliderObjects_[index].enableObject = enableObject; }
 
-	void AddBreakObject(int32_t index, SRT transform, std::string directoryPath, std::string filename);
+	void AddBreakObject(int32_t index, SRT transform, std::string directoryPath, std::string fileName);
 
 	void SetEnableBreakObject(int32_t index, bool enableObject) { breakObjects_[index].enableObject = enableObject; }
 
