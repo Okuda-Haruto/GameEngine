@@ -32,7 +32,7 @@ private:
 	std::unique_ptr<Sprite>press_B_Start_Sprite_;
 	std::unique_ptr<Sprite>credit_Sprite_;
 
-	float animationTime = 0.0f;
+	float animationTime_ = 0.0f;
 
 public:
 

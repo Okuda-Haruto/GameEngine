@@ -30,7 +30,7 @@ private:
 
 	std::unique_ptr<Sprite>titleSprite_;
 
-	float animationTime = 0.0f;
+	float animationTime_ = 0.0f;
 
 public:
 

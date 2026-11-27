@@ -380,9 +380,9 @@ Boss::~Boss() {
 
 }
 
-void Boss::Initialize(std::string filepath, Stage* stage, std::shared_ptr<GameCamera> gameCamera, Player* player, SRT startTransform) {
+void Boss::Initialize(std::string filePath, Stage* stage, std::shared_ptr<GameCamera> gameCamera, Player* player, SRT startTransform) {
 
-	//ReadBossFile(filepath);
+	//ReadBossFile(filePath);
 	
 	maxHP_ = 30;
 	HP_ = maxHP_;

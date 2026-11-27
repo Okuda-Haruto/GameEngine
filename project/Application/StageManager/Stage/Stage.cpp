@@ -162,7 +162,7 @@ void Stage::Initialize(bool isTutorial, StageData stageData, std::shared_ptr<Inp
 
 	//ボス
 	boss_ = std::make_unique<Boss>();
-	boss_->Initialize(stageData.bossData.filepath, this, gameCamera_, player_.get(), stageData.bossData.startTransform);
+	boss_->Initialize(stageData.bossData.filePath, this, gameCamera_, player_.get(), stageData.bossData.startTransform);
 	boss_->SetCamera(gameCamera_->GetCamera());
 	boss_->SetDirectionalLight(directionalLight_);
 	boss_->SetPointLight(pointLight_);
@@ -170,7 +170,7 @@ void Stage::Initialize(bool isTutorial, StageData stageData, std::shared_ptr<Inp
 	//接触可能オブジェクト
 	for (auto& object : stageData.colliderObjects) {
 		std::unique_ptr<ColliderObject> colliderObject = std::make_unique<ColliderObject>();
-		colliderObject->Initialize(ModelManager::GetInstance()->GetModel(object.directoryPath, object.filename), directionalLight_, gameCamera_.get(), object.startTransform);
+		colliderObject->Initialize(ModelManager::GetInstance()->GetModel(object.directoryPath, object.fileName), directionalLight_, gameCamera_.get(), object.startTransform);
 		colliderObjects_.push_back(move(colliderObject));
 	}
 
@@ -179,7 +179,7 @@ void Stage::Initialize(bool isTutorial, StageData stageData, std::shared_ptr<Inp
 		std::unique_ptr<BreakObject> breakObject = std::make_unique<BreakObject>();
 		std::unique_ptr<Event_AddItem> addItem = std::make_unique<Event_AddItem>();
 		addItem->Initialize(this);
-		breakObject->Initialize(object.startTransform, 2, ModelManager::GetInstance()->GetModel(object.directoryPath, object.filename), move(addItem));
+		breakObject->Initialize(object.startTransform, 2, ModelManager::GetInstance()->GetModel(object.directoryPath, object.fileName), move(addItem));
 		breakObjects_.push_back(move(breakObject));
 	}
 	voxelEffect_ = std::make_unique<VoxelEffect>();

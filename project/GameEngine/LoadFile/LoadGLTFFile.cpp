@@ -16,12 +16,12 @@ Matrix4x4 mirrorX =
 };
 
 //.gltfファイルからModelDataを構築する
-ModelData LoadGLTFFile(const std::string& directoryPath, const std::string& filename) {
+ModelData LoadGLTFFile(const std::string& directoryPath, const std::string& fileName) {
 
 	ModelData modelData;	//構築するModelData
 
 	Assimp::Importer importer;
-	std::string filePath = directoryPath + "/" + filename;
+	std::string filePath = directoryPath + "/" + fileName;
 	const aiScene* scene = importer.ReadFile(filePath.c_str(), aiProcess_FlipWindingOrder | aiProcess_FlipUVs | aiProcess_JoinIdenticalVertices | aiProcess_Triangulate);
 	assert(scene->HasMeshes());	//メッシュがないのは対応しない
 

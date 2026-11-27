@@ -10,7 +10,7 @@
 struct ColliderObjectData {
 	//モデルパス
 	std::string directoryPath;
-	std::string filename;
+	std::string fileName;
 	//出現座標
 	SRT startTransform;
 };
@@ -19,7 +19,7 @@ struct ColliderObjectData {
 struct BreakObjectData {
 	//モデルパス
 	std::string directoryPath;
-	std::string filename;
+	std::string fileName;
 	//出現座標
 	SRT startTransform;
 };
@@ -27,7 +27,7 @@ struct BreakObjectData {
 //ボスに関するデータ
 struct BossData {
 	//ボスファイルのパス
-	std::string filepath;
+	std::string filePath;
 	//出現座標
 	SRT startTransform;
 };

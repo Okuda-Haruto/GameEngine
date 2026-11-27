@@ -8,15 +8,15 @@ Model::~Model() {
 
 }
 
-void Model::Initialize(const std::string& directoryPath, const std::string& filename, DirectXCommon* dxCommon) {
+void Model::Initialize(const std::string& directoryPath, const std::string& fileName, DirectXCommon* dxCommon) {
 
 	dxCommon_ = dxCommon;
 
 	//モデル読み込み
-	if (filename.find(".obj") != std::string::npos) {
-		modelData_ = LoadObjFile(directoryPath, filename);
-	} else if (filename.find(".gltf") != std::string::npos) {
-		modelData_ = LoadGLTFFile(directoryPath, filename);
+	if (fileName.find(".obj") != std::string::npos) {
+		modelData_ = LoadObjFile(directoryPath, fileName);
+	} else if (fileName.find(".gltf") != std::string::npos) {
+		modelData_ = LoadGLTFFile(directoryPath, fileName);
 	} else {
 		assert(0);
 	}

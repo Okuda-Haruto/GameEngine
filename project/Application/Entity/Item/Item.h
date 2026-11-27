@@ -13,7 +13,7 @@ private:
 	const float kMaxLifeTime_ = 1.5f;
 	float lifeTime_ = 0.0f;
 
-	bool isDead = false;
+	bool isDead_ = false;
 
 	Player* player_;
 public:
@@ -30,5 +30,5 @@ public:
 	static void SetDirectionalLight(std::weak_ptr<DirectionalLight> directionalLight) { directionalLight_ = directionalLight; }
 	static void SetPointLight(std::weak_ptr<PointLight> pointLight) { pointLight_ = pointLight; }
 
-	bool IsDead() { return isDead; }
+	bool IsDead() { return isDead_; }
 };
