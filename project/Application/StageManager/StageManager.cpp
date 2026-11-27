@@ -34,7 +34,7 @@ StageData StageManager::ReadStage(std::string filePath) {
 
 		ColliderObjectData data;
 		data.directoryPath = obj["directoryPath"];
-		data.fileName = obj["fileName"];
+		data.fileName = obj["filename"];
 		data.startTransform = obj["startTransform"].get<SRT>();
 
 		stageData.colliderObjects.push_back(std::move(data));
@@ -49,7 +49,7 @@ StageData StageManager::ReadStage(std::string filePath) {
 
 		BreakObjectData data;
 		data.directoryPath = obj["directoryPath"];
-		data.fileName = obj["fileName"];
+		data.fileName = obj["filename"];
 		data.startTransform = obj["startTransform"].get<SRT>();
 
 		stageData.breakObjects.push_back(std::move(data));
