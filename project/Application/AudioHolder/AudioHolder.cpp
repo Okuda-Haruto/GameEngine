@@ -1,18 +1,8 @@
 #include "AudioHolder.h"
 #include "AudioManager/AudioManager.h"
 
-std::unique_ptr<AudioHolder> AudioHolder::instance;
-
-AudioHolder* AudioHolder::GetInstance() {
-	if (!instance) {
-		instance = std::make_unique<AudioHolder>();
-	}
-	return instance.get();
-}
-
 void AudioHolder::Finalize() {
 	audios_.clear();
-	instance.reset();
 }
 
 void AudioHolder::Initialize() {

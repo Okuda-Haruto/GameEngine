@@ -1,20 +1,9 @@
 #include "SceneManager.h"
 
-std::unique_ptr<SceneManager> SceneManager::instance;
-
-SceneManager* SceneManager::GetInstance() {
-	if (!instance) {
-		instance = std::make_unique<SceneManager>();
-	}
-	return instance.get();
-}
-
 void SceneManager::Finalize() {
 	//最期のシーンの終了と解放
 	scene_->Finalize();
 	scene_.reset();
-
-	instance.reset();
 }
 
 void SceneManager::Update() {

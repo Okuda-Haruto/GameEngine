@@ -3,17 +3,9 @@
 #include "ConvertString.h"
 
 uint32_t TextureManager::kSRVIndexTop = 1;
-std::unique_ptr<TextureManager> TextureManager::instance;
-
-TextureManager* TextureManager::GetInstance() {
-	if (!instance) {
-		instance = std::make_unique<TextureManager>();
-	}
-	return instance.get();
-}
 
 void TextureManager::Finalize() {
-	instance.reset();
+
 }
 
 void TextureManager::Initialize(DirectXCommon* dxCommon, SRVManager* srvManager) {

@@ -4,15 +4,6 @@
 
 #include <cassert>
 
-std::unique_ptr<AudioManager> AudioManager::instance;
-
-AudioManager* AudioManager::GetInstance() {
-	if (!instance) {
-		instance = std::make_unique<AudioManager>();
-	}
-	return instance.get();
-}
-
 void AudioManager::Finalize() {
 	//音声データの解放
 
@@ -24,8 +15,6 @@ void AudioManager::Finalize() {
 	MFShutdown();
 
 	CoUninitialize();
-
-	instance.reset();
 }
 
 void AudioManager::Initialize(Microsoft::WRL::ComPtr<IXAudio2> xAudio2) {

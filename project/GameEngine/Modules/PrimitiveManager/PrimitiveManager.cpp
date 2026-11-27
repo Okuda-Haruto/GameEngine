@@ -4,13 +4,8 @@
 #include "SpriteManager/SpriteManager.h"
 #include <numbers>
 
-std::unique_ptr<PrimitiveManager> PrimitiveManager::instance;
+void PrimitiveManager::Finalize() {
 
-PrimitiveManager* PrimitiveManager::GetInstance() {
-	if (!instance) {
-		instance = std::make_unique<PrimitiveManager>();
-	}
-	return instance.get();
 }
 
 void PrimitiveManager::Initialize(DirectXCommon* dxCommon, SRVManager* srvManager) {
@@ -245,10 +240,6 @@ void PrimitiveManager::Initialize(DirectXCommon* dxCommon, SRVManager* srvManage
 	}
 
 	Reset();
-}
-
-void PrimitiveManager::Finalize() {
-	instance.reset();
 }
 
 void PrimitiveManager::Draw() {

@@ -16,8 +16,11 @@ enum class AudioIndex {
 class AudioHolder {
 private:
 
-	static std::unique_ptr<AudioHolder> instance;
-
+	AudioHolder() = default;
+	~AudioHolder() = default;
+	AudioHolder(AudioHolder&) = delete;
+	AudioHolder& operator=(AudioHolder&) = delete;
+	
 	struct FilePath {
 		std::string directoryPath_;
 		bool isLoop_;
@@ -25,14 +28,15 @@ private:
 	};
 
 	std::vector<std::shared_ptr<Audio>> audios_;
+
 public:
 
-	AudioHolder() = default;
-	~AudioHolder() = default;
-	AudioHolder(AudioHolder&) = delete;
-	AudioHolder& operator=(AudioHolder&) = delete;
-
-	static AudioHolder* GetInstance();
+	//シングルトンインスタンスの取得
+	static AudioHolder* GetInstance()
+	{
+		static AudioHolder instance;
+		return &instance;
+	}
 
 	void Finalize();
 

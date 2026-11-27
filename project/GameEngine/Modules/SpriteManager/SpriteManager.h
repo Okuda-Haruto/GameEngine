@@ -5,18 +5,19 @@
 
 class SpriteManager {
 private:
-	static std::unique_ptr<SpriteManager> instance;
-
-	DirectXCommon* dxCommon_ = nullptr;
-public:
-
 	SpriteManager() = default;
 	~SpriteManager() = default;
 	SpriteManager(SpriteManager&) = delete;
 	SpriteManager& operator=(SpriteManager&) = delete;
 
+	DirectXCommon* dxCommon_ = nullptr;
+public:
 	//シングルトンインスタンスの取得
-	static SpriteManager* GetInstance();
+	static SpriteManager* GetInstance()
+	{
+		static SpriteManager instance;
+		return &instance;
+	}
 
 	//終了
 	void Finalize();

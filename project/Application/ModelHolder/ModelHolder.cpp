@@ -1,17 +1,8 @@
 #include "ModelHolder.h"
 #include "ModelManager/ModelManager.h"
 
-std::unique_ptr<ModelHolder> ModelHolder::instance;
-
-ModelHolder* ModelHolder::GetInstance() {
-	if (!instance) {
-		instance = std::make_unique<ModelHolder>();
-	}
-	return instance.get();
-}
-
 void ModelHolder::Finalize() {
-	instance.reset();
+
 }
 
 void ModelHolder::Initialize() {

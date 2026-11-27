@@ -13,7 +13,10 @@
 
 class TextureManager {
 private:
-	static std::unique_ptr<TextureManager> instance;
+	TextureManager() = default;
+	~TextureManager() = default;
+	TextureManager(TextureManager&) = delete;
+	TextureManager& operator=(TextureManager&) = delete;
 
 	DirectXCommon* dxCommon_ = nullptr;
 	SRVManager* srvManager_ = nullptr;
@@ -37,14 +40,12 @@ private:
 	int32_t white2x2_;
 
 public:
-
-	TextureManager() = default;
-	~TextureManager() = default;
-	TextureManager(TextureManager&) = delete;
-	TextureManager& operator=(TextureManager&) = delete;
-
 	//シングルトンインスタンスの取得
-	static TextureManager* GetInstance();
+	static TextureManager* GetInstance()
+	{
+		static TextureManager instance;
+		return &instance;
+	}
 
 	//終了
 	void Finalize();

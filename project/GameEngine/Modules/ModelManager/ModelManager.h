@@ -8,8 +8,10 @@
 
 class ModelManager {
 private:
-
-	static std::unique_ptr<ModelManager> instance;
+	ModelManager() = default;
+	~ModelManager() = default;
+	ModelManager(ModelManager&) = delete;
+	ModelManager& operator=(ModelManager&) = delete;
 
 	DirectXCommon* dxCommon_ = nullptr;
 
@@ -17,13 +19,12 @@ private:
 	std::unordered_map <std::string,std::shared_ptr<Model>> modelDatas_;
 public:
 
-	ModelManager() = default;
-	~ModelManager() = default;
-	ModelManager(ModelManager&) = delete;
-	ModelManager& operator=(ModelManager&) = delete;
-
 	//シングルトンインスタンスの取得
-	static ModelManager* GetInstance();
+	static ModelManager* GetInstance()
+	{
+		static ModelManager instance;
+		return &instance;
+	}
 
 	//終了
 	void Finalize();

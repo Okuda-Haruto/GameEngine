@@ -20,7 +20,10 @@ enum class ModelIndex {
 class ModelHolder {
 private:
 
-	static std::unique_ptr<ModelHolder> instance;
+	ModelHolder() = default;
+	~ModelHolder() = default;
+	ModelHolder(ModelHolder&) = delete;
+	ModelHolder& operator=(ModelHolder&) = delete;
 
 	struct FilePath {
 		std::string directoryPath_;
@@ -31,12 +34,12 @@ private:
 
 public:
 
-	ModelHolder() = default;
-	~ModelHolder() = default;
-	ModelHolder(ModelHolder&) = delete;
-	ModelHolder& operator=(ModelHolder&) = delete;
-
-	static ModelHolder* GetInstance();
+	//シングルトンインスタンスの取得
+	static ModelHolder* GetInstance()
+	{
+		static ModelHolder instance;
+		return &instance;
+	}
 
 	void Finalize();
 

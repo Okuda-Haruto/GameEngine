@@ -2,22 +2,11 @@
 #include <algorithm>
 #include "ConvertString.h"
 
-std::unique_ptr<ModelManager> ModelManager::instance;
-
-ModelManager* ModelManager::GetInstance() {
-	if (!instance) {
-		instance = std::make_unique<ModelManager>();
-	}
-	return instance.get();
-}
-
 void ModelManager::Finalize() {
 	for (auto& data : modelDatas_) {
 		data.second.reset();
 	}
 	modelDatas_.clear();
-
-	instance.reset();
 }
 
 void ModelManager::Initialize(DirectXCommon* dxCommon) {

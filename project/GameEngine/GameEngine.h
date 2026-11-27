@@ -286,24 +286,21 @@ private:
 
 	WindowsAPI* GetWindowsAPI_() { return winApp_.get(); }
 
-	// インスタンス生成
-	static GameEngine* GetInstance();
-
-	static std::unique_ptr<GameEngine> instance;
+	//シングルトンインスタンスの取得
+	static GameEngine* GetInstance()
+	{
+		static GameEngine instance;
+		return &instance;
+	}
 
 	void Finalize_();
-
-public:
 
 	GameEngine() = default;
 	~GameEngine() = default;
 	GameEngine(GameEngine&) = delete;
 	GameEngine& operator=(GameEngine&) = delete;
 
-
-	// コピー、代入を禁止する
-	GameEngine(const std::unique_ptr<GameEngine>) = delete;
-	std::unique_ptr<GameEngine> operator=(const std::unique_ptr<GameEngine>) = delete;
+public:
 
 	static void Finalize();
 

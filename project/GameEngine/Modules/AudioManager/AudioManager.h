@@ -26,7 +26,10 @@
 //音声
 class AudioManager {
 private:
-	static std::unique_ptr<AudioManager> instance;
+	AudioManager() = default;
+	~AudioManager() = default;
+	AudioManager(AudioManager&) = delete;
+	AudioManager& operator=(AudioManager&) = delete;
 
 	//XAudio2インスタンス
 	Microsoft::WRL::ComPtr<IXAudio2> xAudio2_;
@@ -51,13 +54,12 @@ private:
 
 public:
 
-	AudioManager() = default;
-	~AudioManager() = default;
-	AudioManager(AudioManager&) = delete;
-	AudioManager& operator=(AudioManager&) = delete;
-
 	//シングルトンインスタンスの取得
-	static AudioManager* GetInstance();
+	static AudioManager* GetInstance()
+	{
+		static AudioManager instance;
+		return &instance;
+	}
 
 	//終了
 	void Finalize();

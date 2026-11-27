@@ -4,19 +4,8 @@
 #include "GameEngine.h"
 #include "Collision.h"
 
-std::unique_ptr<ParticleManager> ParticleManager::instance;
-
-ParticleManager* ParticleManager::GetInstance() {
-	if (!instance) {
-		instance = std::make_unique<ParticleManager>();
-	}
-	return instance.get();
-}
-
 void ParticleManager::Finalize() {
 	particleGroups_.clear();
-
-	instance.reset();
 }
 
 void ParticleManager::Initialize(DirectXCommon* dxCommon, SRVManager* srvManager) {

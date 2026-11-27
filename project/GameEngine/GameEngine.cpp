@@ -29,14 +29,6 @@
 
 int32_t GameEngine::windowWidth_;
 int32_t GameEngine::windowHeight_;
-std::unique_ptr<GameEngine> GameEngine::instance;
-
-GameEngine* GameEngine::GetInstance() {
-	if (!instance) {
-		instance = std::make_unique<GameEngine>();
-	}
-	return instance.get();
-}
 
 void GameEngine::Finalize_() {
 	if (masterVoice_) {
@@ -71,14 +63,13 @@ void GameEngine::Finalize_() {
 
 	textureData_.clear();
 
-	th_.join();
+	if (th_.joinable()) {
+		th_.join();
+	}
 }
 
 void GameEngine::Finalize() {
-	if (instance) {
-		instance->Finalize_(); // リソース解放（this はまだ有効）
-		instance.reset();      // この呼び出しでオブジェクトを削除する（呼出し元スタック上なので安全）
-	}
+	GetInstance()->Finalize_();
 }
 
 void GameEngine::Initialize_(const wchar_t* windowName, int32_t windowWidth, int32_t windowHeight) {
